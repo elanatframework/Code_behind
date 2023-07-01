@@ -91,3 +91,24 @@ app.UseRouting();
 
 app.Run();
 ```
+
+You can use the Write method in the model and controller classes; the Write method adds a string value to the ResponseText attribute; you can also change the values of the ResponseText attribute by accessing them directly.
+
+In the controller class, there is an attribute named IgnoreViewAndModel attribute, and if you activate the IgnoreViewAndModel attribute, it will ignore the values of model and view and you will only see a blank page; this feature allows you to display the values you need to the user and avoid multiple redirects and transfers.
+
+To receive the information sent through the form, you can follow the instructions below:
+```csharp
+public DefaultModel model = new DefaultModel();
+public void PageLoad(HttpContext context)
+{
+    if (string.IsNullOrEmpty(context.Request.Form["btn_Add"]))
+        btn_Add_Click();
+
+    View(model);
+}
+
+private void btn_Add_Click()
+{
+    model.PageTitle = "btn_Add Button Clicked";
+}
+```
