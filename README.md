@@ -83,8 +83,8 @@ if (!app.Environment.IsDevelopment())
 
 app.Run(async context =>
 {
-    CodeBehindExecute execute = new CodeBehindExecute();
-    await context.Response.WriteAsync(execute.Run(context));
++    CodeBehindExecute execute = new CodeBehindExecute();
++    await context.Response.WriteAsync(execute.Run(context));
 });
 
 app.UseHttpsRedirection();
