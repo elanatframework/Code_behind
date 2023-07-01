@@ -3,25 +3,6 @@ This library is a programming model based on the MVC structure, which provides t
 Soon we will expand this project so that in future versions you can experience both MVC and Code-Behind without coding in the view.
 
 ------------------------------------------
-Model File: Default.aspx.Model.cs
-```
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using CodeBehind;
-
-namespace YourProjectName.wwwroot
-{
-    public partial class DefaultModel : CodeBehindModel
-    {
-        public string PageTitle { get; set; }
-        public string BodyValue { get; set; }
-    }
-}
-```
-
-------------------------------------------
 View File: Default.aspx
 ```
 <%@ Page Controller="YourProjectName.wwwroot.DefaultController" Model="YourProjectName.wwwroot.DefaultModel" %><!DOCTYPE html>
@@ -37,12 +18,23 @@ View File: Default.aspx
 ```
 
 ------------------------------------------
+Model File: Default.aspx.Model.cs
+```
+using CodeBehind;
+
+namespace YourProjectName.wwwroot
+{
+    public partial class DefaultModel : CodeBehindModel
+    {
+        public string PageTitle { get; set; }
+        public string BodyValue { get; set; }
+    }
+}
+```
+
+------------------------------------------
 Controler File: Default.aspx.Controller.cs
 ```
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using CodeBehind;
 
 namespace YourProjectName.wwwroot
