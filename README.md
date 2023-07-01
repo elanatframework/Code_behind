@@ -10,7 +10,7 @@ https://www.nuget.org/packages/CodeBehind
 
 ------------------------------------------
 View File: Default.aspx
-```html
+```xhtml
 <%@ Page Controller="YourProjectName.wwwroot.DefaultController" Model="YourProjectName.wwwroot.DefaultModel" %><!DOCTYPE html>
 <html>
 <head>
