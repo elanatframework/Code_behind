@@ -3,8 +3,8 @@ This library is a programming model based on the MVC structure, which provides t
 Soon we will expand this project so that in future versions you can experience both MVC and Code-Behind without coding in the view.
 
 ------------------------------------------
-```
 Model File: Default.aspx.Model.cs
+```
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,6 +23,7 @@ namespace YourProjectName.wwwroot
 
 ------------------------------------------
 View File: Default.aspx
+```
 <%@ Page Controller="YourProjectName.wwwroot.DefaultController" Model="YourProjectName.wwwroot.DefaultModel" %><!DOCTYPE html>
 <html>
 <head>
@@ -33,9 +34,11 @@ View File: Default.aspx
     <%=model.BodyValue%>
 </body>
 </html>
+```
 
 ------------------------------------------
 Controler File: Default.aspx.Controller.cs
+```
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -55,9 +58,11 @@ namespace YourProjectName.wwwroot
         }
     }
 }
+```
 
 ------------------------------------------
 Program File: Program.cs
+```
 using CodeBehind;
 using SetCodeBehind;
 
@@ -87,3 +92,4 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.Run();
+```
