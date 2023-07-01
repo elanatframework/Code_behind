@@ -78,7 +78,7 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-<span style="color: blue">CodeBehindCompiler.Initialization();</span>
+- ![#1589F0]CodeBehindCompiler.Initialization();
 
 app.Run(async context =>
 {
