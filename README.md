@@ -2,6 +2,9 @@
 This library is a programming model based on the MVC structure, which provides the possibility of creating dynamic aspx files (similar to standard .NET) in .NET Core and has high Serverside independence.
 Soon we will expand this project so that in future versions you can experience both MVC and Code-Behind without coding in the view.
 
+By using Code_behind, we will soon migrate Elanat framework from .NET Standard to .NET Core; during the migration, if we need to have simpler coding and need more maneuvers to do coding, we will add new features to Code_behind.
+
+We added Code_behind in Nuget so that you can access it easily.
 You can use it in:
 https://www.nuget.org/packages/CodeBehind
 
