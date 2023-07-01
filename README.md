@@ -79,6 +79,9 @@ if (!app.Environment.IsDevelopment())
 }
 
 - ![#1589F0](CodeBehindCompiler.Initialization());
++ ```diff
++ CodeBehindCompiler.Initialization();
++ ```
 
 app.Run(async context =>
 {
