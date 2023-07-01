@@ -62,7 +62,6 @@ namespace YourProjectName.wwwroot
 
 ------------------------------------------
 Program File: Program.cs
-- ![#1589F0];
 ```diff
 using CodeBehind;
 using SetCodeBehind;
