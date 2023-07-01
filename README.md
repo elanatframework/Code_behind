@@ -63,7 +63,7 @@ namespace YourProjectName.wwwroot
 ------------------------------------------
 Program File: Program.cs
 - ![#1589F0](CodeBehindCompiler.Initialization());
-```
+```diff
 using CodeBehind;
 using SetCodeBehind;
 
@@ -79,9 +79,7 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-+ ```diff
 + CodeBehindCompiler.Initialization();
-+ ```
 
 app.Run(async context =>
 {
