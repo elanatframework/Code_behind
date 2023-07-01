@@ -10,7 +10,7 @@ https://www.nuget.org/packages/CodeBehind
 
 ------------------------------------------
 View File: Default.aspx
-```
+```html
 <%@ Page Controller="YourProjectName.wwwroot.DefaultController" Model="YourProjectName.wwwroot.DefaultModel" %><!DOCTYPE html>
 <html>
 <head>
@@ -25,7 +25,7 @@ View File: Default.aspx
 
 ------------------------------------------
 Model File: Default.aspx.Model.cs
-```
+```csharp
 using CodeBehind;
 
 namespace YourProjectName.wwwroot
@@ -40,7 +40,7 @@ namespace YourProjectName.wwwroot
 
 ------------------------------------------
 Controler File: Default.aspx.Controller.cs
-```
+```csharp
 using CodeBehind;
 
 namespace YourProjectName.wwwroot
