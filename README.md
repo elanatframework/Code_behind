@@ -103,7 +103,7 @@ To receive the information sent through the form, you can follow the instruction
 public DefaultModel model = new DefaultModel();
 public void PageLoad(HttpContext context)
 {
-    if (string.IsNullOrEmpty(context.Request.Form["btn_Add"]))
+    if (!string.IsNullOrEmpty(context.Request.Form["btn_Add"]))
         btn_Add_Click();
 
     View(model);
