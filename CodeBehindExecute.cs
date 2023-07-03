@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http;
 using SetCodeBehind;
 using System.Reflection;
 
@@ -10,11 +10,20 @@ namespace CodeBehind
         {
             string path = context.Request.Path.ToString();
             string extension = Path.GetExtension(path);
+            path = System.Net.WebUtility.UrlDecode(path);
+
+            if (string.IsNullOrEmpty(extension))
+            {
+                if (path.Contains('?'))
+                    path = path.GetTextBeforeLastValue("/") + "/Default.aspx?" + path.GetTextAfterValue("?");
+                else
+                    path = path.GetTextBeforeLastValue("/") + "/Default.aspx";
+
+                extension = ".aspx";
+            }
 
             if (extension == ".aspx")
             {
-                path = System.Net.WebUtility.UrlDecode(path);
-
                 // Add QueryString Value
                 if (path.Contains('?'))
                 {
