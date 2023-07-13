@@ -114,3 +114,61 @@ private void btn_Add_Click()
     model.PageTitle = "btn_Add Button Clicked";
 }
 ```
+The following example shows the power of Code-Behind:
+
+aspx page
+```html
+<%@ Page Controller="YourProjectName.wwwroot.DefaultController" Model="YourProjectName.wwwroot.DefaultModel" %><!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title><%=model.PageTitle%></title>
+</head>
+<body>
+    <%=model.LeftMenuValue%>
+    <div class="main_content">
+        <%=model.MainContentValue%>
+    </div>
+    <%=model.RightMenuValue%>
+</body>
+</html>
+```
+
+Controller class
+```csharp
+using CodeBehind;
+
+namespace YourProjectName.wwwroot
+{
+    public partial class DefaultController : CodeBehindController
+    {
+        public DefaultModel model = new DefaultModel();
+
+        public void PageLoad(HttpContext context)
+        {
+            model.PageTitle = "My Title";
+
+            CodeBehindExecute execute = new CodeBehindExecute();
+
+            // Add Left Menu Page
+            context.Request.Path = "/menu/left.aspx";
+            model.LeftMenuValue = execute.Run(context);
+
+
+            // Add Right Menu Page
+            context.Request.Path = "/menu/right.aspx";
+            model.RightMenuValue = execute.Run(context);
+
+
+            // Add Main Content Page
+            context.Request.Path = "/pages/main.aspx";
+            model.MainContentValue = execute.Run(context);
+
+            View(model);
+        }
+    }
+}
+```
+Each of the pages left.aspx, right.aspx and main.aspx can also call several other aspx files; these calls can definitely be dynamic and an add-on can be executed that the kernel programmers don't even know about.
+
+Enjoy Code-Behind, but be careful not to loop the program! (Don't call pages that call the current page)
