@@ -10,7 +10,7 @@ We added Code_behind in Nuget so that you can access it easily.
 You can use it in:
 https://www.nuget.org/packages/CodeBehind
 
-------------------------------------------
+---
 View File: Default.aspx
 ```aspx
 <%@ Page Controller="YourProjectName.wwwroot.DefaultController" Model="YourProjectName.wwwroot.DefaultModel" %><!DOCTYPE html>
@@ -25,7 +25,7 @@ View File: Default.aspx
 </html>
 ```
 
-------------------------------------------
+---
 Model File: Default.aspx.Model.cs
 ```csharp
 using CodeBehind;
@@ -40,7 +40,7 @@ namespace YourProjectName.wwwroot
 }
 ```
 
-------------------------------------------
+---
 Controler File: Default.aspx.Controller.cs
 ```csharp
 using CodeBehind;
@@ -60,7 +60,7 @@ namespace YourProjectName.wwwroot
 }
 ```
 
-------------------------------------------
+---
 Program File: Program.cs
 ```diff
 using CodeBehind;
@@ -98,6 +98,8 @@ You can use the Write method in the model and controller classes; the Write meth
 
 In the controller class, there is an attribute named IgnoreViewAndModel attribute, and if you activate the IgnoreViewAndModel attribute, it will ignore the values of model and view and you will only see a blank page; this feature allows you to display the values you need to the user and avoid multiple redirects and transfers.
 
+---
+
 To receive the information sent through the form, you can follow the instructions below:
 ```csharp
 public DefaultModel model = new DefaultModel();
@@ -114,6 +116,9 @@ private void btn_Add_Click()
     model.PageTitle = "btn_Add Button Clicked";
 }
 ```
+
+---
+
 The following example shows the power of Code-Behind:
 
 aspx page
