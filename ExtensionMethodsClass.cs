@@ -1,4 +1,4 @@
-﻿using System.Text.RegularExpressions;
+using System.Text.RegularExpressions;
 
 namespace SetCodeBehind
 {
@@ -52,6 +52,12 @@ namespace SetCodeBehind
         {
             Regex regex = new Regex("[^a-zA-Z0-9_]");
             return regex.Replace(Text, "_");
+        }
+
+        public static bool ClassPathIsFine(this string Text)
+        {
+            Regex regex = new Regex("[^a-zA-Z0-9_.]");
+            return !regex.IsMatch(Text);
         }
     }
 }
