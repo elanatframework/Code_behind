@@ -1,5 +1,4 @@
-﻿using System.Text.RegularExpressions;
-using System.Runtime;
+using System.Text.RegularExpressions;
 using System.Reflection;
 
 namespace SetCodeBehind
@@ -49,7 +48,6 @@ namespace SetCodeBehind
         {
             string CodeBehindViews = "";
             CodeBehindViews += "using " + Assembly.GetEntryAssembly().GetName().Name + ";" + System.Environment.NewLine;
-            CodeBehindViews += "using " + Assembly.GetEntryAssembly().GetName().Name + ".wwwroot;" + System.Environment.NewLine;
             CodeBehindViews += "using CodeBehind;" + System.Environment.NewLine;
             CodeBehindViews += "using System;" + System.Environment.NewLine;
             CodeBehindViews += "using System.Runtime;" + System.Environment.NewLine;
@@ -107,7 +105,20 @@ namespace SetCodeBehind
 
                 string Controller = PageProperties.Split(new string[] { "Controller=\"" }, StringSplitOptions.None)[1].Split("\"")[0];
 
+                if (!Controller.ClassPathIsFine())
+                {
+                    ErrorList.Add("Error: Controller class path is not fine in " + AspxFilePath + " file");
+                    continue;
+                }
+
                 string Model = (PageProperties.Contains(" Model=\"")) ? PageProperties.Split(new string[] { "Model=\"" }, StringSplitOptions.None)[1].Split("\"")[0] : "";
+
+                if(Model != "")
+                if(!Model.ClassPathIsFine())
+                {
+                    ErrorList.Add("Error: Model class path is not fine in " + AspxFilePath + " file");
+                    continue;
+                }
 
                 string TextToCodeCombination = "";
 
