@@ -53,5 +53,19 @@ namespace CodeBehind
 
             return "";
         }
+
+        // Overload
+        public string Run(HttpContext context, string Path)
+        {
+            string SavedPath = context.Request.Path;
+
+            context.Request.Path = Path;
+
+            string ReturnValue = Run(context);
+
+            context.Request.Path = SavedPath;
+
+            return ReturnValue;
+        }
     }
 }
