@@ -1,5 +1,5 @@
 # Code_behind
-Code-Behind is Back-End framework. This library is a programming model based on the MVC structure, which provides the possibility of creating dynamic aspx files (similar to .NET Standard) in .NET Core and has high serverside independence.
+Code-Behind is Backend framework. This library is a programming model based on the MVC structure, which provides the possibility of creating dynamic aspx files (similar to .NET Standard) in .NET Core and has high serverside independence.
 Soon we will expand this project so that in future versions you can experience both MVC and Code-Behind without coding in the view.
 
 ![aspx file in .NET Core](https://github.com/elanatframework/Code_behind/assets/111444759/e5375793-31b2-4465-966a-1c3f5d7d03a1)
