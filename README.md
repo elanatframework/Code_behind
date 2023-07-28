@@ -84,6 +84,7 @@ app.Run(async context =>
 {
 +    CodeBehindExecute execute = new CodeBehindExecute();
 +    await context.Response.WriteAsync(execute.Run(context));
++    await context.Response.CompleteAsync();
 });
 
 app.UseHttpsRedirection();
