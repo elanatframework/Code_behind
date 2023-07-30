@@ -99,6 +99,8 @@ You can use the Write method in the model and controller classes; the Write meth
 
 In the controller class, there is an attribute named IgnoreViewAndModel attribute, and if you activate the IgnoreViewAndModel attribute, it will ignore the values of model and view and you will only see a blank page; this feature allows you to display the values you need to the user and avoid multiple redirects and transfers.
 
+Note: If you have set the name of a model in the aspx file, you must make sure to call View(ModelName) at the end of the method or set the value of IgnoreViewAndModel to true.;
+
 ---
 
 To receive the information sent through the form, you can follow the instructions below:
