@@ -1,9 +1,3 @@
-<head>
-  ...
-  <link rel="shortcut icon" href="/favicon.ico" />
-  ...
-</head>
-
 # Code_behind
 Code-Behind library is a backend framework. This library is a programming model based on the MVC structure, which provides the possibility of creating dynamic aspx files (similar to .NET Standard) in .NET Core and has high serverside independence.
 Soon we will expand this project so that in future versions you can experience both MVC and Code-Behind without coding in the view.
