@@ -2,6 +2,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Emit;
 using System.Reflection;
+using System.Runtime.Loader;
 
 namespace SetCodeBehind
 {
@@ -48,7 +49,19 @@ namespace SetCodeBehind
                 DirectoryInfo BinDir = new DirectoryInfo("wwwroot/bin");
 
                 foreach (FileInfo file in BinDir.GetFiles("*.dll"))
-                    ReferencesList.Add(MetadataReference.CreateFromFile(file.FullName));
+                {
+                    File.Copy(file.FullName, AppContext.BaseDirectory + "/" + file.Name, true);
+                    ReferencesList.Add(MetadataReference.CreateFromFile(AppContext.BaseDirectory + "/" + file.Name));
+
+                    try
+                    {
+                        AssemblyLoadContext.Default.LoadFromAssemblyPath(AppContext.BaseDirectory + "/" + file.Name);
+                    }
+                    catch (Exception ex) 
+                    {
+                        ErrorList.Add("Failed to load the assembly in bin/" + file.Name + " path.");
+                    }
+                }
             }
 
             MetadataReference[] references = ReferencesList.ToArray();
@@ -83,6 +96,7 @@ namespace SetCodeBehind
                 CompiledAssembly = Assembly.Load(ms.ToArray());
 
                 SaveError(ErrorList);
+
                 return CompiledAssembly;
             }
         }
