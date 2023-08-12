@@ -1,4 +1,4 @@
-﻿using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Emit;
 using System.Reflection;
@@ -33,14 +33,26 @@ namespace SetCodeBehind
 
             SyntaxTree syntaxTree = CSharpSyntaxTree.ParseText(code);
 
-            MetadataReference[] references = new MetadataReference[]
+            List<MetadataReference> ReferencesList = new List<MetadataReference>
             {
-            MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
-            MetadataReference.CreateFromFile(AppContext.BaseDirectory + "/" + CurrentProjectName + ".dll"),
-            MetadataReference.CreateFromFile(AppContext.BaseDirectory + "/CodeBehind.dll"),
-            MetadataReference.CreateFromFile(AspRunTimePath + "/Microsoft.AspNetCore.Http.Abstractions.dll"),
-            MetadataReference.CreateFromFile(RunTimePath + "/System.Runtime.dll")
+                MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
+                MetadataReference.CreateFromFile(AppContext.BaseDirectory + "/" + CurrentProjectName + ".dll"),
+                MetadataReference.CreateFromFile(AppContext.BaseDirectory + "/CodeBehind.dll"),
+                MetadataReference.CreateFromFile(AspRunTimePath + "/Microsoft.AspNetCore.Http.Abstractions.dll"),
+                MetadataReference.CreateFromFile(RunTimePath + "/System.Runtime.dll")
             };
+
+            // Add All dll In bin Directory
+            if (Directory.Exists("wwwroot/bin"))
+            {
+                DirectoryInfo BinDir = new DirectoryInfo("wwwroot/bin");
+
+                foreach (FileInfo file in BinDir.GetFiles("*.dll"))
+                    ReferencesList.Add(MetadataReference.CreateFromFile(file.FullName));
+            }
+
+            MetadataReference[] references = ReferencesList.ToArray();
+
 
             Assembly.GetEntryAssembly().GetReferencedAssemblies().ToList().ForEach(asm => references.Append(MetadataReference.CreateFromFile(Assembly.Load(asm).Location)));
 
