@@ -7,6 +7,8 @@ Soon we will expand this project so that in future versions you can experience b
 
 Big surprise, the new version of [Elanat](https://elanat.net) is prepared on .NET Core and the new source will be released in August 2023. Elanat is the largest system ever migrated from .NET Standard to .NET Core. [Elanat](https://github.com/elanatframework/Elanat) migration is done by using Code_behind infrastructure.
 
+One of the great features that code-behind gives you is the support for DLL libraries. You can add all the .NET Core DLL libraries that you have created into the bin directory located in wwwroot so that the code-behind will call all of them.
+
 We added Code_behind in Nuget so that you can access it easily.
 You can use it in:
 https://www.nuget.org/packages/CodeBehind
