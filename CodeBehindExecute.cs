@@ -42,7 +42,7 @@ namespace CodeBehind
                 }
 
 
-                Assembly assembly = SetCodeBehind.CodeBehindCompiler.CompileAspx();
+                Assembly assembly = CodeBehindCompiler.CompileAspx();
                 Type type = assembly.GetType("CodeBehindViews.CodeBehindViewsList");
                 object obj = Activator.CreateInstance(type);
                 MethodInfo method = type.GetMethod("SetPageLoadByPath");
