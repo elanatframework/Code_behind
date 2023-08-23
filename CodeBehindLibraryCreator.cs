@@ -12,15 +12,15 @@ namespace SetCodeBehind
 
             string AllAspxFiles = ""; 
 
-            string FileName = "code_behind/views_class.cs.tmp";
-            if (!File.Exists(FileName))
+            string FilePath = "code_behind/views_class.cs.tmp";
+            if (!File.Exists(FilePath))
             {
                 AllAspxFiles = CreateAllAspxFiles();
 
                 string[] lines = AllAspxFiles.Split(System.Environment.NewLine);
 
                 // Create views_class.cs File
-                using (StreamWriter writer = File.CreateText(FileName))
+                using (StreamWriter writer = File.CreateText(FilePath))
                 {
                     foreach (string line in lines)
                     {
@@ -30,7 +30,7 @@ namespace SetCodeBehind
             }
             else
             {
-                using (StreamReader reader = new StreamReader(FileName))
+                using (StreamReader reader = new StreamReader(FilePath))
                 {
                     string line;
                     while ((line = reader.ReadLine()) != null)
@@ -41,7 +41,32 @@ namespace SetCodeBehind
             }
 
             return AllAspxFiles;
+        }
 
+        public string GetLastSuccessCompiledViewClass()
+        {
+            string AllAspxFiles = "";
+
+            if (!Directory.Exists("code_behind"))
+            {
+                Directory.CreateDirectory("code_behind");
+                return AllAspxFiles;
+            }
+
+            const string FilePath = "code_behind/views_class_last_success_compiled.cs.tmp";
+            if (File.Exists(FilePath))
+            {
+                using (StreamReader reader = new StreamReader(FilePath))
+                {
+                    string line;
+                    while ((line = reader.ReadLine()) != null)
+                    {
+                        AllAspxFiles += line + System.Environment.NewLine;
+                    }
+                }
+            }
+
+            return AllAspxFiles;
         }
 
         public string CreateAllAspxFiles()
@@ -234,9 +259,9 @@ namespace SetCodeBehind
             // Create views_error.log File
             if (ErrorList.Count > 0)
             {
-                string FileName = "code_behind/views_class_aggregation_error.log";
+                const string FilePath = "code_behind/views_class_aggregation_error.log";
 
-                using (StreamWriter writer = File.CreateText(FileName))
+                using (StreamWriter writer = File.CreateText(FilePath))
                 {
                     writer.WriteLine("date_and_time:" + DateTime.Now.ToString());
 
