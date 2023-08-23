@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Http;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Emit;
@@ -10,7 +11,7 @@ namespace SetCodeBehind
     {
         private static Assembly CompiledAssembly;
         
-        public static Assembly CompileAspx()
+        public static Assembly CompileAspx(bool UseLastLastSuccessCompiled = false)
         {
             if (CompiledAssembly != null)
             {
@@ -20,7 +21,15 @@ namespace SetCodeBehind
             List<string> ErrorList = new List<string>();
 
             CodeBehindLibraryCreator la = new CodeBehindLibraryCreator();
-            string code = la.GetCodeBehindViews();
+            string code = (UseLastLastSuccessCompiled) ? la.GetLastSuccessCompiledViewClass() : la.GetCodeBehindViews();
+
+            if (string.IsNullOrEmpty(code))
+            {
+                ErrorList.Add("Failed to load last successful compilation.");
+                SaveError(ErrorList);
+
+                return null;
+            }
 
             string assemblyName = "CodeBehindViews";
 
@@ -82,12 +91,15 @@ namespace SetCodeBehind
                 if (!result.Success)
                 {
                     foreach (var diagnostic in result.Diagnostics)
-                    {
                         ErrorList.Add(diagnostic.ToString());
-                    }
 
                     SaveError(ErrorList);
-                    return null;
+
+                    // Set Recursive
+                    if (UseLastLastSuccessCompiled)
+                        return null;
+                    else
+                        return CompileAspx(true);
                 }
 
                 ms.Seek(0, SeekOrigin.Begin);
@@ -95,13 +107,17 @@ namespace SetCodeBehind
                 byte[] bytes = ms.ToArray();
                 CompiledAssembly = Assembly.Load(ms.ToArray());
 
+                if (UseLastLastSuccessCompiled)
+                    ErrorList.Add("A problem occurred in the compilation and the last successful compilation was recompiled.");
+
                 SaveError(ErrorList);
+                CreateLastSuccessCompiledViewClass();
 
                 return CompiledAssembly;
             }
         }
 
-        private static void SaveError(List<string> ErrorList)
+        private static void SaveError(List<string> ErrorList, bool UseLastLastSuccessCompiled = false)
         {
             if (!Directory.Exists("code_behind"))
                 Directory.CreateDirectory("code_behind");
@@ -109,9 +125,9 @@ namespace SetCodeBehind
             // Create views_compile_error.log File
             if (ErrorList.Count > 0)
             {
-                string FileName = "code_behind/views_compile_error.log";
+                string FilePath = (UseLastLastSuccessCompiled) ? "code_behind/views_compile_error_last_success_compiled.log" : "code_behind/views_compile_error.log";
 
-                using (StreamWriter writer = File.CreateText(FileName))
+                using (StreamWriter writer = File.CreateText(FilePath))
                 {
                     writer.WriteLine("date_and_time:" + DateTime.Now.ToString());
 
@@ -133,17 +149,25 @@ namespace SetCodeBehind
                 return;
             }
 
-            string FileName = "code_behind/views_class.cs.tmp";
-            if (File.Exists(FileName))
-                File.Delete(FileName);
+            string FilePath = "code_behind/views_class.cs.tmp";
+            if (File.Exists(FilePath))
+                File.Delete(FilePath);
 
-            FileName = "code_behind/views_compile_error.log";
-            if (File.Exists(FileName))
-                File.Delete(FileName);
+            FilePath = "code_behind/views_compile_error.log";
+            if (File.Exists(FilePath))
+                File.Delete(FilePath);
 
-            FileName = "code_behind/views_class_aggregation_error.log";
-            if (File.Exists(FileName))
-                File.Delete(FileName);
+            FilePath = "code_behind/views_class_aggregation_error.log";
+            if (File.Exists(FilePath))
+                File.Delete(FilePath);
+        }
+
+        public static void CreateLastSuccessCompiledViewClass()
+        {
+            const string ViewClassFilePath = "code_behind/views_class.cs.tmp";
+            const string ViewClassLastSuccessCompildeFilePath = "code_behind/views_class_last_success_compiled.cs.tmp";
+
+            File.Copy(ViewClassFilePath, ViewClassLastSuccessCompildeFilePath, true);
         }
     }
 }
