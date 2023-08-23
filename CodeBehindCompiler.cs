@@ -95,11 +95,10 @@ namespace SetCodeBehind
 
                     SaveError(ErrorList);
 
-                    // Set Recursive
                     if (UseLastLastSuccessCompiled)
                         return null;
                     else
-                        return CompileAspx(true);
+                        return CompileAspx(true); // Set Recursive
                 }
 
                 ms.Seek(0, SeekOrigin.Begin);
