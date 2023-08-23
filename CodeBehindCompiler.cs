@@ -99,6 +99,7 @@ namespace SetCodeBehind
                     }
                 }
 
+                RemovingUnusedDll();
                 SaveBinFileList(BinFileList);
             }
 
@@ -175,7 +176,7 @@ namespace SetCodeBehind
             // Create bin_file_list.ini File
             if (BinFileList.Count > 0)
             {
-                string FilePath = "code_behind/bin_file_list.ini";
+                const string FilePath = "code_behind/bin_file_list.ini";
 
                 using (StreamWriter writer = File.CreateText(FilePath))
                 {
@@ -184,6 +185,34 @@ namespace SetCodeBehind
                     foreach (string line in BinFileList)
                     {
                         writer.WriteLine("file=" + line);
+                    }
+                }
+            }
+        }
+
+        private static void RemovingUnusedDll()
+        {
+            if (!Directory.Exists("wwwroot/bin"))
+                return;
+
+            const string FilePath = "code_behind/bin_file_list.ini";
+
+            if (File.Exists(FilePath))
+            {
+                using (StreamReader reader = new StreamReader(FilePath))
+                {
+                    string line;
+                    while ((line = reader.ReadLine()) != null)
+                    {
+                        if (line.Substring(0, 4) != "file")
+                            continue;
+
+
+                        string FileName = line.GetTextAfterValue("file=");
+
+                        if (!File.Exists("wwwroot/bin/" + FileName))
+                            if (File.Exists(AppContext.BaseDirectory + "/" + FileName))
+                                File.Delete(AppContext.BaseDirectory + "/" + FileName);
                     }
                 }
             }
