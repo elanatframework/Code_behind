@@ -52,15 +52,19 @@ namespace SetCodeBehind
                 MetadataReference.CreateFromFile(RunTimePath + "/System.Runtime.dll")
             };
 
+
             // Add All dll In bin Directory
             if (Directory.Exists("wwwroot/bin"))
             {
+
+                List<string> BinFileList = new List<string>();
                 DirectoryInfo BinDir = new DirectoryInfo("wwwroot/bin");
 
                 foreach (FileInfo file in BinDir.GetFiles("*.dll"))
                 {
                     File.Copy(file.FullName, AppContext.BaseDirectory + "/" + file.Name, true);
                     ReferencesList.Add(MetadataReference.CreateFromFile(AppContext.BaseDirectory + "/" + file.Name));
+                    BinFileList.Add(file.Name);
 
                     try
                     {
@@ -71,6 +75,31 @@ namespace SetCodeBehind
                         ErrorList.Add("Failed to load the assembly in bin/" + file.Name + " path.");
                     }
                 }
+
+                foreach (DirectoryInfo dir in BinDir.GetDirectories("*" , SearchOption.AllDirectories))
+                {
+                    foreach (FileInfo file in dir.GetFiles("*"))
+                    {
+                        string DirectoryPath = file.DirectoryName.GetTextAfterValue(BinDir.FullName);
+
+                        Directory.CreateDirectory(AppContext.BaseDirectory + "/" + DirectoryPath);
+
+                        File.Copy(file.FullName, AppContext.BaseDirectory + "/" + DirectoryPath + "/" + file.Name);
+                        ReferencesList.Add(MetadataReference.CreateFromFile(AppContext.BaseDirectory + "/" + DirectoryPath + "/" + file.Name));
+                        BinFileList.Add(DirectoryPath + "/" + file.Name);
+
+                        try
+                        {
+                            AssemblyLoadContext.Default.LoadFromAssemblyPath(AppContext.BaseDirectory + "/" + DirectoryPath + "/" + file.Name);
+                        }
+                        catch (Exception ex)
+                        {
+                            ErrorList.Add("Failed to load the assembly in bin/" + DirectoryPath + "/" + file.Name + " path.");
+                        }
+                    }
+                }
+
+                SaveBinFileList(BinFileList);
             }
 
             MetadataReference[] references = ReferencesList.ToArray();
@@ -133,6 +162,28 @@ namespace SetCodeBehind
                     foreach (string line in ErrorList)
                     {
                         writer.WriteLine(line);
+                    }
+                }
+            }
+        }
+
+        private static void SaveBinFileList(List<string> BinFileList)
+        {
+            if (!Directory.Exists("code_behind"))
+                Directory.CreateDirectory("code_behind");
+
+            // Create bin_file_list.ini File
+            if (BinFileList.Count > 0)
+            {
+                string FilePath = "code_behind/bin_file_list.ini";
+
+                using (StreamWriter writer = File.CreateText(FilePath))
+                {
+                    writer.WriteLine("date_and_time=" + DateTime.Now.ToString());
+
+                    foreach (string line in BinFileList)
+                    {
+                        writer.WriteLine("file=" + line);
                     }
                 }
             }
