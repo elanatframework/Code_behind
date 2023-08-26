@@ -11,14 +11,14 @@ namespace SetCodeBehind
     {
         private static Assembly CompiledAssembly;
         
-        public static Assembly CompileAspx(bool UseLastLastSuccessCompiled = false)
+        public static Assembly CompileAspx(bool UseLastLastSuccessCompiled = false, List<string> CurrentErrorList = null)
         {
             if (CompiledAssembly != null)
             {
                 return CompiledAssembly;
             }
 
-            List<string> ErrorList = new List<string>();
+            List<string> ErrorList = (CurrentErrorList != null)? CurrentErrorList : new List<string>();
 
             CodeBehindLibraryCreator la = new CodeBehindLibraryCreator();
             string code = (UseLastLastSuccessCompiled) ? la.GetLastSuccessCompiledViewClass() : la.GetCodeBehindViews();
@@ -128,7 +128,7 @@ namespace SetCodeBehind
                     if (UseLastLastSuccessCompiled)
                         return null;
                     else
-                        return CompileAspx(true); // Set Recursive
+                        return CompileAspx(true, ErrorList); // Set Recursive
                 }
 
                 ms.Seek(0, SeekOrigin.Begin);
