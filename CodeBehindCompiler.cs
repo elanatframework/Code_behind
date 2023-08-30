@@ -62,7 +62,15 @@ namespace SetCodeBehind
 
                 foreach (FileInfo file in BinDir.GetFiles("*.dll"))
                 {
-                    File.Copy(file.FullName, AppContext.BaseDirectory + "/" + file.Name, true);
+                    try
+                    {
+                        File.Copy(file.FullName, AppContext.BaseDirectory + "/" + file.Name, true);
+                    }
+                    catch (Exception ex)
+                    {
+                        ErrorList.Add("Failed to copy or over write assembly in bin/" + file.Name + " path.");
+                    }
+
                     ReferencesList.Add(MetadataReference.CreateFromFile(AppContext.BaseDirectory + "/" + file.Name));
                     BinFileList.Add(file.Name);
 
