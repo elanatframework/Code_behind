@@ -5,7 +5,8 @@ Soon we will expand this project so that in future versions you can experience b
 
 ![aspx file in .NET Core](https://github.com/elanatframework/Code_behind/assets/111444759/e5375793-31b2-4465-966a-1c3f5d7d03a1)
 
-Big surprise, the new version of [Elanat](https://elanat.net) is prepared on .NET Core and the new source will be released in August 2023. Elanat is the largest system ever migrated from .NET Standard to .NET Core. [Elanat](https://github.com/elanatframework/Elanat) migration is done by using Code_behind infrastructure.
+CodeBehind is a stable and reliable framework; [Elanat](https://elanat.net) is the most powerful .NET system implemented using the CodeBehind framework.
+[https://github.com/elanatframework/Elanat](https://github.com/elanatframework/Elanat)
 
 One of the great features that Code-Behind gives you is the support for DLL libraries. You can add all the .NET Core DLL libraries that you have created into the bin directory located in wwwroot so that the Code-Behind will call all of them.
 
