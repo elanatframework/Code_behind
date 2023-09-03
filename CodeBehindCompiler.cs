@@ -226,8 +226,11 @@ namespace SetCodeBehind
             }
         }
 
-        public static void Initialization()
+        public static void Initialization(bool BreakExist = false)
         {
+            if (BreakExist && (CompiledAssembly != null))
+                return;
+
             CompiledAssembly = null;
 
             if (!Directory.Exists("code_behind"))
