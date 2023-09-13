@@ -142,13 +142,14 @@ namespace SetCodeBehind
                 ms.Seek(0, SeekOrigin.Begin);
 
                 byte[] bytes = ms.ToArray();
-                CompiledAssembly = Assembly.Load(ms.ToArray());
+                CompiledAssembly = Assembly.Load(bytes);
 
                 if (UseLastLastSuccessCompiled)
                     ErrorList.Add("A problem occurred in the compilation and the last successful compilation was recompiled.");
 
                 SaveError(ErrorList);
                 CreateLastSuccessCompiledViewClass();
+                CreateLastSuccessCompiledAssemblyFile(bytes);
 
                 return CompiledAssembly;
             }
@@ -231,7 +232,21 @@ namespace SetCodeBehind
             if (BreakExist && (CompiledAssembly != null))
                 return;
 
+            if (BreakExist && (CompiledAssembly == null))
+            {
+                if (ExistLastSuccessCompiledAssemblyFile())
+                {
+                    LoadLastSuccessCompiledAssemblyFile();
+
+                    return;
+                }
+            }
+            
             CompiledAssembly = null;
+
+            string FilePath = AppContext.BaseDirectory + "/CodeBehindLastSuccessCompiled.dll.tmp";
+            if (File.Exists(FilePath))
+                File.Delete(FilePath);
 
             if (!Directory.Exists("code_behind"))
             {
@@ -239,7 +254,7 @@ namespace SetCodeBehind
                 return;
             }
 
-            string FilePath = "code_behind/views_class.cs.tmp";
+            FilePath = "code_behind/views_class.cs.tmp";
             if (File.Exists(FilePath))
                 File.Delete(FilePath);
 
@@ -258,6 +273,72 @@ namespace SetCodeBehind
             const string ViewClassLastSuccessCompildeFilePath = "code_behind/views_class_last_success_compiled.cs.tmp";
 
             File.Copy(ViewClassFilePath, ViewClassLastSuccessCompildeFilePath, true);
+        }
+
+        // Compiled Assembly File
+        public static void CreateLastSuccessCompiledAssemblyFile(byte[] AssemblyBytes)
+        {
+            string AssemblyFilePath = AppContext.BaseDirectory + "/CodeBehindLastSuccessCompiled.dll.tmp";
+
+            File.WriteAllBytes(AssemblyFilePath, AssemblyBytes);
+        }
+
+        public static bool ExistLastSuccessCompiledAssemblyFile()
+        {
+            string AssemblyFilePath = AppContext.BaseDirectory + "/CodeBehindLastSuccessCompiled.dll.tmp";
+
+            return File.Exists(AssemblyFilePath);
+        }
+
+        public static void LoadLastSuccessCompiledAssemblyFile()
+        {
+            string AssemblyFilePath = AppContext.BaseDirectory + "/CodeBehindLastSuccessCompiled.dll.tmp";
+
+
+            List<MetadataReference> ReferencesList = new List<MetadataReference>();
+
+            // Add All dll In bin Directory
+            if (Directory.Exists("wwwroot/bin"))
+            {
+                List<string> BinFileList = new List<string>();
+                DirectoryInfo BinDir = new DirectoryInfo("wwwroot/bin");
+
+                foreach (FileInfo file in BinDir.GetFiles("*.dll"))
+                {
+                    if (!File.Exists(AppContext.BaseDirectory + "/" + file.Name))
+                        continue;
+
+                    ReferencesList.Add(MetadataReference.CreateFromFile(AppContext.BaseDirectory + "/" + file.Name));
+
+                    AssemblyLoadContext.Default.LoadFromAssemblyPath(AppContext.BaseDirectory + "/" + file.Name);
+                }
+
+                foreach (DirectoryInfo dir in BinDir.GetDirectories("*", SearchOption.AllDirectories))
+                {
+                    foreach (FileInfo file in dir.GetFiles("*"))
+                    {
+                        string DirectoryPath = file.DirectoryName.GetTextAfterValue(BinDir.FullName);
+
+                        if (!Directory.Exists(AppContext.BaseDirectory + "/" + DirectoryPath))
+                            break;
+
+                        if (!File.Exists(AppContext.BaseDirectory + "/" + DirectoryPath + "/" + file.Name))
+                            continue;
+
+                        ReferencesList.Add(MetadataReference.CreateFromFile(AppContext.BaseDirectory + "/" + DirectoryPath + "/" + file.Name));
+
+                        AssemblyLoadContext.Default.LoadFromAssemblyPath(AppContext.BaseDirectory + "/" + DirectoryPath + "/" + file.Name);
+                    }
+                }
+            }
+
+            MetadataReference[] references = ReferencesList.ToArray();
+
+
+            Assembly.GetEntryAssembly().GetReferencedAssemblies().ToList().ForEach(asm => references.Append(MetadataReference.CreateFromFile(Assembly.Load(asm).Location)));
+
+
+            CompiledAssembly = Assembly.Load(File.ReadAllBytes(AssemblyFilePath));
         }
     }
 }
