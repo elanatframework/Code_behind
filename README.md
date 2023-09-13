@@ -109,6 +109,14 @@ app.UseRouting();
 app.Run();
 ```
 
+If you enter the value true in CodeBehindCompiler.Initialization(), as long as the CodeBehindLastSuccessCompiled.dll.tmp file exists next to the main dll files of the program, recompilation will not be done. Doing this makes the response speed of the requests high after the first request since the program goes to sleep.
+
+```csharp
+CodeBehindCompiler.Initialization(true);
+```
+
+Note : If you configure the Program.cs class like this, any changes in the aspx files, or adding new web parts or removing web parts, requires deleting the CodeBehindLastSuccessCompiled.dll.tmp file.
+
 You can use the Write method in the model and controller classes; the Write method adds a string value to the ResponseText attribute; you can also change the values of the ResponseText attribute by accessing them directly.
 
 In the controller class, there is an attribute named IgnoreViewAndModel attribute, and if you activate the IgnoreViewAndModel attribute, it will ignore the values of model and view and you will only see a blank page; this feature allows you to display the values you need to the user and avoid multiple redirects and transfers.
