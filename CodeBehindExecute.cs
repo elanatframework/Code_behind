@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Http;
 using SetCodeBehind;
+using System.IO;
 using System.Reflection;
 
 namespace CodeBehind
@@ -66,6 +67,36 @@ namespace CodeBehind
             context.Request.Path = SavedPath;
 
             return ReturnValue;
+        }
+
+        // Overload
+        /// <summary>
+        /// This Overload Method Does Not Support HttpContext And Sends null Value Instead Of HttpContext. This Overload Method Does Not Support Query String
+        /// </summary>
+        public string Run(string path)
+        {
+            string extension = Path.GetExtension(path);
+            path = System.Net.WebUtility.UrlDecode(path);
+
+            if (string.IsNullOrEmpty(extension))
+            {
+                path = path.GetTextBeforeLastValue("/") + "/Default.aspx";
+
+                extension = ".aspx";
+            }
+
+            if (extension == ".aspx")
+            {
+                Assembly assembly = CodeBehindCompiler.CompileAspx();
+                Type type = assembly.GetType("CodeBehindViews.CodeBehindViewsList");
+                object obj = Activator.CreateInstance(type);
+                MethodInfo method = type.GetMethod("SetPageLoadByPath");
+                string ReturnResult = (string)method.Invoke(obj, new object[] { path, null });
+
+                return ReturnResult;
+            }
+
+            return "";
         }
     }
 }
