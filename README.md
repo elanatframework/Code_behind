@@ -198,4 +198,11 @@ namespace YourProjectName.wwwroot
 ```
 Each of the pages left.aspx, right.aspx and main.aspx can also call several other aspx files; these calls can definitely be dynamic and an add-on can be executed that the kernel programmers don't even know about.
 
+You can also call a page without specifying an HttpContext. You should note that query string and HttpContext data are not supported in this method.
+
+```csharp
+CodeBehindExecute execute = new CodeBehindExecute();
+model.MainContentValue = execute.Run("/pages/main.aspx");
+```
+
 Enjoy Code-Behind, but be careful not to loop the program! (Don't call pages that call the current page)
