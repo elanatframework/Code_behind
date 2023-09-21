@@ -1,16 +1,34 @@
 ![](https://github.com/elanatframework/Code_behind/assets/111444759/986799af-538a-4aca-b7fc-a5b8153c5a24)
 # Code_behind
-Code-Behind library is a backend framework. This library is a programming model based on the MVC structure, which provides the possibility of creating dynamic aspx files (similar to .NET Standard) in .NET Core and has high serverside independence.
-Soon we will expand this project so that in future versions you can experience both MVC and Code-Behind without coding in the view.
+CodeBehind library is a backend framework. This library is a programming model based on the MVC structure, which provides the possibility of creating dynamic aspx files (similar to .NET Standard) in .NET Core and has high serverside independence.
+Soon we will expand this project so that in future versions you can experience both MVC and CodeBehind without coding in the view.
 
 ![aspx file in .NET Core](https://github.com/elanatframework/Code_behind/assets/111444759/e5375793-31b2-4465-966a-1c3f5d7d03a1)
 
+Programming in CodeBehind is simple. The simplicity of the CodeBehind project is the result of two years of study and research on back-end frameworks and how they support web parts.
+
+###  CodeBehind story 
+First, CodeBehind was supposed to be a back-end framework for the C++ programming language; our project in C++ was going well, we built the listener structure and we were even able to implement fast-cgi in the coding phase for the Windows operating system. Windows operating system test with nginx web server was very stable and fast; but for some reason, we stopped working and implemented CodeBehind on .NET Core version 7.
+
+### Elanat was created using CodeBehind
+
 CodeBehind is a stable and reliable framework; [Elanat](https://elanat.net) is the most powerful .NET system implemented using the CodeBehind framework.
+
 [https://github.com/elanatframework/Elanat](https://github.com/elanatframework/Elanat)
 
 ![Elanat is based on CodeBehind](https://github.com/elanatframework/Code_behind/assets/111444759/ca6f8d80-65ae-4b4c-b2e2-c8d4b1270b46)
 
-One of the great features that Code-Behind gives you is the support for DLL libraries. You can add all the .NET Core DLL libraries that you have created into the bin directory located in wwwroot so that the Code-Behind will call all of them.
+ ### CodeBehind advantages
+
+CodeBehind is a flexible framework. CodeBehind inherits all the advantages of ASP.NET Core and gives it more simplicity, power and flexibility.
+
+CodeBehind, like the default ASP.NET Core, supports multiple platforms, and in the test conducted by the Elanat team, it also has high stability on Linux.
+
+CodeBehind occupies less memory resources (ram) than ASP.NET Core.
+
+Aspx pages are compiled in CodeBehind and their calling is done at a very high speed, so that the path of the aspx file is not even referred to during the calling.
+
+One of the great features that CodeBehind gives you is the support for DLL libraries. You can add all the .NET Core DLL libraries that you have created into the bin directory located in wwwroot so that the CodeBehind will call all of them.
 
 We added Code_behind in Nuget so that you can access it easily.
 You can use it in:
@@ -27,7 +45,8 @@ CodeBehindCompiler.Initialization();
 CodeBehindCompiler.CompileAspx();
 ```
 
----
+### Simple and structured MVC in CodeBehind
+
 View File: Default.aspx
 ```aspx
 <%@ Page Controller="YourProjectName.wwwroot.DefaultController" Model="YourProjectName.wwwroot.DefaultModel" %><!DOCTYPE html>
@@ -123,8 +142,6 @@ In the controller class, there is an attribute named IgnoreViewAndModel attribut
 
 Note: If you have set the name of a model in the aspx file, You must make sure to call View(ModelName) in the controller class at the end of the method or set the value of IgnoreViewAndModel to true.
 
----
-
 To receive the information sent through the form, you can follow the instructions below:
 ```csharp
 public DefaultModel model = new DefaultModel();
@@ -142,9 +159,7 @@ private void btn_Add_Click()
 }
 ```
 
----
-
-The following example shows the power of Code-Behind:
+The following example shows the power of CodeBehind:
 
 aspx page
 ```html
@@ -196,6 +211,7 @@ namespace YourProjectName.wwwroot
     }
 }
 ```
+
 Each of the pages left.aspx, right.aspx and main.aspx can also call several other aspx files; these calls can definitely be dynamic and an add-on can be executed that the kernel programmers don't even know about.
 
 You can also call a page without specifying an HttpContext. You should note that query string and HttpContext data are not supported in this method.
@@ -205,4 +221,57 @@ CodeBehindExecute execute = new CodeBehindExecute();
 model.MainContentValue = execute.Run("/pages/main.aspx");
 ```
 
-Enjoy Code-Behind, but be careful not to loop the program! (Don't call pages that call the current page)
+You can even call pages with query strings.
+
+```csharp
+model.MainContentValue = execute.Run(context, "/pages/main.aspx?template=1");
+```
+
+You can also call a path that is determined at runtime and may change over time.
+
+```csharp
+string MainPage = Pages.GetDefaultPage();
+model.MainContentValue = execute.Run(context, MainPage);
+```
+
+Enjoy CodeBehind, but be careful not to loop the program! (Don't call pages that call the current page)
+
+Web part in CodeBehind
+
+In CodeBehind, the physical executable pages (aspx) are placed in the root path, and this makes the program structured.
+
+CodeBehind supports web parts; web parts are like other parts of the project and include aspx files.
+
+![Web part in CodeBehind](https://github.com/elanatframework/Code_behind/assets/111444759/68a89f70-3a47-4170-8bb5-f844ea2beec2)
+
+To add the web part in CodeBehind, just put the project files in the root.
+
+In CodeBehind, you can run web parts that make changes to aspx files. You can edit all aspx files during project execution and responding to users.
+
+In CodeBehind, the structure of web parts is the same as the structure of the main project; your main project includes aspx pages, dll files, and other client-side files (css, js, images, etc.); web parts in CodeBehind also include aspx pages, dll files and other client side files.
+
+![Web part structer in CodeBehind](https://github.com/elanatframework/Code_behind/assets/111444759/6058b117-6d6c-4c54-8515-7c34efefb6c5)
+
+The project created by using CodeBehind is automatically a modular project, that is, it has the ability to add web parts. In addition, each web part can be used in other projects.
+
+The system built with CodeBehind is also a web part itself. Each web part can also be a separate system! The web part that adds the configuration of the Program.cs class is considered the main system.
+
+CodeBehind stores the final values of its pages outside of the Response in the HttpContext; you can edit the output of the final values in the aspx pages before the answer. This gives you more control than ASP.NET Core.
+
+CodeBehind produces understandable code, while the Controller part of ASP.NET Core is a messy and complex situation.
+
+You will never experience the power that the CodeBehind framework gives you in ASP.NET Core.
+
+.NET developers accept CodeBehind as part of the larger .NET ecosystem. Whatever benefits CodeBehind has belongs to the .NET community.
+
+CodeBehind is similar to interpreted frameworks such as Django and Laravel, and programmers of interpreted programming language projects can easily program with CodeBehind.
+
+Developers of interpretative frameworks can consider CodeBehind as an alternative.
+
+![Why should we use CodeBehind](https://github.com/elanatframework/Code_behind/assets/111444759/e3e7929b-a4af-43b8-a178-20bf8e79a4d0)
+
+Many developers avoid ASP.NET Core and choose interpretive frameworks like Django and Laravel. And this is due to the complexities and weak default structure of ASP.NET Core and the need for complex configurations and controller classes with a chaotic and incomprehensible structure for novice programmers, as well as the difficulty of building a modular system.
+
+![ASP.NET Core vs CodeBehind](https://github.com/elanatframework/Code_behind/assets/111444759/4610cb60-89f4-4bb8-969d-647b0672d015)
+
+Really, no matter what we tried, we couldn't find any advantages to using ASP.NET Core compared to CodeBehind; perhaps if we were to compare ASP.NET Core with frameworks such as Django and Laravel, we could introduce high execution speed and leading programming language C# as a measure of ASP.NET Core's superiority; but using CodeBehind will give us the same advantages.
