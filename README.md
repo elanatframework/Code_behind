@@ -236,7 +236,7 @@ model.MainContentValue = execute.Run(context, MainPage);
 
 Enjoy CodeBehind, but be careful not to loop the program! (Don't call pages that call the current page)
 
-Web part in CodeBehind
+### Web part in CodeBehind
 
 In CodeBehind, the physical executable pages (aspx) are placed in the root path, and this makes the program structured.
 
@@ -267,6 +267,8 @@ You will never experience the power that the CodeBehind framework gives you in A
 CodeBehind is similar to interpreted frameworks such as Django and Laravel, and programmers of interpreted programming language projects can easily program with CodeBehind.
 
 Developers of interpretative frameworks can consider CodeBehind as an alternative.
+
+### ASP.NET Core VS CodeBehind; why should we use CodeBehind?
 
 ![Why should we use CodeBehind](https://github.com/elanatframework/Code_behind/assets/111444759/e3e7929b-a4af-43b8-a178-20bf8e79a4d0)
 
