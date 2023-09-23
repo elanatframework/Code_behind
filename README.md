@@ -10,11 +10,11 @@ Programming in CodeBehind is simple. The simplicity of the CodeBehind project is
 ###  CodeBehind story 
 First, CodeBehind was supposed to be a back-end framework for the C++ programming language; our project in C++ was going well, we built the listener structure and we were even able to implement fast-cgi in the coding phase for the Windows operating system. Windows operating system test with nginx web server was very stable and fast; but for some reason, we stopped working and implemented CodeBehind on .NET Core version 7.
 
-### CodeBehind training
+### CodeBehind training (On YouTube)
 
-[1- Hello World!](https://www.youtube.com/watch?v=lxQhDXJ0WcI)
+[Video 1- Hello World!](https://www.youtube.com/watch?v=lxQhDXJ0WcI)
 
-[2- Set dynamic header](https://www.youtube.com/watch?v=2kLgI0Uf8sU)
+[Video 2- Set dynamic header](https://www.youtube.com/watch?v=2kLgI0Uf8sU)
 
 ### Elanat was created using CodeBehind
 
