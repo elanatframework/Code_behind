@@ -111,6 +111,8 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+app.UseStaticFiles();
+
 + CodeBehindCompiler.Initialization();
 
 app.Run(async context =>
@@ -121,7 +123,6 @@ app.Run(async context =>
 });
 
 app.UseHttpsRedirection();
-app.UseStaticFiles();
 
 app.UseRouting();
 
