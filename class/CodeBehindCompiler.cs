@@ -267,6 +267,12 @@ namespace SetCodeBehind
                 File.Delete(FilePath);
         }
 
+        public static void ReCompile()
+        {
+            Initialization();
+            CompileAspx();
+        }
+
         public static void CreateLastSuccessCompiledViewClass()
         {
             const string ViewClassFilePath = "code_behind/views_class.cs.tmp";
