@@ -53,6 +53,8 @@ CodeBehindCompiler.CompileAspx();
 
 ### Simple and structured MVC in CodeBehind
 
+***Note:*** All tutorials are updated based on the latest version of CodeBehind. Avoid installing previous versions and install the latest version. Version 1.0.0 does not support Default.aspx files for directories!
+
 View File: Default.aspx
 ```aspx
 <%@ Page Controller="YourProjectName.wwwroot.DefaultController" Model="YourProjectName.wwwroot.DefaultModel" %><!DOCTYPE html>
