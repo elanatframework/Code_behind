@@ -51,6 +51,10 @@ CodeBehindCompiler.Initialization();
 CodeBehindCompiler.CompileAspx();
 ```
 
+### Error detection
+
+After running the project, CodeBehind will create a directory called code_behind next to the wwwroot directory. In this directory, the view class, which is made of aspx files, is kept. If there is any error in the aspx files, it will also be displayed in the views_compile_error.ini file.
+
 ### Simple and structured MVC in CodeBehind
 
 ***Note:*** All tutorials are updated based on the latest version of CodeBehind. Avoid installing previous versions and install the latest version. Version 1.0.0 does not support Default.aspx files for directories!
