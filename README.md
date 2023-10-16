@@ -3,12 +3,9 @@
 CodeBehind library is a backend framework. This library is a programming model based on the MVC structure, which provides the possibility of creating dynamic aspx files (similar to .NET Standard) in .NET Core and has high serverside independence.
 Soon we will expand this project so that in future versions you can experience both MVC and CodeBehind without coding in the view.
 
-![aspx file in .NET Core](https://github.com/elanatframework/Code_behind/assets/111444759/e5375793-31b2-4465-966a-1c3f5d7d03a1)
-
-Programming in CodeBehind is simple. The simplicity of the CodeBehind project is the result of two years of study and research on back-end frameworks and how they support web parts.
-
 ![ASP.NET Core VS CodeBehind table](https://github.com/elanatframework/Code_behind/assets/111444759/a93312da-65da-436d-85e3-b920872208d7)
 
+Programming in CodeBehind is simple. The simplicity of the CodeBehind project is the result of two years of study and research on back-end frameworks and how they support web parts.
 
 ###  CodeBehind story 
 First, CodeBehind was supposed to be a back-end framework for the C++ programming language; our project in C++ was going well, we built the listener structure and we were even able to implement fast-cgi in the coding phase for the Windows operating system. Windows operating system test with nginx web server was very stable and fast; but for some reason, we stopped working and implemented CodeBehind on .NET Core version 7.
@@ -35,7 +32,9 @@ CodeBehind, like the default ASP.NET Core, supports multiple platforms, and in t
 
 CodeBehind occupies less memory resources (ram) than ASP.NET Core.
 
-Aspx pages are compiled in CodeBehind and their calling is done at a very high speed, so that the path of the aspx file is not even referred to during the calling.
+aspx pages are compiled in CodeBehind and their calling is done at a very high speed, so that the path of the aspx file is not even referred to during the calling.
+
+![aspx file in .NET Core](https://github.com/elanatframework/Code_behind/assets/111444759/e5375793-31b2-4465-966a-1c3f5d7d03a1)
 
 One of the great features that CodeBehind gives you is the support for DLL libraries. You can add all the .NET Core DLL libraries that you have created into the bin directory located in wwwroot so that the CodeBehind will call all of them.
 
