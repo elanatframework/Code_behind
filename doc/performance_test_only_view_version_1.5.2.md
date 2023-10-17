@@ -5,7 +5,7 @@ In this performance test, we examine the performance of the default ASP.NET Core
 ### ASP.NET Core
 
 cshtml
-```html
+```cshtml
 @page
 @{
     Random rand = new Random();
@@ -33,7 +33,7 @@ app.Run();
 ### CodeBehind
 
 aspx
-```html
+```aspx
 <%@ Page Controller="PerformanceTestCodeBehind.DefaultController" %>
 <%Random rand = new Random();%>
 
