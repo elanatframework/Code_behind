@@ -251,7 +251,9 @@ namespace SetCodeBehind
             CodeBehindViews += MethodCodeTemplateValue + System.Environment.NewLine;
 
             CodeBehindViews += "    }" + System.Environment.NewLine;
-            CodeBehindViews += "}" + System.Environment.NewLine;
+            CodeBehindViews += "}" + System.Environment.NewLine + System.Environment.NewLine;
+
+            CodeBehindViews += "namespace " + Assembly.GetEntryAssembly().GetName().Name + "{public partial class CodeBehindEmptyClass{}}";
 
 
             SaveError(ErrorList);
