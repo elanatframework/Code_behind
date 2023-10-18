@@ -205,6 +205,18 @@ namespace YourProjectName
 
 ### Examples of development
 
+In aspx pages, you will access HttpContext with context.
+```aspx
+<%@ Page %>
+<% string HasValue = (!string.IsNullOrEmpty(context.Request.Query["value"]))? "Yes" : "No"; %>
+
+<div>
+    <h1>Exist value in querystring? <%=HasValue%></h1>
+    <hr>
+    <b>value is: <%=context.Request.Query["value"].ToString()%></b>
+</div>
+```
+
 To receive the information sent through the form, you can follow the instructions below:
 ```csharp
 public DefaultModel model = new DefaultModel();
