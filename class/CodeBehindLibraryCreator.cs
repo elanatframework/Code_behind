@@ -122,28 +122,34 @@ namespace SetCodeBehind
                     continue;
                 }
 
-                if (!PageProperties.Contains(" Controller=\""))
-                {
-                    ErrorList.Add("Error: Controller not exist or is not well allocated after index <%@ in " + AspxFilePath + " file");
-                    continue;
-                }
+                bool PageIsOnlyView = (PageProperties.Trim() == "Page" || (PageProperties.Contains(" Model=\"") && (PageProperties.GetNumberOfCharacter('=') == 1)));
+                string Controller = "";
 
-                string Controller = PageProperties.Split(new string[] { "Controller=\"" }, StringSplitOptions.None)[1].Split("\"")[0];
-
-                if (!Controller.ClassPathIsFine())
+                if (!PageIsOnlyView)
                 {
-                    ErrorList.Add("Error: Controller class path is not fine in " + AspxFilePath + " file");
-                    continue;
+                    if (!PageProperties.Contains(" Controller=\""))
+                    {
+                        ErrorList.Add("Error: Controller not exist or is not well allocated after index <%@ in " + AspxFilePath + " file");
+                        continue;
+                    }
+
+                    Controller = PageProperties.Split(new string[] { "Controller=\"" }, StringSplitOptions.None)[1].Split("\"")[0];
+
+                    if (!Controller.ClassPathIsFine())
+                    {
+                        ErrorList.Add("Error: Controller class path is not fine in " + AspxFilePath + " file");
+                        continue;
+                    }
                 }
 
                 string Model = (PageProperties.Contains(" Model=\"")) ? PageProperties.Split(new string[] { "Model=\"" }, StringSplitOptions.None)[1].Split("\"")[0] : "";
 
-                if(Model != "")
-                if(!Model.ClassPathIsFine())
-                {
-                    ErrorList.Add("Error: Model class path is not fine in " + AspxFilePath + " file");
-                    continue;
-                }
+                if (Model != "")
+                    if (!Model.ClassPathIsFine())
+                    {
+                        ErrorList.Add("Error: Model class path is not fine in " + AspxFilePath + " file");
+                        continue;
+                    }
 
                 string TextToCodeCombination = "";
 
@@ -164,7 +170,7 @@ namespace SetCodeBehind
                 // Code Combination
                 while (AspxText.Contains("<%"))
                 {
-                    TextToCodeCombination += GetWriteText(AspxText.GetTextBeforeValue("<%"));
+                    TextToCodeCombination += GetWriteText(AspxText.GetTextBeforeValue("<%"), PageIsOnlyView);
                     AspxText = "<%" + AspxText.GetTextAfterValue("<%");
 
                     if (!AspxText.Contains("%>"))
@@ -178,17 +184,17 @@ namespace SetCodeBehind
                     if (InnerText.Length > 0)
                         if (InnerText[0] == '=')
                         {
-                            TextToCodeCombination += GetWriteCode(InnerText.Remove(0, 1));
+                            TextToCodeCombination += GetWriteCode(InnerText.Remove(0, 1), PageIsOnlyView);
                         }
                         else
-                            TextToCodeCombination += GetAddCode(InnerText);
+                            TextToCodeCombination += GetAddCode(InnerText, PageIsOnlyView);
 
                     var regex = new Regex(Regex.Escape("<%" + InnerText + "%>"));
                     AspxText = regex.Replace(AspxText, "", 1);
                 }
 
 
-                TextToCodeCombination += GetWriteText(AspxText);
+                TextToCodeCombination += GetWriteText(AspxText, PageIsOnlyView);
 
 
                 CaseCodeTemplateValue += "                case \"" + AspxFilePath.Replace("\\", "/") + "\": return " + FilePathToMethodName + "_" + Controller.Replace('.', '_') + "_PageLoad" + i + "(context);" + System.Environment.NewLine;
@@ -196,22 +202,41 @@ namespace SetCodeBehind
                 MethodCodeTemplateValue += System.Environment.NewLine;
                 MethodCodeTemplateValue += "        protected string " + FilePathToMethodName + "_" + Controller.Replace('.', '_') + "_PageLoad" + i + "(HttpContext context)" + System.Environment.NewLine;
                 MethodCodeTemplateValue += "        {" + System.Environment.NewLine;
-                MethodCodeTemplateValue += "            " + Controller + " CurrentController = new " + Controller + "();" + System.Environment.NewLine;
-                MethodCodeTemplateValue += "            CurrentController.PageLoad(context);" + System.Environment.NewLine;
 
-                MethodCodeTemplateValue += "            if (!CurrentController.IgnoreViewAndModel)" + System.Environment.NewLine;
-                MethodCodeTemplateValue += "            {" + System.Environment.NewLine;
-
-                if (!string.IsNullOrEmpty(Model))
+                if (!PageIsOnlyView)
                 {
-                    MethodCodeTemplateValue += "                " + Model + " model = (" + Model + ")CurrentController.CodeBehindModel;" + System.Environment.NewLine;
-                    MethodCodeTemplateValue += "                CurrentController.ResponseText += model.ResponseText;" + System.Environment.NewLine;
+                    MethodCodeTemplateValue += "            " + Controller + " CurrentController = new " + Controller + "();" + System.Environment.NewLine;
+                    MethodCodeTemplateValue += "            CurrentController.PageLoad(context);" + System.Environment.NewLine;
+
+                    MethodCodeTemplateValue += "            if (!CurrentController.IgnoreViewAndModel)" + System.Environment.NewLine;
+                    MethodCodeTemplateValue += "            {" + System.Environment.NewLine;
+
+                    if (!string.IsNullOrEmpty(Model))
+                    {
+                        MethodCodeTemplateValue += "                " + Model + " model = (" + Model + ")CurrentController.CodeBehindModel;" + System.Environment.NewLine;
+                        MethodCodeTemplateValue += "                CurrentController.ResponseText += model.ResponseText;" + System.Environment.NewLine;
+                    }
+
+                    MethodCodeTemplateValue += TextToCodeCombination;
+                    MethodCodeTemplateValue += "            }" + System.Environment.NewLine;
+
+                    MethodCodeTemplateValue += "            return CurrentController.ResponseText;" + System.Environment.NewLine;
+                }
+                else
+                {
+                    MethodCodeTemplateValue += "            string ReturnValue = \"\";" + System.Environment.NewLine;
+
+                    if (!string.IsNullOrEmpty(Model))
+                    {
+                        MethodCodeTemplateValue += "            " + Model + " model = new " + Model + "();" + System.Environment.NewLine;
+                        MethodCodeTemplateValue += "            ReturnValue += model.ResponseText;" + System.Environment.NewLine;
+                    }
+
+                    MethodCodeTemplateValue += TextToCodeCombination;
+
+                    MethodCodeTemplateValue += "            return ReturnValue;" + System.Environment.NewLine;
                 }
 
-                MethodCodeTemplateValue += TextToCodeCombination + System.Environment.NewLine;
-                MethodCodeTemplateValue += "            }" + System.Environment.NewLine;
-
-                MethodCodeTemplateValue += "            return CurrentController.ResponseText;" + System.Environment.NewLine;
                 MethodCodeTemplateValue += "        }" + System.Environment.NewLine;
             }
 
@@ -233,22 +258,33 @@ namespace SetCodeBehind
             return CodeBehindViews;
         }
 
-        public static string GetWriteText(string Text)
+        public static string GetWriteText(string Text, bool PageIsOnlyView)
         {
             if (Text.Length > 0)
-                return "                CurrentController.ResponseText += \"" + Text.Replace("\"", @"\" + "\"") + "\";" + System.Environment.NewLine;
+            {
+                if (!PageIsOnlyView)
+                    return "                CurrentController.ResponseText += \"" + Text.Replace("\"", @"\" + "\"") + "\";" + System.Environment.NewLine;
+                else
+                    return "            ReturnValue += \"" + Text.Replace("\"", @"\" + "\"") + "\";" + System.Environment.NewLine;
+            }
             else
                 return "";
         }
 
-        public static string GetWriteCode(string Code)
+        public static string GetWriteCode(string Code, bool PageIsOnlyView)
         {
-            return "                CurrentController.ResponseText += " + Code + ";" + System.Environment.NewLine;
+            if (!PageIsOnlyView)
+                return "                CurrentController.ResponseText += " + Code + ";" + System.Environment.NewLine;
+            else
+                return "            ReturnValue += " + Code + ";" + System.Environment.NewLine;
         }
 
-        public static string GetAddCode(string Code)
+        public static string GetAddCode(string Code, bool PageIsOnlyView)
         {
-            return "                " + Code.Replace(@"\n", System.Environment.NewLine + "            ") + System.Environment.NewLine;
+            if (!PageIsOnlyView)
+                return "                " + Code.Replace(@"\n", System.Environment.NewLine + "            ") + System.Environment.NewLine;
+            else
+                return "            " + Code.Replace(@"\n", System.Environment.NewLine + "            ") + System.Environment.NewLine;
         }
 
         private void SaveError(List<string> ErrorList)
