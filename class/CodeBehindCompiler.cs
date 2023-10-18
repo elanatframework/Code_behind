@@ -49,6 +49,8 @@ namespace SetCodeBehind
                 MetadataReference.CreateFromFile(AppContext.BaseDirectory + "/" + CurrentProjectName + ".dll"),
                 MetadataReference.CreateFromFile(AppContext.BaseDirectory + "/CodeBehind.dll"),
                 MetadataReference.CreateFromFile(AspRunTimePath + "/Microsoft.AspNetCore.Http.Abstractions.dll"),
+                MetadataReference.CreateFromFile(AspRunTimePath + "/Microsoft.AspNetCore.Http.Features.dll"),
+                MetadataReference.CreateFromFile(AspRunTimePath + "/Microsoft.Extensions.Primitives.dll"),
                 MetadataReference.CreateFromFile(RunTimePath + "/System.Runtime.dll")
             };
 
