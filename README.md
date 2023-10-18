@@ -3,6 +3,8 @@
 CodeBehind library is a backend framework. This library is a programming model based on the MVC structure, which provides the possibility of creating dynamic aspx files (similar to .NET Standard) in .NET Core and has high serverside independence.
 Soon we will expand this project so that in future versions you can experience both MVC and CodeBehind without coding in the view.
 
+CodeBehind outperforms ASP.NET Core's default structure in every case.
+
 ![ASP.NET Core VS CodeBehind table](https://github.com/elanatframework/Code_behind/assets/111444759/a93312da-65da-436d-85e3-b920872208d7)
 
 Programming in CodeBehind is simple. The simplicity of the CodeBehind project is the result of two years of study and research on back-end frameworks and how they support web parts.
@@ -67,7 +69,7 @@ After running the project, CodeBehind will create a directory called `code_behin
 
 View File: Default.aspx
 ```aspx
-<%@ Page Controller="YourProjectName.wwwroot.DefaultController" Model="YourProjectName.wwwroot.DefaultModel" %><!DOCTYPE html>
+<%@ Page Controller="YourProjectName.DefaultController" Model="YourProjectName.DefaultModel" %><!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8" />
@@ -83,7 +85,7 @@ Model File: Default.aspx.Model.cs
 ```csharp
 using CodeBehind;
 
-namespace YourProjectName.wwwroot
+namespace YourProjectName
 {
     public partial class DefaultModel : CodeBehindModel
     {
@@ -97,7 +99,7 @@ Controler File: Default.aspx.Controller.cs
 ```csharp
 using CodeBehind;
 
-namespace YourProjectName.wwwroot
+namespace YourProjectName
 {
     public partial class DefaultController : CodeBehindController
     {
@@ -146,6 +148,73 @@ In the controller class, there is an attribute named IgnoreViewAndModel attribut
 
 Note: If you have set the name of a model in the aspx file, You must make sure to call View(ModelName) in the controller class at the end of the method or set the value of IgnoreViewAndModel to true.
 
+### It is not necessary to follow the MVC pattern
+
+In addition to the MVC pattern, you can expand your systems in the form of only View or Controller and View or Model and View.
+
+MVC and V and VC and MV patterns are supported in CodeBehind.
+
+It is not necessary to have a controller and a model, you can code in an aspx page.
+
+**Only View example**
+
+View
+```aspx
+<%@ Page %>
+<%Random rand = new Random();%>
+
+<div>
+    <h1>Random value: <%=rand.Next(1000000)%></h1>
+</div>
+```
+
+**View and Model without Controller example**
+
+View
+```aspx
+<%@ Page Model="YourProjectName.DefaultModel" %>
+
+<div>
+    <b><%=model.Value1%></b>
+    <br>
+    <b><%=model.Value2%></b>
+</div>
+```
+
+Model
+```csharp
+using CodeBehind;
+
+namespace YourProjectName
+{
+    public partial class DefaultModel : CodeBehindModel
+    {
+        public string Value1 { get; set; }
+        public string Value2 { get; set; }
+
+        public TestModel()
+        {
+            Value1 = "text1";
+            Value2 = "text2";
+        }
+    }
+}
+```
+
+### Examples of development
+
+In aspx pages, you will access HttpContext with context.
+```aspx
+<%@ Page %>
+<% string HasValue = (!string.IsNullOrEmpty(context.Request.Query["value"]))? "Yes" : "No"; %>
+
+<div>
+    <h1>Exist value in querystring? <%=HasValue%></h1>
+    <hr>
+    <b>value is: <%=context.Request.Query["value"].ToString()%></b>
+</div>
+```
+
 To receive the information sent through the form, you can follow the instructions below:
 ```csharp
 public DefaultModel model = new DefaultModel();
@@ -167,7 +236,7 @@ The following example shows the power of CodeBehind:
 
 aspx page
 ```html
-<%@ Page Controller="YourProjectName.wwwroot.DefaultController" Model="YourProjectName.wwwroot.DefaultModel" %><!DOCTYPE html>
+<%@ Page Controller="YourProjectName.DefaultController" Model="YourProjectName.DefaultModel" %><!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8" />
@@ -187,7 +256,7 @@ Controller class
 ```csharp
 using CodeBehind;
 
-namespace YourProjectName.wwwroot
+namespace YourProjectName
 {
     public partial class DefaultController : CodeBehindController
     {
