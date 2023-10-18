@@ -194,7 +194,7 @@ namespace YourProjectName
         public string Value1 { get; set; }
         public string Value2 { get; set; }
 
-        public TestModel()
+        public DefaultModel()
         {
             Value1 = "text1";
             Value2 = "text2";
