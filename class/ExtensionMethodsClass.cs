@@ -59,5 +59,19 @@ namespace SetCodeBehind
             Regex regex = new Regex("[^a-zA-Z0-9_.]");
             return !regex.IsMatch(Text);
         }
+
+        public static int GetNumberOfCharacter(this string Text, char Character)
+        {
+            if (Text.Length < 1)
+                return 0;
+
+            int count = 0;
+
+            for (int i = 0; i < Text.Length; i++)
+                if (Text[i] == Character)
+                    count++;
+
+            return count;
+        }
     }
 }
