@@ -11,7 +11,7 @@ cshtml
     Random rand = new Random();
 }
 
-<div">
+<div>
     <h1>@rand.Next(1000000)</h1>
 </div>
 ```
@@ -37,7 +37,7 @@ aspx
 <%@ Page Controller="PerformanceTestCodeBehind.DefaultController" %>
 <%Random rand = new Random();%>
 
-<div">
+<div>
     <h1><%=rand.Next(1000000)%></h1>
 </div>
 ```
