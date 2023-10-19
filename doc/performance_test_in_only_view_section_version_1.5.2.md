@@ -200,7 +200,7 @@ Average for 20 seconds
 | - | - | - |
 | Average | **32749** | **35220** |
 
-CodeBehind is 8.1% better
+CodeBehind is 7.54% better
 
 ## Conclusion
 
