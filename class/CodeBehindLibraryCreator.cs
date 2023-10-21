@@ -124,6 +124,8 @@ namespace SetCodeBehind
 
                 bool PageIsOnlyView = (PageProperties.Trim() == "Page" || (PageProperties.Contains(" Model=\"") && (PageProperties.GetNumberOfCharacter('=') == 1)));
                 string Controller = "";
+                string ControllerConstructor = "";
+                string ModelConstructor = "";
 
                 if (!PageIsOnlyView)
                 {
@@ -135,6 +137,14 @@ namespace SetCodeBehind
 
                     Controller = PageProperties.Split(new string[] { "Controller=\"" }, StringSplitOptions.None)[1].Split("\"")[0];
 
+                    // Get Controller Constructor Method
+                    if (Controller.Contains("("))
+                    {
+                        ControllerConstructor = "(" + Controller.GetTextAfterValue("(").Replace("&quot;", "\"");
+                        Controller = Controller.GetTextBeforeValue("(");
+                    }
+
+
                     if (!Controller.ClassPathIsFine())
                     {
                         ErrorList.Add("Error: Controller class path is not fine in " + AspxFilePath + " file");
@@ -145,11 +155,21 @@ namespace SetCodeBehind
                 string Model = (PageProperties.Contains(" Model=\"")) ? PageProperties.Split(new string[] { "Model=\"" }, StringSplitOptions.None)[1].Split("\"")[0] : "";
 
                 if (Model != "")
+                {
+                    // Get Model Constructor Method
+                    if (Model.Contains("("))
+                    {
+                        ModelConstructor = "(" + Model.GetTextAfterValue("(").Replace("&quot;", "\"");
+                        Model = Model.GetTextBeforeValue("(");
+                    }
+
+
                     if (!Model.ClassPathIsFine())
                     {
                         ErrorList.Add("Error: Model class path is not fine in " + AspxFilePath + " file");
                         continue;
                     }
+                }
 
                 string TextToCodeCombination = "";
 
@@ -206,6 +226,10 @@ namespace SetCodeBehind
                 if (!PageIsOnlyView)
                 {
                     MethodCodeTemplateValue += "            " + Controller + " CurrentController = new " + Controller + "();" + System.Environment.NewLine;
+
+                    if (!string.IsNullOrEmpty(ControllerConstructor))
+                        MethodCodeTemplateValue += "            CurrentController.CodeBehindConstructor(" + ModelConstructor + ");" + System.Environment.NewLine;
+                    
                     MethodCodeTemplateValue += "            CurrentController.PageLoad(context);" + System.Environment.NewLine;
 
                     MethodCodeTemplateValue += "            if (!CurrentController.IgnoreViewAndModel)" + System.Environment.NewLine;
@@ -214,6 +238,10 @@ namespace SetCodeBehind
                     if (!string.IsNullOrEmpty(Model))
                     {
                         MethodCodeTemplateValue += "                " + Model + " model = (" + Model + ")CurrentController.CodeBehindModel;" + System.Environment.NewLine;
+
+                        if (!string.IsNullOrEmpty(ModelConstructor))
+                            MethodCodeTemplateValue += "                model.CodeBehindConstructor(" + ModelConstructor + ");" + System.Environment.NewLine;
+
                         MethodCodeTemplateValue += "                CurrentController.ResponseText += model.ResponseText;" + System.Environment.NewLine;
                     }
 
