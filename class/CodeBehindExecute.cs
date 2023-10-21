@@ -42,6 +42,8 @@ namespace CodeBehind
                     }
                 }
 
+                if (context.Request.ContentType == null)
+                    context.Request.ContentType = "application/x-www-form-urlencoded; charset=utf-8";
 
                 Assembly assembly = CodeBehindCompiler.CompileAspx();
                 Type type = assembly.GetType("CodeBehindViews.CodeBehindViewsList");
@@ -97,6 +99,47 @@ namespace CodeBehind
             }
 
             return "";
+        }
+
+        public async Task<string> RunAsync(HttpContext context)
+        {
+            string ReturnValue = "";
+
+            await Task.Run(() =>
+            {
+                ReturnValue = Run(context);
+            });
+
+            return ReturnValue;
+        }
+
+        // Overload
+        public async Task<string> RunAsync(HttpContext context, string Path)
+        {
+            string ReturnValue = "";
+
+            await Task.Run(() =>
+            {
+                ReturnValue = Run(context, Path);
+            });
+
+            return ReturnValue;
+        }
+
+        // Overload
+        /// <summary>
+        /// This Overload Method Does Not Support HttpContext And Sends null Value Instead Of HttpContext. This Overload Method Does Not Support Query String
+        /// </summary>
+        public async Task<string> RunAsync(string path)
+        {
+            string ReturnValue = "";
+
+            await Task.Run(() =>
+            {
+                ReturnValue = Run(path);
+            });
+
+            return ReturnValue;
         }
     }
 }
