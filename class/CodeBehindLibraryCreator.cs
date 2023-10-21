@@ -76,7 +76,7 @@ namespace SetCodeBehind
             CodeBehindViews += "using CodeBehind;" + System.Environment.NewLine;
             CodeBehindViews += "using System;" + System.Environment.NewLine;
             CodeBehindViews += "using System.Runtime;" + System.Environment.NewLine;
-            CodeBehindViews += "using Microsoft.AspNetCore.Http;" + System.Environment.NewLine;
+            CodeBehindViews += "using Microsoft.AspNetCore.Http;" + System.Environment.NewLine + System.Environment.NewLine;
             CodeBehindViews += "namespace CodeBehindViews" + System.Environment.NewLine;
             CodeBehindViews += "{" + System.Environment.NewLine;
             CodeBehindViews += "    public class CodeBehindViewsList" + System.Environment.NewLine;
