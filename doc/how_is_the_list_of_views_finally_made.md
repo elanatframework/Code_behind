@@ -2,6 +2,8 @@ This article tells how to create the final class of views in the CodeBehind fram
 
 In this example, an MVC page named Default.aspx, and a single page named Random.aspx are created. The Default.aspx page is located in the root and the Random.aspx page is located in the test directory located in the root.
 
+# Pages
+
 **Default.aspx**
 
 View 1 - Default.aspx in wwwroot
@@ -62,6 +64,8 @@ View 2 - Random.aspx in wwwroot/test
     <h1>Random value: <%=rand.Next(1000000)%></h1>
 </div>
 ```
+
+# Views Class
 
 **Views Class finally**
 ```csharp
