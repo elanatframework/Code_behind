@@ -16,6 +16,8 @@ First, CodeBehind was supposed to be a back-end framework for the C++ programmin
 
 ### Documents
 
+[How is the list of views finally made?](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/how_is_the_list_of_views_finally_made.md)
+
 [Performance test in only view section in version 1.5.2 (ASP.NET Core VS CodeBehind)](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/performance_test_in_only_view_section_version_1.5.2.md)
 
 ### CodeBehind training (On YouTube)
