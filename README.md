@@ -26,6 +26,12 @@ First, CodeBehind was supposed to be a back-end framework for the C++ programmin
 
 [Video 2- Set dynamic header](https://www.youtube.com/watch?v=2kLgI0Uf8sU)
 
+### Download CodeBehind
+
+We added CodeBehind in Nuget so that you can access it easily. You can use it in:
+
+[https://www.nuget.org/packages/CodeBehind](https://www.nuget.org/packages/CodeBehind)
+
 ### Elanat was created using CodeBehind
 
 CodeBehind is a stable and reliable framework; [Elanat](https://elanat.net) is the most powerful .NET system implemented using the CodeBehind framework.
@@ -47,10 +53,6 @@ aspx pages are compiled in CodeBehind and their calling is done at a very high s
 ![aspx file in ASP.NET Core](https://github.com/elanatframework/Code_behind/assets/111444759/323e70e8-b90b-4ed1-a7f4-67c4814d7a3b)
 
 One of the great features that CodeBehind gives you is the support for DLL libraries. You can add all the .NET Core DLL libraries that you have created into the bin directory located in wwwroot so that the CodeBehind will call all of them.
-
-We added Code_behind in Nuget so that you can access it easily.
-You can use it in:
-https://www.nuget.org/packages/CodeBehind
 
 ![A project created under CodeBehind](https://github.com/elanatframework/Code_behind/assets/111444759/eac0e767-993e-4e46-a811-1a0702dbe94d)
 
