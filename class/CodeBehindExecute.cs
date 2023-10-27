@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Http;
 using SetCodeBehind;
-using System.IO;
 using System.Reflection;
 
 namespace CodeBehind
@@ -15,10 +14,15 @@ namespace CodeBehind
 
             if (string.IsNullOrEmpty(extension))
             {
+                bool AddSlash = true;
+
+                if (path.Length > 0)
+                    AddSlash = (path[path.Length - 1] != '/');
+
                 if (path.Contains('?'))
-                    path = path.GetTextBeforeLastValue("/") + "/Default.aspx?" + path.GetTextAfterValue("?");
+                    path = path.GetTextBeforeValue("?") + (AddSlash ? "/" : "") + "Default.aspx?" + path.GetTextAfterValue("?");
                 else
-                    path = path.GetTextBeforeLastValue("/") + "/Default.aspx";
+                    path = path + (AddSlash? "/": "") + "Default.aspx";
 
                 extension = ".aspx";
             }
