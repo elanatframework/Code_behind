@@ -63,8 +63,7 @@ First, copy your compiled project files to the desired path in wwwroot; then cop
 
 ```csharp
 // Recompile
-CodeBehindCompiler.Initialization();
-CodeBehindCompiler.CompileAspx();
+CodeBehindCompiler.ReCompile();
 ```
 
 ### Error detection
