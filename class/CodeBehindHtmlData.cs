@@ -1,5 +1,104 @@
 namespace CodeBehind.HtmlData
 {
+    public class Attribute
+    {
+        public string Name { get; set; }
+        public string Value { get; set; }
+
+        public Attribute()
+        {
+            
+        }
+
+        public Attribute(string Name, string Value)
+        {
+            this.Name = Name;
+            this.Value = Value;
+        }
+
+        public string GetString()
+        {
+            return Name + "=\"" + Value + "\"";
+        }
+    }
+
+    public class AttributeCollection
+    {
+        private List<Attribute> AttributeList = new List<Attribute>();
+
+        public void Add(string Name, string Value)
+        {
+            AttributeList.Add(new Attribute(Name, Value));
+        }
+
+        public void Delete(string Name)
+        {
+            List<Attribute> TmpAttributeList = new List<Attribute>();
+
+            foreach (Attribute tag in AttributeList)
+            {
+                if (tag.Name != Name)
+                    TmpAttributeList.Add(tag);
+            }
+
+            AttributeList = TmpAttributeList;
+        }
+
+        public void Empty()
+        {
+            AttributeList = new List<Attribute>();
+        }
+
+        public void ChangeValue(string Name, string Value)
+        {
+            foreach (Attribute tag in AttributeList)
+            {
+                if (tag.Name == Name)
+                {
+                    tag.Value = Value;
+                    break;
+                }
+            }
+        }
+
+        public void ChangeName(string Name, string NewName)
+        {
+            foreach (Attribute tag in AttributeList)
+            {
+                if (tag.Name == Name)
+                {
+                    tag.Name = NewName;
+                    break;
+                }
+            }
+        }
+
+        // Overload
+        public void ChangeValue(string Name, string NewName, string Value)
+        {
+            foreach (Attribute tag in AttributeList)
+            {
+                if (tag.Name == Name)
+                {
+                    tag.Name = NewName;
+                    tag.Value = Value;
+                    break;
+                }
+            }
+        }
+
+        public string GetString()
+        {
+            string ReturnValue = "";
+
+            int ListCount = AttributeList.Count;
+            foreach (Attribute tag in AttributeList)
+                ReturnValue += tag.GetString() + ((ListCount-- > 1) ? " " : "");
+
+            return ReturnValue;
+        }
+    }
+
     public class OptionTag
     {
         public string Value { get; set; }
