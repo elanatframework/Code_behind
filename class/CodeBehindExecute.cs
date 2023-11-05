@@ -86,7 +86,15 @@ namespace CodeBehind
 
             if (string.IsNullOrEmpty(extension))
             {
-                path = path.GetTextBeforeLastValue("/") + "/Default.aspx";
+                bool AddSlash = true;
+
+                if (path.Length > 0)
+                    AddSlash = (path[path.Length - 1] != '/');
+
+                if (path.Contains('?'))
+                    path = path.GetTextBeforeValue("?") + (AddSlash ? "/" : "") + "Default.aspx?" + path.GetTextAfterValue("?");
+                else
+                    path = path + (AddSlash ? "/" : "") + "Default.aspx";
 
                 extension = ".aspx";
             }
@@ -103,47 +111,6 @@ namespace CodeBehind
             }
 
             return "";
-        }
-
-        public async Task<string> RunAsync(HttpContext context)
-        {
-            string ReturnValue = "";
-
-            await Task.Run(() =>
-            {
-                ReturnValue = Run(context);
-            });
-
-            return ReturnValue;
-        }
-
-        // Overload
-        public async Task<string> RunAsync(HttpContext context, string Path)
-        {
-            string ReturnValue = "";
-
-            await Task.Run(() =>
-            {
-                ReturnValue = Run(context, Path);
-            });
-
-            return ReturnValue;
-        }
-
-        // Overload
-        /// <summary>
-        /// This Overload Method Does Not Support HttpContext And Sends null Value Instead Of HttpContext. This Overload Method Does Not Support Query String
-        /// </summary>
-        public async Task<string> RunAsync(string path)
-        {
-            string ReturnValue = "";
-
-            await Task.Run(() =>
-            {
-                ReturnValue = Run(path);
-            });
-
-            return ReturnValue;
         }
     }
 }
