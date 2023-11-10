@@ -97,6 +97,17 @@ namespace CodeBehind.HtmlData
 
             return ReturnValue;
         }
+
+        public void AddList(List<Attribute> AttributeList)
+        {
+            foreach (Attribute atr in AttributeList)
+                this.AttributeList.Add(atr);
+        }
+
+        public List<Attribute> GetList()
+        {
+            return AttributeList;
+        }
     }
 
     public class OptionTag
@@ -259,6 +270,17 @@ namespace CodeBehind.HtmlData
                 ReturnValue += tag.GetString() + ((SplitByNewLine && (ListCount-- > 1)) ? Environment.NewLine : "");
 
             return ReturnValue;
+        }
+
+        public void AddList(List<OptionTag> OptionTagList)
+        {
+            foreach (OptionTag tag in OptionTagList)
+                this.OptionTagList.Add(tag);
+        }
+
+        public List<OptionTag> GetList()
+        {
+            return OptionTagList;
         }
     }
 
@@ -508,6 +530,17 @@ namespace CodeBehind.HtmlData
         public string GetString(bool SplitByNewLine = false)
         {
             return GetString("", SplitByNewLine);
+        }
+
+        public void AddList(List<CheckBoxItem> CheckBoxItemList)
+        {
+            foreach (CheckBoxItem item in CheckBoxItemList)
+                this.CheckBoxItemList.Add(item);
+        }
+
+        public List<CheckBoxItem> GetList()
+        {
+            return CheckBoxItemList;
         }
     }
 }
