@@ -18,6 +18,12 @@ First, CodeBehind was supposed to be a back-end framework for the C++ programmin
 
 [Simple and structured MVC in CodeBehind](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/simple_and_structured_mvc_in_code_behind.md)
 
+[It is not necessary to follow the MVC pattern](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/it_is_not_necessary_to_follow_the_mvc_pattern.md)
+
+[Load aspx page finally result in another aspx page](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/load_aspx_page_finally_result_in_another_aspx_page.md)
+
+[Examples of development](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/examples_of_development.md)
+
 [How is the list of views finally made?](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/how_is_the_list_of_views_finally_made.md)
 
 [Performance test in only view section in version 1.5.2 (ASP.NET Core VS CodeBehind)](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/performance_test_in_only_view_section_version_1.5.2.md)
@@ -73,171 +79,6 @@ CodeBehindCompiler.ReCompile();
 ### Error detection
 
 After running the project, CodeBehind will create a directory called `code_behind` next to the `wwwroot` directory. In this directory, the view class, which is made of aspx files, is kept. If there is any error in the aspx files, it will also be displayed in the `views_compile_error.log` file.
-
-### It is not necessary to follow the MVC pattern
-
-In addition to the MVC pattern, you can expand your systems in the form of only View or Controller and View or Model and View.
-
-MVC and V and VC and MV patterns are supported in CodeBehind.
-
-It is not necessary to have a controller and a model, you can code in an aspx page.
-
-**Only View example**
-
-View (standard syntax)
-```aspx
-<%@ Page %>
-<%Random rand = new Random();%>
-
-<div>
-    <h1>Random value: <%=rand.Next(1000000)%></h1>
-</div>
-```
-
-**View and Model without Controller example**
-
-View (razor syntax)
-```aspx
-@page
-@model YourProjectName.DefaultModel
-
-<div>
-    <b>@model.Value1</b>
-    <br>
-    <b>@model.Value2</b>
-</div>
-```
-
-Model
-```csharp
-using CodeBehind;
-
-namespace YourProjectName
-{
-    public partial class DefaultModel : CodeBehindModel
-    {
-        public string Value1 { get; set; }
-        public string Value2 { get; set; }
-
-        public DefaultModel()
-        {
-            Value1 = "text1";
-            Value2 = "text2";
-        }
-    }
-}
-```
-
-### Examples of development
-
-In aspx pages, you will access HttpContext with context. (standard syntax)
-```aspx
-<%@ Page %>
-<% string HasValue = (!string.IsNullOrEmpty(context.Request.Query["value"]))? "Yes" : "No"; %>
-
-<div>
-    <h1>Exist value in querystring? <%=HasValue%></h1>
-    <hr>
-    <b>value is: <%=context.Request.Query["value"].ToString()%></b>
-</div>
-```
-
-To receive the information sent through the form, you can follow the instructions below:
-```csharp
-public DefaultModel model = new DefaultModel();
-public void PageLoad(HttpContext context)
-{
-    if (!string.IsNullOrEmpty(context.Request.Form["btn_Add"]))
-        btn_Add_Click();
-
-    View(model);
-}
-
-private void btn_Add_Click()
-{
-    model.PageTitle = "btn_Add Button Clicked";
-}
-```
-
-The following example shows the power of CodeBehind:
-
-aspx page (razor syntax)
-```html
-@page
-@controller YourProjectName.DefaultController
-@model YourProjectName.DefaultModel
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8" />
-    <title>@model.PageTitle</title>
-</head>
-<body>
-    @model.LeftMenuValue
-    <div class="main_content">
-        @model.MainContentValue
-    </div>
-    @model.RightMenuValue
-</body>
-</html>
-```
-
-Controller class
-```csharp
-using CodeBehind;
-
-namespace YourProjectName
-{
-    public partial class DefaultController : CodeBehindController
-    {
-        public DefaultModel model = new DefaultModel();
-
-        public void PageLoad(HttpContext context)
-        {
-            model.PageTitle = "My Title";
-
-            CodeBehindExecute execute = new CodeBehindExecute();
-
-            // Add Left Menu Page
-            model.LeftMenuValue = execute.Run(context, "/menu/left.aspx");
-
-
-            // Add Right Menu Page
-            model.RightMenuValue = execute.Run(context, "/menu/right.aspx");
-
-
-            // Add Main Content Page
-            model.MainContentValue = execute.Run(context, "/pages/main.aspx");
-
-            View(model);
-        }
-    }
-}
-```
-
-Each of the pages left.aspx, right.aspx and main.aspx can also call several other aspx files; these calls can definitely be dynamic and an add-on can be executed that the kernel programmers don't even know about.
-
-You can also call a page without specifying an HttpContext. You should note that query string and HttpContext data are not supported in this method.
-
-```csharp
-CodeBehindExecute execute = new CodeBehindExecute();
-model.MainContentValue = execute.Run("/pages/main.aspx");
-```
-
-You can even call pages with query strings.
-
-```csharp
-model.MainContentValue = execute.Run(context, "/pages/main.aspx?template=1");
-```
-
-You can also call a path that is determined at runtime and may change over time.
-
-```csharp
-string MainPage = Pages.GetDefaultPage();
-model.MainContentValue = execute.Run(context, MainPage);
-```
-
-Enjoy CodeBehind, but be careful not to loop the program! (Don't call pages that call the current page)
 
 ### Web part in CodeBehind
 
