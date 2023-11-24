@@ -17,3 +17,15 @@ In CodeBehind, the structure of web parts is the same as the structure of the ma
 The project created by using CodeBehind is automatically a modular project, that is, it has the ability to add web parts. In addition, each web part can be used in other projects.
 
 The system built with CodeBehind is also a web part itself. Each web part can also be a separate system! The web part that adds the configuration of the Program.cs class is considered the main system.
+
+One of the great features that CodeBehind gives you is the support for DLL libraries. You can add all the .NET Core DLL libraries that you have created into the bin directory located in wwwroot so that the CodeBehind will call all of them.
+
+![A project created under CodeBehind](https://github.com/elanatframework/Code_behind/assets/111444759/eac0e767-993e-4e46-a811-1a0702dbe94d)
+
+How to add web part?
+First, copy your compiled project files to the desired path in wwwroot; then copy the main dll file to wwwroot/bin path. You can do the copy while the process is running in the method and then call the code below to compile without restarting the program.
+
+```csharp
+// Recompile
+CodeBehindCompiler.ReCompile();
+```
