@@ -56,30 +56,6 @@ CodeBehind is a stable and reliable framework; [Elanat](https://elanat.net) is t
 
 ![Elanat is based on CodeBehind](https://github.com/elanatframework/Code_behind/assets/111444759/ca6f8d80-65ae-4b4c-b2e2-c8d4b1270b46)
 
- ### CodeBehind advantages
-
-CodeBehind is a flexible framework. CodeBehind inherits all the advantages of ASP.NET Core and gives it more simplicity, power and flexibility.
-
-CodeBehind, like the default ASP.NET Core, supports multiple platforms, and in the test conducted by the Elanat team, it also has high stability on Linux.
-
-CodeBehind occupies less memory resources (ram) than ASP.NET Core.
-
-aspx pages are compiled in CodeBehind and their calling is done at a very high speed, so that the path of the aspx file is not even referred to during the calling.
-
-![aspx file in ASP.NET Core](https://github.com/elanatframework/Code_behind/assets/111444759/323e70e8-b90b-4ed1-a7f4-67c4814d7a3b)
-
-One of the great features that CodeBehind gives you is the support for DLL libraries. You can add all the .NET Core DLL libraries that you have created into the bin directory located in wwwroot so that the CodeBehind will call all of them.
-
-![A project created under CodeBehind](https://github.com/elanatframework/Code_behind/assets/111444759/eac0e767-993e-4e46-a811-1a0702dbe94d)
-
-How to add web part?
-First, copy your compiled project files to the desired path in wwwroot; then copy the main dll file to wwwroot/bin path. You can do the copy while the process is running in the method and then call the code below to compile without restarting the program.
-
-```csharp
-// Recompile
-CodeBehindCompiler.ReCompile();
-```
-
 ### Error detection
 
 After running the project, CodeBehind will create a directory called `code_behind` next to the `wwwroot` directory. In this directory, the view class, which is made of aspx files, is kept. If there is any error in the aspx files, it will also be displayed in the `views_compile_error.log` file.
