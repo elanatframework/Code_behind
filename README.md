@@ -26,6 +26,8 @@ First, CodeBehind was supposed to be a back-end framework for the C++ programmin
 
 [Examples of development](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/examples_of_development.md)
 
+[Web part in CodeBehind](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/web_part_in_code_behind.md)
+
 [How is the list of views finally made?](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/how_is_the_list_of_views_finally_made.md)
 
 [Performance test in only view section in version 1.5.2 (ASP.NET Core VS CodeBehind)](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/performance_test_in_only_view_section_version_1.5.2.md)
@@ -81,35 +83,3 @@ CodeBehindCompiler.ReCompile();
 ### Error detection
 
 After running the project, CodeBehind will create a directory called `code_behind` next to the `wwwroot` directory. In this directory, the view class, which is made of aspx files, is kept. If there is any error in the aspx files, it will also be displayed in the `views_compile_error.log` file.
-
-### Web part in CodeBehind
-
-In CodeBehind, the physical executable pages (aspx) are placed in the root path, and this makes the program structured.
-
-CodeBehind supports web parts; web parts are like other parts of the project and include aspx files.
-
-![Web part in CodeBehind](https://github.com/elanatframework/Code_behind/assets/111444759/68a89f70-3a47-4170-8bb5-f844ea2beec2)
-
-To add the web part in CodeBehind, just put the project files in the root.
-
-In CodeBehind, you can run web parts that make changes to aspx files. You can edit all aspx files during project execution and responding to users.
-
-In CodeBehind, the structure of web parts is the same as the structure of the main project; your main project includes aspx pages, dll files, and other client-side files (css, js, images, etc.); web parts in CodeBehind also include aspx pages, dll files and other client side files.
-
-![Web part structer in CodeBehind](https://github.com/elanatframework/Code_behind/assets/111444759/6058b117-6d6c-4c54-8515-7c34efefb6c5)
-
-The project created by using CodeBehind is automatically a modular project, that is, it has the ability to add web parts. In addition, each web part can be used in other projects.
-
-The system built with CodeBehind is also a web part itself. Each web part can also be a separate system! The web part that adds the configuration of the Program.cs class is considered the main system.
-
-CodeBehind stores the final values of its pages outside of the Response in the HttpContext; you can edit the output of the final values in the aspx pages before the answer. This gives you more control than ASP.NET Core.
-
-CodeBehind produces understandable code, while the Controller part of ASP.NET Core is a messy and complex situation.
-
-You will never experience the power that the CodeBehind framework gives you in ASP.NET Core.
-
-.NET developers accept CodeBehind as part of the larger .NET ecosystem. Whatever benefits CodeBehind has belongs to the .NET community.
-
-CodeBehind is similar to interpreted frameworks such as Django and Laravel, and programmers of interpreted programming language projects can easily program with CodeBehind.
-
-Developers of interpretative frameworks can consider CodeBehind as an alternative.
