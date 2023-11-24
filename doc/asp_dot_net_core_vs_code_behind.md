@@ -18,4 +18,16 @@ CodeBehind is similar to interpreted frameworks such as Django and Laravel, and 
 
 Developers of interpretative frameworks can consider CodeBehind as an alternative.
 
+ ### CodeBehind advantages
+
+CodeBehind is a flexible framework. CodeBehind inherits all the advantages of ASP.NET Core and gives it more simplicity, power and flexibility.
+
+CodeBehind, like the default ASP.NET Core, supports multiple platforms, and in the test conducted by the Elanat team, it also has high stability on Linux.
+
+CodeBehind occupies less memory resources (ram) than ASP.NET Core.
+
+aspx pages are compiled in CodeBehind and their calling is done at a very high speed, so that the path of the aspx file is not even referred to during the calling.
+
+![aspx file in ASP.NET Core](https://github.com/elanatframework/Code_behind/assets/111444759/323e70e8-b90b-4ed1-a7f4-67c4814d7a3b)
+
 Really, no matter what we tried, we couldn't find any advantages to using ASP.NET Core compared to CodeBehind; perhaps if we were to compare ASP.NET Core with frameworks such as Django and Laravel, we could introduce high execution speed and leading programming language C# as a measure of ASP.NET Core's superiority; but using CodeBehind will give us the same advantages.
