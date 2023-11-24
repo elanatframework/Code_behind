@@ -1,6 +1,6 @@
 ![](https://github.com/elanatframework/Code_behind/assets/111444759/986799af-538a-4aca-b7fc-a5b8153c5a24)
 # Code_behind
-CodeBehind library is a backend framework. This library is a programming model based on the MVC structure, which provides the possibility of creating dynamic aspx files (similar to .NET Standard) in .NET Core and has high serverside independence.
+CodeBehind library is a backend framework. This library is a programming model based on the MVC structure, which provides the possibility of creating dynamic aspx files (similar to .NET Standard) in .NET Core and has high serverside independence. The CodeBehind framework is faster than the default structure of cshtml pages in ASP.NET Core.
 CodeBehind framework supports standard syntax and Razor syntax. This framework guarantees the separation of server-side codes from the design part (html) and there is no need to write server-side codes in the view.
 
 **CodeBehind is .NET Diamond!**
@@ -15,6 +15,8 @@ Programming in CodeBehind is simple. The simplicity of the CodeBehind project is
 First, CodeBehind was supposed to be a back-end framework for the C++ programming language; our project in C++ was going well, we built the listener structure and we were even able to implement fast-cgi in the coding phase for the Windows operating system. Windows operating system test with nginx web server was very stable and fast; but for some reason, we stopped working and implemented CodeBehind on .NET Core version 7.
 
 ### Documents
+
+[Simple and structured MVC in CodeBehind](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/simple_and_structured_mvc_in_code_behind.md)
 
 [How is the list of views finally made?](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/how_is_the_list_of_views_finally_made.md)
 
@@ -71,94 +73,6 @@ CodeBehindCompiler.ReCompile();
 ### Error detection
 
 After running the project, CodeBehind will create a directory called `code_behind` next to the `wwwroot` directory. In this directory, the view class, which is made of aspx files, is kept. If there is any error in the aspx files, it will also be displayed in the `views_compile_error.log` file.
-
-### Simple and structured MVC in CodeBehind
-
-***Note:*** All tutorials are updated based on the latest version of CodeBehind. Avoid installing previous versions and install the latest version. Version 1.0.0 does not support Default.aspx files for directories!
-
-View File: Default.aspx (razor syntax)
-```aspx
-@page
-@controller YourProjectName.DefaultController
-@model YourProjectName.DefaultModel
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8" />
-    <title>@model.PageTitle</title>
-</head>
-<body>
-    @model.BodyValue
-</body>
-</html>
-```
-
-Model File: Default.aspx.Model.cs
-```csharp
-using CodeBehind;
-
-namespace YourProjectName
-{
-    public partial class DefaultModel : CodeBehindModel
-    {
-        public string PageTitle { get; set; }
-        public string BodyValue { get; set; }
-    }
-}
-```
-
-Controler File: Default.aspx.Controller.cs
-```csharp
-using CodeBehind;
-
-namespace YourProjectName
-{
-    public partial class DefaultController : CodeBehindController
-    {
-        public DefaultModel model = new DefaultModel();
-        public void PageLoad(HttpContext context)
-        {
-            model.PageTitle = "My Title";
-            model.BodyValue = "HTML Body";
-            View(model);
-        }
-    }
-}
-```
-
-Program File: Program.cs
-```diff
-using CodeBehind;
-using SetCodeBehind;
-
-var builder = WebApplication.CreateBuilder(args);
-
-var app = builder.Build();
-
-+ CodeBehindCompiler.Initialization();
-
-app.Run(async context =>
-{
-+    CodeBehindExecute execute = new CodeBehindExecute();
-+    await context.Response.WriteAsync(execute.Run(context));
-});
-
-app.Run();
-```
-
-If you enter the value true in CodeBehindCompiler.Initialization(), as long as the CodeBehindLastSuccessCompiled.dll.tmp file exists next to the main dll files of the program, recompilation will not be done. Doing this makes the response speed of the requests high after the first request since the program goes to sleep.
-
-```csharp
-CodeBehindCompiler.Initialization(true);
-```
-
-Note : If you configure the Program.cs class like this, any changes in the aspx files, or adding new web parts or removing web parts, requires deleting the CodeBehindLastSuccessCompiled.dll.tmp file.
-
-You can use the Write method in the model and controller classes; the Write method adds a string value to the ResponseText attribute; you can also change the values of the ResponseText attribute by accessing them directly.
-
-In the controller class, there is an attribute named IgnoreViewAndModel attribute, and if you activate the IgnoreViewAndModel attribute, it will ignore the values of model and view and you will only see a blank page; this feature allows you to display the values you need to the user and avoid multiple redirects and transfers.
-
-Note: If you have set the name of a model in the aspx file, You must make sure to call View(ModelName) in the controller class at the end of the method or set the value of IgnoreViewAndModel to true.
 
 ### It is not necessary to follow the MVC pattern
 
