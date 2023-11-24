@@ -1,6 +1,6 @@
 using System.Text.RegularExpressions;
 
-namespace SetCodeBehind
+namespace CodeBehind
 {
     public static class ExtensionMethodsClass
     {
