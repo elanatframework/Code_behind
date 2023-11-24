@@ -6,4 +6,16 @@ Many developers avoid ASP.NET Core and choose interpretive frameworks like Djang
 
 ![ASP.NET Core vs CodeBehind](https://github.com/elanatframework/Code_behind/assets/111444759/4610cb60-89f4-4bb8-969d-647b0672d015)
 
+CodeBehind stores the final values of its pages outside of the Response in the HttpContext; you can edit the output of the final values in the aspx pages before the answer. This gives you more control than ASP.NET Core.
+
+CodeBehind produces understandable code, while the Controller part of ASP.NET Core is a messy and complex situation.
+
+You will never experience the power that the CodeBehind framework gives you in ASP.NET Core.
+
+.NET developers accept CodeBehind as part of the larger .NET ecosystem. Whatever benefits CodeBehind has belongs to the .NET community.
+
+CodeBehind is similar to interpreted frameworks such as Django and Laravel, and programmers of interpreted programming language projects can easily program with CodeBehind.
+
+Developers of interpretative frameworks can consider CodeBehind as an alternative.
+
 Really, no matter what we tried, we couldn't find any advantages to using ASP.NET Core compared to CodeBehind; perhaps if we were to compare ASP.NET Core with frameworks such as Django and Laravel, we could introduce high execution speed and leading programming language C# as a measure of ASP.NET Core's superiority; but using CodeBehind will give us the same advantages.
