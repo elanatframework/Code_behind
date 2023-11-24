@@ -4,6 +4,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Emit;
 using System.Reflection;
 using System.Runtime.Loader;
+using CodeBehind;
 
 namespace SetCodeBehind
 {
@@ -31,14 +32,10 @@ namespace SetCodeBehind
                 return null;
             }
 
-            string assemblyName = "CodeBehindViews";
+            CodeBehind.API.Path path = new CodeBehind.API.Path();
 
+            const string assemblyName = "CodeBehindViews";
             string CurrentProjectName = Assembly.GetEntryAssembly().GetName().Name;
-            string RunTimePath = Path.GetDirectoryName(typeof(object).GetTypeInfo().Assembly.Location);
-            RunTimePath = RunTimePath.Replace("\\", "/");
-            string SharedPath = RunTimePath.GetTextBeforeLastValue("/").GetTextBeforeLastValue("/");
-            string Version = RunTimePath.GetTextAfterLastValue("/");
-            string AspRunTimePath = SharedPath + "/Microsoft.AspNetCore.App/" + Version;
 
 
             SyntaxTree syntaxTree = CSharpSyntaxTree.ParseText(code);
@@ -46,13 +43,18 @@ namespace SetCodeBehind
             List<MetadataReference> ReferencesList = new List<MetadataReference>
             {
                 MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
-                MetadataReference.CreateFromFile(AppContext.BaseDirectory + "/" + CurrentProjectName + ".dll"),
-                MetadataReference.CreateFromFile(AppContext.BaseDirectory + "/CodeBehind.dll"),
-                MetadataReference.CreateFromFile(AspRunTimePath + "/Microsoft.AspNetCore.Http.Abstractions.dll"),
-                MetadataReference.CreateFromFile(AspRunTimePath + "/Microsoft.AspNetCore.Http.Features.dll"),
-                MetadataReference.CreateFromFile(AspRunTimePath + "/Microsoft.Extensions.Primitives.dll"),
-                MetadataReference.CreateFromFile(RunTimePath + "/System.Runtime.dll")
+                MetadataReference.CreateFromFile(path.BaseDirectory + "/" + CurrentProjectName + ".dll"),
+                MetadataReference.CreateFromFile(path.BaseDirectory + "/CodeBehind.dll"),
+                MetadataReference.CreateFromFile(path.AspRunTimePath + "/Microsoft.AspNetCore.Http.Abstractions.dll"),
+                MetadataReference.CreateFromFile(path.AspRunTimePath + "/Microsoft.AspNetCore.Http.Features.dll"),
+                MetadataReference.CreateFromFile(path.AspRunTimePath + "/Microsoft.Extensions.Primitives.dll"),
+                MetadataReference.CreateFromFile(path.RunTimePath + "/System.Runtime.dll")
             };
+
+            List<string> DllList = SetImportDllList();
+
+            foreach(string dll in DllList)
+                ReferencesList.Add(MetadataReference.CreateFromFile(dll));
 
 
             // Add All dll In bin Directory
@@ -148,10 +150,13 @@ namespace SetCodeBehind
 
                 if (UseLastLastSuccessCompiled)
                     ErrorList.Add("A problem occurred in the compilation and the last successful compilation was recompiled.");
+                else
+                {
+                    CreateLastSuccessCompiledViewClass();
+                    CreateLastSuccessCompiledAssemblyFile(bytes);
+                }
 
                 SaveError(ErrorList);
-                CreateLastSuccessCompiledViewClass();
-                CreateLastSuccessCompiledAssemblyFile(bytes);
 
                 return CompiledAssembly;
             }
@@ -347,6 +352,40 @@ namespace SetCodeBehind
 
 
             CompiledAssembly = Assembly.Load(File.ReadAllBytes(AssemblyFilePath));
+        }
+
+        private static List<string> SetImportDllList()
+        {
+            const string DllImportListPath = "code_behind/dll_import_list.ini";
+            List<string> ImportDllList = new List<string>();
+
+            if (!Directory.Exists("code_behind"))
+                Directory.CreateDirectory("code_behind");
+
+            if (!File.Exists(DllImportListPath))
+            {
+                using (StreamWriter writer = File.CreateText(DllImportListPath))
+                {
+                    writer.Write("[CodeBehind dll import list]" + Environment.NewLine);
+                    writer.Write("dll_path={run_time_path}/System.IO.dll" + Environment.NewLine);
+                    writer.Write("dll_path={run_time_path}/System.Collections.dll" + Environment.NewLine);
+                    writer.Write("dll_path={run_time_path}/System.Linq.dll" + Environment.NewLine);
+                    writer.Write("dll_path={run_time_path}/System.Threading.dll");
+                }
+            }
+
+            using (StreamReader reader = new StreamReader(DllImportListPath))
+            {
+                CodeBehind.API.Path path = new CodeBehind.API.Path();
+
+                reader.ReadLine();
+
+                string line;
+                while ((line = reader.ReadLine()) != null)
+                    ImportDllList.Add(line.GetTextAfterValue("=").Replace("{run_time_path}", path.RunTimePath).Replace("{asp_run_time_path}", path.AspRunTimePath).Replace("{base_directory_path}", path.BaseDirectory));
+            }
+
+            return ImportDllList;
         }
     }
 }
