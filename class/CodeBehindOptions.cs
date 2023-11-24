@@ -1,5 +1,3 @@
-﻿using SetCodeBehind;
-
 namespace CodeBehind
 {
     public class CodeBehindOptions
@@ -10,8 +8,9 @@ namespace CodeBehind
         public bool RewriteAspxFileToDirectory { private set; get; }
         public bool AccessAspxFileAfterRewrite { private set; get; }
         public bool IgnoreDefaultAfterRewrite { private set; get; }
-        public bool IgnoreCorruptView { private set; get; }
-
+        public bool StartTrimInAspxFile { private set; get; }
+        public bool InnerTrimInAspxFile { private set; get; }
+        public bool EndTrimInAspxFile { private set; get; }
         public CodeBehindOptions()
         {
             if (!Directory.Exists("code_behind"))
@@ -35,7 +34,9 @@ namespace CodeBehind
                 RewriteAspxFileToDirectory = (reader.ReadLine().GetTextAfterValue("=") == "true");
                 AccessAspxFileAfterRewrite = (reader.ReadLine().GetTextAfterValue("=") == "true");
                 IgnoreDefaultAfterRewrite = (reader.ReadLine().GetTextAfterValue("=") == "true");
-                IgnoreCorruptView = (reader.ReadLine().GetTextAfterValue("=") == "true");
+                StartTrimInAspxFile = (reader.ReadLine().GetTextAfterValue("=") == "true");
+                InnerTrimInAspxFile = (reader.ReadLine().GetTextAfterValue("=") == "true");
+                EndTrimInAspxFile = (reader.ReadLine().GetTextAfterValue("=") == "true");
             }
         }
 
@@ -49,9 +50,11 @@ namespace CodeBehind
             OptionsList.Add("rewrite_aspx_file_to_directory=false");
             OptionsList.Add("access_aspx_file_after_rewrite=false");
             OptionsList.Add("ignore_default_after_rewrite=true");
-            OptionsList.Add("ignore_corrupt_view=false");
+            OptionsList.Add("start_trim_in_aspx_file=true");
+            OptionsList.Add("inner_trim_in_aspx_file=true");
+            OptionsList.Add("end_trim_in_aspx_file=true");
 
-            bool HasBreak = false;
+            bool HasMoreOption = false;
 
             if (File.Exists(OptionsFilePath))
             {
@@ -59,27 +62,30 @@ namespace CodeBehind
                 {
                     reader.ReadLine();
 
-                    for (int i = 1; i < OptionsList.Count; i++)
+                    int LineCount = 1;
+                    string line;
+                    while ((line = reader.ReadLine()) != null)
                     {
-                        string line = reader.ReadLine();
-                        if (line == null)
+                        LineCount++;
+                        int i = 0;
+                        foreach (string option in OptionsList)
                         {
-                            HasBreak = true;
-                            break;
-                        }
+                            if (option.GetTextBeforeValue("=") == line.GetTextBeforeValue("="))
+                            {
+                                OptionsList[i] = OptionsList[i].GetTextBeforeValue("=") + "=" + line.GetTextAfterValue("=");
 
-                        if (OptionsList[i].GetTextBeforeValue("=") != line.GetTextBeforeValue("="))
-                        {
-                            HasBreak = true;
-                            break;
+                                break;
+                            }
+                            i++;
                         }
-                        else
-                            OptionsList[i] = OptionsList[i].GetTextBeforeValue("=") + "=" + line.GetTextAfterValue("=");
                     }
+
+                    if (LineCount < OptionsList.Count)
+                        HasMoreOption = true;
                 }
             }
 
-            if (!File.Exists(OptionsFilePath) || HasBreak)
+            if (!File.Exists(OptionsFilePath) || HasMoreOption)
             {
                 using (StreamWriter writer = File.CreateText(OptionsFilePath))
                 {
