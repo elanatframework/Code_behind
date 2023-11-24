@@ -1,7 +1,7 @@
 ![](https://github.com/elanatframework/Code_behind/assets/111444759/986799af-538a-4aca-b7fc-a5b8153c5a24)
 # Code_behind
 CodeBehind library is a backend framework. This library is a programming model based on the MVC structure, which provides the possibility of creating dynamic aspx files (similar to .NET Standard) in .NET Core and has high serverside independence.
-Soon we will expand this project so that in future versions you can experience both MVC and CodeBehind without coding in the view.
+CodeBehind framework supports standard syntax and Razor syntax. This framework guarantees the separation of server-side codes from the design part (html) and there is no need to write server-side codes in the view.
 
 **CodeBehind is .NET Diamond!**
 
@@ -19,6 +19,8 @@ First, CodeBehind was supposed to be a back-end framework for the C++ programmin
 [How is the list of views finally made?](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/how_is_the_list_of_views_finally_made.md)
 
 [Performance test in only view section in version 1.5.2 (ASP.NET Core VS CodeBehind)](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/performance_test_in_only_view_section_version_1.5.2.md)
+
+[### ASP.NET Core VS CodeBehind; why should we use CodeBehind?]()
 
 ### CodeBehind training (On YouTube)
 
@@ -74,16 +76,19 @@ After running the project, CodeBehind will create a directory called `code_behin
 
 ***Note:*** All tutorials are updated based on the latest version of CodeBehind. Avoid installing previous versions and install the latest version. Version 1.0.0 does not support Default.aspx files for directories!
 
-View File: Default.aspx
+View File: Default.aspx (razor syntax)
 ```aspx
-<%@ Page Controller="YourProjectName.DefaultController" Model="YourProjectName.DefaultModel" %><!DOCTYPE html>
+@page
+@controller YourProjectName.DefaultController
+@model YourProjectName.DefaultModel
+<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8" />
-    <title><%=model.PageTitle%></title>
+    <title>@model.PageTitle</title>
 </head>
 <body>
-    <%=model.BodyValue%>
+    @model.BodyValue
 </body>
 </html>
 ```
@@ -165,7 +170,7 @@ It is not necessary to have a controller and a model, you can code in an aspx pa
 
 **Only View example**
 
-View
+View (standard syntax)
 ```aspx
 <%@ Page %>
 <%Random rand = new Random();%>
@@ -177,14 +182,15 @@ View
 
 **View and Model without Controller example**
 
-View
+View (razor syntax)
 ```aspx
-<%@ Page Model="YourProjectName.DefaultModel" %>
+@page
+@model YourProjectName.DefaultModel
 
 <div>
-    <b><%=model.Value1%></b>
+    <b>@model.Value1</b>
     <br>
-    <b><%=model.Value2%></b>
+    <b>@model.Value2</b>
 </div>
 ```
 
@@ -210,7 +216,7 @@ namespace YourProjectName
 
 ### Examples of development
 
-In aspx pages, you will access HttpContext with context.
+In aspx pages, you will access HttpContext with context. (standard syntax)
 ```aspx
 <%@ Page %>
 <% string HasValue = (!string.IsNullOrEmpty(context.Request.Query["value"]))? "Yes" : "No"; %>
@@ -241,20 +247,23 @@ private void btn_Add_Click()
 
 The following example shows the power of CodeBehind:
 
-aspx page
+aspx page (razor syntax)
 ```html
-<%@ Page Controller="YourProjectName.DefaultController" Model="YourProjectName.DefaultModel" %><!DOCTYPE html>
+@page
+@controller YourProjectName.DefaultController
+@model YourProjectName.DefaultModel
+<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8" />
-    <title><%=model.PageTitle%></title>
+    <title>@model.PageTitle</title>
 </head>
 <body>
-    <%=model.LeftMenuValue%>
+    @model.LeftMenuValue
     <div class="main_content">
-        <%=model.MainContentValue%>
+        @model.MainContentValue
     </div>
-    <%=model.RightMenuValue%>
+    @model.RightMenuValue
 </body>
 </html>
 ```
@@ -347,13 +356,3 @@ You will never experience the power that the CodeBehind framework gives you in A
 CodeBehind is similar to interpreted frameworks such as Django and Laravel, and programmers of interpreted programming language projects can easily program with CodeBehind.
 
 Developers of interpretative frameworks can consider CodeBehind as an alternative.
-
-### ASP.NET Core VS CodeBehind; why should we use CodeBehind?
-
-![Why should we use CodeBehind](https://github.com/elanatframework/Code_behind/assets/111444759/e3e7929b-a4af-43b8-a178-20bf8e79a4d0)
-
-Many developers avoid ASP.NET Core and choose interpretive frameworks like Django and Laravel. And this is due to the complexities and weak default structure of ASP.NET Core and the need for complex configurations and controller classes with a chaotic and incomprehensible structure for novice programmers, as well as the difficulty of building a modular system.
-
-![ASP.NET Core vs CodeBehind](https://github.com/elanatframework/Code_behind/assets/111444759/4610cb60-89f4-4bb8-969d-647b0672d015)
-
-Really, no matter what we tried, we couldn't find any advantages to using ASP.NET Core compared to CodeBehind; perhaps if we were to compare ASP.NET Core with frameworks such as Django and Laravel, we could introduce high execution speed and leading programming language C# as a measure of ASP.NET Core's superiority; but using CodeBehind will give us the same advantages.
