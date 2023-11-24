@@ -28,6 +28,8 @@ First, CodeBehind was supposed to be a back-end framework for the C++ programmin
 
 [Web part in CodeBehind](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/web_part_in_code_behind.md)
 
+[Error Detection](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/error_detection.md)
+
 [How is the list of views finally made?](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/how_is_the_list_of_views_finally_made.md)
 
 [Performance test in only view section in version 1.5.2 (ASP.NET Core VS CodeBehind)](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/performance_test_in_only_view_section_version_1.5.2.md)
@@ -55,7 +57,3 @@ CodeBehind is a stable and reliable framework; [Elanat](https://elanat.net) is t
 [https://github.com/elanatframework/Elanat](https://github.com/elanatframework/Elanat)
 
 ![Elanat is based on CodeBehind](https://github.com/elanatframework/Code_behind/assets/111444759/ca6f8d80-65ae-4b4c-b2e2-c8d4b1270b46)
-
-### Error detection
-
-After running the project, CodeBehind will create a directory called `code_behind` next to the `wwwroot` directory. In this directory, the view class, which is made of aspx files, is kept. If there is any error in the aspx files, it will also be displayed in the `views_compile_error.log` file.
