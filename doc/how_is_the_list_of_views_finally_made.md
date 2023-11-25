@@ -73,7 +73,19 @@ namespace YourProjectName
 
 **Random.aspx**
 
-View 2 - Random.aspx in wwwroot/test
+View 2 - Random.aspx in wwwroot/test (razor syntax)
+```aspx
+@page
+@{
+    Random rand = new Random();
+}
+
+<div>
+    <h1>Random value: @rand.Next(1000000)</h1>
+</div>
+```
+
+View 2 - Random.aspx in wwwroot/test (standard syntax)
 ```aspx
 <%@ Page %>
 <%Random rand = new Random();%>
