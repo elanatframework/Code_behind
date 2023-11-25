@@ -3,7 +3,7 @@
 The following example shows the power of CodeBehind:
 
 aspx page (razor syntax)
-```html
+```cshtml
 @page
 @controller YourProjectName.DefaultController
 @model YourProjectName.DefaultModel
