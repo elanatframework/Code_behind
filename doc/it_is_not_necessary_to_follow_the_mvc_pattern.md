@@ -8,6 +8,18 @@ It is not necessary to have a controller and a model, you can code in an aspx pa
 
 **Only View example**
 
+View (razor syntax)
+```aspx
+@page
+@{
+    Random rand = new Random();
+}
+
+<div>
+    <h1>Random value: @rand.Next(1000000)</h1>
+</div>
+```
+
 View (standard syntax)
 ```aspx
 <%@ Page %>
@@ -29,6 +41,17 @@ View (razor syntax)
     <b>@model.Value1</b>
     <br>
     <b>@model.Value2</b>
+</div>
+```
+
+View (standard syntax)
+```aspx
+<%@ Page Model="YourProjectName.DefaultModel" %>
+
+<div>
+    <b><%=model.Value1%></b>
+    <br>
+    <b><%=model.Value2%></b>
 </div>
 ```
 
