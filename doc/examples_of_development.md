@@ -3,7 +3,7 @@
 **In aspx pages, you will access HttpContext with context**
 
 View file (razor syntax)
-```aspx
+```cshtml
 @page
 @{
     string HasValue = (!string.IsNullOrEmpty(context.Request.Query["value"]))? "Yes" : "No";
