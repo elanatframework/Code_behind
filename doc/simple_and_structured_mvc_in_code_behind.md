@@ -19,6 +19,20 @@ View File: Default.aspx (razor syntax)
 </html>
 ```
 
+View File: Default.aspx (standard syntax)
+```aspx
+<%@ Page Controller="YourProjectName.DefaultController" Model="YourProjectName.DefaultModel" %><!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title><%=model.PageTitle%></title>
+</head>
+<body>
+    <%=model.BodyValue%>
+</body>
+</html>
+```
+
 Model File: Default.aspx.Model.cs
 ```csharp
 using CodeBehind;
