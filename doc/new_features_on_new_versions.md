@@ -8,6 +8,7 @@
  - Razor syntax support 
  - Template support
    - Added return template
+   - External template
  - Added option
    - The option to specify the path of aspx files
    - possibility of rewriting the path of aspx files as a directory name
