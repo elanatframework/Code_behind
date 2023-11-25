@@ -23,6 +23,24 @@ aspx page (razor syntax)
 </html>
 ```
 
+aspx page (standard syntax)
+```html
+<%@ Page Controller="YourProjectName.DefaultController" Model="YourProjectName.DefaultModel" %><!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title><%=model.PageTitle%></title>
+</head>
+<body>
+    <%=model.LeftMenuValue%>
+    <div class="main_content">
+        <%=model.MainContentValue%>
+    </div>
+    <%=model.RightMenuValue%>
+</body>
+</html>
+```
+
 Controller class
 ```csharp
 using CodeBehind;
