@@ -1,6 +1,6 @@
 ### Examples of development
 
-In aspx pages, you will access HttpContext with context.
+**In aspx pages, you will access HttpContext with context**
 
 View file (razor syntax)
 ```aspx
@@ -28,7 +28,7 @@ View file (standard syntax)
 </div>
 ```
 
-To receive the information sent through the form, you can follow the instructions below:
+**To receive the information sent through the form, you can follow the instructions below**
 ```csharp
 public DefaultModel model = new DefaultModel();
 public void PageLoad(HttpContext context)
