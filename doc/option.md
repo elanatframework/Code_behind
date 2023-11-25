@@ -74,7 +74,7 @@ This way there will be no extra lines
 <!DOCTYPE html>
 ```
 
-You don't have to do this
+You don't have to do this in Razor syntax
 ```html
 @page<!DOCTYPE html>
 ```
