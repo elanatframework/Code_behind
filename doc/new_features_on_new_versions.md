@@ -2,6 +2,7 @@
 
 ### Version 1.7
  - The possibility of creating a page view without having to follow the MVC pattern
+   - Possibility to create only view without controller and model
    - Possibility to create model and view without controller
 
 ### Version 1.8
