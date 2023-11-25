@@ -25,7 +25,8 @@ aspx page (razor syntax)
 
 aspx page (standard syntax)
 ```html
-<%@ Page Controller="YourProjectName.DefaultController" Model="YourProjectName.DefaultModel" %><!DOCTYPE html>
+<%@ Page Controller="YourProjectName.DefaultController" Model="YourProjectName.DefaultModel" %>
+<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8" />
