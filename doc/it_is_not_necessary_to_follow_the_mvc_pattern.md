@@ -9,7 +9,7 @@ It is not necessary to have a controller and a model, you can code in an aspx pa
 **Only View example**
 
 View (razor syntax)
-```aspx
+```cshtml
 @page
 @{
     Random rand = new Random();
@@ -33,7 +33,7 @@ View (standard syntax)
 **View and Model without Controller example**
 
 View (razor syntax)
-```aspx
+```cshtml
 @page
 @model YourProjectName.DefaultModel
 
