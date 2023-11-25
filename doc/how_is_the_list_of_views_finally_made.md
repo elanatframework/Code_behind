@@ -7,7 +7,7 @@ In this example, an MVC page named Default.aspx, and a single page named Random.
 **Default.aspx**
 
 View 1 - Default.aspx in wwwroot (razor syntax)
-```aspx
+```cshtml
 @page
 @controller YourProjectName.DefaultController
 @model YourProjectName.DefaultModel
@@ -74,7 +74,7 @@ namespace YourProjectName
 **Random.aspx**
 
 View 2 - Random.aspx in wwwroot/test (razor syntax)
-```aspx
+```cshtml
 @page
 @{
     Random rand = new Random();
