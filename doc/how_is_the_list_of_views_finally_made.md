@@ -6,9 +6,27 @@ In this example, an MVC page named Default.aspx, and a single page named Random.
 
 **Default.aspx**
 
-View 1 - Default.aspx in wwwroot
+View 1 - Default.aspx in wwwroot (razor syntax)
 ```aspx
-<%@ Page Controller="YourProjectName.DefaultController" Model="YourProjectName.DefaultModel" %><!DOCTYPE html>
+@page
+@controller YourProjectName.DefaultController
+@model YourProjectName.DefaultModel
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>@model.PageTitle</title>
+</head>
+<body>
+    @model.BodyValue
+</body>
+</html>
+```
+
+View 1 - Default.aspx in wwwroot (standard syntax)
+```aspx
+<%@ Page Controller="YourProjectName.DefaultController" Model="YourProjectName.DefaultModel" %>
+<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8" />
