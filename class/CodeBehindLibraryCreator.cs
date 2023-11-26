@@ -906,13 +906,13 @@ namespace SetCodeBehind
 
 
             string TextToCodeCombination = "";
+            bool HasElseIf = false;
 
             string TextForWrite = "";
             for (int i = 0; i < AspxText.Length; i++)
             {
                 if (AspxText[i] == '@')
                 {
-                    bool HasElseIf = false;
                     TextToCodeCombination += GetWriteText(TextForWrite, !ControllerIsSet);
                     TextForWrite = "";
 
@@ -1003,6 +1003,14 @@ namespace SetCodeBehind
 
                                         break;
                                     }
+
+                                    string TmpAspxTextForFindElse = ft.FullTrimInStartOverBackslash(AspxText.Substring(i - 1));
+
+                                    if (TmpAspxTextForFindElse.Length < 4)
+                                        continue;
+
+                                    if (TmpAspxTextForFindElse.Substring(0, 4) != "else")
+                                        continue;
 
                                     int ElseIndex = i - 1;
                                     while (ElseIndex + 1 < AspxText.Length)
