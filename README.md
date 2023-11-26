@@ -18,7 +18,7 @@ First, CodeBehind was supposed to be a back-end framework for the C++ programmin
 
 ### Only view example
 
-View section (aspx page) (razor syntax)
+View section: aspx page (razor syntax)
 ```cshtml
 @page
 @{
@@ -30,7 +30,7 @@ View section (aspx page) (razor syntax)
 </div>
 ```
 
-View section (aspx page) (standard syntax)
+View section: aspx page (standard syntax)
 ```cshtml
 <%@ Page %>
 <%
