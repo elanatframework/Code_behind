@@ -30,6 +30,8 @@ First, CodeBehind was supposed to be a back-end framework for the C++ programmin
 
 [Razor syntax reference for CodeBehind framework](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/razor_syntax_reference_for_code_behind_framework.md)
 
+[HtmlData classes](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/html_data_classes.md)
+
 [Option](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/option.md)
 
 [Namespace and dll for CodeBehind view class](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/namespace_and_dll_for_code_behind_view_class.md)
