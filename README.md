@@ -84,6 +84,8 @@ First, CodeBehind was supposed to be a back-end framework for the C++ programmin
 
 [ASP.NET Core VS CodeBehind; why should we use CodeBehind?](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/asp_dot_net_core_vs_code_behind.md)
 
+[CodeBehind framework vs Code-Behind pattern](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/code_behind_framework_vs_code_behind_pattern.md)
+
 ### CodeBehind training (On YouTube)
 
 [Video 1- Hello World!](https://www.youtube.com/watch?v=lxQhDXJ0WcI)
