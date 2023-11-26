@@ -28,7 +28,7 @@ View section (aspx page)
 ```
 
 Program File: Program.cs
-```csharp
+```diff
 using CodeBehind;
 using SetCodeBehind;
 
