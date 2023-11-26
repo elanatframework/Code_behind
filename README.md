@@ -32,6 +32,8 @@ First, CodeBehind was supposed to be a back-end framework for the C++ programmin
 
 [Option](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/option.md)
 
+[Namespace and dll for CodeBehind view class](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/namespace_and_dll_for_code_behind_view_class.md)
+
 [Error detection](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/error_detection.md)
 
 [New features on new versions](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/new_features_on_new_versions.md)
