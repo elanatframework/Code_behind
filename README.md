@@ -13,9 +13,9 @@ In every scenario, CodeBehind performs better than the default structure in ASP.
 
 Programming in CodeBehind is simple. The simplicity of the CodeBehind project is the result of two years of study and research on back-end frameworks and how they support web parts.
 
-### Simple example
+### Only view example
 
-View section (aspx page)
+View section (aspx page) (razor syntax)
 ```cshtml
 @page
 @{
@@ -27,6 +27,86 @@ View section (aspx page)
 </div>
 ```
 
+View section (aspx page) (standard syntax)
+```cshtml
+<%@ Page %>
+<%
+    Random rand = new Random();
+%>
+
+<div>
+    <h1>Random value: <%=rand.Next(1000000)%></h1>
+</div>
+```
+
+### MVC example
+
+View File: Default.aspx (razor syntax)
+```aspx
+@page
+@controller YourProjectName.DefaultController
+@model YourProjectName.DefaultModel
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>@model.PageTitle</title>
+</head>
+<body>
+    @model.BodyValue
+</body>
+</html>
+```
+
+View File: Default.aspx (standard syntax)
+```aspx
+<%@ Page Controller="YourProjectName.DefaultController" Model="YourProjectName.DefaultModel" %>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title><%=model.PageTitle%></title>
+</head>
+<body>
+    <%=model.BodyValue%>
+</body>
+</html>
+```
+
+Model File: Default.aspx.Model.cs
+```csharp
+using CodeBehind;
+
+namespace YourProjectName
+{
+    public partial class DefaultModel : CodeBehindModel
+    {
+        public string PageTitle { get; set; }
+        public string BodyValue { get; set; }
+    }
+}
+```
+
+Controler File: Default.aspx.Controller.cs
+```csharp
+using CodeBehind;
+
+namespace YourProjectName
+{
+    public partial class DefaultController : CodeBehindController
+    {
+        public DefaultModel model = new DefaultModel();
+        public void PageLoad(HttpContext context)
+        {
+            model.PageTitle = "My Title";
+            model.BodyValue = "HTML Body";
+            View(model);
+        }
+    }
+}
+```
+
+### CodeBehind Configure in ASP.NET Core
 Program File: Program.cs
 ```diff
 using CodeBehind;
