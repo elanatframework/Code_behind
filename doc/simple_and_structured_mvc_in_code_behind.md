@@ -67,6 +67,7 @@ namespace YourProjectName
 }
 ```
 
+CodeBehind Configure in ASP.NET Core
 Program File: Program.cs
 ```diff
 using CodeBehind;
