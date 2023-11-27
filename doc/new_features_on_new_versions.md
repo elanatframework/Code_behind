@@ -24,6 +24,11 @@
  - The problem of executing the path with extra characters after the slash character was solved.
  - Fixed the problem of replacing the class file with failed compilation in the last successful compilation.
 
+### Version 1.8.1
+
+**Problems that were solved**
+ - Solving the problem of removing one or two characters after Razor syntax.
+
 ### Version 1.9
  - Ability to add layout page
    - Ability to send data from the current page to the layout page
