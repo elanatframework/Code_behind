@@ -8,7 +8,7 @@ CodeBehind framework supports standard syntax and Razor syntax. This framework g
  - **Simple**: Developing with CodeBehind is very simple. You can use mvc pattern or model-view or controller-view or only view.
  - **Modular**: It is modular. Just copy the new project files, including dll and aspx, into the current active project.
  - **Get output**: You can call the output of the aspx page in another aspx page and modify its output.
- - **Unde .NET Core**: Your project will still be under ASP.NET Core and you will benefit from all the benefits of .NET Core.
+ - **Under .NET Core**: Your project will still be under ASP.NET Core and you will benefit from all the benefits of .NET Core.
  - **Code-Behind**: Code-Behind pattern will be fully respected.
  - **Modern**: CodeBehind is a modern framework with revolutionary ideas.
 
