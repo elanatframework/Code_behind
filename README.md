@@ -139,6 +139,8 @@ app.Run();
 
 ### Documents
 
+[How to use CodeBehind?](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/how_to_use_code_behind.md)
+
 [Simple and structured MVC in CodeBehind](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/simple_and_structured_mvc_in_code_behind.md)
 
 [It is not necessary to follow the MVC pattern](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/it_is_not_necessary_to_follow_the_mvc_pattern.md)
