@@ -1,6 +1,6 @@
 ![](https://github.com/elanatframework/Code_behind/assets/111444759/986799af-538a-4aca-b7fc-a5b8153c5a24)
 # Code_behind
-CodeBehind library is a modern backend framework. This library is a programming model based on the MVC structure, which provides the possibility of creating dynamic aspx files (similar to .NET Standard) in .NET Core and has high serverside independence.
+CodeBehind library is a modern backend framework. This library is a programming model based on the MVC structure, which provides the possibility of creating dynamic aspx files in .NET Core and has high serverside independence.
 CodeBehind framework supports standard syntax and Razor syntax. This framework guarantees the separation of server-side codes from the design part (html) and there is no need to write server-side codes in the view.
 
 ### Why use CodeBehind?
@@ -9,7 +9,8 @@ CodeBehind framework supports standard syntax and Razor syntax. This framework g
  - It is modular. Just copy the new project files, including dll and aspx, into the current active project.
  - You can call the output of the aspx page in another aspx page and modify its output.
  - Your project will still be under ASP.NET Core and you will benefit from all the benefits of .NET Core.
- - Code-behind pattern will be fully respected.
+ - Code-Behind pattern will be fully respected.
+ - CodeBehind is a modern framework with revolutionary ideas.
 
 **CodeBehind is .NET Diamond!**
 
