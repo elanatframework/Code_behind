@@ -1,5 +1,110 @@
 namespace CodeBehind.HtmlData
 {
+    public class NameValue
+    {
+        public string Name { get; set; }
+        public string Value { get; set; }
+
+        public NameValue()
+        {
+
+        }
+
+        public NameValue(string Name, string Value)
+        {
+            this.Name = Name;
+            this.Value = Value;
+        }
+    }
+
+    public class NameValueCollection
+    {
+        private List<NameValue> NameValueList = new List<NameValue>();
+
+        public void Add(string Name, string Value)
+        {
+            NameValueList.Add(new NameValue(Name, Value));
+        }
+
+        public void Delete(string Name)
+        {
+            List<NameValue> TmpNameValueList = new List<NameValue>();
+
+            foreach (NameValue nv in NameValueList)
+            {
+                if (nv.Name != Name)
+                    TmpNameValueList.Add(nv);
+            }
+
+            NameValueList = TmpNameValueList;
+        }
+
+        public void Empty()
+        {
+            NameValueList = new List<NameValue>();
+        }
+
+        public void ChangeValue(string Name, string Value)
+        {
+            foreach (NameValue nv in NameValueList)
+            {
+                if (nv.Name == Name)
+                {
+                    nv.Value = Value;
+                    break;
+                }
+            }
+        }
+
+        public void ChangeName(string Name, string NewName)
+        {
+            foreach (NameValue nv in NameValueList)
+            {
+                if (nv.Name == Name)
+                {
+                    nv.Name = NewName;
+                    break;
+                }
+            }
+        }
+
+        // Overload
+        public void ChangeValue(string Name, string NewName, string Value)
+        {
+            foreach (NameValue nv in NameValueList)
+            {
+                if (nv.Name == Name)
+                {
+                    nv.Name = NewName;
+                    nv.Value = Value;
+                    break;
+                }
+            }
+        }
+
+        public void AddList(List<NameValue> NameValueList)
+        {
+            foreach (NameValue nv in NameValueList)
+                this.NameValueList.Add(nv);
+        }
+
+        public string GetValue(string Name)
+        {
+            foreach (NameValue nv in NameValueList)
+            {
+                if (nv.Name == Name)
+                    return nv.Value;
+            }
+
+            return "";
+        }
+
+        public List<NameValue> GetList()
+        {
+            return NameValueList;
+        }
+    }
+
     public class Attribute
     {
         public string Name { get; set; }
@@ -35,10 +140,10 @@ namespace CodeBehind.HtmlData
         {
             List<Attribute> TmpAttributeList = new List<Attribute>();
 
-            foreach (Attribute tag in AttributeList)
+            foreach (Attribute attr in AttributeList)
             {
-                if (tag.Name != Name)
-                    TmpAttributeList.Add(tag);
+                if (attr.Name != Name)
+                    TmpAttributeList.Add(attr);
             }
 
             AttributeList = TmpAttributeList;
@@ -51,11 +156,11 @@ namespace CodeBehind.HtmlData
 
         public void ChangeValue(string Name, string Value)
         {
-            foreach (Attribute tag in AttributeList)
+            foreach (Attribute attr in AttributeList)
             {
-                if (tag.Name == Name)
+                if (attr.Name == Name)
                 {
-                    tag.Value = Value;
+                    attr.Value = Value;
                     break;
                 }
             }
@@ -63,11 +168,11 @@ namespace CodeBehind.HtmlData
 
         public void ChangeName(string Name, string NewName)
         {
-            foreach (Attribute tag in AttributeList)
+            foreach (Attribute attr in AttributeList)
             {
-                if (tag.Name == Name)
+                if (attr.Name == Name)
                 {
-                    tag.Name = NewName;
+                    attr.Name = NewName;
                     break;
                 }
             }
@@ -76,15 +181,26 @@ namespace CodeBehind.HtmlData
         // Overload
         public void ChangeValue(string Name, string NewName, string Value)
         {
-            foreach (Attribute tag in AttributeList)
+            foreach (Attribute attr in AttributeList)
             {
-                if (tag.Name == Name)
+                if (attr.Name == Name)
                 {
-                    tag.Name = NewName;
-                    tag.Value = Value;
+                    attr.Name = NewName;
+                    attr.Value = Value;
                     break;
                 }
             }
+        }
+
+        public string GetValue(string Name)
+        {
+            foreach (Attribute attr in AttributeList)
+            {
+                if (attr.Name == Name)
+                    return attr.Value;
+            }
+
+            return "";
         }
 
         public string GetString()
