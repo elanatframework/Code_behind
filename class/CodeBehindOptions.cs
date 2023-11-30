@@ -11,6 +11,7 @@ namespace CodeBehind
         public bool StartTrimInAspxFile { private set; get; }
         public bool InnerTrimInAspxFile { private set; get; }
         public bool EndTrimInAspxFile { private set; get; }
+        public bool SetBreakForLayoutPage { private set; get; }
         public CodeBehindOptions()
         {
             if (!Directory.Exists("code_behind"))
@@ -37,6 +38,7 @@ namespace CodeBehind
                 StartTrimInAspxFile = (reader.ReadLine().GetTextAfterValue("=") == "true");
                 InnerTrimInAspxFile = (reader.ReadLine().GetTextAfterValue("=") == "true");
                 EndTrimInAspxFile = (reader.ReadLine().GetTextAfterValue("=") == "true");
+                SetBreakForLayoutPage = (reader.ReadLine().GetTextAfterValue("=") == "true");
             }
         }
 
@@ -53,6 +55,7 @@ namespace CodeBehind
             OptionsList.Add("start_trim_in_aspx_file=true");
             OptionsList.Add("inner_trim_in_aspx_file=true");
             OptionsList.Add("end_trim_in_aspx_file=true");
+            OptionsList.Add("set_break_for_layout_page=true");
 
             bool HasMoreOption = false;
 
