@@ -240,11 +240,11 @@ namespace CodeBehind
     class CodeBehindFetchRazorSyntex
     {
         public int RazorIndexLength { get; private set; }
-        public HtmlData.AttributeCollection AddedTextForEndedCharacter;
+        public HtmlData.NameValueCollection AddedTextForEndedCharacter;
         public string FetchSyntexWithEndedCharacter(string BlockText)
         {
             RazorIndexLength = 0;
-            AddedTextForEndedCharacter = new HtmlData.AttributeCollection();
+            AddedTextForEndedCharacter = new HtmlData.NameValueCollection();
 
             if (BlockText.Length < 3)
                 return "";
@@ -492,29 +492,29 @@ namespace CodeBehind
             return InnerText;
         }
 
-        public HtmlData.AttributeCollection FetchExpressionsInLine(string LineText)
+        public HtmlData.NameValueCollection FetchExpressionsInLine(string LineText)
         {
-            HtmlData.AttributeCollection attributes = new HtmlData.AttributeCollection();
+            HtmlData.NameValueCollection NameValues = new HtmlData.NameValueCollection();
             string WriteText = "";
 
             for (int i = 0; i < LineText.Length; i++)
             {
                 if (LineText[i] == '@')
                 {
-                    attributes.Add("write_text", WriteText);
+                    NameValues.Add("write_text", WriteText);
                     WriteText = "";
 
                     if (LineText[i + 1] == '(')
                     {
                         CodeBehindFetchRazorSyntex TmpSyntex = new CodeBehindFetchRazorSyntex();
-                        attributes.Add("write_code", TmpSyntex.FetchSyntexWithEndedCharacter(LineText.Substring(i)));
+                        NameValues.Add("write_code", TmpSyntex.FetchSyntexWithEndedCharacter(LineText.Substring(i)));
 
                         i += TmpSyntex.RazorIndexLength - 1;
                         continue;
                     }
                     else
                     {
-                        attributes.Add("write_code", FetchExpressions(LineText.Substring(i)));
+                        NameValues.Add("write_code", FetchExpressions(LineText.Substring(i)));
                         i += ExpressionsIndexLength - 1;
                     }
                 }
@@ -523,23 +523,23 @@ namespace CodeBehind
             }
 
             if (!string.IsNullOrEmpty(WriteText))
-                attributes.Add("write_text", WriteText);
+                NameValues.Add("write_text", WriteText);
 
-            return attributes;
+            return NameValues;
         }
 
-        public string CombinTextAndCodeInLine(HtmlData.AttributeCollection Attributes)
+        public string CombinTextAndCodeInLine(HtmlData.NameValueCollection NameValues)
         {
             string ReturnValue = "";
             string Plus = "";
 
-            foreach (HtmlData.Attribute attr in Attributes.GetList())
+            foreach (HtmlData.NameValue nv in NameValues.GetList())
             {
-                if (attr.Name == "write_text")
-                    ReturnValue += Plus + "\"" + attr.Value.Replace("\"", @"\" + "\"") + "\"";
+                if (nv.Name == "write_text")
+                    ReturnValue += Plus + "\"" + nv.Value.Replace("\"", @"\" + "\"") + "\"";
 
-                if (attr.Name == "write_code")
-                    ReturnValue += Plus + attr.Value;
+                if (nv.Name == "write_code")
+                    ReturnValue += Plus + nv.Value;
 
                 Plus = " + ";
             }
