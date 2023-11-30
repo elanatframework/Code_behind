@@ -159,6 +159,8 @@ app.Run();
 
 [Template](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/template.md)
 
+[Layout](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/layout.md)
+
 [Option](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/option.md)
 
 [Namespace and dll for CodeBehind view class](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/namespace_and_dll_for_code_behind_view_class.md)
