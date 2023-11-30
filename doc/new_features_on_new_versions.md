@@ -34,3 +34,6 @@
    - Ability to send data from the current page to the layout page
    - The possibility of calling external pages from the view section
  - The possibility of preventing the direct execution of some pages (such as separate header and footer)
+
+**Problems that were solved**
+ - The problem of loading the constructor model without a controller was solved.
