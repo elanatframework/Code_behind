@@ -84,7 +84,8 @@ namespace SetCodeBehind
             CodeBehindViews += "namespace CodeBehindViews" + Environment.NewLine;
             CodeBehindViews += "{" + Environment.NewLine;
             CodeBehindViews += "    public class CodeBehindViewsList" + Environment.NewLine;
-            CodeBehindViews += "    {" + Environment.NewLine;
+            CodeBehindViews += "    {" + Environment.NewLine + Environment.NewLine;
+            CodeBehindViews += "        private CodeBehind.HtmlData.NameValueCollection ViewData = new CodeBehind.HtmlData.NameValueCollection();" + Environment.NewLine;
 
             CodeBehindOptions options = new CodeBehindOptions();
             RewriteAspxFileToDirectory = options.RewriteAspxFileToDirectory;
@@ -92,6 +93,7 @@ namespace SetCodeBehind
             IgnoreDefaultAfterRewrite = options.IgnoreDefaultAfterRewrite;
             StartTrimInAspxFile = options.StartTrimInAspxFile;
             EndTrimInAspxFile = options.EndTrimInAspxFile;
+            SetBreakForLayoutPage = options.SetBreakForLayoutPage;
             InnerTrimInAspxFile = options.InnerTrimInAspxFile;
 
 
@@ -109,6 +111,7 @@ namespace SetCodeBehind
                 i++;
             }
 
+            CodeBehindViews += "        // It Works Based On Rewriting The Option File" + Environment.NewLine;
             CodeBehindViews += "        public string SetPageLoadByPath(string path, HttpContext context)" + Environment.NewLine;
             CodeBehindViews += "        {" + Environment.NewLine;
             CodeBehindViews += "            switch (path)" + Environment.NewLine;
@@ -116,7 +119,30 @@ namespace SetCodeBehind
             CodeBehindViews += CaseCodeTemplateValue + Environment.NewLine;
             CodeBehindViews += "            }" + Environment.NewLine;
             CodeBehindViews += "            return \"\";" + Environment.NewLine;
-            CodeBehindViews += "        }" + Environment.NewLine;
+            CodeBehindViews += "        }" + Environment.NewLine + Environment.NewLine;
+
+            CodeBehindViews += "        // Load All Page By Full Path, This Method Load Break Page And Does Not Apply Rewrite" + Environment.NewLine;
+            CodeBehindViews += "        public string SetPageLoadByFullPath(string path, HttpContext context, string PageReturnValue = \"\")" + Environment.NewLine;
+            CodeBehindViews += "        {" + Environment.NewLine;
+            CodeBehindViews += "            switch (path)" + Environment.NewLine;
+            CodeBehindViews += "            {" + Environment.NewLine;
+            CodeBehindViews += CaseCodeTemplateValueForFullPath + Environment.NewLine;
+            CodeBehindViews += "            }" + Environment.NewLine;
+            CodeBehindViews += "            return \"\";" + Environment.NewLine;
+            CodeBehindViews += "        }" + Environment.NewLine + Environment.NewLine;
+
+            // Add Load Page Method
+            CodeBehindViews += "        private string LoadPage(string path, HttpContext context)" + Environment.NewLine;
+            CodeBehindViews += "        {" + Environment.NewLine;
+            CodeBehindViews += "            return SetPageLoadByFullPath(path, context);" + Environment.NewLine;
+            CodeBehindViews += "        }" + Environment.NewLine + Environment.NewLine;
+
+            CodeBehindViews += "        // Overload" + Environment.NewLine;
+            CodeBehindViews += "        private string LoadPage(string path)" + Environment.NewLine;
+            CodeBehindViews += "        {" + Environment.NewLine;
+            CodeBehindViews += "            return SetPageLoadByFullPath(path, null);" + Environment.NewLine;
+            CodeBehindViews += "        }" + Environment.NewLine + Environment.NewLine;
+
             CodeBehindViews += MethodCodeTemplateValue + Environment.NewLine;
 
             CodeBehindViews += "    }" + Environment.NewLine;
@@ -135,8 +161,10 @@ namespace SetCodeBehind
         private bool IgnoreDefaultAfterRewrite;
         private bool StartTrimInAspxFile;
         private bool EndTrimInAspxFile;
+        private bool SetBreakForLayoutPage;
         private bool InnerTrimInAspxFile;
         private string CaseCodeTemplateValue = "";
+        private string CaseCodeTemplateValueForFullPath = "";
         private string MethodCodeTemplateValue = "";
         public void AspxTextAndCodeCombination(string FilePath, string RootDirectoryPath, int MethodIndexer)
         {
@@ -157,22 +185,31 @@ namespace SetCodeBehind
                 AspxTextAndCodeCombinationRazor(AspxText, FilePath, RootDirectoryPath, MethodIndexer);
         }
 
-        public void SetMethod(string AspxFilePath, string Controller, string ControllerConstructor, string Model, string ModelConstructor, bool ControllerIsSet, int MethodIndexer, string TextToCodeCombination)
+        public void SetMethod(string AspxFilePath, string Controller, string ControllerConstructor, string Model, string ModelConstructor, bool ControllerIsSet, string Layout, bool IsLayout, bool IsBreak, int MethodIndexer, string TextToCodeCombination)
         {
             string FilePathToMethodName = AspxFilePath.ToMethodNameClean();
             bool PageIsOnlyView = !ControllerIsSet;
 
-            if (RewriteAspxFileToDirectory)
-                if (!IgnoreDefaultAfterRewrite || (AspxFilePath.GetTextAfterLastValue("/") != "Default.aspx"))
-                    CaseCodeTemplateValue += "                case \"" + AspxFilePath.Replace("\\", "/").GetTextBeforeLastValue(".aspx") + "/Default.aspx" + "\": return " + FilePathToMethodName + "_" + Controller.Replace('.', '_') + "_PageLoad" + MethodIndexer + "(context);" + Environment.NewLine;
-                else
-                    CaseCodeTemplateValue += "                case \"" + AspxFilePath.Replace("\\", "/") + "\": return " + FilePathToMethodName + "_" + Controller.Replace('.', '_') + "_PageLoad" + MethodIndexer + "(context);" + Environment.NewLine;
+            if (!IsBreak)
+                if (IsLayout && SetBreakForLayoutPage)
+                    IsBreak = true;
 
-            if (!RewriteAspxFileToDirectory || (RewriteAspxFileToDirectory && AccessAspxFileAfterRewrite))
-                CaseCodeTemplateValue += "                case \"" + AspxFilePath.Replace("\\", "/") + "\": return " + FilePathToMethodName + "_" + Controller.Replace('.', '_') + "_PageLoad" + MethodIndexer + "(context);" + Environment.NewLine;
+            if (!IsBreak)
+            {
+                if (RewriteAspxFileToDirectory)
+                    if (!IgnoreDefaultAfterRewrite || (AspxFilePath.GetTextAfterLastValue("/") != "Default.aspx"))
+                        CaseCodeTemplateValue += "                case \"" + AspxFilePath.Replace("\\", "/").GetTextBeforeLastValue(".aspx") + "/Default.aspx" + "\": return " + FilePathToMethodName + "_" + Controller.Replace('.', '_') + "_PageLoad" + MethodIndexer + "(context);" + Environment.NewLine;
+                    else
+                        CaseCodeTemplateValue += "                case \"" + AspxFilePath.Replace("\\", "/") + "\": return " + FilePathToMethodName + "_" + Controller.Replace('.', '_') + "_PageLoad" + MethodIndexer + "(context);" + Environment.NewLine;
+
+                if (!RewriteAspxFileToDirectory || (RewriteAspxFileToDirectory && AccessAspxFileAfterRewrite))
+                    CaseCodeTemplateValue += "                case \"" + AspxFilePath.Replace("\\", "/") + "\": return " + FilePathToMethodName + "_" + Controller.Replace('.', '_') + "_PageLoad" + MethodIndexer + "(context);" + Environment.NewLine;
+            }
+
+            CaseCodeTemplateValueForFullPath += "                case \"" + AspxFilePath.Replace("\\", "/") + "\": return " + FilePathToMethodName + "_" + Controller.Replace('.', '_') + "_PageLoad" + MethodIndexer + "(context" + (IsLayout? ", PageReturnValue" : "") + ");" + Environment.NewLine;
 
             string TmpMethodCodeTemplateValue = Environment.NewLine;
-            TmpMethodCodeTemplateValue += "        protected string " + FilePathToMethodName + "_" + Controller.Replace('.', '_') + "_PageLoad" + MethodIndexer + "(HttpContext context)" + Environment.NewLine;
+            TmpMethodCodeTemplateValue += "        protected string " + FilePathToMethodName + "_" + Controller.Replace('.', '_') + "_PageLoad" + MethodIndexer + "(HttpContext context" + (IsLayout? ", string PageReturnValue" : "") + ")" + Environment.NewLine;
             TmpMethodCodeTemplateValue += "        {" + Environment.NewLine;
 
             if (!PageIsOnlyView)
@@ -200,7 +237,7 @@ namespace SetCodeBehind
                 TmpMethodCodeTemplateValue += TextToCodeCombination;
                 TmpMethodCodeTemplateValue += "            }" + Environment.NewLine;
 
-                TmpMethodCodeTemplateValue += "            return CurrentController.ResponseText;" + Environment.NewLine;
+                TmpMethodCodeTemplateValue += "            return " + (!string.IsNullOrEmpty(Layout) ? "SetPageLoadByFullPath(\"" + Layout + "\", context, CurrentController.ResponseText)" : "CurrentController.ResponseText") + ";" + Environment.NewLine;
             }
             else
             {
@@ -209,12 +246,16 @@ namespace SetCodeBehind
                 if (!string.IsNullOrEmpty(Model))
                 {
                     TmpMethodCodeTemplateValue += "            " + Model + " model = new " + Model + "();" + Environment.NewLine;
+
+                    if (!string.IsNullOrEmpty(ModelConstructor))
+                        TmpMethodCodeTemplateValue += "            model.CodeBehindConstructor(" + ModelConstructor + ");" + Environment.NewLine;
+
                     TmpMethodCodeTemplateValue += "            ReturnValue += model.ResponseText;" + Environment.NewLine;
                 }
 
                 TmpMethodCodeTemplateValue += TextToCodeCombination;
 
-                TmpMethodCodeTemplateValue += "            return ReturnValue;" + Environment.NewLine;
+                TmpMethodCodeTemplateValue += "            return " + (!string.IsNullOrEmpty(Layout) ? "SetPageLoadByFullPath(\"" + Layout + "\", context, ReturnValue)" : "ReturnValue") + ";" + Environment.NewLine;
             }
 
             TmpMethodCodeTemplateValue += "        }" + Environment.NewLine;
@@ -244,11 +285,7 @@ namespace SetCodeBehind
             bool PageIsOnlyView = (PageProperties.Trim() == "Page");
 
             if (!PageIsOnlyView)
-                if ((PageProperties.GetNumberOfCharacter('=') == 1) && (PageProperties.Contains(" Model=\"") || PageProperties.Contains(" Template=\"")))
-                    PageIsOnlyView = true;
-
-            if (!PageIsOnlyView)
-                if ((PageProperties.GetNumberOfCharacter('=') == 2) && (PageProperties.Contains(" Model=\"") && PageProperties.Contains(" Template=\"")))
+                if (!PageProperties.Contains(" Controller=\""))
                     PageIsOnlyView = true;
 
 
@@ -259,12 +296,6 @@ namespace SetCodeBehind
 
             if (!PageIsOnlyView)
             {
-                if (!PageProperties.Contains(" Controller=\""))
-                {
-                    ErrorList.Add("Error: Controller not exist or is not well allocated after index <%@ in " + AspxFilePath + " file");
-                    return;
-                }
-
                 Controller = PageProperties.Split(new string[] { "Controller=\"" }, StringSplitOptions.None)[1].Split("\"")[0];
 
                 // Get Controller Constructor Method
@@ -302,6 +333,48 @@ namespace SetCodeBehind
                     return;
                 }
             }
+
+
+            // Set Layout
+            string Layout = (PageProperties.Contains(" Layout=\"")) ? PageProperties.Split(new string[] { "Layout=\"" }, StringSplitOptions.None)[1].Split("\"")[0] : "";
+
+            if (Layout != "")
+            {
+                string LayoutPath = "";
+
+                if (Layout[0] == '/' || Layout[0].ToString() == @"\")
+                    LayoutPath = RootDirectoryPath + @"\" + Layout;
+                else
+                    LayoutPath = FilePath.GetTextBeforeLastValue(@"\") + @"\" + Layout;
+
+                if (!Path.HasExtension(LayoutPath))
+                {
+                    Layout += ".aspx";
+                    LayoutPath += ".aspx";
+                }
+
+                if (Path.GetExtension(LayoutPath) != ".aspx")
+                {
+                    ErrorList.Add("Error: Layout extension is not valid in " + AspxFilePath + " file");
+                    return;
+                }
+
+                if (!File.Exists(LayoutPath))
+                {
+                    ErrorList.Add("Error: Layout file is not exist in " + LayoutPath + " path");
+                    return;
+                }
+            }
+
+
+            // Set If Is Layout
+            string TmpIsLayout = (PageProperties.Contains(" IsLayout=\"")) ? PageProperties.Split(new string[] { "IsLayout=\"" }, StringSplitOptions.None)[1].Split("\"")[0] : "";
+            bool IsLayout = (TmpIsLayout == "true");
+
+
+            // Set Break
+            string Break = (PageProperties.Contains(" Break=\"")) ? PageProperties.Split(new string[] { "Break=\"" }, StringSplitOptions.None)[1].Split("\"")[0] : "";
+            bool IsBreak = (Break == "true");
 
 
             // Set Template
@@ -478,11 +551,26 @@ namespace SetCodeBehind
             if (InnerTrimInAspxFile)
                 AspxText = AspxText.Replace('\\' + "n<%", "<%");
 
+            bool RemoveFirstEmptyLine = false;
+            if (AspxText.Length > 4 && StartTrimInAspxFile)
+                if (AspxText.Substring(0, 2) == "<%")
+                    RemoveFirstEmptyLine = true;
 
             // Code Combination
             while (AspxText.Contains("<%"))
             {
+                // Set Remove First Empty Line
+                if (RemoveFirstEmptyLine)
+                {
+                    if (AspxText.Length > 1)
+                        if (AspxText.Substring(0, 2) == ('\\' + "n"))
+                            AspxText = AspxText.Remove(0, 2);
+
+                    RemoveFirstEmptyLine = false;
+                }
+
                 TextToCodeCombination += GetWriteText(AspxText.GetTextBeforeValue("<%"), PageIsOnlyView);
+
                 AspxText = "<%" + AspxText.GetTextAfterValue("<%");
 
                 if (!AspxText.Contains("%>"))
@@ -507,7 +595,7 @@ namespace SetCodeBehind
 
             TextToCodeCombination += GetWriteText(AspxText, PageIsOnlyView);
 
-            SetMethod(AspxFilePath, Controller, ControllerConstructor, Model, ModelConstructor, !PageIsOnlyView, MethodIndexer, TextToCodeCombination);
+            SetMethod(AspxFilePath, Controller, ControllerConstructor, Model, ModelConstructor, !PageIsOnlyView, Layout, IsLayout, IsBreak, MethodIndexer, TextToCodeCombination);
         }
 
         public void AspxTextAndCodeCombinationRazor(string AspxText, string FilePath, string RootDirectoryPath, int MethodIndexer)
@@ -587,7 +675,7 @@ namespace SetCodeBehind
             // Set Model
             string ModelConstructor = "";
             string Model = "";
-
+            
             TmpAspxText = AspxText;
 
             while (TmpAspxText.Contains("@model"))
@@ -630,10 +718,124 @@ namespace SetCodeBehind
             }
 
 
+            // Set Layout
+            string Layout = "";
+
+            TmpAspxText = AspxText.GetTextBeforeValue("<");
+
+            while (TmpAspxText.Contains("@layout"))
+            {
+                TmpAspxText = TmpAspxText.GetTextAfterValue("@layout");
+
+                if (TmpAspxText.Length > 1)
+                {
+                    char CharacterAfterLayout = TmpAspxText[0];
+
+                    if (CharacterAfterLayout == ' ' || CharacterAfterLayout == '\\')
+                    {
+                        TmpAspxText = ft.FullTrimInStartOverBackslash(TmpAspxText) + "\\";
+
+                        if (TmpAspxText[0] != '\"')
+                            break;
+
+                        for (int i = 1; i < TmpAspxText.Length; i++)
+                        {
+                            if (TmpAspxText[i] == '\"')
+                                break;
+
+                            Layout += TmpAspxText[i];
+                        }
+
+                        string BetweenText = AspxText.Split(new string[] { "@layout" + CharacterAfterLayout }, StringSplitOptions.None)[1].Split(Layout)[0];
+
+                        AspxText = AspxText.Replace("@layout" + CharacterAfterLayout + BetweenText + Layout + '\"', "");
+
+                        break;
+                    }
+                }
+            }
+
+            if (Layout != "")
+            {
+                string LayoutPath = "";
+
+                if (Layout[0] == '/' || Layout[0].ToString() == @"\")
+                    LayoutPath = RootDirectoryPath + @"\" + Layout;
+                else
+                    LayoutPath = FilePath.GetTextBeforeLastValue(@"\") + @"\" + Layout;
+
+                if (!Path.HasExtension(LayoutPath))
+                {
+                    Layout += ".aspx";
+                    LayoutPath += ".aspx";
+                }
+
+                if (Path.GetExtension(LayoutPath) != ".aspx")
+                {
+                    ErrorList.Add("Error: Layout extension is not valid in " + AspxFilePath + " file");
+                    return;
+                }
+
+                if (!File.Exists(LayoutPath))
+                {
+                    ErrorList.Add("Error: Layout file is not exist in " + LayoutPath + " path");
+                    return;
+                }
+            }
+
+
+            // Set If Is Layout
+            bool IsLayout = false;
+
+            TmpAspxText = AspxText.GetTextBeforeValue("<");
+
+            while (TmpAspxText.Contains("@islayout"))
+            {
+                TmpAspxText = TmpAspxText.GetTextAfterValue("@islayout");
+
+                if (TmpAspxText.Length > 1)
+                {
+                    char CharacterAfterIsLayout = TmpAspxText[0];
+
+                    if (CharacterAfterIsLayout == ' ' || CharacterAfterIsLayout == '\\')
+                    {
+                        AspxText = AspxText.Replace("@islayout" + CharacterAfterIsLayout, CharacterAfterIsLayout.ToString());
+                        IsLayout = true;
+
+                        break;
+                    }
+                }
+            }
+            
+            
+            // Set Break
+            bool IsBreak = false;
+
+            TmpAspxText = AspxText.GetTextBeforeValue("<");
+
+            while (TmpAspxText.Contains("@break"))
+            {
+                TmpAspxText = TmpAspxText.GetTextAfterValue("@break");
+
+                if (TmpAspxText.Length > 1)
+                {
+                    char CharacterAfterBreak = TmpAspxText[0];
+
+                    if (CharacterAfterBreak == ' ' || CharacterAfterBreak == '\\')
+                    {
+                        AspxText = AspxText.Replace("@break" + CharacterAfterBreak, CharacterAfterBreak.ToString());
+                        IsBreak = true;
+
+                        break;
+                    }
+                }
+            }
+
+
             // Set Template
             string Template = "";
 
-            TmpAspxText = AspxText;
+            TmpAspxText = AspxText.GetTextBeforeValue("<");
 
             while (TmpAspxText.Contains("@template"))
             {
@@ -905,6 +1107,13 @@ namespace SetCodeBehind
             }
 
 
+            // Remove First Empty Line
+            bool RemoveFirstEmptyLine = false;
+            if (AspxText.Length > 1 && StartTrimInAspxFile)
+                if (AspxText[0] == '@')
+                    RemoveFirstEmptyLine = true;
+
+
             string TextToCodeCombination = "";
             bool HasElseIf = false;
 
@@ -913,6 +1122,16 @@ namespace SetCodeBehind
             {
                 if (AspxText[i] == '@')
                 {
+                    // Set Remove First Empty Line
+                    if (RemoveFirstEmptyLine && (i > 0))
+                    {
+                        if (TextForWrite.Length > 1)
+                            if (TextForWrite.Substring(0, 2) == ('\\' + "n"))
+                                TextForWrite = TextForWrite.Remove(0, 2);
+
+                        RemoveFirstEmptyLine = false;
+                    }
+
                     TextToCodeCombination += GetWriteText(TextForWrite, !ControllerIsSet);
                     TextForWrite = "";
 
@@ -954,7 +1173,7 @@ namespace SetCodeBehind
                         {
                             TextToCodeCombination += GetWriteCode(syntex.FetchSyntexWithEndedCharacter(AspxText.Substring(i)), !ControllerIsSet);
 
-                            i += syntex.RazorIndexLength;
+                            i += syntex.RazorIndexLength - 1;
                             continue;
                         }
 
@@ -987,30 +1206,31 @@ namespace SetCodeBehind
 
                                         syntex.FetchSyntexWithEndedCharacter("@" + AspxText.Substring(i));
 
-                                        foreach (CodeBehind.HtmlData.Attribute atr in syntex.AddedTextForEndedCharacter.GetList())
+                                        foreach (NameValue nv in syntex.AddedTextForEndedCharacter.GetList())
                                         {
-                                            switch (atr.Name)
+                                            switch (nv.Name)
                                             {
-                                                case "add_code": TextToCodeCombination += GetAddCode(atr.Value, !ControllerIsSet); break;
-                                                case "write_code": TextToCodeCombination += GetWriteCode(atr.Value, !ControllerIsSet, true); break;
-                                                case "write_text": TextToCodeCombination += GetWriteText(atr.Value, !ControllerIsSet, true); break;
+                                                case "add_code": TextToCodeCombination += GetAddCode(nv.Value, !ControllerIsSet); break;
+                                                case "write_code": TextToCodeCombination += GetWriteCode(nv.Value, !ControllerIsSet, true); break;
+                                                case "write_text": TextToCodeCombination += GetWriteText(nv.Value, !ControllerIsSet, true); break;
                                             }
                                         }
 
                                         TextToCodeCombination += GetAddCode("}", !ControllerIsSet);
 
-                                        i += syntex.RazorIndexLength - 1;
+                                        i += syntex.RazorIndexLength - 3;
 
                                         break;
                                     }
 
-                                    string TmpAspxTextForFindElse = ft.FullTrimInStartOverBackslash(AspxText.Substring(i - 1));
+                                    string TmpAspxTextForFindElse = ft.FullTrimInStartOverBackslash(AspxText.Substring(i + 1));
 
                                     if (TmpAspxTextForFindElse.Length < 4)
                                         continue;
 
                                     if (TmpAspxTextForFindElse.Substring(0, 4) != "else")
                                         continue;
+
 
                                     int ElseIndex = i - 1;
                                     while (ElseIndex + 1 < AspxText.Length)
@@ -1054,19 +1274,19 @@ namespace SetCodeBehind
 
                                                     syntex.FetchSyntexWithEndedCharacter("@" + AspxText.Substring(i));
 
-                                                    foreach (CodeBehind.HtmlData.Attribute atr in syntex.AddedTextForEndedCharacter.GetList())
+                                                    foreach (NameValue nv in syntex.AddedTextForEndedCharacter.GetList())
                                                     {
-                                                        switch (atr.Name)
+                                                        switch (nv.Name)
                                                         {
-                                                            case "add_code": TextToCodeCombination += GetAddCode(atr.Value, !ControllerIsSet); break;
-                                                            case "write_code": TextToCodeCombination += GetWriteCode(atr.Value, !ControllerIsSet, true); break;
-                                                            case "write_text": TextToCodeCombination += GetWriteText(atr.Value, !ControllerIsSet, true); break;
+                                                            case "add_code": TextToCodeCombination += GetAddCode(nv.Value, !ControllerIsSet); break;
+                                                            case "write_code": TextToCodeCombination += GetWriteCode(nv.Value, !ControllerIsSet, true); break;
+                                                            case "write_text": TextToCodeCombination += GetWriteText(nv.Value, !ControllerIsSet, true); break;
                                                         }
                                                     }
 
                                                     TextToCodeCombination += GetAddCode("}", !ControllerIsSet);
 
-                                                    i += syntex.RazorIndexLength - 1;
+                                                    i += syntex.RazorIndexLength - 3;
 
                                                     break;
                                                 }
@@ -1094,13 +1314,13 @@ namespace SetCodeBehind
 
                                         syntex.FetchSyntexWithEndedCharacter("@" + AspxText.Substring(i));
 
-                                        foreach (CodeBehind.HtmlData.Attribute atr in syntex.AddedTextForEndedCharacter.GetList())
+                                        foreach (NameValue nv in syntex.AddedTextForEndedCharacter.GetList())
                                         {
-                                            switch (atr.Name)
+                                            switch (nv.Name)
                                             {
-                                                case "add_code": TextToCodeCombination += GetAddCode(atr.Value, !ControllerIsSet); break;
-                                                case "write_code": TextToCodeCombination += GetWriteCode(atr.Value, !ControllerIsSet, true); break;
-                                                case "write_text": TextToCodeCombination += GetWriteText(atr.Value, !ControllerIsSet, true); break;
+                                                case "add_code": TextToCodeCombination += GetAddCode(nv.Value, !ControllerIsSet); break;
+                                                case "write_code": TextToCodeCombination += GetWriteCode(nv.Value, !ControllerIsSet, true); break;
+                                                case "write_text": TextToCodeCombination += GetWriteText(nv.Value, !ControllerIsSet, true); break;
                                             }
                                         }
 
@@ -1171,19 +1391,19 @@ namespace SetCodeBehind
 
                                         syntex.FetchSyntexWithEndedCharacter("@" + AspxText.Substring(i));
 
-                                        foreach (CodeBehind.HtmlData.Attribute atr in syntex.AddedTextForEndedCharacter.GetList())
+                                        foreach (NameValue nv in syntex.AddedTextForEndedCharacter.GetList())
                                         {
-                                            switch (atr.Name)
+                                            switch (nv.Name)
                                             {
-                                                case "add_code": TextToCodeCombination += GetAddCode(atr.Value, !ControllerIsSet); break;
-                                                case "write_code": TextToCodeCombination += GetWriteCode(atr.Value, !ControllerIsSet, true); break;
-                                                case "write_text": TextToCodeCombination += GetWriteText(atr.Value, !ControllerIsSet, true); break;
+                                                case "add_code": TextToCodeCombination += GetAddCode(nv.Value, !ControllerIsSet); break;
+                                                case "write_code": TextToCodeCombination += GetWriteCode(nv.Value, !ControllerIsSet, true); break;
+                                                case "write_text": TextToCodeCombination += GetWriteText(nv.Value, !ControllerIsSet, true); break;
                                             }
                                         }
 
                                         TextToCodeCombination += GetAddCode("}", !ControllerIsSet);
 
-                                        i += syntex.RazorIndexLength - 1;
+                                        i += syntex.RazorIndexLength - 3;
 
                                         break;
                                     }
@@ -1218,19 +1438,19 @@ namespace SetCodeBehind
 
                                         syntex.FetchSyntexWithEndedCharacter("@" + AspxText.Substring(i));
 
-                                        foreach (CodeBehind.HtmlData.Attribute atr in syntex.AddedTextForEndedCharacter.GetList())
+                                        foreach (NameValue nv in syntex.AddedTextForEndedCharacter.GetList())
                                         {
-                                            switch (atr.Name)
+                                            switch (nv.Name)
                                             {
-                                                case "add_code": TextToCodeCombination += GetAddCode(atr.Value, !ControllerIsSet); break;
-                                                case "write_code": TextToCodeCombination += GetWriteCode(atr.Value, !ControllerIsSet, true); break;
-                                                case "write_text": TextToCodeCombination += GetWriteText(atr.Value, !ControllerIsSet, true); break;
+                                                case "add_code": TextToCodeCombination += GetAddCode(nv.Value, !ControllerIsSet); break;
+                                                case "write_code": TextToCodeCombination += GetWriteCode(nv.Value, !ControllerIsSet, true); break;
+                                                case "write_text": TextToCodeCombination += GetWriteText(nv.Value, !ControllerIsSet, true); break;
                                             }
                                         }
 
                                         TextToCodeCombination += GetAddCode("}", !ControllerIsSet);
 
-                                        i += syntex.RazorIndexLength - 1;
+                                        i += syntex.RazorIndexLength - 3;
 
                                         break;
                                     }
@@ -1265,19 +1485,19 @@ namespace SetCodeBehind
 
                                         syntex.FetchSyntexWithEndedCharacter("@" + AspxText.Substring(i));
 
-                                        foreach (CodeBehind.HtmlData.Attribute atr in syntex.AddedTextForEndedCharacter.GetList())
+                                        foreach (NameValue nv in syntex.AddedTextForEndedCharacter.GetList())
                                         {
-                                            switch (atr.Name)
+                                            switch (nv.Name)
                                             {
-                                                case "add_code": TextToCodeCombination += GetAddCode(atr.Value, !ControllerIsSet); break;
-                                                case "write_code": TextToCodeCombination += GetWriteCode(atr.Value, !ControllerIsSet, true); break;
-                                                case "write_text": TextToCodeCombination += GetWriteText(atr.Value, !ControllerIsSet, true); break;
+                                                case "add_code": TextToCodeCombination += GetAddCode(nv.Value, !ControllerIsSet); break;
+                                                case "write_code": TextToCodeCombination += GetWriteCode(nv.Value, !ControllerIsSet, true); break;
+                                                case "write_text": TextToCodeCombination += GetWriteText(nv.Value, !ControllerIsSet, true); break;
                                             }
                                         }
 
                                         TextToCodeCombination += GetAddCode("}", !ControllerIsSet);
 
-                                        i += syntex.RazorIndexLength - 1;
+                                        i += syntex.RazorIndexLength - 3;
 
                                         break;
                                     }
@@ -1312,19 +1532,19 @@ namespace SetCodeBehind
 
                                         syntex.FetchSyntexWithEndedCharacter("@" + AspxText.Substring(i));
 
-                                        foreach (CodeBehind.HtmlData.Attribute atr in syntex.AddedTextForEndedCharacter.GetList())
+                                        foreach (NameValue nv in syntex.AddedTextForEndedCharacter.GetList())
                                         {
-                                            switch (atr.Name)
+                                            switch (nv.Name)
                                             {
-                                                case "add_code": TextToCodeCombination += GetAddCode(atr.Value, !ControllerIsSet); break;
-                                                case "write_code": TextToCodeCombination += GetWriteCode(atr.Value, !ControllerIsSet, true); break;
-                                                case "write_text": TextToCodeCombination += GetWriteText(atr.Value, !ControllerIsSet, true); break;
+                                                case "add_code": TextToCodeCombination += GetAddCode(nv.Value, !ControllerIsSet); break;
+                                                case "write_code": TextToCodeCombination += GetWriteCode(nv.Value, !ControllerIsSet, true); break;
+                                                case "write_text": TextToCodeCombination += GetWriteText(nv.Value, !ControllerIsSet, true); break;
                                             }
                                         }
 
                                         TextToCodeCombination += GetAddCode("}", !ControllerIsSet);
 
-                                        i += syntex.RazorIndexLength - 1;
+                                        i += syntex.RazorIndexLength - 3;
 
                                         break;
                                     }
@@ -1359,19 +1579,19 @@ namespace SetCodeBehind
 
                                         syntex.FetchSyntexWithEndedCharacter("@" + AspxText.Substring(i));
 
-                                        foreach (CodeBehind.HtmlData.Attribute atr in syntex.AddedTextForEndedCharacter.GetList())
+                                        foreach (NameValue nv in syntex.AddedTextForEndedCharacter.GetList())
                                         {
-                                            switch (atr.Name)
+                                            switch (nv.Name)
                                             {
-                                                case "add_code": TextToCodeCombination += GetAddCode(atr.Value, !ControllerIsSet); break;
-                                                case "write_code": TextToCodeCombination += GetWriteCode(atr.Value, !ControllerIsSet, true); break;
-                                                case "write_text": TextToCodeCombination += GetWriteText(atr.Value, !ControllerIsSet, true); break;
+                                                case "add_code": TextToCodeCombination += GetAddCode(nv.Value, !ControllerIsSet); break;
+                                                case "write_code": TextToCodeCombination += GetWriteCode(nv.Value, !ControllerIsSet, true); break;
+                                                case "write_text": TextToCodeCombination += GetWriteText(nv.Value, !ControllerIsSet, true); break;
                                             }
                                         }
 
                                         TextToCodeCombination += GetAddCode("}", !ControllerIsSet);
 
-                                        i += syntex.RazorIndexLength - 1;
+                                        i += syntex.RazorIndexLength - 3;
 
                                         break;
                                     }
@@ -1406,19 +1626,19 @@ namespace SetCodeBehind
 
                                         syntex.FetchSyntexWithEndedCharacter("@" + AspxText.Substring(i));
 
-                                        foreach (CodeBehind.HtmlData.Attribute atr in syntex.AddedTextForEndedCharacter.GetList())
+                                        foreach (NameValue nv in syntex.AddedTextForEndedCharacter.GetList())
                                         {
-                                            switch (atr.Name)
+                                            switch (nv.Name)
                                             {
-                                                case "add_code": TextToCodeCombination += GetAddCode(atr.Value, !ControllerIsSet); break;
-                                                case "write_code": TextToCodeCombination += GetWriteCode(atr.Value, !ControllerIsSet, true); break;
-                                                case "write_text": TextToCodeCombination += GetWriteText(atr.Value, !ControllerIsSet, true); break;
+                                                case "add_code": TextToCodeCombination += GetAddCode(nv.Value, !ControllerIsSet); break;
+                                                case "write_code": TextToCodeCombination += GetWriteCode(nv.Value, !ControllerIsSet, true); break;
+                                                case "write_text": TextToCodeCombination += GetWriteText(nv.Value, !ControllerIsSet, true); break;
                                             }
                                         }
 
                                         TextToCodeCombination += GetAddCode("}", !ControllerIsSet);
 
-                                        i += syntex.RazorIndexLength - 1;
+                                        i += syntex.RazorIndexLength - 3;
 
                                         break;
                                     }
@@ -1437,17 +1657,17 @@ namespace SetCodeBehind
                         {
                             syntex.FetchSyntexWithEndedCharacter(AspxText.Substring(i));
 
-                            foreach (CodeBehind.HtmlData.Attribute atr in syntex.AddedTextForEndedCharacter.GetList())
+                            foreach (NameValue nv in syntex.AddedTextForEndedCharacter.GetList())
                             {
-                                switch (atr.Name)
+                                switch (nv.Name)
                                 {
-                                    case "add_code": TextToCodeCombination += GetAddCode(atr.Value, !ControllerIsSet); break;
-                                    case "write_code": TextToCodeCombination += GetWriteCode(atr.Value, !ControllerIsSet); break;
-                                    case "write_text": TextToCodeCombination += GetWriteText(atr.Value, !ControllerIsSet); break;
+                                    case "add_code": TextToCodeCombination += GetAddCode(nv.Value, !ControllerIsSet); break;
+                                    case "write_code": TextToCodeCombination += GetWriteCode(nv.Value, !ControllerIsSet); break;
+                                    case "write_text": TextToCodeCombination += GetWriteText(nv.Value, !ControllerIsSet); break;
                                 }
                             }
 
-                            i += syntex.RazorIndexLength;
+                            i += syntex.RazorIndexLength - 2;
                             continue;
                         }
                     }
@@ -1456,9 +1676,19 @@ namespace SetCodeBehind
                     TextForWrite += AspxText[i];
             }
 
+            // Set Remove First Empty Line
+            if (RemoveFirstEmptyLine)
+            {
+                if (TextForWrite.Length > 1)
+                    if (TextForWrite.Substring(0, 2) == ('\\' + "n"))
+                        TextForWrite = TextForWrite.Remove(0, 2);
+
+                RemoveFirstEmptyLine = false;
+            }
+
             TextToCodeCombination += GetWriteText(TextForWrite, !ControllerIsSet);
 
-            SetMethod(AspxFilePath, Controller, ControllerConstructor, Model, ModelConstructor, ControllerIsSet, MethodIndexer, TextToCodeCombination);
+            SetMethod(AspxFilePath, Controller, ControllerConstructor, Model, ModelConstructor, ControllerIsSet, Layout, IsLayout, IsBreak, MethodIndexer, TextToCodeCombination);
         }
 
         public string GetWriteText(string Text, bool PageIsOnlyView, bool IsInsideControl = false)
