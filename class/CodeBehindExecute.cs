@@ -6,7 +6,7 @@ namespace CodeBehind
 {
     public class CodeBehindExecute
     {
-        public string Run(HttpContext context)
+        private string PrivateRun(HttpContext context, string MethodName)
         {
             string path = context.Request.Path.ToString();
             string extension = Path.GetExtension(path);
@@ -22,7 +22,7 @@ namespace CodeBehind
                 if (path.Contains('?'))
                     path = path.GetTextBeforeValue("?") + (AddSlash ? "/" : "") + "Default.aspx?" + path.GetTextAfterValue("?");
                 else
-                    path = path + (AddSlash? "/": "") + "Default.aspx";
+                    path = path + (AddSlash ? "/" : "") + "Default.aspx";
 
                 extension = ".aspx";
             }
@@ -52,7 +52,7 @@ namespace CodeBehind
                 Assembly assembly = CodeBehindCompiler.CompileAspx();
                 Type type = assembly.GetType("CodeBehindViews.CodeBehindViewsList");
                 object obj = Activator.CreateInstance(type);
-                MethodInfo method = type.GetMethod("SetPageLoadByPath");
+                MethodInfo method = type.GetMethod(MethodName);
                 string ReturnResult = (string)method.Invoke(obj, new object[] { path, context });
 
                 return ReturnResult;
@@ -61,14 +61,30 @@ namespace CodeBehind
             return "";
         }
 
+        /// <summary>
+        /// It Works Based On Rewriting The Option File
+        /// </summary>
+        public string Run(HttpContext context)
+        {
+            return PrivateRun(context, "SetPageLoadByPath");
+        }
+
+        /// <summary>
+        /// Load All Page By Full Path, This Method Load Break Page And Does Not Apply Rewrite
+        /// </summary>
+        public string RunFullPath(HttpContext context)
+        {
+            return PrivateRun(context, "SetPageLoadByFullPath");
+        }
+
         // Overload
-        public string Run(HttpContext context, string Path)
+        private string PrivateRun(HttpContext context, string Path, string MethodName)
         {
             string SavedPath = context.Request.Path;
 
             context.Request.Path = Path;
 
-            string ReturnValue = Run(context);
+            string ReturnValue = PrivateRun(context, MethodName);
 
             context.Request.Path = SavedPath;
 
@@ -77,9 +93,27 @@ namespace CodeBehind
 
         // Overload
         /// <summary>
+        /// It Works Based On Rewriting The Option File
+        /// </summary>
+        public string Run(HttpContext context, string Path)
+        {
+            return PrivateRun(context, Path, "SetPageLoadByPath");
+        }
+
+        // Overload
+        /// <summary>
+        /// Load All Page By Full Path, This Method Load Break Page And Does Not Apply Rewrite
+        /// </summary>
+        public string RunFullPath(HttpContext context, string Path)
+        {
+            return PrivateRun(context, Path, "SetPageLoadByFullPath");
+        }
+
+        // Overload
+        /// <summary>
         /// This Overload Method Does Not Support HttpContext And Sends null Value Instead Of HttpContext. This Overload Method Does Not Support Query String
         /// </summary>
-        public string Run(string path)
+        private string PrivateRun(string path, string MethodName)
         {
             string extension = Path.GetExtension(path);
             path = System.Net.WebUtility.UrlDecode(path);
@@ -104,13 +138,33 @@ namespace CodeBehind
                 Assembly assembly = CodeBehindCompiler.CompileAspx();
                 Type type = assembly.GetType("CodeBehindViews.CodeBehindViewsList");
                 object obj = Activator.CreateInstance(type);
-                MethodInfo method = type.GetMethod("SetPageLoadByPath");
+                MethodInfo method = type.GetMethod(MethodName);
                 string ReturnResult = (string)method.Invoke(obj, new object[] { path, null });
 
                 return ReturnResult;
             }
 
             return "";
+        }
+
+        // Overload
+        /// <summary>
+        /// It Works Based On Rewriting The Option File
+        /// This Overload Method Does Not Support HttpContext And Sends null Value Instead Of HttpContext. This Overload Method Does Not Support Query String
+        /// </summary>
+        public string Run(string path)
+        {
+            return PrivateRun(path, "SetPageLoadByPath");
+        }
+
+        // Overload
+        /// <summary>
+        /// Load All Page By Full Path, This Method Load Break Page And Does Not Apply Rewrite
+        /// This Overload Method Does Not Support HttpContext And Sends null Value Instead Of HttpContext. This Overload Method Does Not Support Query String
+        /// </summary>
+        public string RunFullPath(string path)
+        {
+            return PrivateRun(path, "SetPageLoadByFullPath");
         }
     }
 }
