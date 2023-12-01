@@ -97,4 +97,6 @@ string MainPage = Pages.GetDefaultPage();
 model.MainContentValue = execute.Run(context, MainPage);
 ```
 
+Note: If you have enabled the Rewrite Aspx File To Directory option and the Access Aspx File After Rewrite option is disabled, either you must enter the path argument in the Run method without an extension or use the RunFullPath method instead of the Run method.
+
 Enjoy CodeBehind, but be careful not to loop the program! (Don't call pages that call the current page)
