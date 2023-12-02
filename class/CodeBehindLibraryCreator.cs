@@ -102,6 +102,33 @@ namespace SetCodeBehind
                 MoveViewFromWwwroot(options.ViewPath);
 
 
+            // Create wwwroot Directory And Set Default.aspx File
+            if (options.ViewPath == "wwwroot")
+                if (!Directory.Exists("wwwroot"))
+                {
+                    Directory.CreateDirectory("wwwroot");
+
+                    const string FilePath = "wwwroot/Default.aspx";
+
+                    using (StreamWriter writer = File.CreateText(FilePath))
+                    {
+                        writer.WriteLine("@page");
+                        writer.WriteLine("@{");
+                        writer.WriteLine("  string Title = \"CodeBehind Framework\";");
+                        writer.WriteLine("  string WelcomeText = \"Welcome to the CodeBehind Framework!\";");
+                        writer.WriteLine("}");
+                        writer.WriteLine("<html>");
+                        writer.WriteLine("<head>");
+                        writer.WriteLine("  <title>@Title</title>");
+                        writer.WriteLine("</head>");
+                        writer.WriteLine("<body>");
+                        writer.WriteLine("  <h1>Text value is: @WelcomeText</h1>");
+                        writer.WriteLine("</body>");
+                        writer.WriteLine("</html>");
+                    }
+                }
+
+
             DirectoryInfo RootDir = new DirectoryInfo(options.ViewPath);
             string RootDirectoryPath = RootDir.FullName;
             int i = 1;
