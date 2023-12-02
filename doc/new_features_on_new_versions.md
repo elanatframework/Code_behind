@@ -39,7 +39,7 @@
 
 **Problems that were solved**
  - The problem of loading the constructor model without a controller was solved.
- - Fixed else detection problem for if.
+ - Fixed else detection problem for if in Razor syntax.
 
 ### Version 1.9.1
 
