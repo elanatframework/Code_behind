@@ -141,7 +141,7 @@ namespace SetCodeBehind
             CodeBehindViews += "        private string LoadPage(string path)" + Environment.NewLine;
             CodeBehindViews += "        {" + Environment.NewLine;
             CodeBehindViews += "            return SetPageLoadByFullPath(path, null);" + Environment.NewLine;
-            CodeBehindViews += "        }" + Environment.NewLine + Environment.NewLine;
+            CodeBehindViews += "        }" + Environment.NewLine;
 
             CodeBehindViews += MethodCodeTemplateValue + Environment.NewLine;
 
@@ -217,7 +217,7 @@ namespace SetCodeBehind
                 TmpMethodCodeTemplateValue += "            " + Controller + " CurrentController = new " + Controller + "();" + Environment.NewLine;
 
                 if (!string.IsNullOrEmpty(ControllerConstructor))
-                    TmpMethodCodeTemplateValue += "            CurrentController.CodeBehindConstructor(" + ModelConstructor + ");" + Environment.NewLine;
+                    TmpMethodCodeTemplateValue += "            CurrentController.CodeBehindConstructor(" + ControllerConstructor + ");" + Environment.NewLine;
 
                 TmpMethodCodeTemplateValue += "            CurrentController.PageLoad(context);" + Environment.NewLine;
 
