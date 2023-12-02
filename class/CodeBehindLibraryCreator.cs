@@ -224,12 +224,12 @@ namespace SetCodeBehind
             if (!IsBreak)
             {
                 if (RewriteAspxFileToDirectory)
-                    if (!IgnoreDefaultAfterRewrite || (AspxFilePath.GetTextAfterLastValue("/") != "Default.aspx"))
-                        CaseCodeTemplateValue += "                case \"" + AspxFilePath.Replace("\\", "/").GetTextBeforeLastValue(".aspx") + "/Default.aspx" + "\": return " + FilePathToMethodName + "_" + Controller.Replace('.', '_') + "_PageLoad" + MethodIndexer + "(context" + (IsLayout? ", \"\"" : "") + ");" + Environment.NewLine;
+                    if (IgnoreDefaultAfterRewrite && (AspxFilePath.GetTextAfterLastValue('\\'.ToString()) == "Default.aspx"))
+                        CaseCodeTemplateValue += "                case \"" + AspxFilePath.Replace("\\", "/") + "\": return " + FilePathToMethodName + "_" + Controller.Replace('.', '_') + "_PageLoad" + MethodIndexer + "(context" + (IsLayout ? ", \"\"" : "") + ");" + Environment.NewLine;
                     else
-                        CaseCodeTemplateValue += "                case \"" + AspxFilePath.Replace("\\", "/") + "\": return " + FilePathToMethodName + "_" + Controller.Replace('.', '_') + "_PageLoad" + MethodIndexer + "(context" + (IsLayout? ", \"\"" : "") + ");" + Environment.NewLine;
+                        CaseCodeTemplateValue += "                case \"" + AspxFilePath.Replace("\\", "/").GetTextBeforeLastValue(".aspx") + "/Default.aspx" + "\": return " + FilePathToMethodName + "_" + Controller.Replace('.', '_') + "_PageLoad" + MethodIndexer + "(context" + (IsLayout? ", \"\"" : "") + ");" + Environment.NewLine;
 
-                if (!RewriteAspxFileToDirectory || (RewriteAspxFileToDirectory && AccessAspxFileAfterRewrite))
+                if (!RewriteAspxFileToDirectory || (RewriteAspxFileToDirectory && AccessAspxFileAfterRewrite && !(IgnoreDefaultAfterRewrite && (AspxFilePath.GetTextAfterLastValue('\\'.ToString()) == "Default.aspx"))))
                     CaseCodeTemplateValue += "                case \"" + AspxFilePath.Replace("\\", "/") + "\": return " + FilePathToMethodName + "_" + Controller.Replace('.', '_') + "_PageLoad" + MethodIndexer + "(context" + (IsLayout? ", \"\"" : "") + ");" + Environment.NewLine;
             }
 
@@ -1775,6 +1775,9 @@ namespace SetCodeBehind
 
         private void MoveViewFromWwwroot(string ViewPath, string Extension = "aspx")
         {
+            if (!Directory.Exists("wwwroot"))
+                return;
+
             DirectoryInfo WwwrootDir = new DirectoryInfo("wwwroot");
 
             if (!Directory.Exists(Path.GetFullPath(ViewPath)))
