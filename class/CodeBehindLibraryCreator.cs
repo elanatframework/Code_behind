@@ -97,11 +97,6 @@ namespace SetCodeBehind
             InnerTrimInAspxFile = options.InnerTrimInAspxFile;
 
 
-            // Move View From Wwwroot
-            if ((options.ViewPath != "wwwroot") && options.MoveViewFromWwwroot)
-                MoveViewFromWwwroot(options.ViewPath);
-
-
             // Create wwwroot Directory And Set Default.aspx File
             if (options.ViewPath == "wwwroot")
                 if (!Directory.Exists("wwwroot"))
@@ -127,6 +122,11 @@ namespace SetCodeBehind
                         writer.WriteLine("</html>");
                     }
                 }
+
+
+            // Move View From Wwwroot
+            if ((options.ViewPath != "wwwroot") && options.MoveViewFromWwwroot)
+                MoveViewFromWwwroot(options.ViewPath);
 
 
             DirectoryInfo RootDir = new DirectoryInfo(options.ViewPath);
@@ -225,12 +225,12 @@ namespace SetCodeBehind
             {
                 if (RewriteAspxFileToDirectory)
                     if (!IgnoreDefaultAfterRewrite || (AspxFilePath.GetTextAfterLastValue("/") != "Default.aspx"))
-                        CaseCodeTemplateValue += "                case \"" + AspxFilePath.Replace("\\", "/").GetTextBeforeLastValue(".aspx") + "/Default.aspx" + "\": return " + FilePathToMethodName + "_" + Controller.Replace('.', '_') + "_PageLoad" + MethodIndexer + "(context);" + Environment.NewLine;
+                        CaseCodeTemplateValue += "                case \"" + AspxFilePath.Replace("\\", "/").GetTextBeforeLastValue(".aspx") + "/Default.aspx" + "\": return " + FilePathToMethodName + "_" + Controller.Replace('.', '_') + "_PageLoad" + MethodIndexer + "(context" + (IsLayout? ", \"\"" : "") + ");" + Environment.NewLine;
                     else
-                        CaseCodeTemplateValue += "                case \"" + AspxFilePath.Replace("\\", "/") + "\": return " + FilePathToMethodName + "_" + Controller.Replace('.', '_') + "_PageLoad" + MethodIndexer + "(context);" + Environment.NewLine;
+                        CaseCodeTemplateValue += "                case \"" + AspxFilePath.Replace("\\", "/") + "\": return " + FilePathToMethodName + "_" + Controller.Replace('.', '_') + "_PageLoad" + MethodIndexer + "(context" + (IsLayout? ", \"\"" : "") + ");" + Environment.NewLine;
 
                 if (!RewriteAspxFileToDirectory || (RewriteAspxFileToDirectory && AccessAspxFileAfterRewrite))
-                    CaseCodeTemplateValue += "                case \"" + AspxFilePath.Replace("\\", "/") + "\": return " + FilePathToMethodName + "_" + Controller.Replace('.', '_') + "_PageLoad" + MethodIndexer + "(context);" + Environment.NewLine;
+                    CaseCodeTemplateValue += "                case \"" + AspxFilePath.Replace("\\", "/") + "\": return " + FilePathToMethodName + "_" + Controller.Replace('.', '_') + "_PageLoad" + MethodIndexer + "(context" + (IsLayout? ", \"\"" : "") + ");" + Environment.NewLine;
             }
 
             CaseCodeTemplateValueForFullPath += "                case \"" + AspxFilePath.Replace("\\", "/") + "\": return " + FilePathToMethodName + "_" + Controller.Replace('.', '_') + "_PageLoad" + MethodIndexer + "(context" + (IsLayout? ", PageReturnValue" : "") + ");" + Environment.NewLine;
@@ -1773,14 +1773,14 @@ namespace SetCodeBehind
             }
         }
 
-        private void MoveViewFromWwwroot(string ViewPath)
+        private void MoveViewFromWwwroot(string ViewPath, string Extension = "aspx")
         {
             DirectoryInfo WwwrootDir = new DirectoryInfo("wwwroot");
 
             if (!Directory.Exists(Path.GetFullPath(ViewPath)))
                 Directory.CreateDirectory(Path.GetFullPath(ViewPath));
 
-            foreach (FileInfo file in WwwrootDir.GetFiles("*.aspx|*.astx", SearchOption.AllDirectories))
+            foreach (FileInfo file in WwwrootDir.GetFiles("*." + Extension, SearchOption.AllDirectories))
             {
                 string ParrentDirectories = file.FullName.GetTextAfterValue(Path.GetFullPath("wwwroot")).GetTextBeforeLastValue(@"\" + file.Name);
 
@@ -1789,6 +1789,9 @@ namespace SetCodeBehind
 
                 File.Move(file.FullName, Path.GetFullPath(ViewPath) + ParrentDirectories + @"\" + file.Name, true);
             }
+
+            if (Extension != "astx")
+                MoveViewFromWwwroot(ViewPath, "astx"); // Set Recursive
         }
 
         private string ImportNamespaceList()
