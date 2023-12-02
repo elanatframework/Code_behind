@@ -40,3 +40,8 @@
 **Problems that were solved**
  - The problem of loading the constructor model without a controller was solved.
  - Fixed else detection problem for if.
+
+### Version 1.9.1
+
+**Problems that were solved**
+ - A mistake caused the arguments of the model constructor to be wrongly placed in the controller constructor; this problem has been fixed now.
