@@ -48,3 +48,4 @@
  - In this version, if the CodeBehind framework is activated for the first time, it will no longer give the wwwroot directory missing error and a default welcome file will be placed in it.
  - The error that occurred when activating the set break for layout page (`set_break_for_layout_page=true`) option was resolved.
  - The problem of not automatically moving from the wwwroot path to the view path has been solved.
+ - The problem of not applying, ignoring the default Default.aspx files to rewrite as a directory, was solved.
