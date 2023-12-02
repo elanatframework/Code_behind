@@ -46,3 +46,4 @@
 **Problems that were solved**
  - A mistake caused the arguments of the model constructor to be wrongly placed in the controller constructor; this problem has been fixed now.
  - In this version, if the CodeBehind framework is activated for the first time, it will no longer give the wwwroot directory missing error and a default welcome file will be placed in it.
+ - The error that occurred when activating the set break for layout page (`set_break_for_layout_page=true`) option was resolved.
