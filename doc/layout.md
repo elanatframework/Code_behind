@@ -101,7 +101,7 @@ Result in hello-world.aspx path
 	</head>
 	<body>
 		<header>
-			</b>Website name: My Company</b>
+			<b>Website name: My Company</b>
 		</header>
 		<br>
 		<div>
@@ -147,7 +147,7 @@ Header page (header.aspx) (standard syntax)
 <%@ Page Break="true" %>
 <% string WebsiteName = "My Company"; %>
         <header>
-            </b>Website name: <%=WebsiteName%></b>
+            <b>Website name: <%=WebsiteName%></b>
         </header>
         <br>
 ```
