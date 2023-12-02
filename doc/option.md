@@ -14,6 +14,7 @@ ignore_default_after_rewrite=true
 start_trim_in_aspx_file=true
 inner_trim_in_aspx_file=true
 end_trim_in_aspx_file=true
+set_break_for_layout_page=true
 ```
 
 **The possibility to load aspx page names as directory names**
@@ -104,5 +105,11 @@ Example for standard syntax
 (`end_trim_in_aspx_file=true`)
 
 If this option is active, every new line and extra tab and space will be deleted from the bottom of the aspx files.
+
+**Break for layout**
+
+(`set_break_for_layout_page=true`)
+
+If this option is enabled, layout files are automatically ignored from direct access and cannot be accessed via url.
 
 In the future, more customization options will be added to the options file.
