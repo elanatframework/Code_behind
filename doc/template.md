@@ -131,7 +131,7 @@ View section before pasting the template
 }
 
 @#PageName{@page.Title}
-@#Href{@((page.Path == "main")? "/" : page.Path)}
+@#Href{@(((page.Path == "main")? "/" : page.Path))}
 ```
 
 pasting template auto step 1
@@ -151,7 +151,7 @@ pasting template auto step 1
 }
 
 @#PageName{@page.Title}
-@#Href{@((page.Path == "main")? "/" : page.Path)}
+@#Href{@(((page.Path == "main")? "/" : page.Path))}
 ```
 
 pasting template auto step 2
@@ -167,7 +167,7 @@ pasting template auto step 2
 </div>
 
 @#PageName{@page.Title}
-@#Href{@((page.Path == "main")? "/" : page.Path)}
+@#Href{@(((page.Path == "main")? "/" : page.Path))}
 ```
 
 pasting template auto step 3 (finally)
@@ -177,7 +177,7 @@ pasting template auto step 3 (finally)
   <div class="header-right">
     @foreach (PageItem page in model.PageItemList)
     {
-        <a href="@((page.Path == "main")? "/" : page.Path)">@page.Title</a>
+        <a href="@(((page.Path == "main")? "/" : page.Path))">@page.Title</a>
     }
   </div>
 </div>
@@ -228,7 +228,7 @@ View section without use return template
   <div class="header-right">
 + @foreach (PageItem page in model.PageItemList)
 + {
-+    <a href="@((page.Path == "main")? "/" : page.Path)">@page.Title</a>
++    <a href="@(((page.Path == "main")? "/" : page.Path))">@page.Title</a>
 + }
   </div>
 </div>
