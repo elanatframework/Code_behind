@@ -29,7 +29,7 @@ CodeBehind framework users can remove the path of aspx files from wwwroot and ad
 
 (`move_view_from_wwwroot=true`)
 
-If you have selected the path of the view file in a path other than the wwwroot path, if the option to move from the wwwroot path is enabled, automatically after recompile, all aspx files will be moved from the wwwroot path to your chosen path.
+If you have selected the path of the view file in a path other than the wwwroot path, if the option to move from the wwwroot path is enabled, automatically after recompile, all aspx and astx files will be moved from the wwwroot path to your chosen path.
 
 **Rewrite aspx path as directory**
 
