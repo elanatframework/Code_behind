@@ -49,3 +49,6 @@
  - The error that occurred when activating the set break for layout page (`set_break_for_layout_page=true`) option was resolved.
  - The problem of not automatically moving from the wwwroot path to the view path has been solved.
  - The problem of not applying, ignoring the default Default.aspx files to rewrite as a directory, was solved.
+
+### Version 1.9.2
+ - In this version and later, in the methods of the final view class, when creating a new instance of the controller class, the term controller is used instead of the term CurrentController.
