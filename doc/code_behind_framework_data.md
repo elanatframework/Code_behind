@@ -33,7 +33,7 @@ This file is the final class of views that is made from aspx files.
 
 This file is a copy of the final view class that was compiled without problems.
 
-### views_compile_error.log
+### views_compile_error.log (maybe)
 
 If the compiler gives an error while compiling the final view class, this file displays the errors; If the compilation is successful, this file will not be displayed.
 
