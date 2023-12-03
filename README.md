@@ -18,8 +18,6 @@ In every scenario, CodeBehind performs better than the default structure in ASP.
 
 ![ASP.NET Core VS CodeBehind table](https://github.com/elanatframework/Code_behind/assets/111444759/fa78b90a-f404-4cdc-81c1-d101c920c00c)
 
-Programming in CodeBehind is simple. The simplicity of the CodeBehind project is the result of two years of study and research on back-end frameworks and how they support web parts.
-
 ### Only view example
 
 View section: aspx page (razor syntax)
