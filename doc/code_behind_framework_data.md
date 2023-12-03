@@ -15,11 +15,11 @@ Apart from the list above, a file called CodeBehindLastSuccessCompiled.dll.tmp i
 
 ### dll_import_list.ini
 
-This file adds namespaces to the view class aggregating aspx files.
+This file set dlls path in the view class aggregating aspx files.
 
 ### namespace_import_list.ini
 
-This file set dlls path in the view class aggregating aspx files.
+This file adds namespaces to the view class aggregating aspx files.
 
 ### options.ini
 
