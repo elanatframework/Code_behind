@@ -12,3 +12,35 @@ There are the following files in the code_behind directory:
  - views_class_aggregation_error.log (maybe)
 
 Apart from the list above, a file called CodeBehindLastSuccessCompiled.dll.tmp is added next to the CodeBehind.dll library and the main project dll.
+
+### dll_import_list.ini
+
+This file adds namespaces to the view class aggregating aspx files.
+
+### namespace_import_list.ini
+
+This file set dlls path in the view class aggregating aspx files.
+
+### options.ini
+
+This file will contain many options for customization.
+
+### views_class.cs
+
+This file is the final class of views that is made from aspx files.
+
+### views_class_last_success_compiled.cs
+
+This file is a copy of the final view class that was compiled without problems.
+
+### views_compile_error.log
+
+If the compiler gives an error while compiling the final view class, this file displays the errors; If the compilation is successful, this file will not be displayed.
+
+### views_class_aggregation_error.log (maybe)
+
+If there is a problem while collecting data from the views, this file will display the problems; Otherwise, this file will not be displayed.
+
+### CodeBehindLastSuccessCompiled.dll.tmp
+
+This file is a dll that stores the last successful compilation of the view class.
