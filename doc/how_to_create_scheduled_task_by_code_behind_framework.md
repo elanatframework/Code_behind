@@ -1,4 +1,4 @@
-## How to create Scheduled task system by CodeBehind framework?
+## How to create scheduled task system by CodeBehind framework?
 
  First, create an xml file (or json or ini or etc) similar to the following file:
 
