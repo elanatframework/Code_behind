@@ -176,6 +176,16 @@ app.Run();
 
 [CodeBehind framework vs Code-Behind pattern](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/code_behind_framework_vs_code_behind_pattern.md)
 
+#### Creating high-level systems
+
+[How to create modular systems by CodeBehind framework?](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/how_to_create_modular_systems_by_code_behind_framework.md)
+
+[How to create scheduled task system by CodeBehind framework?](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/how_to_create_scheduled_task_by_code_behind_framework.md)
+
+[How to create startup system by CodeBehind framework?](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/how_to_create_startup_system_by_code_behind_framework.md)
+
+[How to create dynamic middleware system by CodeBehind framework?](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/how_to_create_dynamic_middleware_by_code_behind_framework.md)
+
 ### CodeBehind training (On YouTube)
 
 [Video 1- Hello World!](https://www.youtube.com/watch?v=lxQhDXJ0WcI)
