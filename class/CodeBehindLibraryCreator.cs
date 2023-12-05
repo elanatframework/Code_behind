@@ -112,6 +112,7 @@ namespace SetCodeBehind
                         writer.WriteLine("  string Title = \"CodeBehind Framework\";");
                         writer.WriteLine("  string WelcomeText = \"Welcome to the CodeBehind Framework!\";");
                         writer.WriteLine("}");
+                        writer.WriteLine("<!DOCTYPE html>");
                         writer.WriteLine("<html>");
                         writer.WriteLine("<head>");
                         writer.WriteLine("  <title>@Title</title>");
@@ -241,30 +242,30 @@ namespace SetCodeBehind
 
             if (!PageIsOnlyView)
             {
-                TmpMethodCodeTemplateValue += "            " + Controller + " CurrentController = new " + Controller + "();" + Environment.NewLine;
+                TmpMethodCodeTemplateValue += "            " + Controller + " controller = new " + Controller + "();" + Environment.NewLine;
 
                 if (!string.IsNullOrEmpty(ControllerConstructor))
-                    TmpMethodCodeTemplateValue += "            CurrentController.CodeBehindConstructor(" + ControllerConstructor + ");" + Environment.NewLine;
+                    TmpMethodCodeTemplateValue += "            controller.CodeBehindConstructor(" + ControllerConstructor + ");" + Environment.NewLine;
 
-                TmpMethodCodeTemplateValue += "            CurrentController.PageLoad(context);" + Environment.NewLine;
+                TmpMethodCodeTemplateValue += "            controller.PageLoad(context);" + Environment.NewLine;
 
-                TmpMethodCodeTemplateValue += "            if (!CurrentController.IgnoreViewAndModel)" + Environment.NewLine;
+                TmpMethodCodeTemplateValue += "            if (!controller.IgnoreViewAndModel)" + Environment.NewLine;
                 TmpMethodCodeTemplateValue += "            {" + Environment.NewLine;
 
                 if (!string.IsNullOrEmpty(Model))
                 {
-                    TmpMethodCodeTemplateValue += "                " + Model + " model = (" + Model + ")CurrentController.CodeBehindModel;" + Environment.NewLine;
+                    TmpMethodCodeTemplateValue += "                " + Model + " model = (" + Model + ")controller.CodeBehindModel;" + Environment.NewLine;
 
                     if (!string.IsNullOrEmpty(ModelConstructor))
                         TmpMethodCodeTemplateValue += "                model.CodeBehindConstructor(" + ModelConstructor + ");" + Environment.NewLine;
 
-                    TmpMethodCodeTemplateValue += "                CurrentController.ResponseText += model.ResponseText;" + Environment.NewLine;
+                    TmpMethodCodeTemplateValue += "                controller.ResponseText += model.ResponseText;" + Environment.NewLine;
                 }
 
                 TmpMethodCodeTemplateValue += TextToCodeCombination;
                 TmpMethodCodeTemplateValue += "            }" + Environment.NewLine;
 
-                TmpMethodCodeTemplateValue += "            return " + (!string.IsNullOrEmpty(Layout) ? "SetPageLoadByFullPath(\"" + Layout + "\", context, CurrentController.ResponseText)" : "CurrentController.ResponseText") + ";" + Environment.NewLine;
+                TmpMethodCodeTemplateValue += "            return " + (!string.IsNullOrEmpty(Layout) ? "SetPageLoadByFullPath(\"" + Layout + "\", context, controller.ResponseText)" : "controller.ResponseText") + ";" + Environment.NewLine;
             }
             else
             {
@@ -1725,7 +1726,7 @@ namespace SetCodeBehind
                 string TmpTab = (IsInsideControl) ? "    " : "";
 
                 if (!PageIsOnlyView)
-                    return TmpTab + "                CurrentController.ResponseText += \"" + Text.Replace("\"", @"\" + "\"") + "\";" + Environment.NewLine;
+                    return TmpTab + "                controller.ResponseText += \"" + Text.Replace("\"", @"\" + "\"") + "\";" + Environment.NewLine;
                 else
                     return TmpTab + "            ReturnValue += \"" + Text.Replace("\"", @"\" + "\"") + "\";" + Environment.NewLine;
             }
@@ -1738,7 +1739,7 @@ namespace SetCodeBehind
             string TmpTab = (IsInsideControl) ? "    " : "";
 
             if (!PageIsOnlyView)
-                return TmpTab + "                CurrentController.ResponseText += " + Code + ";" + Environment.NewLine;
+                return TmpTab + "                controller.ResponseText += " + Code + ";" + Environment.NewLine;
             else
                 return TmpTab + "            ReturnValue += " + Code + ";" + Environment.NewLine;
         }
