@@ -136,57 +136,33 @@ app.Run();
 
 #### Programming
 
-[Simple and structured MVC in CodeBehind](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/simple_and_structured_mvc_in_code_behind.md)
-
-[It is not necessary to follow the MVC pattern](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/it_is_not_necessary_to_follow_the_mvc_pattern.md)
-
-[Load aspx page finally result in another aspx page](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/load_aspx_page_finally_result_in_another_aspx_page.md)
-
-[Examples of development](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/examples_of_development.md)
-
-[Web part in CodeBehind](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/web_part_in_code_behind.md)
-
-[Razor syntax reference for CodeBehind framework](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/razor_syntax_reference_for_code_behind_framework.md)
-
-[Constructor method](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/constructor_method.md)
-
-[HtmlData classes](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/html_data_classes.md)
-
-[Template](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/template.md)
-
-[Layout](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/layout.md)
-
-[Option](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/option.md)
-
-[Namespace and dll for CodeBehind view class](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/namespace_and_dll_for_code_behind_view_class.md)
-
-[Error detection](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/error_detection.md)
-
-[How to use CodeBehind?](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/how_to_use_code_behind.md)
-
-[New features on new versions](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/new_features_on_new_versions.md)
-
-[How is the list of views finally made?](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/how_is_the_list_of_views_finally_made.md)
-
-[CodeBehind framework data](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/code_behind_framework_data.md)
-
-[Performance test in only view section in version 1.5.2 (ASP.NET Core VS CodeBehind)](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/performance_test_in_only_view_section_version_1.5.2.md)
-
-[CodeBehind story](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/code_behind_story.md)
-
-[ASP.NET Core VS CodeBehind; why should we use CodeBehind?](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/asp_dot_net_core_vs_code_behind.md)
-
-[CodeBehind framework vs Code-Behind pattern](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/code_behind_framework_vs_code_behind_pattern.md)
+ - [Simple and structured MVC in CodeBehind](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/simple_and_structured_mvc_in_code_behind.md)
+ - [It is not necessary to follow the MVC pattern](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/it_is_not_necessary_to_follow_the_mvc_pattern.md)
+ - [Load aspx page finally result in another aspx page](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/load_aspx_page_finally_result_in_another_aspx_page.md)
+ - [Examples of development](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/examples_of_development.md)
+ - [Web part in CodeBehind](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/web_part_in_code_behind.md)
+ - [Razor syntax reference for CodeBehind framework](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/razor_syntax_reference_for_code_behind_framework.md)
+ - [Constructor method](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/constructor_method.md)
+ - [HtmlData classes](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/html_data_classes.md)
+ - [Template](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/template.md)
+ - [Layout](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/layout.md)
+ - [Option](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/option.md)
+ - [Namespace and dll for CodeBehind view class](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/namespace_and_dll_for_code_behind_view_class.md)
+ - [Error detection](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/error_detection.md)
+ - [How to use CodeBehind?](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/how_to_use_code_behind.md)
+ - [New features on new versions](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/new_features_on_new_versions.md)
+ - [How is the list of views finally made?](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/how_is_the_list_of_views_finally_made.md)
+ - [CodeBehind framework data](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/code_behind_framework_data.md)
+ - [Performance test in only view section in version 1.5.2 (ASP.NET Core VS CodeBehind)](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/performance_test_in_only_view_section_version_1.5.2.md)
+ - [CodeBehind story](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/code_behind_story.md)
+ - [ASP.NET Core VS CodeBehind; why should we use CodeBehind?](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/asp_dot_net_core_vs_code_behind.md)
+ - [CodeBehind framework vs Code-Behind pattern](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/code_behind_framework_vs_code_behind_pattern.md)
 
 #### Creating high-level systems
-
-[How to create modular systems by CodeBehind framework?](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/how_to_create_modular_systems_by_code_behind_framework.md)
-
-[How to create scheduled task system by CodeBehind framework?](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/how_to_create_scheduled_task_by_code_behind_framework.md)
-
-[How to create startup system by CodeBehind framework?](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/how_to_create_startup_system_by_code_behind_framework.md)
-
-[How to create dynamic middleware system by CodeBehind framework?](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/how_to_create_dynamic_middleware_by_code_behind_framework.md)
+ - [How to create modular systems by CodeBehind framework?](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/how_to_create_modular_systems_by_code_behind_framework.md)
+ - [How to create scheduled task system by CodeBehind framework?](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/how_to_create_scheduled_task_by_code_behind_framework.md)
+ - [How to create startup system by CodeBehind framework?](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/how_to_create_startup_system_by_code_behind_framework.md)
+ - [How to create dynamic middleware system by CodeBehind framework?](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/how_to_create_dynamic_middleware_by_code_behind_framework.md)
 
 #### CodeBehind training video (On YouTube)
 
