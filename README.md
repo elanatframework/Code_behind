@@ -165,12 +165,9 @@ app.Run();
  - [How to create dynamic middleware system by CodeBehind framework?](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/how_to_create_dynamic_middleware_by_code_behind_framework.md)
 
 #### CodeBehind training video (On YouTube)
-
-[Video 1- Hello World!](https://www.youtube.com/watch?v=lxQhDXJ0WcI)
-
-[Video 2- Set dynamic header](https://www.youtube.com/watch?v=2kLgI0Uf8sU)
-
-[Video 3 - Page list in default page](https://www.youtube.com/watch?v=tUujTKOHFq8)
+ - [Video 1- Hello World!](https://www.youtube.com/watch?v=lxQhDXJ0WcI)
+ - [Video 2- Set dynamic header](https://www.youtube.com/watch?v=2kLgI0Uf8sU)
+ - [Video 3 - Page list in default page](https://www.youtube.com/watch?v=tUujTKOHFq8)
 
 ### Download CodeBehind
 
