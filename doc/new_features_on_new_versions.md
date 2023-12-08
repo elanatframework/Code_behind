@@ -52,3 +52,4 @@
 
 ### Version 1.9.2
  - In this version and later, in the methods of the final view class, when creating a new instance of the controller class, the term controller is used instead of the term CurrentController.
+ - In this version and later, the context inside the astx files are added at the beginning of the aspx file.
