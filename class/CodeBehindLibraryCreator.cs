@@ -440,7 +440,7 @@ namespace SetCodeBehind
                     AstxText += TmpLine2 + @"\n";
                 }
 
-                AspxText += AstxText;
+                AspxText = AstxText + AspxText;
             }
 
             string TextToCodeCombination = "";
@@ -929,7 +929,7 @@ namespace SetCodeBehind
                     AstxText += TmpLine2 + @"\n";
                 }
 
-                AspxText += AstxText;
+                AspxText = AstxText + AspxText;
             }
 
             // Fetch Template
@@ -1878,9 +1878,9 @@ namespace SetCodeBehind
                     if (Text[i] == ' ' || Text[i] == '<')
                         return true;
 
-                    if (Text[i] == '/' && (i + 1 < Text.Length))
+                    if (Text[i] == '\\' && (i + 1 < Text.Length))
                         if (Text[i + 1] == 'n' || Text[i + 1] == 't' || Text[i + 1] == 'r')
-                        return true;
+                            return true;
 
                     break;
                 }
