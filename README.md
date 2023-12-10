@@ -173,13 +173,18 @@ app.Run();
 
 ### Download CodeBehind
 
-We added CodeBehind in Nuget so that you can access it easily. You can use it in:
+Get from Elanat website:
 
-[https://www.nuget.org/packages/CodeBehind](https://www.nuget.org/packages/CodeBehind)
+[https://elanat.net/category/download_code_behind/](https://elanat.net/category/download_code_behind/)
 
 Download from GitHub:
 
 [https://github.com/elanatframework/Code_behind/releases](https://github.com/elanatframework/Code_behind/releases)
+
+Get from Nuget:
+We added CodeBehind in Nuget so that you can access it easily.
+
+[https://www.nuget.org/packages/CodeBehind](https://www.nuget.org/packages/CodeBehind)
 
 ### Elanat was created using CodeBehind
 
