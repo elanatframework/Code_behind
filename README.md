@@ -177,6 +177,10 @@ We added CodeBehind in Nuget so that you can access it easily. You can use it in
 
 [https://www.nuget.org/packages/CodeBehind](https://www.nuget.org/packages/CodeBehind)
 
+Download from GitHub:
+
+[https://github.com/elanatframework/Code_behind/releases](https://github.com/elanatframework/Code_behind/releases)
+
 ### Elanat was created using CodeBehind
 
 CodeBehind is a stable and reliable framework; [Elanat](https://elanat.net) is the most powerful .NET system implemented using the CodeBehind framework.
