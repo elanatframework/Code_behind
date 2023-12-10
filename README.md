@@ -177,7 +177,7 @@ Get from Elanat website:
 
 [https://elanat.net/category/download_code_behind/](https://elanat.net/category/download_code_behind/)
 
-Download from GitHub:
+Get from GitHub:
 
 [https://github.com/elanatframework/Code_behind/releases](https://github.com/elanatframework/Code_behind/releases)
 
