@@ -181,9 +181,7 @@ Download from GitHub:
 
 [https://github.com/elanatframework/Code_behind/releases](https://github.com/elanatframework/Code_behind/releases)
 
-Get from Nuget:
-
-We added CodeBehind in Nuget so that you can access it easily.
+Get from Nuget (We added CodeBehind in Nuget so that you can access it easily):
 
 [https://www.nuget.org/packages/CodeBehind](https://www.nuget.org/packages/CodeBehind)
 
