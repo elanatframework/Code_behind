@@ -57,7 +57,7 @@
 **Problems that were solved**
  - In the standard syntax, the problem of identifying template blocks that have the next line character or Tab character after the template name was solved.
 
-### Version 1.9.2
+### Version 1.9.3
 
 **Problems that were solved**
  - Fixed the problem of naming templates with numbers in the standard syntax.
