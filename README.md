@@ -3,7 +3,7 @@
 CodeBehind library is a modern backend framework. This library is a programming model based on the MVC structure, which provides the possibility of creating dynamic aspx files in .NET Core and has high serverside independence.
 CodeBehind framework supports standard syntax and Razor syntax. This framework guarantees the separation of server-side codes from the design part (html) and there is no need to write server-side codes in the view.
 
-CodeBehind framework inherits every advantage of ASP.NET Core and makes it more simple, powerful and flexible.
+Code Behind framework inherits every advantage of ASP.NET Core and gives it more simplicity, power and flexibility.
 
 **CodeBehind framework is an alternative to ASP.NET Core.**
 
