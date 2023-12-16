@@ -1,6 +1,6 @@
 ## Ready project
 
-In this section, ready-made templates and projects are located using the CodeBehind framework.
+In this section, ready-made projects (and templates) are located using the CodeBehind framework.
 
 **ASP.NET Core Default 7**
 
