@@ -39,3 +39,5 @@ Razor syntax example for foreach loop
     <p>Value: @nv.Value</p>
 }
 ```
+
+Note: You cannot code in conditional blocks and loops in default cshtml pages in ASP.NET Core, but in the CodeBehind framework you will be allowed to code; Therefore, for JavaScript codes, it is necessary to use @ and : characters before each character at the beginning of the lines.
