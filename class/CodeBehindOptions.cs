@@ -27,7 +27,6 @@ namespace CodeBehind
 
             using (StreamReader reader = new StreamReader(OptionsFilePath))
             {
-                string line;
                 reader.ReadLine();
 
                 ViewPath = reader.ReadLine().GetTextAfterValue("=");
