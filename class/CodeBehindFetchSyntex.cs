@@ -501,6 +501,15 @@ namespace CodeBehind
             {
                 if (LineText[i] == '@')
                 {
+                    if (i + 1 < LineText.Length)
+                        if (LineText[i + 1] == '@')
+                        {
+                            WriteText += "@@";
+                            i++;
+                            continue;
+                        }
+
+
                     NameValues.Add("write_text", WriteText);
                     WriteText = "";
 
