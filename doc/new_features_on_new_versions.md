@@ -61,3 +61,4 @@
 
 **Problems that were solved**
  - Fixed the problem of naming templates with numbers in the standard syntax.
+ - Solving the problem of not ignoring two consecutive at sign (@) in conditional blocks and loop blocks.
