@@ -1846,7 +1846,7 @@ namespace SetCodeBehind
 
 
             for (int i = 0; i < Text.Length; i++)
-                if (char.IsLetter(Text[i]))
+                if (char.IsLetter(Text[i]) || char.IsNumber(Text[i]))
                     ReturnValue += Text[i];
                 else
                     break;
