@@ -64,4 +64,5 @@
  - Solving the problem of not ignoring two consecutive at sign (@) in conditional blocks and loop blocks.
 
 ### Version 2.0
- - Ability to add data to ViewData in controller and model 
+ - Ability to add data to ViewData in controller and model.
+ - The addition of download API and the possibility of downloading files from executive pages in all three sections, view, model and controller.
