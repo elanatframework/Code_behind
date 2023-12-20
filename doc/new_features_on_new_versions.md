@@ -62,3 +62,6 @@
 **Problems that were solved**
  - Fixed the problem of naming templates with numbers in the standard syntax.
  - Solving the problem of not ignoring two consecutive at sign (@) in conditional blocks and loop blocks.
+
+### Version 2.0
+ - Ability to add data to ViewData in controller and model 
