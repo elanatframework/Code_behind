@@ -67,3 +67,4 @@
  - Ability to add data to ViewData in controller and model.
  - The addition of download API and the possibility of downloading files from executive pages in all three sections, view, model and controller.
  - The addition of a global template file to support all view pages.
+ - The possibility of adding more templates, by separating the semicolon character (;).
