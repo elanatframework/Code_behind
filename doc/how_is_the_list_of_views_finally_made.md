@@ -151,7 +151,12 @@ namespace CodeBehindViews
     }
 }
 
-namespace YourProjectName{public partial class CodeBehindEmptyClass{}}
+namespace YourProjectName
+{
+    public partial class CodeBehindEmptyClass
+    {
+    }
+}
 ```
 
 In the views class, there is a switch case that calls methods based on the path of the aspx file; the internal values of these methods correspond to the same aspx file that existed in that path.
