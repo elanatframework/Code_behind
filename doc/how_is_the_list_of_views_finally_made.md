@@ -170,4 +170,11 @@ Also how to call the Random.aspx file is known in the `_test_Random_aspx__PageLo
 
 According to the code below, in the last line, a namespace with the name of the project has been added. This namespace has an empty class inside it. The reason for adding this namespace is that if the developer does not use the same namespace as the project name, there will be no problem in calling the namespace with the same name as the project name.
 
-`namespace YourProjectName{public partial class CodeBehindEmptyClass{}}`
+```csharp
+namespace YourProjectName
+{
+    public partial class CodeBehindEmptyClass
+    {
+    }
+}
+```
