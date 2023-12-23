@@ -154,6 +154,9 @@ app.Run();
  - [Error detection](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/error_detection.md)
  - [How to use CodeBehind?](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/how_to_use_code_behind.md)
 
+#### API and applied methods
+ - [Download file](download_file.md)
+
 #### Information
  - [New features on new versions](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/new_features_on_new_versions.md)
  - [How is the list of views finally made?](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/how_is_the_list_of_views_finally_made.md)
