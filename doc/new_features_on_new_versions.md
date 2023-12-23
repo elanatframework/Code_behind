@@ -68,3 +68,5 @@
  - The addition of download API and the possibility of downloading files from executive pages in all three sections, view, model and controller.
  - The addition of a global template file to support all view pages.
  - The possibility of adding more templates, by separating the semicolon character (;).
+ - New option to support cshtml files in the options file.
+ - Added default pages after first run.
