@@ -69,4 +69,4 @@
  - The addition of a global template file to support all view pages.
  - The possibility of adding more templates, by separating the semicolon character (;).
  - New option to support cshtml files in the options file.
- - Added default pages after first run.
+ - Added default pages (include layout) after first run.
