@@ -2,7 +2,7 @@ This article tells how to create the final class of views in the CodeBehind fram
 
 In this example, an MVC page named Default.aspx, and a single page named Random.aspx are created. The Default.aspx page is located in the root and the Random.aspx page is located in the test directory located in the root.
 
-**Note: This class is a simplified example of the view class; The View class in the CodeBehind framework has a more complex structure.**
+**Note: This class is a simplified example of the view class; the View class in the CodeBehind framework has a more complex structure.**
 
 # Pages
 
