@@ -15,6 +15,7 @@ start_trim_in_aspx_file=true
 inner_trim_in_aspx_file=true
 end_trim_in_aspx_file=true
 set_break_for_layout_page=true
+convert_cshtml_to_aspx=false
 ```
 
 **The possibility to load aspx page names as directory names**
@@ -111,5 +112,16 @@ If this option is active, every new line and extra tab and space will be deleted
 (`set_break_for_layout_page=true`)
 
 If this option is enabled, layout files are automatically ignored from direct access and cannot be accessed via url.
+
+**Support cshtml extension**
+
+In the options file, exist an option to support cshtml files so that users of the CodeBehind framework can easily distinguish the codes of the view section with code highlighters.
+
+You can code in these files with razor syntax and standard syntax.
+cshtml files will be available with aspx extension after compilation.
+For default cshtml pages, the name should be Default.cshtml; So pages named Index.cshtml will not be the default route.
+
+Please note that these files must not be added to projects in Visual Studio; The reason for this is that, in addition to the CodeBehind framework, these pages are also compiled in the default .NET mode and can create unstable situation and security risk conditions.
+Also note that the default code highlighter of Visual Studio may in some cases have unnecessary errors from cshtml pages based on the CodeBehind framework.
 
 In the future, more customization options will be added to the options file.
