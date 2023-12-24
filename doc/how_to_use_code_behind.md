@@ -79,6 +79,6 @@ Press F5 to test the project.
 
 #### Run default pages
 
-if you run CodeBehind for the first time without the wwwroot directory, a ready default page will be created including a layout, header and footer.
+if you run (Press F5) CodeBehind for the first time without the wwwroot directory, a ready default page will be created including a layout, header and footer.
 
 ![Default pages after first run](https://github.com/elanatframework/Code_behind/assets/111444759/8b3a5af9-b990-4b03-9b0f-ba6b7c981e2e)
