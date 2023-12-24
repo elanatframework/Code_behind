@@ -115,6 +115,8 @@ If this option is enabled, layout files are automatically ignored from direct ac
 
 **Support cshtml extension**
 
+(`convert_cshtml_to_aspx=false`)
+
 In the options file, exist an option to support cshtml files so that users of the CodeBehind framework can easily distinguish the codes of the view section with code highlighters.
 
 You can code in these files with razor syntax and standard syntax.
