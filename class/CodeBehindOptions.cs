@@ -12,6 +12,7 @@ namespace CodeBehind
         public bool InnerTrimInAspxFile { private set; get; }
         public bool EndTrimInAspxFile { private set; get; }
         public bool SetBreakForLayoutPage { private set; get; }
+        public bool ConvertCsHtmlToAspx { private set; get; }
         public CodeBehindOptions()
         {
             if (!Directory.Exists("code_behind"))
@@ -38,6 +39,7 @@ namespace CodeBehind
                 InnerTrimInAspxFile = (reader.ReadLine().GetTextAfterValue("=") == "true");
                 EndTrimInAspxFile = (reader.ReadLine().GetTextAfterValue("=") == "true");
                 SetBreakForLayoutPage = (reader.ReadLine().GetTextAfterValue("=") == "true");
+                ConvertCsHtmlToAspx = (reader.ReadLine().GetTextAfterValue("=") == "true");
             }
         }
 
@@ -55,6 +57,7 @@ namespace CodeBehind
             OptionsList.Add("inner_trim_in_aspx_file=true");
             OptionsList.Add("end_trim_in_aspx_file=true");
             OptionsList.Add("set_break_for_layout_page=true");
+            OptionsList.Add("convert_cshtml_to_aspx=false");
 
             bool HasMoreOption = false;
 
