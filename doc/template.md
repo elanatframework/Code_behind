@@ -275,7 +275,7 @@ pasting template auto step finally for standard syntax
 ```
 **Global template**
 
-Global template are a new feature of the CodeBehind framework. All view pages call this template.
+Global template are a feature of the CodeBehind framework. All view pages call this template.
 
 It is recommended to use only template blocks in the global format.
 
