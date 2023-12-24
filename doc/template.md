@@ -273,3 +273,10 @@ pasting template auto step finally for standard syntax
   </div>
 </div>
 ```
+**Global template**
+
+Global template are a new feature of the CodeBehind framework. All view pages call this template.
+
+It is recommended to use only template blocks in the global format.
+
+This template is called in `code_behind/global_template.astx` path.
