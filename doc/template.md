@@ -207,6 +207,21 @@ There is no need to add the astx file extension and the following path is also c
 
 `"/page/template/page_template"`
 
+You can add more templates; it is enough to separate the paths of the templates with the big character (;).
+
+Razor syntax example:
+
+```html
+@page
+@template "/page/template/template1.astx;/page/template/template2.astx;/page/template/template3.astx"
+```
+
+Standard syntax example:
+
+```html
+<%@ Page Template="/page/template/template1.astx;/page/template/template2.astx;/page/template/template3.astx" %>
+```
+
 In the template placement example, if you add the template externally, you will have the following html in the design section.
 
 View section before pasting the template
