@@ -52,6 +52,8 @@ app.Run();
 
 ### Use CodeBehind
 
+#### Programming
+
 **Step 1:**
 
 In the Solution Explore section, right-click on the project name and then select Add and then New Folder in the opened menu and name the folder **wwwroot**.
@@ -74,3 +76,9 @@ Open the Default.aspx file and delete the values inside it and put the following
 ```
 
 Press F5 to test the project.
+
+#### Run default pages
+
+if you run CodeBehind for the first time without the wwwroot directory, a ready default page will be created including a layout, header and footer.
+
+![Default pages after first run](https://github.com/elanatframework/Code_behind/assets/111444759/8b3a5af9-b990-4b03-9b0f-ba6b7c981e2e)
