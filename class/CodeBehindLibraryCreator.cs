@@ -7,6 +7,19 @@ namespace SetCodeBehind
 {
     class CodeBehindLibraryCreator
     {
+        private List<string> ErrorList = new List<string>();
+        private bool RewriteAspxFileToDirectory;
+        private bool AccessAspxFileAfterRewrite;
+        private bool IgnoreDefaultAfterRewrite;
+        private bool StartTrimInAspxFile;
+        private bool EndTrimInAspxFile;
+        private bool SetBreakForLayoutPage;
+        private bool InnerTrimInAspxFile;
+        private string CaseCodeTemplateValue = "";
+        private string CaseCodeTemplateValueForFullPath = "";
+        private string MethodCodeTemplateValue = "";
+        private string GlobalTemplate = "";
+
         public string GetCodeBehindViews()
         {
             if (!Directory.Exists("code_behind"))
@@ -103,31 +116,153 @@ namespace SetCodeBehind
                 {
                     Directory.CreateDirectory("wwwroot");
 
-                    const string FilePath = "wwwroot/Default.aspx";
+                    string FilePath = "wwwroot/layout.aspx";
 
                     using (StreamWriter writer = File.CreateText(FilePath))
                     {
                         writer.WriteLine("@page");
+                        writer.WriteLine("@islayout");
                         writer.WriteLine("@{");
-                        writer.WriteLine("  string Title = \"CodeBehind Framework\";");
                         writer.WriteLine("  string WelcomeText = \"Welcome to the CodeBehind Framework!\";");
                         writer.WriteLine("}");
                         writer.WriteLine("<!DOCTYPE html>");
                         writer.WriteLine("<html>");
                         writer.WriteLine("<head>");
-                        writer.WriteLine("  <title>@Title</title>");
+                        writer.WriteLine("  <title>CodeBehind Framework - @ViewData.GetValue(\"title\")</title>");
+                        writer.WriteLine("  <style>");
+                        writer.WriteLine("  body");
+                        writer.WriteLine("  {");
+                        writer.WriteLine("      font-family: Arial, sans-serif;");
+                        writer.WriteLine("      margin: 0;");
+                        writer.WriteLine("      padding: 0;");
+                        writer.WriteLine("      line-height: 32px;");
+                        writer.WriteLine("  }");
+                        writer.WriteLine();
+                        writer.WriteLine("  header");
+                        writer.WriteLine("  {");
+                        writer.WriteLine("      background-color: #f2f2f2;");
+                        writer.WriteLine("      text-align: center;");
+                        writer.WriteLine("      padding: 20px 0;");
+                        writer.WriteLine("  }");
+                        writer.WriteLine();
+                        writer.WriteLine("  nav");
+                        writer.WriteLine("  {");
+                        writer.WriteLine("      background-color: #90dbff;");
+                        writer.WriteLine("      color: #fff;");
+                        writer.WriteLine("      text-align: center;");
+                        writer.WriteLine("      padding: 10px 0;");
+                        writer.WriteLine("  }");
+                        writer.WriteLine();
+                        writer.WriteLine("  nav ul");
+                        writer.WriteLine("  {");
+                        writer.WriteLine("      list-style-type: none;");
+                        writer.WriteLine("      padding: 0;");
+                        writer.WriteLine("  }");
+                        writer.WriteLine();
+                        writer.WriteLine("  nav ul li");
+                        writer.WriteLine("  {");
+                        writer.WriteLine("      display: inline;");
+                        writer.WriteLine("      margin: 0 10px;");
+                        writer.WriteLine("  }");
+                        writer.WriteLine();
+                        writer.WriteLine("  footer");
+                        writer.WriteLine("  {");
+                        writer.WriteLine("      background-color: #333;");
+                        writer.WriteLine("      color: #fff;");
+                        writer.WriteLine("      text-align: center;");
+                        writer.WriteLine("      padding: 10px 0;");
+                        writer.WriteLine("  }");
+                        writer.WriteLine("  </style>");
                         writer.WriteLine("</head>");
                         writer.WriteLine("<body>");
-                        writer.WriteLine("  <h1>Text value is: @WelcomeText</h1>");
+                        writer.WriteLine();
+                        writer.WriteLine("  @LoadPage(\"/header.aspx\")");
+                        writer.WriteLine();
+                        writer.WriteLine("  <nav>");
+                        writer.WriteLine("      <ul>");
+                        writer.WriteLine("          <li><a href=\"#\">Home</a></li>");
+                        writer.WriteLine("          <li><a href=\"#\">About</a></li>");
+                        writer.WriteLine("          <li><a href=\"#\">Contact</a></li>");
+                        writer.WriteLine("      </ul>");
+                        writer.WriteLine("  </nav>");
+                        writer.WriteLine();
+                        writer.WriteLine("  <h2>CodeBehind Framework - @ViewData.GetValue(\"title\")</h2>");
+                        writer.WriteLine("  <p>Text value is: @WelcomeText</p>");
+                        writer.WriteLine();
+                        writer.WriteLine("  @PageReturnValue");
+                        writer.WriteLine();
+                        writer.WriteLine("  @LoadPage(\"/footer.aspx\")");
+                        writer.WriteLine();
                         writer.WriteLine("</body>");
                         writer.WriteLine("</html>");
                     }
+
+                    FilePath = "wwwroot/Default.aspx";
+
+                    using (StreamWriter writer = File.CreateText(FilePath))
+                    {
+                        writer.WriteLine("@page");
+                        writer.WriteLine("@layout \"/layout.aspx\"");
+                        writer.WriteLine("@{");
+                        writer.WriteLine("  ViewData.Add(\"title\",\"Main page\");");
+                        writer.WriteLine("}");
+                        writer.WriteLine("  <main>");
+                        writer.WriteLine("      <p>CodeBehind library is a modern back-end framework and is an alternative to ASP.NET Core. This library is a programming model based on the MVC structure, which provides the possibility of creating dynamic aspx files in .NET Core and has high serverside independence. CodeBehind framework supports standard syntax and Razor syntax. This framework guarantees the separation of server-side codes from the design part (html) and there is no need to write server-side codes in the view.</p>");
+                        writer.WriteLine("      <p>Code Behind framework inherits every advantage of ASP.NET Core and gives it more simplicity, power and flexibility.</p>");
+                        writer.WriteLine("      <p><b>CodeBehind framework is an alternative to ASP.NET Core.</b></p>");
+                        writer.WriteLine("      <h3>Why use CodeBehind?</h3>");
+                        writer.WriteLine("      <ul>");
+                        writer.WriteLine("          <li><b>Fast:</b> The CodeBehind framework is faster than the default structure of cshtml pages in ASP.NET Core.</li>");
+                        writer.WriteLine("          <li><b>Simple:</b> Developing with CodeBehind is very simple. You can use mvc pattern or model-view or controller-view or only view.</li>");
+                        writer.WriteLine("          <li><b>Modular:</b> It is modular. Just copy the new project files, including dll and aspx, into the current active project.</li>");
+                        writer.WriteLine("          <li><b>Get output:</b> You can call the output of the aspx page in another aspx page and modify its output.</li>");
+                        writer.WriteLine("          <li><b>Under .NET Core:</b> Your project will still be under ASP.NET Core and you will benefit from all the benefits of .NET Core.</li>");
+                        writer.WriteLine("          <li><b>Code-Behind:</b> Code-Behind pattern will be fully respected.</li>");
+                        writer.WriteLine("          <li><b>Modern:</b> CodeBehind is a modern framework with revolutionary ideas.</li>");
+                        writer.WriteLine("      </ul>");
+                        writer.WriteLine("      <p><b>CodeBehind is .NET Diamond!</b></p>");
+                        writer.WriteLine("      <p>In every scenario, CodeBehind performs better than the default structure in ASP.NET Core.</p>");
+                        writer.WriteLine("  </main>");
+                    }
+
+                    FilePath = "wwwroot/header.aspx";
+
+                    using (StreamWriter writer = File.CreateText(FilePath))
+                    {
+                        writer.WriteLine("@page");
+                        writer.WriteLine("@break");
+                        writer.WriteLine("  <header>");
+                        writer.WriteLine("      <h1>Company name</h1>");
+                        writer.WriteLine("  </header>");
+                    }
+
+                    FilePath = "wwwroot/footer.aspx";
+
+                    using (StreamWriter writer = File.CreateText(FilePath))
+                    {
+                        writer.WriteLine("@page");
+                        writer.WriteLine("@break");
+                        writer.WriteLine("  <footer>");
+                        writer.WriteLine("      <p>&copy; @DateTime.Now.ToString(\"yyyy\") Company name - Built with <a href=\"https://elanat.net/page_content/code_behind\" title=\"CodeBehind Framework\">CodeBehind Framework</a></p>");
+                        writer.WriteLine("  </footer>");
+                    }
+
+                    Thread.Sleep(500);
                 }
+
+            // Fill Global Template
+            FillGlobalTemplate();
 
 
             // Move View From Wwwroot
             if ((options.ViewPath != "wwwroot") && options.MoveViewFromWwwroot)
-                MoveViewFromWwwroot(options.ViewPath);
+            {
+                MoveViewFromWwwroot(options.ViewPath, "aspx");
+                MoveViewFromWwwroot(options.ViewPath, "astx");
+
+                if (options.ConvertCsHtmlToAspx)
+                    MoveViewFromWwwroot(options.ViewPath, "cshtml");
+            }
 
 
             DirectoryInfo RootDir = new DirectoryInfo(options.ViewPath);
@@ -138,6 +273,13 @@ namespace SetCodeBehind
                 AspxTextAndCodeCombination(file.FullName, RootDirectoryPath, i);
                 i++;
             }
+
+            if (options.ConvertCsHtmlToAspx)
+            foreach (FileInfo file in RootDir.GetFiles("*.cshtml", SearchOption.AllDirectories))
+                {
+                    AspxTextAndCodeCombination(file.FullName, RootDirectoryPath, i);
+                    i++;
+                }
 
             CodeBehindViews += "        // It Works Based On Rewriting The Option File" + Environment.NewLine;
             CodeBehindViews += "        public string SetPageLoadByPath(string path, HttpContext context)" + Environment.NewLine;
@@ -169,31 +311,52 @@ namespace SetCodeBehind
             CodeBehindViews += "        private string LoadPage(string path)" + Environment.NewLine;
             CodeBehindViews += "        {" + Environment.NewLine;
             CodeBehindViews += "            return SetPageLoadByFullPath(path, null);" + Environment.NewLine;
-            CodeBehindViews += "        }" + Environment.NewLine;
+            CodeBehindViews += "        }" + Environment.NewLine + Environment.NewLine;
+
+            CodeBehindViews += "        private void Download(HttpContext context, string FilePath)" + Environment.NewLine;
+            CodeBehindViews += "        {" + Environment.NewLine;
+            CodeBehindViews += "            long FileSize = new FileInfo(FilePath).Length;" + Environment.NewLine;
+            CodeBehindViews += "            var response = context.Response;" + Environment.NewLine;
+            CodeBehindViews += "            response.Headers.Add(\"Content-Length\", FileSize.ToString());" + Environment.NewLine;
+            CodeBehindViews += "            response.ContentType = \"application/octet-stream\";" + Environment.NewLine;
+            CodeBehindViews += "            response.Headers.Add(\"Content-Disposition\", $\"attachment; filename=\\\"{System.IO.Path.GetFileName(FilePath)}\\\"\");" + Environment.NewLine;
+            CodeBehindViews += "            using (var stream = new FileStream(FilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))" + Environment.NewLine;
+            CodeBehindViews += "            {" + Environment.NewLine;
+            CodeBehindViews += "                var bufferSize = 64 * 1024; // 64KB" + Environment.NewLine;
+            CodeBehindViews += "                var buffer = new byte[bufferSize];" + Environment.NewLine;
+            CodeBehindViews += "                int bytesRead;" + Environment.NewLine;
+            CodeBehindViews += "                while ((bytesRead = stream.Read(buffer, 0, buffer.Length)) != 0)" + Environment.NewLine;
+            CodeBehindViews += "                {" + Environment.NewLine;
+            CodeBehindViews += "                    try" + Environment.NewLine;
+            CodeBehindViews += "                    {" + Environment.NewLine;
+            CodeBehindViews += "                        response.Body.WriteAsync(buffer, 0, bytesRead);" + Environment.NewLine;
+            CodeBehindViews += "                        response.Body.FlushAsync();" + Environment.NewLine;
+            CodeBehindViews += "                    }" + Environment.NewLine;
+            CodeBehindViews += "                    catch (Exception ex)" + Environment.NewLine;
+            CodeBehindViews += "                    {" + Environment.NewLine;
+            CodeBehindViews += "                        break;" + Environment.NewLine;
+            CodeBehindViews += "                    }" + Environment.NewLine;
+            CodeBehindViews += "                }" + Environment.NewLine;
+            CodeBehindViews += "            }" + Environment.NewLine;
+            CodeBehindViews += "        }" + Environment.NewLine + Environment.NewLine;
 
             CodeBehindViews += MethodCodeTemplateValue + Environment.NewLine;
 
             CodeBehindViews += "    }" + Environment.NewLine;
             CodeBehindViews += "}" + Environment.NewLine + Environment.NewLine;
 
-            CodeBehindViews += "namespace " + Assembly.GetEntryAssembly().GetName().Name + "{public partial class CodeBehindEmptyClass{}}";
+            CodeBehindViews += "namespace " + Assembly.GetEntryAssembly().GetName().Name + Environment.NewLine;
+            CodeBehindViews += "{" + Environment.NewLine;
+            CodeBehindViews += "    public partial class CodeBehindEmptyClass" + Environment.NewLine;
+            CodeBehindViews += "    {" + Environment.NewLine;
+            CodeBehindViews += "    }" + Environment.NewLine;
+            CodeBehindViews += "}";
 
 
             SaveError(ErrorList);
             return CodeBehindViews;
         }
 
-        private List<string> ErrorList = new List<string>();
-        private bool RewriteAspxFileToDirectory;
-        private bool AccessAspxFileAfterRewrite;
-        private bool IgnoreDefaultAfterRewrite;
-        private bool StartTrimInAspxFile;
-        private bool EndTrimInAspxFile;
-        private bool SetBreakForLayoutPage;
-        private bool InnerTrimInAspxFile;
-        private string CaseCodeTemplateValue = "";
-        private string CaseCodeTemplateValueForFullPath = "";
-        private string MethodCodeTemplateValue = "";
         public void AspxTextAndCodeCombination(string FilePath, string RootDirectoryPath, int MethodIndexer)
         {
             var Lines = File.OpenText(FilePath);
@@ -215,6 +378,10 @@ namespace SetCodeBehind
 
         public void SetMethod(string AspxFilePath, string Controller, string ControllerConstructor, string Model, string ModelConstructor, bool ControllerIsSet, string Layout, bool IsLayout, bool IsBreak, int MethodIndexer, string TextToCodeCombination)
         {
+            if (AspxFilePath.EndsWith(".cshtml"))
+                AspxFilePath = AspxFilePath.GetTextBeforeLastValue(".cshtml") + ".aspx";
+
+
             string FilePathToMethodName = AspxFilePath.ToMethodNameClean();
             bool PageIsOnlyView = !ControllerIsSet;
 
@@ -249,6 +416,11 @@ namespace SetCodeBehind
 
                 TmpMethodCodeTemplateValue += "            controller.PageLoad(context);" + Environment.NewLine;
 
+                TmpMethodCodeTemplateValue += "            ViewData.AddList(controller.ViewData.GetList());" + Environment.NewLine;
+
+                TmpMethodCodeTemplateValue += "            if (!string.IsNullOrEmpty(controller.DownloadFilePath))" + Environment.NewLine;
+                TmpMethodCodeTemplateValue += "                Download(context, controller.DownloadFilePath);" + Environment.NewLine;
+
                 TmpMethodCodeTemplateValue += "            if (!controller.IgnoreViewAndModel)" + Environment.NewLine;
                 TmpMethodCodeTemplateValue += "            {" + Environment.NewLine;
 
@@ -259,12 +431,17 @@ namespace SetCodeBehind
                     if (!string.IsNullOrEmpty(ModelConstructor))
                         TmpMethodCodeTemplateValue += "                model.CodeBehindConstructor(" + ModelConstructor + ");" + Environment.NewLine;
 
+                    TmpMethodCodeTemplateValue += "                ViewData.AddList(model.ViewData.GetList());" + Environment.NewLine;
+
+                    TmpMethodCodeTemplateValue += "                if (!string.IsNullOrEmpty(model.DownloadFilePath))" + Environment.NewLine;
+                    TmpMethodCodeTemplateValue += "                    Download(context, model.DownloadFilePath);" + Environment.NewLine;
+
                     TmpMethodCodeTemplateValue += "                controller.ResponseText += model.ResponseText;" + Environment.NewLine;
                 }
 
                 TmpMethodCodeTemplateValue += TextToCodeCombination;
                 TmpMethodCodeTemplateValue += "            }" + Environment.NewLine;
-
+                
                 TmpMethodCodeTemplateValue += "            return " + (!string.IsNullOrEmpty(Layout) ? "SetPageLoadByFullPath(\"" + Layout + "\", context, controller.ResponseText)" : "controller.ResponseText") + ";" + Environment.NewLine;
             }
             else
@@ -277,6 +454,8 @@ namespace SetCodeBehind
 
                     if (!string.IsNullOrEmpty(ModelConstructor))
                         TmpMethodCodeTemplateValue += "            model.CodeBehindConstructor(" + ModelConstructor + ");" + Environment.NewLine;
+
+                    TmpMethodCodeTemplateValue += "            ViewData.AddList(model.ViewData.GetList());" + Environment.NewLine;
 
                     TmpMethodCodeTemplateValue += "            ReturnValue += model.ResponseText;" + Environment.NewLine;
                 }
@@ -404,43 +583,52 @@ namespace SetCodeBehind
             string Break = (PageProperties.Contains(" Break=\"")) ? PageProperties.Split(new string[] { "Break=\"" }, StringSplitOptions.None)[1].Split("\"")[0] : "";
             bool IsBreak = (Break == "true");
 
+            // Set Global Template
+            AspxText = GlobalTemplate + AspxText;
 
             // Set Template
             string Template = (PageProperties.Contains(" Template=\"")) ? PageProperties.Split(new string[] { "Template=\"" }, StringSplitOptions.None)[1].Split("\"")[0] : "";
 
             if (Template != "")
             {
-                string TemplatePath = "";
+                string[] Templates = Template.Split(';');
 
-                if (Template[0] == '/' || Template[0].ToString() == @"\")
-                    TemplatePath = RootDirectoryPath + @"\" + Template;
-                else
-                    TemplatePath = FilePath.GetTextBeforeLastValue(@"\") + @"\" + Template;
-
-                if (!Path.HasExtension(TemplatePath))
-                    TemplatePath += ".astx";
-
-                if (Path.GetExtension(TemplatePath) != ".astx")
+                foreach (string TmpTemplate in Templates)
                 {
-                    ErrorList.Add("Error: Template extension is not valid in " + AspxFilePath + " file");
-                    return;
-                }
+                    Template = TmpTemplate;
 
-                if (!File.Exists(TemplatePath))
-                {
-                    ErrorList.Add("Error: Template file is not exist in " + TemplatePath + " path");
-                    return;
-                }
+                    string TemplatePath = "";
 
-                string AstxText = "";
-                var Lines2 = File.OpenText(TemplatePath);
-                var TmpLine2 = "";
-                while ((TmpLine2 = Lines2.ReadLine()) != null)
-                {
-                    AstxText += TmpLine2 + @"\n";
-                }
+                    if (Template[0] == '/' || Template[0].ToString() == @"\")
+                        TemplatePath = RootDirectoryPath + @"\" + Template;
+                    else
+                        TemplatePath = FilePath.GetTextBeforeLastValue(@"\") + @"\" + Template;
 
-                AspxText = AstxText + AspxText;
+                    if (!Path.HasExtension(TemplatePath))
+                        TemplatePath += ".astx";
+
+                    if (Path.GetExtension(TemplatePath) != ".astx")
+                    {
+                        ErrorList.Add("Error: Template extension is not valid in " + AspxFilePath + " file");
+                        return;
+                    }
+
+                    if (!File.Exists(TemplatePath))
+                    {
+                        ErrorList.Add("Error: Template file is not exist in " + TemplatePath + " path");
+                        return;
+                    }
+
+                    string AstxText = "";
+                    var Lines2 = File.OpenText(TemplatePath);
+                    var TmpLine2 = "";
+                    while ((TmpLine2 = Lines2.ReadLine()) != null)
+                    {
+                        AstxText += TmpLine2 + @"\n";
+                    }
+
+                    AspxText = AstxText + AspxText;
+                }
             }
 
             string TextToCodeCombination = "";
@@ -859,6 +1047,8 @@ namespace SetCodeBehind
                 }
             }
 
+            // Set Global Template
+            AspxText = GlobalTemplate + AspxText;
 
             // Set Template
             string Template = "";
@@ -899,37 +1089,44 @@ namespace SetCodeBehind
 
             if (Template != "")
             {
-                string TemplatePath = "";
+                string[] Templates = Template.Split(';');
 
-                if (Template[0] == '/' || Template[0].ToString() == @"\")
-                    TemplatePath = RootDirectoryPath + @"\" + Template;
-                else
-                    TemplatePath = FilePath.GetTextBeforeLastValue(@"\") + @"\" + Template;
-
-                if (!Path.HasExtension(TemplatePath))
-                    TemplatePath += ".astx";
-
-                if (Path.GetExtension(TemplatePath) != ".astx")
+                foreach (string TmpTemplate in Templates)
                 {
-                    ErrorList.Add("Error: Template extension is not valid in " + AspxFilePath + " file");
-                    return;
-                }
+                    Template = TmpTemplate;
 
-                if (!File.Exists(TemplatePath))
-                {
-                    ErrorList.Add("Error: Template file is not exist in " + TemplatePath + " path");
-                    return;
-                }
+                    string TemplatePath = "";
 
-                string AstxText = "";
-                var Lines2 = File.OpenText(TemplatePath);
-                var TmpLine2 = "";
-                while ((TmpLine2 = Lines2.ReadLine()) != null)
-                {
-                    AstxText += TmpLine2 + @"\n";
-                }
+                    if (Template[0] == '/' || Template[0].ToString() == @"\")
+                        TemplatePath = RootDirectoryPath + @"\" + Template;
+                    else
+                        TemplatePath = FilePath.GetTextBeforeLastValue(@"\") + @"\" + Template;
 
-                AspxText = AstxText + AspxText;
+                    if (!Path.HasExtension(TemplatePath))
+                        TemplatePath += ".astx";
+
+                    if (Path.GetExtension(TemplatePath) != ".astx")
+                    {
+                        ErrorList.Add("Error: Template extension is not valid in " + AspxFilePath + " file");
+                        return;
+                    }
+
+                    if (!File.Exists(TemplatePath))
+                    {
+                        ErrorList.Add("Error: Template file is not exist in " + TemplatePath + " path");
+                        return;
+                    }
+
+                    string AstxText = "";
+                    var Lines2 = File.OpenText(TemplatePath);
+                    var TmpLine2 = "";
+                    while ((TmpLine2 = Lines2.ReadLine()) != null)
+                    {
+                        AstxText += TmpLine2 + @"\n";
+                    }
+
+                    AspxText = AstxText + AspxText;
+                }
             }
 
             // Fetch Template
@@ -1774,7 +1971,28 @@ namespace SetCodeBehind
             }
         }
 
-        private void MoveViewFromWwwroot(string ViewPath, string Extension = "aspx")
+        private void FillGlobalTemplate()
+        {
+            if (!Directory.Exists("code_behind"))
+                Directory.CreateDirectory("code_behind");
+
+            const string FilePath = "code_behind/global_template.astx";
+
+            if (!File.Exists(FilePath))
+            {
+                File.Create(FilePath).Close();
+                return;
+            }
+
+            var Lines = File.OpenText(FilePath);
+            var TmpLine = "";
+            while ((TmpLine = Lines.ReadLine()) != null)
+            {
+                GlobalTemplate += TmpLine + @"\n";
+            }
+        }
+
+        private void MoveViewFromWwwroot(string ViewPath, string Extension)
         {
             if (!Directory.Exists("wwwroot"))
                 return;
@@ -1793,9 +2011,6 @@ namespace SetCodeBehind
 
                 File.Move(file.FullName, Path.GetFullPath(ViewPath) + ParrentDirectories + @"\" + file.Name, true);
             }
-
-            if (Extension != "astx")
-                MoveViewFromWwwroot(ViewPath, "astx"); // Set Recursive
         }
 
         private string ImportNamespaceList()
