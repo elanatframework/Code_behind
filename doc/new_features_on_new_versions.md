@@ -70,3 +70,6 @@
  - The possibility of adding more templates, by separating the semicolon character (;).
  - New option to support cshtml files in the options file.
  - Added default pages (include layout) after first run.
+
+### Version 2.1
+ - Ability to change the view in the controller.
