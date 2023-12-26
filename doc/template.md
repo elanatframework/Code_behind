@@ -207,7 +207,7 @@ There is no need to add the astx file extension and the following path is also c
 
 `"/page/template/page_template"`
 
-You can add more templates; it is enough to separate the paths of the templates with the big character (;).
+You can add more templates; it is enough to separate the paths of the templates with the semicolon character (;).
 
 Razor syntax example:
 
