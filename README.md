@@ -1,5 +1,5 @@
 ![](https://github.com/elanatframework/Code_behind/assets/111444759/986799af-538a-4aca-b7fc-a5b8153c5a24)
-# Code_behind
+# CodeBehind Framework
 CodeBehind library is a modern back-end framework and is an alternative to ASP.NET Core. This library is a programming model based on the MVC structure, which provides the possibility of creating dynamic aspx files in .NET Core and has high serverside independence.
 The aspx extension is the files of the view section in the CodeBehind framework and they supports standard syntax (<%=Standard%>) and Razor syntax (@Razor). This framework guarantees the separation of server-side codes from the design part (html) and there is no need to write server-side codes in the view.
 
