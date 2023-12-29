@@ -20,6 +20,10 @@ Developers of interpretative frameworks can consider CodeBehind as an alternativ
 
  ### CodeBehind advantages
 
+ In every scenario, CodeBehind performs better than the default structure in ASP.NET Core.
+
+![ASP.NET Core VS CodeBehind table](https://github.com/elanatframework/Code_behind/assets/111444759/fa78b90a-f404-4cdc-81c1-d101c920c00c)
+
 CodeBehind is a flexible framework. CodeBehind inherits all the advantages of ASP.NET Core and gives it more simplicity, power and flexibility.
 
 CodeBehind, like the default ASP.NET Core, supports multiple platforms, and in the test conducted by the Elanat team, it also has high stability on Linux.
