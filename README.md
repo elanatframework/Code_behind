@@ -23,8 +23,6 @@ Code Behind framework inherits every advantage of ASP.NET Core and gives it more
 
 In every scenario, CodeBehind performs better than the default structure in ASP.NET Core.
 
-![ASP.NET Core VS CodeBehind table](https://github.com/elanatframework/Code_behind/assets/111444759/fa78b90a-f404-4cdc-81c1-d101c920c00c)
-
 ### Only view example
 
 View section: aspx page (razor syntax)
@@ -199,11 +197,3 @@ Get from Nuget (We added CodeBehind in Nuget so that you can access it easily):
 ### Ready project
 
 [Get ready project](https://github.com/elanatframework/Code_behind/tree/elanat_framework/ready_project)
-
-### Elanat was created using CodeBehind
-
-CodeBehind is a stable and reliable framework; [Elanat](https://elanat.net) is the most powerful .NET system implemented using the CodeBehind framework.
-
-[https://github.com/elanatframework/Elanat](https://github.com/elanatframework/Elanat)
-
-![Elanat is based on CodeBehind](https://github.com/elanatframework/Code_behind/assets/111444759/ca6f8d80-65ae-4b4c-b2e2-c8d4b1270b46)
