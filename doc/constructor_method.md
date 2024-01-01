@@ -21,9 +21,9 @@ using CodeBehind;
 
 namespace YourProjectName
 {
-    public DefaultModel model = new DefaultModel();
     public partial class DefaultController : CodeBehindController
     {
+        public DefaultModel model = new DefaultModel();
         public void PageLoad(HttpContext context)
         {
             View(model);
