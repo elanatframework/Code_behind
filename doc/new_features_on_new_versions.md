@@ -73,6 +73,7 @@
 
 ### Version 2.1
  - Ability to change the view in the controller.
+ - Complete rewriting of codes related to new lines of executable files
 
 **Problems that were solved**
  - Delete unused variable ex of the final view class
