@@ -74,7 +74,7 @@
 ### Version 2.1
  - Ability to change the view in the controller.
  - Ability to transfer template block data in ViewData.
- - Complete rewriting of codes related to new lines of executable files.
+ - Complete rewriting of codes related to new lines and backslash of executable files.
  - And a series of minor changes and improvements.
 
 **Problems that were solved**
