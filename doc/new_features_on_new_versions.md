@@ -75,6 +75,7 @@
  - Ability to change the view in the controller.
  - Ability to transfer template block data in ViewData.
  - Complete rewriting of codes related to new lines and backslash of executable files.
+ - Complete rewriting of the codes related to creating files.
  - And a series of minor changes and improvements.
 
 **Problems that were solved**
