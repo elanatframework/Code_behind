@@ -79,4 +79,4 @@
  - And a series of minor changes and improvements.
 
 **Problems that were solved**
- - Delete unused variable ex of the final view class.
+ - Deleting unused ex variable from the final view class.
