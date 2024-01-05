@@ -35,13 +35,15 @@ namespace SetCodeBehind
                 string[] lines = AllAspxFiles.Split(Environment.NewLine);
 
                 // Create views_class.cs File
-                using (StreamWriter writer = File.CreateText(FilePath))
+                var file = File.CreateText(FilePath);
+
+                foreach (string line in lines)
                 {
-                    foreach (string line in lines)
-                    {
-                        writer.WriteLine(line);
-                    }
+                    file.WriteLine(line);
                 }
+
+                file.Dispose();
+                file.Close();
             }
             else
             {
@@ -117,137 +119,143 @@ namespace SetCodeBehind
                     Directory.CreateDirectory("wwwroot");
 
                     string FilePath = "wwwroot/layout.aspx";
+                    var file1 = File.CreateText(FilePath);
 
-                    using (StreamWriter writer = File.CreateText(FilePath))
-                    {
-                        writer.WriteLine("@page");
-                        writer.WriteLine("@islayout");
-                        writer.WriteLine("@{");
-                        writer.WriteLine("  string WelcomeText = \"Welcome to the CodeBehind Framework!\";");
-                        writer.WriteLine("}");
-                        writer.WriteLine("<!DOCTYPE html>");
-                        writer.WriteLine("<html>");
-                        writer.WriteLine("<head>");
-                        writer.WriteLine("  <title>CodeBehind Framework - @ViewData.GetValue(\"title\")</title>");
-                        writer.WriteLine("  <style>");
-                        writer.WriteLine("  body");
-                        writer.WriteLine("  {");
-                        writer.WriteLine("      font-family: Arial, sans-serif;");
-                        writer.WriteLine("      margin: 0;");
-                        writer.WriteLine("      padding: 0;");
-                        writer.WriteLine("      line-height: 32px;");
-                        writer.WriteLine("  }");
-                        writer.WriteLine();
-                        writer.WriteLine("  header");
-                        writer.WriteLine("  {");
-                        writer.WriteLine("      background-color: #f2f2f2;");
-                        writer.WriteLine("      text-align: center;");
-                        writer.WriteLine("      padding: 20px 0;");
-                        writer.WriteLine("  }");
-                        writer.WriteLine();
-                        writer.WriteLine("  nav");
-                        writer.WriteLine("  {");
-                        writer.WriteLine("      background-color: #90dbff;");
-                        writer.WriteLine("      color: #fff;");
-                        writer.WriteLine("      text-align: center;");
-                        writer.WriteLine("      padding: 10px 0;");
-                        writer.WriteLine("  }");
-                        writer.WriteLine();
-                        writer.WriteLine("  nav ul");
-                        writer.WriteLine("  {");
-                        writer.WriteLine("      list-style-type: none;");
-                        writer.WriteLine("      padding: 0;");
-                        writer.WriteLine("  }");
-                        writer.WriteLine();
-                        writer.WriteLine("  nav ul li");
-                        writer.WriteLine("  {");
-                        writer.WriteLine("      display: inline;");
-                        writer.WriteLine("      margin: 0 10px;");
-                        writer.WriteLine("  }");
-                        writer.WriteLine();
-                        writer.WriteLine("  footer");
-                        writer.WriteLine("  {");
-                        writer.WriteLine("      background-color: #333;");
-                        writer.WriteLine("      color: #fff;");
-                        writer.WriteLine("      text-align: center;");
-                        writer.WriteLine("      padding: 10px 0;");
-                        writer.WriteLine("  }");
-                        writer.WriteLine("  </style>");
-                        writer.WriteLine("</head>");
-                        writer.WriteLine("<body>");
-                        writer.WriteLine();
-                        writer.WriteLine("  @LoadPage(\"/header.aspx\")");
-                        writer.WriteLine();
-                        writer.WriteLine("  <nav>");
-                        writer.WriteLine("      <ul>");
-                        writer.WriteLine("          <li><a href=\"#\">Home</a></li>");
-                        writer.WriteLine("          <li><a href=\"#\">About</a></li>");
-                        writer.WriteLine("          <li><a href=\"#\">Contact</a></li>");
-                        writer.WriteLine("      </ul>");
-                        writer.WriteLine("  </nav>");
-                        writer.WriteLine();
-                        writer.WriteLine("  <h2>CodeBehind Framework - @ViewData.GetValue(\"title\")</h2>");
-                        writer.WriteLine("  <p>Text value is: @WelcomeText</p>");
-                        writer.WriteLine();
-                        writer.WriteLine("  @PageReturnValue");
-                        writer.WriteLine();
-                        writer.WriteLine("  @LoadPage(\"/footer.aspx\")");
-                        writer.WriteLine();
-                        writer.WriteLine("</body>");
-                        writer.WriteLine("</html>");
-                    }
+                    file1.WriteLine("@page");
+                    file1.WriteLine("@islayout");
+                    file1.WriteLine("@{");
+                    file1.WriteLine("  string WelcomeText = \"Welcome to the CodeBehind Framework!\";");
+                    file1.WriteLine("}");
+                    file1.WriteLine("<!DOCTYPE html>");
+                    file1.WriteLine("<html>");
+                    file1.WriteLine("<head>");
+                    file1.WriteLine("  <title>CodeBehind Framework - @ViewData.GetValue(\"title\")</title>");
+                    file1.WriteLine("  <style>");
+                    file1.WriteLine("  body");
+                    file1.WriteLine("  {");
+                    file1.WriteLine("      font-family: Arial, sans-serif;");
+                    file1.WriteLine("      margin: 0;");
+                    file1.WriteLine("      padding: 0;");
+                    file1.WriteLine("      line-height: 32px;");
+                    file1.WriteLine("  }");
+                    file1.WriteLine();
+                    file1.WriteLine("  header");
+                    file1.WriteLine("  {");
+                    file1.WriteLine("      background-color: #f2f2f2;");
+                    file1.WriteLine("      text-align: center;");
+                    file1.WriteLine("      padding: 20px 0;");
+                    file1.WriteLine("  }");
+                    file1.WriteLine();
+                    file1.WriteLine("  nav");
+                    file1.WriteLine("  {");
+                    file1.WriteLine("      background-color: #90dbff;");
+                    file1.WriteLine("      color: #fff;");
+                    file1.WriteLine("      text-align: center;");
+                    file1.WriteLine("      padding: 10px 0;");
+                    file1.WriteLine("  }");
+                    file1.WriteLine();
+                    file1.WriteLine("  nav ul");
+                    file1.WriteLine("  {");
+                    file1.WriteLine("      list-style-type: none;");
+                    file1.WriteLine("      padding: 0;");
+                    file1.WriteLine("  }");
+                    file1.WriteLine();
+                    file1.WriteLine("  nav ul li");
+                    file1.WriteLine("  {");
+                    file1.WriteLine("      display: inline;");
+                    file1.WriteLine("      margin: 0 10px;");
+                    file1.WriteLine("  }");
+                    file1.WriteLine();
+                    file1.WriteLine("  footer");
+                    file1.WriteLine("  {");
+                    file1.WriteLine("      background-color: #333;");
+                    file1.WriteLine("      color: #fff;");
+                    file1.WriteLine("      text-align: center;");
+                    file1.WriteLine("      padding: 10px 0;");
+                    file1.WriteLine("  }");
+                    file1.WriteLine("  </style>");
+                    file1.WriteLine("</head>");
+                    file1.WriteLine("<body>");
+                    file1.WriteLine();
+                    file1.WriteLine("  @LoadPage(\"/header.aspx\")");
+                    file1.WriteLine();
+                    file1.WriteLine("  <nav>");
+                    file1.WriteLine("      <ul>");
+                    file1.WriteLine("          <li><a href=\"#\">Home</a></li>");
+                    file1.WriteLine("          <li><a href=\"#\">About</a></li>");
+                    file1.WriteLine("          <li><a href=\"#\">Contact</a></li>");
+                    file1.WriteLine("      </ul>");
+                    file1.WriteLine("  </nav>");
+                    file1.WriteLine();
+                    file1.WriteLine("  <h2>CodeBehind Framework - @ViewData.GetValue(\"title\")</h2>");
+                    file1.WriteLine("  <p>Text value is: @WelcomeText</p>");
+                    file1.WriteLine();
+                    file1.WriteLine("  @PageReturnValue");
+                    file1.WriteLine();
+                    file1.WriteLine("  @LoadPage(\"/footer.aspx\")");
+                    file1.WriteLine();
+                    file1.WriteLine("</body>");
+                    file1.WriteLine("</html>");
+
+                    file1.Dispose();
+                    file1.Close();
+
 
                     FilePath = "wwwroot/Default.aspx";
+                    var file2 = File.CreateText(FilePath);
 
-                    using (StreamWriter writer = File.CreateText(FilePath))
-                    {
-                        writer.WriteLine("@page");
-                        writer.WriteLine("@layout \"/layout.aspx\"");
-                        writer.WriteLine("@{");
-                        writer.WriteLine("  ViewData.Add(\"title\",\"Main page\");");
-                        writer.WriteLine("}");
-                        writer.WriteLine("  <main>");
-                        writer.WriteLine("      <p>CodeBehind library is a modern back-end framework and is an alternative to ASP.NET Core. This library is a programming model based on the MVC structure, which provides the possibility of creating dynamic aspx files in .NET Core and has high serverside independence. CodeBehind framework supports standard syntax and Razor syntax. This framework guarantees the separation of server-side codes from the design part (html) and there is no need to write server-side codes in the view.</p>");
-                        writer.WriteLine("      <p>Code Behind framework inherits every advantage of ASP.NET Core and gives it more simplicity, power and flexibility.</p>");
-                        writer.WriteLine("      <p><b>CodeBehind framework is an alternative to ASP.NET Core.</b></p>");
-                        writer.WriteLine("      <h3>Why use CodeBehind?</h3>");
-                        writer.WriteLine("      <ul>");
-                        writer.WriteLine("          <li><b>Fast:</b> The CodeBehind framework is faster than the default structure of cshtml pages in ASP.NET Core.</li>");
-                        writer.WriteLine("          <li><b>Simple:</b> Developing with CodeBehind is very simple. You can use mvc pattern or model-view or controller-view or only view.</li>");
-                        writer.WriteLine("          <li><b>Modular:</b> It is modular. Just copy the new project files, including dll and aspx, into the current active project.</li>");
-                        writer.WriteLine("          <li><b>Get output:</b> You can call the output of the aspx page in another aspx page and modify its output.</li>");
-                        writer.WriteLine("          <li><b>Under .NET Core:</b> Your project will still be under ASP.NET Core and you will benefit from all the benefits of .NET Core.</li>");
-                        writer.WriteLine("          <li><b>Code-Behind:</b> Code-Behind pattern will be fully respected.</li>");
-                        writer.WriteLine("          <li><b>Modern:</b> CodeBehind is a modern framework with revolutionary ideas.</li>");
-                        writer.WriteLine("      </ul>");
-                        writer.WriteLine("      <p><b>CodeBehind is .NET Diamond!</b></p>");
-                        writer.WriteLine("      <p>In every scenario, CodeBehind performs better than the default structure in ASP.NET Core.</p>");
-                        writer.WriteLine("  </main>");
-                    }
+                    file2.WriteLine("@page");
+                    file2.WriteLine("@layout \"/layout.aspx\"");
+                    file2.WriteLine("@{");
+                    file2.WriteLine("  ViewData.Add(\"title\",\"Main page\");");
+                    file2.WriteLine("}");
+                    file2.WriteLine("  <main>");
+                    file2.WriteLine("      <p>CodeBehind library is a modern back-end framework and is an alternative to ASP.NET Core. This library is a programming model based on the MVC structure, which provides the possibility of creating dynamic aspx files in .NET Core and has high serverside independence. CodeBehind framework supports standard syntax and Razor syntax. This framework guarantees the separation of server-side codes from the design part (html) and there is no need to write server-side codes in the view.</p>");
+                    file2.WriteLine("      <p>Code Behind framework inherits every advantage of ASP.NET Core and gives it more simplicity, power and flexibility.</p>");
+                    file2.WriteLine("      <p><b>CodeBehind framework is an alternative to ASP.NET Core.</b></p>");
+                    file2.WriteLine("      <h3>Why use CodeBehind?</h3>");
+                    file2.WriteLine("      <ul>");
+                    file2.WriteLine("          <li><b>Fast:</b> The CodeBehind framework is faster than the default structure of cshtml pages in ASP.NET Core.</li>");
+                    file2.WriteLine("          <li><b>Simple:</b> Developing with CodeBehind is very simple. You can use mvc pattern or model-view or controller-view or only view.</li>");
+                    file2.WriteLine("          <li><b>Modular:</b> It is modular. Just copy the new project files, including dll and aspx, into the current active project.</li>");
+                    file2.WriteLine("          <li><b>Get output:</b> You can call the output of the aspx page in another aspx page and modify its output.</li>");
+                    file2.WriteLine("          <li><b>Under .NET Core:</b> Your project will still be under ASP.NET Core and you will benefit from all the benefits of .NET Core.</li>");
+                    file2.WriteLine("          <li><b>Code-Behind:</b> Code-Behind pattern will be fully respected.</li>");
+                    file2.WriteLine("          <li><b>Modern:</b> CodeBehind is a modern framework with revolutionary ideas.</li>");
+                    file2.WriteLine("          <li><b>Understandable:</b> View is preferable to controller and there is no need to set controllers in route.</li>");
+                    file2.WriteLine("      </ul>");
+                    file2.WriteLine("      <p><b>CodeBehind is .NET Diamond!</b></p>");
+                    file2.WriteLine("      <p>In every scenario, CodeBehind performs better than the default structure in ASP.NET Core.</p>");
+                    file2.WriteLine("  </main>");
+
+                    file2.Dispose();
+                    file2.Close();
+
 
                     FilePath = "wwwroot/header.aspx";
+                    var file3 = File.CreateText(FilePath);
 
-                    using (StreamWriter writer = File.CreateText(FilePath))
-                    {
-                        writer.WriteLine("@page");
-                        writer.WriteLine("@break");
-                        writer.WriteLine("  <header>");
-                        writer.WriteLine("      <h1>Company name</h1>");
-                        writer.WriteLine("  </header>");
-                    }
+                    file3.WriteLine("@page");
+                    file3.WriteLine("@break");
+                    file3.WriteLine("  <header>");
+                    file3.WriteLine("      <h1>Company name</h1>");
+                    file3.WriteLine("  </header>");
+
+                    file3.Dispose();
+                    file3.Close();
+
 
                     FilePath = "wwwroot/footer.aspx";
+                    var file4 = File.CreateText(FilePath);
 
-                    using (StreamWriter writer = File.CreateText(FilePath))
-                    {
-                        writer.WriteLine("@page");
-                        writer.WriteLine("@break");
-                        writer.WriteLine("  <footer>");
-                        writer.WriteLine("      <p>&copy; @DateTime.Now.ToString(\"yyyy\") Company name - Built with <a href=\"https://elanat.net/page_content/code_behind\" title=\"CodeBehind Framework\">CodeBehind Framework</a></p>");
-                        writer.WriteLine("  </footer>");
-                    }
+                    file4.WriteLine("@page");
+                    file4.WriteLine("@break");
+                    file4.WriteLine("  <footer>");
+                    file4.WriteLine("      <p>&copy; @DateTime.Now.ToString(\"yyyy\") Company name - Built with <a href=\"https://elanat.net/page_content/code_behind\" title=\"CodeBehind Framework\">CodeBehind Framework</a></p>");
+                    file4.WriteLine("  </footer>");
 
-                    Thread.Sleep(500);
+                    file4.Dispose();
+                    file4.Close();
                 }
 
             // Fill Global Template
@@ -332,7 +340,7 @@ namespace SetCodeBehind
             CodeBehindViews += "                        response.Body.WriteAsync(buffer, 0, bytesRead);" + Environment.NewLine;
             CodeBehindViews += "                        response.Body.FlushAsync();" + Environment.NewLine;
             CodeBehindViews += "                    }" + Environment.NewLine;
-            CodeBehindViews += "                    catch (Exception ex)" + Environment.NewLine;
+            CodeBehindViews += "                    catch" + Environment.NewLine;
             CodeBehindViews += "                    {" + Environment.NewLine;
             CodeBehindViews += "                        break;" + Environment.NewLine;
             CodeBehindViews += "                    }" + Environment.NewLine;
@@ -363,9 +371,11 @@ namespace SetCodeBehind
             string AspxText = "";
             var TmpLine = "";
             while ((TmpLine = Lines.ReadLine()) != null)
-                AspxText += TmpLine + @"\n";
+            {
+                AspxText += TmpLine + '\n';
+            }
 
-            AspxText = AspxText.GetTextBeforeLastValue(@"\n");
+            AspxText = AspxText.GetTextBeforeLastValue('\n'.ToString());
 
             Lines.Close();
 
@@ -417,9 +427,14 @@ namespace SetCodeBehind
                 TmpMethodCodeTemplateValue += "            controller.PageLoad(context);" + Environment.NewLine;
 
                 TmpMethodCodeTemplateValue += "            ViewData.AddList(controller.ViewData.GetList());" + Environment.NewLine;
+                TmpMethodCodeTemplateValue += "            if (!string.IsNullOrEmpty(controller.ViewPath))" + Environment.NewLine;
+                TmpMethodCodeTemplateValue += "                return LoadPage(controller.ViewPath, context);" + Environment.NewLine;
 
                 TmpMethodCodeTemplateValue += "            if (!string.IsNullOrEmpty(controller.DownloadFilePath))" + Environment.NewLine;
+                TmpMethodCodeTemplateValue += "            {" + Environment.NewLine;
                 TmpMethodCodeTemplateValue += "                Download(context, controller.DownloadFilePath);" + Environment.NewLine;
+                TmpMethodCodeTemplateValue += "                return \"\";" + Environment.NewLine;
+                TmpMethodCodeTemplateValue += "            }" + Environment.NewLine;
 
                 TmpMethodCodeTemplateValue += "            if (!controller.IgnoreViewAndModel)" + Environment.NewLine;
                 TmpMethodCodeTemplateValue += "            {" + Environment.NewLine;
@@ -434,7 +449,10 @@ namespace SetCodeBehind
                     TmpMethodCodeTemplateValue += "                ViewData.AddList(model.ViewData.GetList());" + Environment.NewLine;
 
                     TmpMethodCodeTemplateValue += "                if (!string.IsNullOrEmpty(model.DownloadFilePath))" + Environment.NewLine;
+                    TmpMethodCodeTemplateValue += "                {" + Environment.NewLine;
                     TmpMethodCodeTemplateValue += "                    Download(context, model.DownloadFilePath);" + Environment.NewLine;
+                    TmpMethodCodeTemplateValue += "                    return \"\";" + Environment.NewLine;
+                    TmpMethodCodeTemplateValue += "                }" + Environment.NewLine;
 
                     TmpMethodCodeTemplateValue += "                controller.ResponseText += model.ResponseText;" + Environment.NewLine;
                 }
@@ -620,11 +638,11 @@ namespace SetCodeBehind
                     }
 
                     string AstxText = "";
-                    var Lines2 = File.OpenText(TemplatePath);
-                    var TmpLine2 = "";
-                    while ((TmpLine2 = Lines2.ReadLine()) != null)
+                    var Lines = File.OpenText(TemplatePath);
+                    var TmpLine = "";
+                    while ((TmpLine = Lines.ReadLine()) != null)
                     {
-                        AstxText += TmpLine2 + @"\n";
+                        AstxText += TmpLine + '\n';
                     }
 
                     AspxText = AstxText + AspxText;
@@ -714,17 +732,7 @@ namespace SetCodeBehind
                         if (CharacterAfterTemplatePartName == '<')
                             TmpInnerTextValue = TmpInnerTextForReplace.GetTextAfterValue(PartName);
                         else
-                        {
-                            char SecondCharacterAfterTemplatePartName = TmpInnerTextForReplace.GetTextAfterValue(CharacterAfterTemplatePartName.ToString())[0];
-
-                            if ((CharacterAfterTemplatePartName == '\\') && ((SecondCharacterAfterTemplatePartName == 'n') || (SecondCharacterAfterTemplatePartName == 't') || (SecondCharacterAfterTemplatePartName == 'r')))
-                            {
-
-                                TmpInnerTextValue = TmpInnerTextForReplace.GetTextAfterValue(CharacterAfterTemplatePartName.ToString() + SecondCharacterAfterTemplatePartName.ToString());
-                            }
-                            else
-                                TmpInnerTextValue = TmpInnerTextForReplace.GetTextAfterValue(CharacterAfterTemplatePartName.ToString());
-                        }
+                            TmpInnerTextValue = TmpInnerTextForReplace.GetTextAfterValue(CharacterAfterTemplatePartName.ToString());
 
                         AspxText = AspxText.Replace("<#" + ReturnedInnerText + "#>", TmpInnerTextValue);
                     }
@@ -733,19 +741,13 @@ namespace SetCodeBehind
                     if (CharacterAfterTemplatePartName == '<')
                         InnerTextValue = TmpInnerTextForReplace.GetTextAfterValue(PartName);
                     else
-                    {
-                        char SecondCharacterAfterTemplatePartName = TmpInnerTextForReplace.GetTextAfterValue(CharacterAfterTemplatePartName.ToString())[0];
-
-                        if ((CharacterAfterTemplatePartName == '\\') && ((SecondCharacterAfterTemplatePartName == 'n') || (SecondCharacterAfterTemplatePartName == 't') || (SecondCharacterAfterTemplatePartName == 'r')))
-                        {
-                            InnerTextValue = TmpInnerTextForReplace.GetTextAfterValue(CharacterAfterTemplatePartName.ToString() + SecondCharacterAfterTemplatePartName.ToString());
-                        }
-                        else
-                            InnerTextValue = TmpInnerTextForReplace.GetTextAfterValue(CharacterAfterTemplatePartName.ToString());
-                    }
+                        InnerTextValue = TmpInnerTextForReplace.GetTextAfterValue(CharacterAfterTemplatePartName.ToString());
 
                     if (!InnerTextValue.Contains("<#" + PartName + "#>"))
+                    {
+                        AspxText = AspxText.Replace('{' + "<#" + PartName + "#>" + '}', InnerTextValue.Replace("\"", @"\" + "\"").Replace('\n'.ToString(), @"\" + "n"));
                         AspxText = AspxText.Replace("<#" + PartName + "#>", InnerTextValue);
+                    }
 
                     var regex = new Regex(Regex.Escape("<#" + InnerText + "#>"));
                     AspxText = regex.Replace(AspxText, "", 1);
@@ -761,11 +763,11 @@ namespace SetCodeBehind
             // Set Trim Option
             FullTrim ft = new FullTrim();
             if (StartTrimInAspxFile)
-                AspxText = ft.FullTrimInStartOverBackslash(AspxText);
+                AspxText = ft.FullTrimInStart(AspxText);
             if (EndTrimInAspxFile)
-                AspxText = ft.FullTrimInEndOverBackslash(AspxText);
+                AspxText = ft.FullTrimInEnd(AspxText);
             if (InnerTrimInAspxFile)
-                AspxText = AspxText.Replace('\\' + "n<%", "<%");
+                AspxText = AspxText.Replace('\n' + "<%", "<%");
 
             bool RemoveFirstEmptyLine = false;
             if (AspxText.Length > 4 && StartTrimInAspxFile)
@@ -779,8 +781,8 @@ namespace SetCodeBehind
                 if (RemoveFirstEmptyLine)
                 {
                     if (AspxText.Length > 1)
-                        if (AspxText.Substring(0, 2) == ('\\' + "n"))
-                            AspxText = AspxText.Remove(0, 2);
+                        if (AspxText[0] == ('\n'))
+                            AspxText = AspxText.Remove(0, 1);
 
                     RemoveFirstEmptyLine = false;
                 }
@@ -821,7 +823,7 @@ namespace SetCodeBehind
             CodeBehindFetchRazorSyntex syntex = new CodeBehindFetchRazorSyntex();
 
             FullTrim ft = new FullTrim();
-            AspxText = ft.FullTrimInStartOverBackslash(AspxText);
+            AspxText = ft.FullTrimInStart(AspxText);
 
             // Fetch Page
             if (AspxText.Length < 5)
@@ -854,9 +856,9 @@ namespace SetCodeBehind
                 {
                     char CharacterAfterController = TmpAspxText[0];
 
-                    if (CharacterAfterController == ' ' || CharacterAfterController == '\\')
+                    if (CharacterAfterController == ' ' || CharacterAfterController == '\n' || CharacterAfterController == '\t' || CharacterAfterController == '\r')
                     {
-                        TmpAspxText = "@" + ft.FullTrimInStartOverBackslash(TmpAspxText);
+                        TmpAspxText = "@" + ft.FullTrimInStart(TmpAspxText);
 
                         Controller = syntex.FetchExpressions(TmpAspxText);
 
@@ -902,9 +904,9 @@ namespace SetCodeBehind
                 {
                     char CharacterAfterModel = TmpAspxText[0];
 
-                    if (CharacterAfterModel == ' ' || CharacterAfterModel == '\\')
+                    if (CharacterAfterModel == ' ' || CharacterAfterModel == '\n' || CharacterAfterModel == '\t' || CharacterAfterModel == '\r')
                     {
-                        TmpAspxText = "@" + ft.FullTrimInStartOverBackslash(TmpAspxText);
+                        TmpAspxText = "@" + ft.FullTrimInStart(TmpAspxText);
 
                         Model = syntex.FetchExpressions(TmpAspxText);
 
@@ -947,9 +949,9 @@ namespace SetCodeBehind
                 {
                     char CharacterAfterLayout = TmpAspxText[0];
 
-                    if (CharacterAfterLayout == ' ' || CharacterAfterLayout == '\\')
+                    if (CharacterAfterLayout == ' ' || CharacterAfterLayout == '\n' || CharacterAfterLayout == '\t' || CharacterAfterLayout == '\r')
                     {
-                        TmpAspxText = ft.FullTrimInStartOverBackslash(TmpAspxText) + "\\";
+                        TmpAspxText = ft.FullTrimInStart(TmpAspxText) + "\\";
 
                         if (TmpAspxText[0] != '\"')
                             break;
@@ -1013,7 +1015,7 @@ namespace SetCodeBehind
                 {
                     char CharacterAfterIsLayout = TmpAspxText[0];
 
-                    if (CharacterAfterIsLayout == ' ' || CharacterAfterIsLayout == '\\')
+                    if (CharacterAfterIsLayout == ' ' || CharacterAfterIsLayout == '\n' || CharacterAfterIsLayout == '\t' || CharacterAfterIsLayout == '\r')
                     {
                         AspxText = AspxText.Replace("@islayout" + CharacterAfterIsLayout, CharacterAfterIsLayout.ToString());
                         IsLayout = true;
@@ -1037,7 +1039,7 @@ namespace SetCodeBehind
                 {
                     char CharacterAfterBreak = TmpAspxText[0];
 
-                    if (CharacterAfterBreak == ' ' || CharacterAfterBreak == '\\')
+                    if (CharacterAfterBreak == ' ' || CharacterAfterBreak == '\n' || CharacterAfterBreak == '\t' || CharacterAfterBreak == '\r')
                     {
                         AspxText = AspxText.Replace("@break" + CharacterAfterBreak, CharacterAfterBreak.ToString());
                         IsBreak = true;
@@ -1063,9 +1065,9 @@ namespace SetCodeBehind
                 {
                     char CharacterAfterTemplate = TmpAspxText[0];
 
-                    if (CharacterAfterTemplate == ' ' || CharacterAfterTemplate == '\\')
+                    if (CharacterAfterTemplate == ' ' || CharacterAfterTemplate == '\n' || CharacterAfterTemplate == '\t' || CharacterAfterTemplate == '\r')
                     {
-                        TmpAspxText = ft.FullTrimInStartOverBackslash(TmpAspxText) + "\\";
+                        TmpAspxText = ft.FullTrimInStart(TmpAspxText) + "\\";
 
                         if (TmpAspxText[0] != '\"')
                             break;
@@ -1118,11 +1120,11 @@ namespace SetCodeBehind
                     }
 
                     string AstxText = "";
-                    var Lines2 = File.OpenText(TemplatePath);
-                    var TmpLine2 = "";
-                    while ((TmpLine2 = Lines2.ReadLine()) != null)
+                    var Lines = File.OpenText(TemplatePath);
+                    var TmpLine = "";
+                    while ((TmpLine = Lines.ReadLine()) != null)
                     {
-                        AstxText += TmpLine2 + @"\n";
+                        AstxText += TmpLine + '\n';
                     }
 
                     AspxText = AstxText + AspxText;
@@ -1158,7 +1160,6 @@ namespace SetCodeBehind
                     break;
                 }
 
-                // bool PartHasTemplate = (CharacterAfterTemplatePartName == '=' || CharacterAfterTemplatePartName == '{');
                 bool PartHasTemplate = (CharacterAfterTemplatePartName == '{');
 
                 CodeBehindFetchRazorSyntex syntex1 = new CodeBehindFetchRazorSyntex();
@@ -1261,10 +1262,16 @@ namespace SetCodeBehind
                             {
                                 char TmpCharacter = TmpAspxText2[0];
                                 if (!char.IsLetter(TmpCharacter) && !char.IsNumber(TmpCharacter) && TmpCharacter != '{' && TmpCharacter != '=')
+                                {
+                                    AspxText = AspxText.Replace('{' + "@#" + PartName + '}', InnerTextValue.Replace("\"", @"\" + "\"").Replace('\n'.ToString(), @"\" + "n"));
                                     AspxText = AspxText.Replace("@#" + PartName + TmpCharacter, InnerTextValue + TmpCharacter);
+                                }
                             }
                             else
+                            {
+                                AspxText = AspxText.Replace('{' + "@#" + PartName + '}', InnerTextValue.Replace("\"", @"\" + "\"").Replace('\n'.ToString(), @"\" + "n"));
                                 AspxText = AspxText.Replace("@#" + PartName, InnerTextValue);
+                            }
                         }
                     }
 
@@ -1307,11 +1314,11 @@ namespace SetCodeBehind
 
             // Set Trim Option
             if (StartTrimInAspxFile)
-                AspxText = ft.FullTrimInStartOverBackslash(AspxText);
+                AspxText = ft.FullTrimInStart(AspxText);
             if (EndTrimInAspxFile)
-                AspxText = ft.FullTrimInEndOverBackslash(AspxText);
+                AspxText = ft.FullTrimInEnd(AspxText);
             if (InnerTrimInAspxFile)
-                AspxText = AspxText.Replace('\\' + "n@{", "@{");
+                AspxText = AspxText.Replace('\n' + "@{", "@{");
 
 
             // Clean Razor Comments
@@ -1351,8 +1358,8 @@ namespace SetCodeBehind
                     if (RemoveFirstEmptyLine && (i > 0))
                     {
                         if (TextForWrite.Length > 1)
-                            if (TextForWrite.Substring(0, 2) == ('\\' + "n"))
-                                TextForWrite = TextForWrite.Remove(0, 2);
+                            if (TextForWrite[0] == '\n')
+                                TextForWrite = TextForWrite.Remove(0, 1);
 
                         RemoveFirstEmptyLine = false;
                     }
@@ -1367,22 +1374,8 @@ namespace SetCodeBehind
                         {
                             if ((char.IsLetter(AspxText[i - 1]) || char.IsNumber(AspxText[i - 1])) && (char.IsLetter(AspxText[i + 1]) || char.IsNumber(AspxText[i + 1])))
                             {
-                                if (i < 2)
-                                {
-                                    TextForWrite += "@";
-                                    continue;
-                                }
-
-                                if (AspxText[i - 1] != 'n' && AspxText[i - 1] != 'r' && AspxText[i - 1] != 't')
-                                {
-                                    TextForWrite += "@";
-                                    continue;
-                                }
-                                else if (AspxText[i - 2] != '\\')
-                                {
-                                    TextForWrite += "@";
-                                    continue;
-                                }
+                                TextForWrite += "@";
+                                continue;
                             }
                         }
 
@@ -1405,7 +1398,7 @@ namespace SetCodeBehind
                         if (char.IsLetter(AspxText[i + 1]))
                         {
                             if (i + 5 < AspxText.Length)
-                                if (AspxText.Substring(i + 1, 2) == "if" && (AspxText[i + 3] == ' ' ||AspxText[i + 3] == '(' ||AspxText[i + 3] == '\\'))
+                                if (AspxText.Substring(i + 1, 2) == "if" && (AspxText[i + 3] == ' ' || AspxText[i + 3] == '(' || AspxText[i + 3] == '\n' || AspxText[i + 3] == '\t' || AspxText[i + 3] == '\r'))
                                 {
                                     i += 1;
 
@@ -1448,7 +1441,7 @@ namespace SetCodeBehind
                                         break;
                                     }
 
-                                    string TmpAspxTextForFindElse = ft.FullTrimInStartOverBackslash(AspxText.Substring(i + 1));
+                                    string TmpAspxTextForFindElse = ft.FullTrimInStart(AspxText.Substring(i + 1));
 
                                     if (TmpAspxTextForFindElse.Length < 4)
                                         continue;
@@ -1464,14 +1457,14 @@ namespace SetCodeBehind
                                             continue;
 
                                         if (ElseIndex + 7 < AspxText.Length)
-                                            if (AspxText.Substring(ElseIndex, 4) == "else" && (AspxText[ElseIndex + 4] == ' ' || AspxText[ElseIndex + 4] == '\\'))
+                                            if (AspxText.Substring(ElseIndex, 4) == "else" && (AspxText[ElseIndex + 4] == ' ' || AspxText[ElseIndex + 4] == '\n' || AspxText[ElseIndex + 4] == '\t' || AspxText[ElseIndex + 4] == '\r'))
                                             {
                                                 i = ElseIndex;
 
                                                 int ElseIfIndex = i + 4;
                                                 for (; (ElseIfIndex + 2) < AspxText.Length; ElseIfIndex++)
                                                 {
-                                                    if (AspxText[ElseIfIndex] == 'i' && AspxText[ElseIfIndex + 1] == 'f' && (AspxText[ElseIfIndex + 2] == ' ' || AspxText[ElseIfIndex + 2] == '(' || AspxText[ElseIfIndex + 2] == '\\'))
+                                                    if (AspxText[ElseIfIndex] == 'i' && AspxText[ElseIfIndex + 1] == 'f' && (AspxText[ElseIfIndex + 2] == ' ' || AspxText[ElseIfIndex + 2] == '(' || AspxText[ElseIfIndex + 2] == '\n' || AspxText[ElseIfIndex + 2] == '\t' || AspxText[ElseIfIndex + 2] == '\r'))
                                                     {
                                                         HasElseIf = true;
                                                         break;
@@ -1524,7 +1517,7 @@ namespace SetCodeBehind
 
                             // Do While Detection
                             if (i + 5 < AspxText.Length)
-                                if (AspxText.Substring(i + 1, 2) == "do" && (AspxText[i + 3] == ' ' ||AspxText[i + 3] == '\\'))
+                                if (AspxText.Substring(i + 1, 2) == "do" && (AspxText[i + 3] == ' ' || AspxText[i + 3] == '\n'|| AspxText[i + 3] == '\t'||AspxText[i + 3] == '\r'))
                                 {
                                     i += 1;
 
@@ -1564,7 +1557,7 @@ namespace SetCodeBehind
                                             continue;
 
                                         if (i + 8 < AspxText.Length)
-                                            if (AspxText.Substring(i, 5) == "while" && (AspxText[i + 5] == ' ' || AspxText[i + 5] == '(' || AspxText[i + 5] == '\\'))
+                                            if (AspxText.Substring(i, 5) == "while" && (AspxText[i + 5] == ' ' || AspxText[i + 5] == '(' || AspxText[i + 5] == '\n' || AspxText[i + 5] == '\t' || AspxText[i + 5] == '\r'))
                                             {
                                                 i += 5;
 
@@ -1591,7 +1584,7 @@ namespace SetCodeBehind
 
                             // For Detection
                             if (i + 6 < AspxText.Length)
-                                if (AspxText.Substring(i + 1, 3) == "for" && (AspxText[i + 4] == ' ' || AspxText[i + 4] == '(' || AspxText[i + 4] == '\\'))
+                                if (AspxText.Substring(i + 1, 3) == "for" && (AspxText[i + 4] == ' ' || AspxText[i + 4] == '(' || AspxText[i + 4] == '\n' || AspxText[i + 4] == '\t' || AspxText[i + 4] == '\r'))
                                 {
                                     i += 2;
 
@@ -1638,7 +1631,7 @@ namespace SetCodeBehind
 
                             // Lock Detection
                             if (i + 7 < AspxText.Length)
-                                if (AspxText.Substring(i + 1, 4) == "lock" && (AspxText[i + 5] == ' ' || AspxText[i + 5] == '(' || AspxText[i + 5] == '\\'))
+                                if (AspxText.Substring(i + 1, 4) == "lock" && (AspxText[i + 5] == ' ' || AspxText[i + 5] == '(' || AspxText[i + 5] == '\n' || AspxText[i + 5] == '\t' || AspxText[i + 5] == '\r'))
                                 {
                                     i += 3;
 
@@ -1685,7 +1678,7 @@ namespace SetCodeBehind
 
                             // While Detection
                             if (i + 8 < AspxText.Length)
-                                if (AspxText.Substring(i + 1, 5) == "while" && (AspxText[i + 6] == ' ' || AspxText[i + 6] == '(' || AspxText[i + 6] == '\\'))
+                                if (AspxText.Substring(i + 1, 5) == "while" && (AspxText[i + 6] == ' ' || AspxText[i + 6] == '(' || AspxText[i + 6] == '\n' || AspxText[i + 6] == '\t' || AspxText[i + 6] == '\r'))
                                 {
                                     i += 4;
 
@@ -1732,7 +1725,7 @@ namespace SetCodeBehind
 
                             // Using Detection
                             if (i + 8 < AspxText.Length)
-                                if (AspxText.Substring(i + 1, 5) == "using" && (AspxText[i + 6] == ' ' || AspxText[i + 6] == '(' || AspxText[i + 6] == '\\'))
+                                if (AspxText.Substring(i + 1, 5) == "using" && (AspxText[i + 6] == ' ' || AspxText[i + 6] == '(' || AspxText[i + 6] == '\n' || AspxText[i + 6] == '\t' || AspxText[i + 6] == '\r'))
                                 {
                                     i += 4;
 
@@ -1779,7 +1772,7 @@ namespace SetCodeBehind
 
                             // Switch Detection
                             if (i + 9 < AspxText.Length)
-                                if (AspxText.Substring(i + 1, 6) == "switch" && (AspxText[i + 7] == ' ' || AspxText[i + 7] == '(' || AspxText[i + 7] == '\\'))
+                                if (AspxText.Substring(i + 1, 6) == "switch" && (AspxText[i + 7] == ' ' || AspxText[i + 7] == '(' || AspxText[i + 7] == '\n' || AspxText[i + 7] == '\t' || AspxText[i + 7] == '\r'))
                                 {
                                     i += 5;
 
@@ -1826,7 +1819,7 @@ namespace SetCodeBehind
 
                             // Foreach Detection
                             if (i + 10 < AspxText.Length)
-                                if (AspxText.Substring(i + 1, 7) == "foreach" && (AspxText[i + 8] == ' ' || AspxText[i + 8] == '(' || AspxText[i + 8] == '\\'))
+                                if (AspxText.Substring(i + 1, 7) == "foreach" && (AspxText[i + 8] == ' ' || AspxText[i + 8] == '(' || AspxText[i + 8] == '\n' || AspxText[i + 8] == '\t' || AspxText[i + 8] == '\r'))
                                 {
                                     i += 6;
 
@@ -1904,9 +1897,9 @@ namespace SetCodeBehind
             // Set Remove First Empty Line
             if (RemoveFirstEmptyLine)
             {
-                if (TextForWrite.Length > 1)
-                    if (TextForWrite.Substring(0, 2) == ('\\' + "n"))
-                        TextForWrite = TextForWrite.Remove(0, 2);
+                if (TextForWrite.Length > 0)
+                    if (TextForWrite[0] == ('\n'))
+                        TextForWrite = TextForWrite.Remove(0, 1);
 
                 RemoveFirstEmptyLine = false;
             }
@@ -1920,12 +1913,18 @@ namespace SetCodeBehind
         {
             if (Text.Length > 0)
             {
+                Text = Text.Replace("\\", "\\\\");
+
+                Text = Text.Replace("\"", @"\" + "\"");
+
+                Text = Text.Replace('\n'.ToString(), "\\" + "n");
+
                 string TmpTab = (IsInsideControl) ? "    " : "";
 
                 if (!PageIsOnlyView)
-                    return TmpTab + "                controller.ResponseText += \"" + Text.Replace("\"", @"\" + "\"") + "\";" + Environment.NewLine;
+                    return TmpTab + "                controller.ResponseText += \"" + Text + "\";" + Environment.NewLine;
                 else
-                    return TmpTab + "            ReturnValue += \"" + Text.Replace("\"", @"\" + "\"") + "\";" + Environment.NewLine;
+                    return TmpTab + "            ReturnValue += \"" + Text + "\";" + Environment.NewLine;
             }
             else
                 return "";
@@ -1944,9 +1943,9 @@ namespace SetCodeBehind
         public string GetAddCode(string Code, bool PageIsOnlyView)
         {
             if (!PageIsOnlyView)
-                return "                " + Code.Replace(@"\n", Environment.NewLine + "            ") + Environment.NewLine;
+                return "                " + Code.Replace('\n'.ToString(), Environment.NewLine + "            ") + Environment.NewLine;
             else
-                return "            " + Code.Replace(@"\n", Environment.NewLine + "            ") + Environment.NewLine;
+                return "            " + Code.Replace('\n'.ToString(), Environment.NewLine + "            ") + Environment.NewLine;
         }
 
         private void SaveError(List<string> ErrorList)
@@ -1959,15 +1958,17 @@ namespace SetCodeBehind
             {
                 const string FilePath = "code_behind/views_class_aggregation_error.log";
 
-                using (StreamWriter writer = File.CreateText(FilePath))
-                {
-                    writer.WriteLine("date_and_time:" + DateTime.Now.ToString());
+                var file = File.CreateText(FilePath);
 
-                    foreach (string line in ErrorList)
-                    {
-                        writer.WriteLine(line);
-                    }
+                file.WriteLine("date_and_time:" + DateTime.Now.ToString());
+
+                foreach (string line in ErrorList)
+                {
+                    file.WriteLine(line);
                 }
+
+                file.Dispose();
+                file.Close();
             }
         }
 
@@ -1988,7 +1989,7 @@ namespace SetCodeBehind
             var TmpLine = "";
             while ((TmpLine = Lines.ReadLine()) != null)
             {
-                GlobalTemplate += TmpLine + @"\n";
+                GlobalTemplate += TmpLine + '\n';
             }
         }
 
@@ -2023,16 +2024,19 @@ namespace SetCodeBehind
 
             if (!File.Exists(NamespaceImportListPath))
             {
-                using (StreamWriter writer = File.CreateText(NamespaceImportListPath))
-                {
-                    writer.Write("[CodeBehind namespace import list]" + Environment.NewLine);
-                    writer.Write("namespace=System.IO" + Environment.NewLine);
-                    writer.Write("namespace=System.Collections" + Environment.NewLine);
-                    writer.Write("namespace=System.Collections.Generic" + Environment.NewLine);
-                    writer.Write("namespace=System.Linq" + Environment.NewLine);
-                    writer.Write("namespace=System.Threading" + Environment.NewLine);
-                    writer.Write("namespace=System.Threading.Tasks");
-                }
+                var file = File.CreateText(NamespaceImportListPath);
+
+                file.Write("[CodeBehind namespace import list]" + Environment.NewLine);
+                file.Write("namespace=System.IO" + Environment.NewLine);
+                file.Write("namespace=System.Collections" + Environment.NewLine);
+                file.Write("namespace=System.Collections.Generic" + Environment.NewLine);
+                file.Write("namespace=System.Linq" + Environment.NewLine);
+                file.Write("namespace=System.Threading" + Environment.NewLine);
+                file.Write("namespace=System.Threading.Tasks");
+
+                file.Dispose();
+                file.Close();
+
             }
 
             using (StreamReader reader = new StreamReader(NamespaceImportListPath))
@@ -2090,12 +2094,8 @@ namespace SetCodeBehind
             for (int i = 0; i < Text.Length; i++)
                 if (!char.IsLetter(Text[i]) && !char.IsNumber(Text[i]))
                 {
-                    if (Text[i] == ' ' || Text[i] == '<')
+                    if (Text[i] == ' ' || Text[i] == '<' || Text[i] == '\n' || Text[i] == '\t' || Text[i] == '\r')
                         return true;
-
-                    if (Text[i] == '\\' && (i + 1 < Text.Length))
-                        if (Text[i + 1] == 'n' || Text[i + 1] == 't' || Text[i + 1] == 'r')
-                            return true;
 
                     break;
                 }
