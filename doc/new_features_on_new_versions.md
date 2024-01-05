@@ -80,3 +80,8 @@
 
 **Problems that were solved**
  - Deleting unused ex variable from the final view class.
+
+### Version 2.1.1
+
+**Problems that were solved**
+ - Resolving the problem of Razor syntax page attributes ending with the less-than (<) character.
