@@ -150,6 +150,7 @@ app.Run();
  - [Constructor method](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/constructor_method.md)
  - [HtmlData classes](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/html_data_classes.md)
  - [Template](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/template.md)
+ - [Transfer template block data in ViewData](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/transfer_template_block_data_in_view_data.md)
  - [Layout](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/layout.md)
  - [Option](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/option.md)
  - [Namespace and dll for CodeBehind view class](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/namespace_and_dll_for_code_behind_view_class.md)
