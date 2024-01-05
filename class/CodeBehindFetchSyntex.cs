@@ -1,5 +1,6 @@
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Net;
+using System.Xml;
 
 namespace CodeBehind
 {
@@ -164,7 +165,7 @@ namespace CodeBehind
             return ReturnValue;
         }
 
-        public string FullTrimAllOver(string Text)
+        public string FullTrimAllOverBackslash(string Text)
         {
             return FullTrimInStartOverBackslash(FullTrimInEndOverBackslash(Text));
         }
@@ -319,7 +320,7 @@ namespace CodeBehind
                     Index++;
                 }
 
-                string[] InnerTextLines = InnerText.Split(@"\n");
+                string[] InnerTextLines = InnerText.Split('\n');
                 FullTrim ft = new FullTrim();
 
                 for (int i = 0; i < InnerTextLines.Length; i++)
@@ -335,7 +336,7 @@ namespace CodeBehind
                             {
                                 if (TmpLine[1] == ':')
                                 {
-                                    AddedTextForEndedCharacter.Add("write_code", CombinTextAndCodeInLine(FetchExpressionsInLine(TmpLine.GetTextAfterValue("@:"))));
+                                    AddedTextForEndedCharacter.AddList(FetchExpressionsInLine(TmpLine.GetTextAfterValue("@:")).GetList());
                                     continue;
                                 }
                             }
@@ -349,11 +350,11 @@ namespace CodeBehind
                             if (ft.FullTrimAll(TmpLine).Length > 12)
                                 if (TmpLine.StartsWith("<text>") && TmpLine.EndsWith("</text>"))
                                 {
-                                    AddedTextForEndedCharacter.Add("write_code", CombinTextAndCodeInLine(FetchExpressionsInLine(TmpLine.GetTextAfterValue("<text>").GetTextBeforeLastValue("</text>"))));
+                                    AddedTextForEndedCharacter.AddList(FetchExpressionsInLine(TmpLine.GetTextAfterValue("<text>").GetTextBeforeLastValue("</text>")).GetList());
                                     continue;
                                 }
 
-                            AddedTextForEndedCharacter.Add("write_code", CombinTextAndCodeInLine(FetchExpressionsInLine(Line)));
+                            AddedTextForEndedCharacter.AddList(FetchExpressionsInLine(Line).GetList());
                             continue;
                         }
                     }
@@ -436,7 +437,7 @@ namespace CodeBehind
                         int ExpressionLength = Expression.Length;
 
                         FullTrim ft = new FullTrim();
-                        Expression = ft.FullTrimInStartOverBackslash(Expression.Remove(0, 6));
+                        Expression = ft.FullTrimInStart(Expression.Remove(0, 6));
 
                         AwaitLength = ExpressionLength - Expression.Length;
 
@@ -535,25 +536,6 @@ namespace CodeBehind
                 NameValues.Add("write_text", WriteText);
 
             return NameValues;
-        }
-
-        public string CombinTextAndCodeInLine(HtmlData.NameValueCollection NameValues)
-        {
-            string ReturnValue = "";
-            string Plus = "";
-
-            foreach (HtmlData.NameValue nv in NameValues.GetList())
-            {
-                if (nv.Name == "write_text")
-                    ReturnValue += Plus + "\"" + nv.Value.Replace("\"", @"\" + "\"") + "\"";
-
-                if (nv.Name == "write_code")
-                    ReturnValue += Plus + nv.Value;
-
-                Plus = " + ";
-            }
-
-            return ReturnValue;
         }
 
         public bool ExistDoubleQuotes(string Text)
