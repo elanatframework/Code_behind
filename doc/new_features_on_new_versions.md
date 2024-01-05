@@ -1,5 +1,7 @@
 ## New features on new versions
 
+**New Releases Policy:** Our effort at Elanat team is to add new features to new releases. We put a lot of effort into testing the CodeBehind framework before releasing new versions, but usually adding new features causes a series of new bugs. We receive bug reports very quickly and provide new sub-versions with bug fixes. So try to always use the latest versions of the CodeBehind framework.
+
 ### Version 1.7
  - The possibility of creating a page view without having to follow the MVC pattern
    - Possibility to create only view without controller and model
