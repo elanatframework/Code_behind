@@ -100,4 +100,11 @@ You can use the Write method in the model and controller classes; the Write meth
 
 In the controller class, there is an attribute named IgnoreViewAndModel attribute, and if you activate the IgnoreViewAndModel attribute, it will ignore the values of model and view and you will only see a blank page; this feature allows you to display the values you need to the user and avoid multiple redirects and transfers.
 
+
 Note: If you have set the name of a model in the aspx file, You must make sure to call View(ModelName) in the controller class at the end of the method or set the value of IgnoreViewAndModel to true.
+
+you can determine the path of a view in the controller through the View method; this will make the current view not run and the new view will be called; of course, the new view can still include the new controller and model.
+
+`View("/page1.aspx");`
+
+Changing the view in the controller allows you to create headless systems.
