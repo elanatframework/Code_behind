@@ -172,15 +172,17 @@ namespace SetCodeBehind
             {
                 string FilePath = (UseLastLastSuccessCompiled) ? "code_behind/views_compile_error_last_success_compiled.log" : "code_behind/views_compile_error.log";
 
-                using (StreamWriter writer = File.CreateText(FilePath))
-                {
-                    writer.WriteLine("date_and_time:" + DateTime.Now.ToString());
+                var file = File.CreateText(FilePath);
 
-                    foreach (string line in ErrorList)
-                    {
-                        writer.WriteLine(line);
-                    }
+                file.WriteLine("date_and_time:" + DateTime.Now.ToString());
+
+                foreach (string line in ErrorList)
+                {
+                    file.WriteLine(line);
                 }
+
+                file.Dispose();
+                file.Close();
             }
         }
 
@@ -194,15 +196,17 @@ namespace SetCodeBehind
             {
                 const string FilePath = "code_behind/bin_file_list.ini";
 
-                using (StreamWriter writer = File.CreateText(FilePath))
-                {
-                    writer.WriteLine("date_and_time=" + DateTime.Now.ToString());
+                var file = File.CreateText(FilePath);
 
-                    foreach (string line in BinFileList)
-                    {
-                        writer.WriteLine("file=" + line);
-                    }
+                file.WriteLine("date_and_time=" + DateTime.Now.ToString());
+
+                foreach (string line in BinFileList)
+                {
+                    file.WriteLine("file=" + line);
                 }
+
+                file.Dispose();
+                file.Close();
             }
         }
 
@@ -364,14 +368,16 @@ namespace SetCodeBehind
 
             if (!File.Exists(DllImportListPath))
             {
-                using (StreamWriter writer = File.CreateText(DllImportListPath))
-                {
-                    writer.Write("[CodeBehind dll import list]" + Environment.NewLine);
-                    writer.Write("dll_path={run_time_path}/System.IO.dll" + Environment.NewLine);
-                    writer.Write("dll_path={run_time_path}/System.Collections.dll" + Environment.NewLine);
-                    writer.Write("dll_path={run_time_path}/System.Linq.dll" + Environment.NewLine);
-                    writer.Write("dll_path={run_time_path}/System.Threading.dll");
-                }
+                var file = File.CreateText(DllImportListPath);
+
+                file.Write("[CodeBehind dll import list]" + Environment.NewLine);
+                file.Write("dll_path={run_time_path}/System.IO.dll" + Environment.NewLine);
+                file.Write("dll_path={run_time_path}/System.Collections.dll" + Environment.NewLine);
+                file.Write("dll_path={run_time_path}/System.Linq.dll" + Environment.NewLine);
+                file.Write("dll_path={run_time_path}/System.Threading.dll");
+
+                file.Dispose();
+                file.Close();
             }
 
             using (StreamReader reader = new StreamReader(DllImportListPath))
