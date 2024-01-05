@@ -31,15 +31,15 @@ namespace CodeBehind
                 reader.ReadLine();
 
                 ViewPath = reader.ReadLine().GetTextAfterValue("=");
-                MoveViewFromWwwroot = (reader.ReadLine().GetTextAfterValue("=") == "true");
-                RewriteAspxFileToDirectory = (reader.ReadLine().GetTextAfterValue("=") == "true");
-                AccessAspxFileAfterRewrite = (reader.ReadLine().GetTextAfterValue("=") == "true");
-                IgnoreDefaultAfterRewrite = (reader.ReadLine().GetTextAfterValue("=") == "true");
-                StartTrimInAspxFile = (reader.ReadLine().GetTextAfterValue("=") == "true");
-                InnerTrimInAspxFile = (reader.ReadLine().GetTextAfterValue("=") == "true");
-                EndTrimInAspxFile = (reader.ReadLine().GetTextAfterValue("=") == "true");
-                SetBreakForLayoutPage = (reader.ReadLine().GetTextAfterValue("=") == "true");
-                ConvertCsHtmlToAspx = (reader.ReadLine().GetTextAfterValue("=") == "true");
+                MoveViewFromWwwroot = (reader.ReadLine().GetTextAfterValue("=").Trim() == "true");
+                RewriteAspxFileToDirectory = (reader.ReadLine().GetTextAfterValue("=").Trim() == "true");
+                AccessAspxFileAfterRewrite = (reader.ReadLine().GetTextAfterValue("=").Trim() == "true");
+                IgnoreDefaultAfterRewrite = (reader.ReadLine().GetTextAfterValue("=").Trim() == "true");
+                StartTrimInAspxFile = (reader.ReadLine().GetTextAfterValue("=").Trim().Trim() == "true");
+                InnerTrimInAspxFile = (reader.ReadLine().GetTextAfterValue("=").Trim() == "true");
+                EndTrimInAspxFile = (reader.ReadLine().GetTextAfterValue("=").Trim() == "true");
+                SetBreakForLayoutPage = (reader.ReadLine().GetTextAfterValue("=").Trim() == "true");
+                ConvertCsHtmlToAspx = (reader.ReadLine().GetTextAfterValue("=").Trim() == "true");
             }
         }
 
@@ -92,11 +92,13 @@ namespace CodeBehind
 
             if (!File.Exists(OptionsFilePath) || HasMoreOption)
             {
-                using (StreamWriter writer = File.CreateText(OptionsFilePath))
-                {
-                    foreach (string line in OptionsList)
-                        writer.WriteLine(line);
-                }
+                var file = File.CreateText(OptionsFilePath);
+
+                foreach (string line in OptionsList)
+                    file.WriteLine(line);
+
+                file.Dispose();
+                file.Close();
             }
         }
     }
