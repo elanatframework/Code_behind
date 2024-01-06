@@ -89,4 +89,4 @@
  - Resolving the problem of Razor syntax page attributes ending with the less-than (<) character.
 
 ### Version 2.1.2
- - Complete rewrite of page attribute recognition in Razor syntax.
+ - Complete rewrite codes related of page attribute recognition in Razor syntax.
