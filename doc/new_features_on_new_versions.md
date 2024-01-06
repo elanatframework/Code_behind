@@ -53,8 +53,8 @@
  - The problem of not applying, ignoring the default Default.aspx files to rewrite as a directory, was solved.
 
 ### Version 1.9.2
- - In this version and later, in the methods of the final view class, when creating a new instance of the controller class, the term controller is used instead of the term CurrentController.
- - In this version and later, the context inside the astx files are added at the beginning of the aspx file.
+ - In this version and later, in the methods of the final view class, when creating a new instance of the controller class, the term controller is used instead of the term CurrentController
+ - In this version and later, the context inside the astx files are added at the beginning of the aspx file
 
 **Problems that were solved**
  - In the standard syntax, the problem of identifying template blocks that have the next line character or Tab character after the template name was solved.
@@ -66,19 +66,19 @@
  - Solving the problem of not ignoring two consecutive at sign (@) in conditional blocks and loop blocks.
 
 ### Version 2.0
- - Ability to add data to ViewData in controller and model.
- - The addition of download API and the possibility of downloading files from executive pages in all three sections, view, model and controller.
- - The addition of a global template file to support all view pages.
- - The possibility of adding more templates, by separating the semicolon character (;).
- - New option to support cshtml files in the options file.
- - Added default pages (include layout) after first run.
+ - Ability to add data to ViewData in controller and model
+ - The addition of download API and the possibility of downloading files from executive pages in all three sections, view, model and controller
+ - The addition of a global template file to support all view pages
+ - The possibility of adding more templates, by separating the semicolon character (;)
+ - New option to support cshtml files in the options file
+ - Added default pages (include layout) after first run
 
 ### Version 2.1
- - Ability to change the view in the controller.
- - Ability to transfer template block data in ViewData.
- - Complete rewriting of codes related to new lines and backslash of executable files.
- - Complete rewriting of the codes related to creating files.
- - And a series of minor changes and improvements.
+ - Ability to change the view in the controller
+ - Ability to transfer template block data in ViewData
+ - Complete rewriting of codes related to new lines and backslash of executable files
+ - Complete rewriting of the codes related to creating files
+ - And a series of minor changes and improvements
 
 **Problems that were solved**
  - Deleting unused ex variable from the final view class.
@@ -89,5 +89,8 @@
  - Resolving the problem of Razor syntax page attributes ending with the less-than (<) character.
 
 ### Version 2.1.2
- - Complete rewrite codes related of page attribute recognition in Razor syntax.
- - Adding the view file path comment above their methods in the view class.
+ - Complete rewrite codes related of page attribute recognition in Razor syntax
+ - Adding the view file path comment above their methods in the view class
+
+### Version 2.2
+ - Added CallerViewPath and CallerViewDirectoryPath to view, model and controller
