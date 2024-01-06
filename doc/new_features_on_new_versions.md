@@ -88,6 +88,6 @@
 **Problems that were solved**
  - Resolving the problem of Razor syntax page attributes ending with the less-than (<) character.
 
-### Version 2.2.0
+### Version 2.2
  - Complete rewrite codes related of page attribute recognition in Razor syntax.
  - Adding the view file path comment above their methods in the view class.
