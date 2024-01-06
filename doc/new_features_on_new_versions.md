@@ -90,3 +90,4 @@
 
 ### Version 2.1.2
  - Complete rewrite codes related of page attribute recognition in Razor syntax.
+ - Adding the view file path comment above their methods in the view class.
