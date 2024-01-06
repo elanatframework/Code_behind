@@ -16,6 +16,7 @@ inner_trim_in_aspx_file=true
 end_trim_in_aspx_file=true
 set_break_for_layout_page=true
 convert_cshtml_to_aspx=false
+show_minor_errors=false
 ```
 
 **The possibility to load aspx page names as directory names**
@@ -125,5 +126,11 @@ For default cshtml pages, the name should be Default.cshtml; So pages named Inde
 
 Please note that these files must not be added to projects in Visual Studio; The reason for this is that, in addition to the CodeBehind framework, these pages are also compiled in the default .NET mode and can create unstable situation and security risk conditions.
 Also note that the default code highlighter of Visual Studio may in some cases have unnecessary errors from cshtml pages based on the CodeBehind framework.
+
+**Show minor errors**
+
+(`show_minor_errors=false`)
+
+By enabling the show minor errors option, when compiling, errors that do not cause problems in the compilation process but are not optimal will be displayed in the `views_compile_error.log` file in the code_behind directory.
 
 In the future, more customization options will be added to the options file.
