@@ -94,3 +94,4 @@
 
 ### Version 2.2
  - Added CallerViewPath and CallerViewDirectoryPath to view, model and controller
+ - New option to display minor errors in the options file
