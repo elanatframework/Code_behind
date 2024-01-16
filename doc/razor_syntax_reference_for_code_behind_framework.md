@@ -35,6 +35,7 @@ Example
 ```
 
 Page attributes in Razor syntax
+
 The CodeBehind framework framework supports several attributes for view pages. Each of the adjectives are placed at the top of the page. Page attributes and their values must be specified on one line only.
 
 Model attribute
@@ -49,6 +50,7 @@ Example
 ```
 
 Controller attribute
+
 To specify the controller attribute, the string @controller must be written and then added after the space character of the controller class.
 
 Example
@@ -58,6 +60,32 @@ Example
 <!DOCTYPE html>
 ...
 ```
+
+Layout attribute
+
+To specify the layout attribute, the string @layout must be written, and then after the space character, the path of the layout file should be placed between two double quotes.
+
+Example
+Example
+```diff
+@page
++@layout "/main-layout.aspx"
+<!DOCTYPE html>
+...
+
+
+Template attribute
+
+To specify the template attribute, the string @template must be written, and then after the space character, the path of the template file should be placed between two double quotes.
+
+Example
+Example
+```diff
+@page
++@template "/templates/template1.aspx"
+<!DOCTYPE html>
+...
+
 
 Razor syntax example for code block
 ```cshtml
