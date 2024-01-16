@@ -72,6 +72,7 @@ Example
 +@layout "/main-layout.aspx"
 <!DOCTYPE html>
 ...
+```
 
 
 Template attribute
@@ -85,6 +86,7 @@ Example
 +@template "/templates/template1.aspx"
 <!DOCTYPE html>
 ...
+```
 
 
 Razor syntax example for code block
