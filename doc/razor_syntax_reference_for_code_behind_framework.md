@@ -22,6 +22,43 @@ In CodeBehind framework the Razor syntax will also be created in the aspx files 
 </html>
 ```
 
+Razor syntax determination
+
+To determine the razor syntax in aspx pages, there must be @page at the beginning of the page.
+
+Example
+
+```diff
++@page
+<!DOCTYPE html>
+...
+```
+
+Page attributes in Razor syntax
+The CodeBehind framework framework supports several attributes for view pages. Each of the adjectives are placed at the top of the page. Page attributes and their values must be specified on one line only.
+
+Model attribute
+To specify the model attribute, the string @model must be written and then added after the space character of the model class.
+
+Example
+```diff
+@page
++@model YourProjectName.DefaultModel
+<!DOCTYPE html>
+...
+```
+
+Controller attribute
+To specify the controller attribute, the string @controller must be written and then added after the space character of the controller class.
+
+Example
+```diff
+@page
++@controller YourProjectName.DefaultController
+<!DOCTYPE html>
+...
+```
+
 Razor syntax example for code block
 ```cshtml
 @{
