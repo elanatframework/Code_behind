@@ -66,7 +66,6 @@ Layout attribute
 To specify the layout attribute, the string @layout must be written, and then after the space character, the path of the layout file should be placed between two double quotes.
 
 Example
-Example
 ```diff
 @page
 +@layout "/main-layout.aspx"
@@ -74,12 +73,10 @@ Example
 ...
 ```
 
-
 Template attribute
 
 To specify the template attribute, the string @template must be written, and then after the space character, the path of the template file should be placed between two double quotes.
 
-Example
 Example
 ```diff
 @page
@@ -88,6 +85,29 @@ Example
 ...
 ```
 
+Break attribute
+
+To specify the break attribute, only the string @break should be written.
+
+Example
+```diff
+@page
++@break
+<!DOCTYPE html>
+...
+```
+
+Islayout attribute
+
+To specify the islayout attribute, only the string @islayout should be written.
+
+Example
+```diff
+@page
++@islayout
+<!DOCTYPE html>
+...
+```
 
 Razor syntax example for code block
 ```cshtml
