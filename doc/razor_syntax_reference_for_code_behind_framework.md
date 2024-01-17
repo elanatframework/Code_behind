@@ -21,7 +21,7 @@ Razor syntax in CodeBehind is very similar to Razor syntax in cshtml pages in .N
 </html>
 ```
 
-**Razor syntax determination**
+## Razor syntax determination
 
 To determine the razor syntax in aspx pages, there must be @page at the beginning of the page.
 
@@ -33,7 +33,7 @@ Example
 ...
 ```
 
-**Page attributes in Razor syntax**
+## Page attributes in Razor syntax
 
 The CodeBehind framework framework supports several attributes for view pages. Each of the adjectives are placed at the top of the page. Page attributes and their values must be specified on one line only.
 
@@ -109,6 +109,8 @@ Example
 ...
 ```
 
+## Code block
+
 **Razor syntax example for code block**
 ```cshtml
 @{
@@ -117,6 +119,8 @@ Example
 
 <p>@Note</p>
 ```
+
+## Loop
 
 **Razor syntax example for foreach loop**
 ```cshtml
