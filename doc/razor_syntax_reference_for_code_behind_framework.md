@@ -162,6 +162,10 @@ Example
 }
 ```
 
+### Special cases
+
+**Escape apostrophe**
+
 Note: If you use quote ('), double quote ("), and backtick (`) characters, you must either re-use these characters before reaching the closing bracket (}), or write the closing bracket on a lower line, or the closing bracket should end on the next line.
 ```cshtml
 @if (IsTrue)
