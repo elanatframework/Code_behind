@@ -21,6 +21,20 @@ Razor syntax in CodeBehind is very similar to Razor syntax in cshtml pages in .N
 </html>
 ```
 
+### Razor syntax
+
+**Escape Razor syntax**
+
+To escape the @ symbol in Razor markup, use a second @ symbol:
+```csharp
+<p>The @@ symbol is used in email; example: yourname@@example.com</p>
+```
+
+The above code will be displayed as follows after compilation:
+```csharp
+<p>The @ symbol is used in email; example: yourname@example.com</p>
+```
+
 ### Razor syntax determination
 
 To determine the razor syntax in aspx pages, there must be @page at the beginning of the page.
