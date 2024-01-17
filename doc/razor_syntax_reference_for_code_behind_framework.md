@@ -42,6 +42,14 @@ If the characters before and after the @ symbol are letters or numbers, it is no
 <p>Example of an email: yourname@example.com</p>
 ```
 
+### Implicit Razor expressions
+
+Implicit Razor expressions start with @ followed by C# code:
+```csharp
+<p>@DateTime.Now</p>
+<p>@DateTime.IsLeapYear(2024)</p>
+```
+
 ### Razor syntax determination
 
 To determine the razor syntax in aspx pages, there must be @page at the beginning of the page.
