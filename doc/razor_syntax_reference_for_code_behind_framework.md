@@ -2,10 +2,9 @@
 
 In CodeBehind framework the Razor syntax will also be created in the aspx files and the Razor syntax will be automatically determined from the standard syntax. In addition, it is not possible to combine Razor syntax and standard syntax.
 
- Razor syntax in CodeBehind is very similar to Razor syntax in cshtml pages in .NET Core, but in some cases there may be slight differences. Also note that if there is an error in aspx pages that are created with Razor syntax, it is different from Razor syntax errors in .NET Core cshtml pages. The Elanat team doesn't know the Microsoft approach, and the support for Razor pages in CodeBehind was created from the ground up by the Elanat team.
+Razor syntax in CodeBehind is very similar to Razor syntax in cshtml pages in .NET Core, but in some cases there may be slight differences. Also note that if there is an error in aspx pages that are created with Razor syntax, it is different from Razor syntax errors in .NET Core cshtml pages. The Elanat team doesn't know the Microsoft approach, and the support for Razor pages in CodeBehind was created from the ground up by the Elanat team.
 
- Razor syntax example for page attribute
-
+**An HTML page combined with Razor syntax**
  ```cshtml
 @page
 @controller YourProjectName.DefaultController
@@ -22,7 +21,7 @@ In CodeBehind framework the Razor syntax will also be created in the aspx files 
 </html>
 ```
 
-Razor syntax determination
+**Razor syntax determination**
 
 To determine the razor syntax in aspx pages, there must be @page at the beginning of the page.
 
@@ -34,11 +33,11 @@ Example
 ...
 ```
 
-Page attributes in Razor syntax
+**Page attributes in Razor syntax**
 
 The CodeBehind framework framework supports several attributes for view pages. Each of the adjectives are placed at the top of the page. Page attributes and their values must be specified on one line only.
 
-Model attribute
+**Model attribute**
 To specify the model attribute, the string @model must be written and then added after the space character of the model class.
 
 Example
@@ -49,7 +48,7 @@ Example
 ...
 ```
 
-Controller attribute
+**Controller attribute**
 
 To specify the controller attribute, the string @controller must be written and then added after the space character of the controller class.
 
@@ -61,7 +60,7 @@ Example
 ...
 ```
 
-Layout attribute
+**Layout attribute**
 
 To specify the layout attribute, the string @layout must be written, and then after the space character, the path of the layout file should be placed between two double quotes.
 
@@ -73,7 +72,7 @@ Example
 ...
 ```
 
-Template attribute
+**Template attribute**
 
 To specify the template attribute, the string @template must be written, and then after the space character, the path of the template file should be placed between two double quotes.
 
@@ -85,7 +84,7 @@ Example
 ...
 ```
 
-Break attribute
+**Break attribute**
 
 To specify the break attribute, only the string @break should be written.
 
@@ -97,7 +96,7 @@ Example
 ...
 ```
 
-Islayout attribute
+**Islayout attribute**
 
 To specify the islayout attribute, only the string @islayout should be written.
 
@@ -109,7 +108,7 @@ Example
 ...
 ```
 
-Razor syntax example for code block
+**Razor syntax example for code block**
 ```cshtml
 @{
     string Note = "Elanat CMS was created to be a reliable system in .NET and an honor for .NET programmers and can be compared to other systems under PHP and JAVA.";
@@ -118,7 +117,7 @@ Razor syntax example for code block
 <p>@Note</p>
 ```
 
-Razor syntax example for foreach loop
+**Razor syntax example for foreach loop**
 ```cshtml
 @foreach (NameValue nv in NameValues)
 {
