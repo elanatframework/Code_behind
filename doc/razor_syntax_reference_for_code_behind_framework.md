@@ -167,14 +167,14 @@ Example
 **Escape apostrophe**
 
 Note: If you use quote ('), double quote ("), and backtick (`) characters, you must either re-use these characters before reaching the closing bracket (}), or write the closing bracket on a lower line, or the closing bracket should end on the next line.
-```diff
+```html
 @if (IsTrue)
 {
 +	<p>You don't do it.</p>}<b>
 ```
 
 In the code above, there is a character quote (') and closing bracket (}) is closed in the same line. After that, the html character is written; the above code may give an unexpected error, so it should be written as below.
-```cshtml
+```html
 @if (IsTrue)
 {
 	<p>You don't do it.</p>
