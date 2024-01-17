@@ -97,4 +97,5 @@
  - New option to display minor errors in the options file
  - Improved debugging and improved `views_compile_error.log` error file
  - The possibility of creating a controller without requiring the existence of the PageLoad method
+ - Added error page to default pages
  - And a series of minor changes and improvements
