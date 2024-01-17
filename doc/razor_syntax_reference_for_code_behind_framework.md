@@ -173,7 +173,7 @@ Note: If you use quote ('), double quote ("), and backtick (`) characters, you m
 +	<p>You don't do it.</p>}<b>
 ```
 
-In the code above, there is a character character (') and closing bracket (}) is closed in the same line. After that, the html character is written; The above code may give an unexpected error, so it should be written as below.
+In the code above, there is a character quote (') and closing bracket (}) is closed in the same line. After that, the html character is written; the above code may give an unexpected error, so it should be written as below.
 ```cshtml
 @if (IsTrue)
 {
@@ -182,4 +182,4 @@ In the code above, there is a character character (') and closing bracket (}) is
 <b>
 ```
 
-Note: You cannot code in conditional blocks and loops in default cshtml pages in ASP.NET Core, but in the CodeBehind framework you will be allowed to code; Therefore, for JavaScript codes, it is necessary to use @ and : characters before each character at the beginning of the lines.
+Note: You cannot code in conditional blocks and loops in default cshtml pages in ASP.NET Core, but in the CodeBehind framework you will be allowed to code; therefore, for JavaScript codes, it is necessary to use @ and : characters before each character at the beginning of the lines.
