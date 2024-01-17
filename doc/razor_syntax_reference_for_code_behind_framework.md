@@ -26,26 +26,26 @@ Razor syntax in CodeBehind is very similar to Razor syntax in cshtml pages in .N
 **Escape Razor syntax**
 
 To escape the @ symbol in Razor markup, use a second @ symbol:
-```csharp
+```cshtml
 <p>@@user</p>
 ```
 
 The above code will be displayed as follows after compilation:
-```csharp
+```cshtml
 <p>@user</p>
 ```
 
 **Email**
 
 If the characters before and after the @ symbol are letters or numbers, it is not considered as syntax. So the email remains intact:
-```csharp
+```cshtml
 <p>Example of an email: yourname@example.com</p>
 ```
 
 ### Implicit Razor expressions
 
 Implicit Razor expressions start with @ followed by C# code:
-```csharp
+```cshtml
 <p>@DateTime.Now</p>
 <p>@DateTime.IsLeapYear(2024)</p>
 ```
@@ -163,7 +163,7 @@ Example
 ```
 
 Note: If you use quote ('), double quote ("), and backtick (`) characters, you must either re-use these characters before reaching the closing bracket (}), or write the closing bracket on a lower line, or the closing bracket should end on the next line.
-```csharp
+```cshtml
 @if (IsTrue)
 {
 	<p>You don't do it.</p>}<b>
@@ -171,7 +171,7 @@ Note: If you use quote ('), double quote ("), and backtick (`) characters, you m
 ```
 
 In the code above, there is a character character (') and closing bracket (}) is closed in the same line. After that, the html character is written; The above code may give an unexpected error, so it should be written as below.
-```csharp
+```cshtml
 @if (IsTrue)
 {
 	<p>You don't do it.</p>
