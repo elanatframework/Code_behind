@@ -98,4 +98,5 @@
  - Improved debugging and improved `views_compile_error.log` error file
  - The possibility of creating a controller without requiring the existence of the PageLoad method
  - Added error page to default pages
+ - Added the path of the error page in the options file
  - And a series of minor changes and improvements
