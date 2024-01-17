@@ -38,6 +38,7 @@ Example
 The CodeBehind framework framework supports several attributes for view pages. Each of the adjectives are placed at the top of the page. Page attributes and their values must be specified on one line only.
 
 **Model attribute**
+
 To specify the model attribute, the string @model must be written and then added after the space character of the model class.
 
 Example
