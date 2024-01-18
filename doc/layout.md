@@ -52,6 +52,8 @@ Result in hello-world.aspx path
 
 As you can see, the above result is obtained by calling the hello-world.aspx path.
 
+Note: The name value in ViewData is case sensitive.
+
 You can add other pages in the view section.
 
 Layout page (layout.aspx) (Razor syntax)
