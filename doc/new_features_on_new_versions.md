@@ -100,4 +100,5 @@
  - Added error page to default pages
  - Added the path of the error page in the options file
  - Added FoundPage attribute to detect page execution
+ - Improved detection of closed brackets related to server codes, after apostrophes
  - And a series of minor changes and improvements
