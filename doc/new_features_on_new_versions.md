@@ -99,4 +99,5 @@
  - The possibility of creating a controller without requiring the existence of the PageLoad method
  - Added error page to default pages
  - Added the path of the error page in the options file
+ - Added FoundPage attribute to detect page execution
  - And a series of minor changes and improvements
