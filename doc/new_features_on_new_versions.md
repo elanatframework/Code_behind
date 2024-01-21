@@ -101,4 +101,5 @@
  - Added the path of the error page in the options file
  - Added FoundPage attribute to detect page execution
  - Improved detection of closed brackets related to server codes, after apostrophes
+ - Added PageLoad method to Controller abstract class
  - And a series of minor changes and improvements
