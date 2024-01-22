@@ -103,4 +103,5 @@
  - Improved detection of closed brackets related to server codes, after apostrophes
  - Added PageLoad method to Controller abstract class
  - Added new feature section for better route control
+ - The ability to create model, without the need to add an abstract
  - And a series of minor changes and improvements
