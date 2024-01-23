@@ -104,4 +104,5 @@
  - Added PageLoad method to Controller abstract class
  - Added new feature section for better route control
  - The ability to create model, without the need to add an abstract
+ - The ability to create a CodeBehindConstructor method without the need for input arguments
  - And a series of minor changes and improvements
