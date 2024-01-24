@@ -13,6 +13,8 @@ namespace CodeBehind
         public bool EndTrimInAspxFile { private set; get; }
         public bool SetBreakForLayoutPage { private set; get; }
         public bool ConvertCsHtmlToAspx { private set; get; }
+        public bool ShowMinorErrors { private set; get; }
+        public string ErrorPagePath { private set; get; }
         public CodeBehindOptions()
         {
             if (!Directory.Exists("code_behind"))
@@ -40,6 +42,8 @@ namespace CodeBehind
                 EndTrimInAspxFile = (reader.ReadLine().GetTextAfterValue("=").Trim() == "true");
                 SetBreakForLayoutPage = (reader.ReadLine().GetTextAfterValue("=").Trim() == "true");
                 ConvertCsHtmlToAspx = (reader.ReadLine().GetTextAfterValue("=").Trim() == "true");
+                ShowMinorErrors = (reader.ReadLine().GetTextAfterValue("=").Trim() == "true");
+                ErrorPagePath = (reader.ReadLine().GetTextAfterValue("="));
             }
         }
 
@@ -58,6 +62,8 @@ namespace CodeBehind
             OptionsList.Add("end_trim_in_aspx_file=true");
             OptionsList.Add("set_break_for_layout_page=true");
             OptionsList.Add("convert_cshtml_to_aspx=false");
+            OptionsList.Add("show_minor_errors=false");
+            OptionsList.Add("error_page_path=/error.aspx/{value}");
 
             bool HasMoreOption = false;
 
