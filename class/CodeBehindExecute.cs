@@ -6,13 +6,15 @@ namespace CodeBehind
 {
     public class CodeBehindExecute
     {
+        public bool FoundPage { get; set; } = true;
+
         private string PrivateRun(HttpContext context, string MethodName)
         {
             string path = context.Request.Path.ToString();
             string extension = Path.GetExtension(path);
             path = System.Net.WebUtility.UrlDecode(path);
 
-            if (string.IsNullOrEmpty(extension))
+            if (string.IsNullOrEmpty(extension) || !path.GetTextBeforeValue("?").Contains(".aspx/"))
             {
                 bool AddSlash = true;
 
@@ -53,10 +55,16 @@ namespace CodeBehind
                 Type type = assembly.GetType("CodeBehindViews.CodeBehindViewsList");
                 object obj = Activator.CreateInstance(type);
                 MethodInfo method = type.GetMethod(MethodName);
-                string ReturnResult = (string)method.Invoke(obj, new object[] { path, context });
+                object[] Arguments = (MethodName == "SetPageLoadByFullPath") ? new object[] { path, context, "" } : new object[] { path, context };
+                string ReturnResult = (string)method.Invoke(obj, Arguments);
+
+                method = type.GetMethod("PageHasFound");
+                FoundPage = (bool)method.Invoke(obj, null);
 
                 return ReturnResult;
             }
+
+            FoundPage = false;
 
             return "";
         }
@@ -118,7 +126,7 @@ namespace CodeBehind
             string extension = Path.GetExtension(path);
             path = System.Net.WebUtility.UrlDecode(path);
 
-            if (string.IsNullOrEmpty(extension))
+            if (string.IsNullOrEmpty(extension) || !path.GetTextBeforeValue("?").Contains(".aspx/"))
             {
                 bool AddSlash = true;
 
@@ -139,10 +147,16 @@ namespace CodeBehind
                 Type type = assembly.GetType("CodeBehindViews.CodeBehindViewsList");
                 object obj = Activator.CreateInstance(type);
                 MethodInfo method = type.GetMethod(MethodName);
-                string ReturnResult = (string)method.Invoke(obj, new object[] { path, null });
+                object[] Arguments = (MethodName == "SetPageLoadByFullPath") ? new object[] { path, null, "" } : new object[] { path, null };
+                string ReturnResult = (string)method.Invoke(obj, Arguments);
+
+                method = type.GetMethod("PageHasFound");
+                FoundPage = (bool)method.Invoke(obj, null);
 
                 return ReturnResult;
             }
+
+            FoundPage = false;
 
             return "";
         }
@@ -165,6 +179,22 @@ namespace CodeBehind
         public string RunFullPath(string path)
         {
             return PrivateRun(path, "SetPageLoadByFullPath");
+        }
+
+        public string RunErrorPage(int ErrorValue)
+        {
+            CodeBehindOptions option = new CodeBehindOptions();
+            string path = option.ErrorPagePath.Replace("{value}", ErrorValue.ToString());
+
+            return Run(path);
+        }
+
+        public string RunErrorPage(int ErrorValue, HttpContext context)
+        {
+            CodeBehindOptions option = new CodeBehindOptions();
+            string path = option.ErrorPagePath.Replace("{value}", ErrorValue.ToString());
+
+            return Run(context, path);
         }
     }
 }
