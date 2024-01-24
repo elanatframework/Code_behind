@@ -26,6 +26,14 @@ namespace CodeBehind.HtmlData
             NameValueList.Add(new NameValue(Name, Value));
         }
 
+        public void Set(string Name, string Value)
+        {
+            if (!Exist(Name))
+                Add(Name, Value);
+            else
+                ChangeValue(Name, Value);
+        }
+
         public void Delete(string Name)
         {
             List<NameValue> TmpNameValueList = new List<NameValue>();
@@ -42,6 +50,17 @@ namespace CodeBehind.HtmlData
         public void Empty()
         {
             NameValueList = new List<NameValue>();
+        }
+
+        public bool Exist(string Name)
+        {
+            foreach (NameValue nv in NameValueList)
+            {
+                if (nv.Name == Name)
+                    return true;
+            }
+
+            return false;
         }
 
         public void ChangeValue(string Name, string Value)
@@ -136,6 +155,14 @@ namespace CodeBehind.HtmlData
             AttributeList.Add(new Attribute(Name, Value));
         }
 
+        public void Set(string Name, string Value)
+        {
+            if (!Exist(Name))
+                Add(Name, Value);
+            else
+                ChangeValue(Name, Value);
+        }
+
         public void Delete(string Name)
         {
             List<Attribute> TmpAttributeList = new List<Attribute>();
@@ -152,6 +179,17 @@ namespace CodeBehind.HtmlData
         public void Empty()
         {
             AttributeList = new List<Attribute>();
+        }
+
+        public bool Exist(string Name)
+        {
+            foreach (Attribute attr in AttributeList)
+            {
+                if (attr.Name == Name)
+                    return true;
+            }
+
+            return false;
         }
 
         public void ChangeValue(string Name, string Value)
@@ -271,6 +309,22 @@ namespace CodeBehind.HtmlData
             OptionTagList.Add(new OptionTag(Value, Text, Selected));
         }
 
+        public void Set(string Value, string Text)
+        {
+            if (!Exist(Value))
+                Add(Value, Text);
+            else
+                ChangeValue(Value, Value, Text);
+        }
+
+        public void Set(string Value, string Text, bool Selected)
+        {
+            if (!Exist(Value))
+                Add(Value, Text, Selected);
+            else
+                ChangeValue(Value, Value, Text, Selected);
+        }
+
         public void Delete(string Value)
         {
             List<OptionTag> TmpOptionTagList = new List<OptionTag>();
@@ -287,6 +341,17 @@ namespace CodeBehind.HtmlData
         public void Empty()
         {
             OptionTagList = new List<OptionTag>();
+        }
+
+        public bool Exist(string Value)
+        {
+            foreach (OptionTag tag in OptionTagList)
+            {
+                if (tag.Value == Value)
+                    return true;
+            }
+
+            return false;
         }
 
         public void ChangeText(string Value, string Text)
@@ -481,6 +546,30 @@ namespace CodeBehind.HtmlData
             CheckBoxItemList.Add(new CheckBoxItem(Name, Value, Text, Selected));
         }
 
+        public void Set(string Name, string Value)
+        {
+            if (!Exist(Name))
+                Add(Name, Value);
+            else
+                ChangeName(Name, Name, Value);
+        }
+
+        public void Set(string Name, string Value, string Text)
+        {
+            if (!Exist(Name))
+                Add(Name, Value, Text);
+            else
+                ChangeName(Name, Name, Value, Text);
+        }
+
+        public void Set(string Name, string Value, string Text, bool Selected)
+        {
+            if (!Exist(Name))
+                Add(Name, Value, Text, Selected);
+            else
+                ChangeName(Name, Name, Value, Text, Selected);
+        }
+
         public void Delete(string Name)
         {
             List<CheckBoxItem> TmpCheckBoxItemList = new List<CheckBoxItem>();
@@ -497,6 +586,17 @@ namespace CodeBehind.HtmlData
         public void Empty()
         {
             CheckBoxItemList = new List<CheckBoxItem>();
+        }
+
+        public bool Exist(string Name)
+        {
+            foreach (CheckBoxItem item in CheckBoxItemList)
+            {
+                if (item.Name == Name)
+                    return true;
+            }
+
+            return false;
         }
 
         public void ChangeText(string Name, string Text)
