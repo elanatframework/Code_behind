@@ -16,6 +16,7 @@ namespace SetCodeBehind
         private bool SetBreakForLayoutPage;
         private bool InnerTrimInAspxFile;
         private string CaseCodeTemplateValue = "";
+        private string SectionTemplateValue = "";
         private string CaseCodeTemplateValueForFullPath = "";
         private string MethodCodeTemplateValue = "";
         private string GlobalTemplate = "";
@@ -99,8 +100,12 @@ namespace SetCodeBehind
             CodeBehindViews += "namespace CodeBehindViews" + Environment.NewLine;
             CodeBehindViews += "{" + Environment.NewLine;
             CodeBehindViews += "    public class CodeBehindViewsList" + Environment.NewLine;
-            CodeBehindViews += "    {" + Environment.NewLine + Environment.NewLine;
+            CodeBehindViews += "    {" + Environment.NewLine;
             CodeBehindViews += "        private CodeBehind.HtmlData.NameValueCollection ViewData = new CodeBehind.HtmlData.NameValueCollection();" + Environment.NewLine;
+            CodeBehindViews += "        private string RequestPath { get; set; } = \"\";" + Environment.NewLine;
+            CodeBehindViews += "        private string CallerViewPath { get; set; } = \"\";" + Environment.NewLine;
+            CodeBehindViews += "        private string CallerViewDirectoryPath { get; set; } = \"\";" + Environment.NewLine;
+            CodeBehindViews += "        private bool FoundPage { get; set; } = true;" + Environment.NewLine + Environment.NewLine;
 
             CodeBehindOptions options = new CodeBehindOptions();
             RewriteAspxFileToDirectory = options.RewriteAspxFileToDirectory;
@@ -112,7 +117,7 @@ namespace SetCodeBehind
             InnerTrimInAspxFile = options.InnerTrimInAspxFile;
 
 
-            // Create wwwroot Directory And Set Default.aspx File
+            // Create wwwroot Directory And Set Default Pages
             if (options.ViewPath == "wwwroot")
                 if (!Directory.Exists("wwwroot"))
                 {
@@ -256,6 +261,58 @@ namespace SetCodeBehind
 
                     file4.Dispose();
                     file4.Close();
+
+
+                    FilePath = "wwwroot/error.aspx";
+                    var file5 = File.CreateText(FilePath);
+
+                    file5.WriteLine("@page");
+                    file5.WriteLine("@layout \"/layout.aspx\"");
+                    file5.WriteLine("@section");
+                    file5.WriteLine("@{");
+                    file5.WriteLine("  ViewData.Add(\"title\",\"Error page\");");
+                    file5.WriteLine();
+                    file5.WriteLine("  int ErrorValue = 0;");
+                    file5.WriteLine("  if (Section.GetValue(0).IsNumber())");
+                    file5.WriteLine("    ErrorValue = Section.GetValue(0).ToNumber();");
+                    file5.WriteLine("}");
+                    file5.WriteLine("  <div>");
+                    file5.WriteLine("      <p>");
+                    file5.WriteLine("      @if (ErrorValue == 400)");
+                    file5.WriteLine("      {");
+                    file5.WriteLine("        <h1>Error 400 Bad request</h1>");
+                    file5.WriteLine("        <h3>The path you requested is incorrect or the server cannot respond to this request.</h3>");
+                    file5.WriteLine("      }");
+                    file5.WriteLine("      else if (ErrorValue == 401)");
+                    file5.WriteLine("      {");
+                    file5.WriteLine("        <h1>Error 401 Authorization required</h1>");
+                    file5.WriteLine("        <h3>The path you requested requires validation. Either you don't have access to the path or you need to log in.</h3>");
+                    file5.WriteLine("      }");
+                    file5.WriteLine("      else if (ErrorValue == 403)");
+                    file5.WriteLine("      {");
+                    file5.WriteLine("        <h1>Error 403 Forbidden</h1>");
+                    file5.WriteLine("        <h3>The path you requested cannot be accessed.</h3>");
+                    file5.WriteLine("      }");
+                    file5.WriteLine("      else if (ErrorValue == 404)");
+                    file5.WriteLine("      {");
+                    file5.WriteLine("        <h1>Error 404 Page not found</h1>");
+                    file5.WriteLine("        <h3>No page was found in the path you requested.</h3>");
+                    file5.WriteLine("      }");
+                    file5.WriteLine("      else if (ErrorValue == 500)");
+                    file5.WriteLine("      {");
+                    file5.WriteLine("        <h1>Error 500 Internal server error</h1>");
+                    file5.WriteLine("        <h3>The server encountered an unexpected problem, so the problem prevented us from responding to your request.</h3>");
+                    file5.WriteLine("      }");
+                    file5.WriteLine("      else");
+                    file5.WriteLine("      {");
+                    file5.WriteLine("        <h1>Error! Status Code: @ErrorValue</h1>");
+                    file5.WriteLine("        <h3>A problem has occurred.</h3>");
+                    file5.WriteLine("      }");
+                    file5.WriteLine("      </p>");
+                    file5.WriteLine("  </div>");
+
+                    file5.Dispose();
+                    file5.Close();
                 }
 
             // Fill Global Template
@@ -292,20 +349,27 @@ namespace SetCodeBehind
             CodeBehindViews += "        // It Works Based On Rewriting The Option File" + Environment.NewLine;
             CodeBehindViews += "        public string SetPageLoadByPath(string path, HttpContext context)" + Environment.NewLine;
             CodeBehindViews += "        {" + Environment.NewLine;
+            CodeBehindViews += "            RequestPath = path;" + Environment.NewLine;
+            CodeBehindViews += "            FoundPage = true;" + Environment.NewLine + Environment.NewLine;
+            CodeBehindViews += (!string.IsNullOrEmpty(SectionTemplateValue))? SectionTemplateValue + Environment.NewLine : "";
             CodeBehindViews += "            switch (path)" + Environment.NewLine;
             CodeBehindViews += "            {" + Environment.NewLine;
             CodeBehindViews += CaseCodeTemplateValue + Environment.NewLine;
-            CodeBehindViews += "            }" + Environment.NewLine;
+            CodeBehindViews += "            }" + Environment.NewLine + Environment.NewLine;
+            CodeBehindViews += "            FoundPage = false;" + Environment.NewLine;
             CodeBehindViews += "            return \"\";" + Environment.NewLine;
             CodeBehindViews += "        }" + Environment.NewLine + Environment.NewLine;
 
             CodeBehindViews += "        // Load All Page By Full Path, This Method Load Break Page And Does Not Apply Rewrite" + Environment.NewLine;
             CodeBehindViews += "        public string SetPageLoadByFullPath(string path, HttpContext context, string PageReturnValue = \"\")" + Environment.NewLine;
             CodeBehindViews += "        {" + Environment.NewLine;
+            CodeBehindViews += "            RequestPath = path;" + Environment.NewLine;
+            CodeBehindViews += "            FoundPage = true;" + Environment.NewLine + Environment.NewLine;
             CodeBehindViews += "            switch (path)" + Environment.NewLine;
             CodeBehindViews += "            {" + Environment.NewLine;
             CodeBehindViews += CaseCodeTemplateValueForFullPath + Environment.NewLine;
-            CodeBehindViews += "            }" + Environment.NewLine;
+            CodeBehindViews += "            }" + Environment.NewLine + Environment.NewLine;
+            CodeBehindViews += "            FoundPage = false;" + Environment.NewLine;
             CodeBehindViews += "            return \"\";" + Environment.NewLine;
             CodeBehindViews += "        }" + Environment.NewLine + Environment.NewLine;
 
@@ -319,6 +383,11 @@ namespace SetCodeBehind
             CodeBehindViews += "        private string LoadPage(string path)" + Environment.NewLine;
             CodeBehindViews += "        {" + Environment.NewLine;
             CodeBehindViews += "            return SetPageLoadByFullPath(path, null);" + Environment.NewLine;
+            CodeBehindViews += "        }" + Environment.NewLine + Environment.NewLine;
+
+            CodeBehindViews += "        public bool PageHasFound()" + Environment.NewLine;
+            CodeBehindViews += "        {" + Environment.NewLine;
+            CodeBehindViews += "            return FoundPage;" + Environment.NewLine;
             CodeBehindViews += "        }" + Environment.NewLine + Environment.NewLine;
 
             CodeBehindViews += "        private void Download(HttpContext context, string FilePath)" + Environment.NewLine;
@@ -346,9 +415,9 @@ namespace SetCodeBehind
             CodeBehindViews += "                    }" + Environment.NewLine;
             CodeBehindViews += "                }" + Environment.NewLine;
             CodeBehindViews += "            }" + Environment.NewLine;
-            CodeBehindViews += "        }" + Environment.NewLine + Environment.NewLine;
+            CodeBehindViews += "        }" + Environment.NewLine;
 
-            CodeBehindViews += MethodCodeTemplateValue + Environment.NewLine;
+            CodeBehindViews += MethodCodeTemplateValue;
 
             CodeBehindViews += "    }" + Environment.NewLine;
             CodeBehindViews += "}" + Environment.NewLine + Environment.NewLine;
@@ -386,7 +455,7 @@ namespace SetCodeBehind
                 AspxTextAndCodeCombinationRazor(AspxText, FilePath, RootDirectoryPath, MethodIndexer);
         }
 
-        public void SetMethod(string AspxFilePath, string Controller, string ControllerConstructor, string Model, string ModelConstructor, bool ControllerIsSet, string Layout, bool IsLayout, bool IsBreak, int MethodIndexer, string TextToCodeCombination)
+        public void SetMethod(string AspxFilePath, string Controller, string ControllerConstructor, string Model, string ModelConstructor, bool ModelUseAbstract, bool ControllerIsSet, string Layout, bool IsLayout, bool IsBreak, bool UseSection, int MethodIndexer, string TextToCodeCombination)
         {
             if (AspxFilePath.EndsWith(".cshtml"))
                 AspxFilePath = AspxFilePath.GetTextBeforeLastValue(".cshtml") + ".aspx";
@@ -399,42 +468,89 @@ namespace SetCodeBehind
                 if (IsLayout && SetBreakForLayoutPage)
                     IsBreak = true;
 
+            string AspxFilePathUrl = AspxFilePath.Replace("\\", "/");
+
             if (!IsBreak)
             {
-                if (RewriteAspxFileToDirectory)
-                    if (IgnoreDefaultAfterRewrite && (AspxFilePath.GetTextAfterLastValue('\\'.ToString()) == "Default.aspx"))
-                        CaseCodeTemplateValue += "                case \"" + AspxFilePath.Replace("\\", "/") + "\": return " + FilePathToMethodName + "_" + Controller.Replace('.', '_') + "_PageLoad" + MethodIndexer + "(context" + (IsLayout ? ", \"\"" : "") + ");" + Environment.NewLine;
-                    else
-                        CaseCodeTemplateValue += "                case \"" + AspxFilePath.Replace("\\", "/").GetTextBeforeLastValue(".aspx") + "/Default.aspx" + "\": return " + FilePathToMethodName + "_" + Controller.Replace('.', '_') + "_PageLoad" + MethodIndexer + "(context" + (IsLayout? ", \"\"" : "") + ");" + Environment.NewLine;
+                string ReturnMethodValue = FilePathToMethodName + "_" + Controller.Replace('.', '_') + "_PageLoad" + MethodIndexer + "(context" + (IsLayout ? ", \"\"" : "") + ")";
+
 
                 if (!RewriteAspxFileToDirectory || (RewriteAspxFileToDirectory && AccessAspxFileAfterRewrite && !(IgnoreDefaultAfterRewrite && (AspxFilePath.GetTextAfterLastValue('\\'.ToString()) == "Default.aspx"))))
-                    CaseCodeTemplateValue += "                case \"" + AspxFilePath.Replace("\\", "/") + "\": return " + FilePathToMethodName + "_" + Controller.Replace('.', '_') + "_PageLoad" + MethodIndexer + "(context" + (IsLayout? ", \"\"" : "") + ");" + Environment.NewLine;
+                {
+                    CaseCodeTemplateValue += "                case \"" + AspxFilePathUrl + "\": return " + ReturnMethodValue + ";" + Environment.NewLine;
+
+                    if (UseSection)
+                    {
+                        SectionTemplateValue += "            if (path.StartsWith(\"" + AspxFilePathUrl + "/\")" + ((AspxFilePath.GetTextAfterLastValue('\\'.ToString()) == "Default.aspx")? " || path.StartsWith(\"" + AspxFilePathUrl.GetTextBeforeLastValue("Default.aspx") + "\")" : "") + ")" + Environment.NewLine;
+                        SectionTemplateValue += "                return " + ReturnMethodValue + ";" + Environment.NewLine;
+                    }
+                }
+
+                if (RewriteAspxFileToDirectory)
+                    if (IgnoreDefaultAfterRewrite && (AspxFilePath.GetTextAfterLastValue('\\'.ToString()) == "Default.aspx"))
+                    {
+                        CaseCodeTemplateValue += "                case \"" + AspxFilePathUrl + "\": return " + ReturnMethodValue + ";" + Environment.NewLine;
+
+                        if (UseSection)
+                        {
+                            SectionTemplateValue += "            if (path.StartsWith(\"" + AspxFilePathUrl.GetTextBeforeLastValue("Default.aspx") + "\") || path.StartsWith(\"" + AspxFilePathUrl + "/\"))" + Environment.NewLine;
+                            SectionTemplateValue += "                return " + ReturnMethodValue + ";" + Environment.NewLine;
+                        }
+                    }
+                    else
+                    {
+                        CaseCodeTemplateValue += "                case \"" + AspxFilePathUrl.GetTextBeforeLastValue(".aspx") + "/Default.aspx" + "\": return " + ReturnMethodValue + ";" + Environment.NewLine;
+
+                        if (UseSection)
+                        {
+                            SectionTemplateValue += "            if (path.StartsWith(\"" + AspxFilePathUrl.GetTextBeforeLastValue(".aspx") + "/\"))" + Environment.NewLine;
+                            SectionTemplateValue += "                return " + ReturnMethodValue + ";" + Environment.NewLine;
+                        }
+                    }
             }
 
-            CaseCodeTemplateValueForFullPath += "                case \"" + AspxFilePath.Replace("\\", "/") + "\": return " + FilePathToMethodName + "_" + Controller.Replace('.', '_') + "_PageLoad" + MethodIndexer + "(context" + (IsLayout? ", PageReturnValue" : "") + ");" + Environment.NewLine;
+            CaseCodeTemplateValueForFullPath += "                case \"" + AspxFilePathUrl + "\": return " + FilePathToMethodName + "_" + Controller.Replace('.', '_') + "_PageLoad" + MethodIndexer + "(context" + (IsLayout? ", PageReturnValue" : "") + ");" + Environment.NewLine;
+
+            string CallerViewDirectoryPath = AspxFilePathUrl.GetTextBeforeLastValue("/");
+            if (string.IsNullOrEmpty(CallerViewDirectoryPath))
+                CallerViewDirectoryPath = "/";
 
             string TmpMethodCodeTemplateValue = Environment.NewLine;
+            TmpMethodCodeTemplateValue += "        // View Path: " + AspxFilePathUrl + Environment.NewLine;
             TmpMethodCodeTemplateValue += "        protected string " + FilePathToMethodName + "_" + Controller.Replace('.', '_') + "_PageLoad" + MethodIndexer + "(HttpContext context" + (IsLayout? ", string PageReturnValue" : "") + ")" + Environment.NewLine;
             TmpMethodCodeTemplateValue += "        {" + Environment.NewLine;
+            TmpMethodCodeTemplateValue += "            string PreviousRequestPath = RequestPath;" + Environment.NewLine;
+            TmpMethodCodeTemplateValue += "            string PreviousCallerViewPath = CallerViewPath;" + Environment.NewLine;
+            TmpMethodCodeTemplateValue += "            string PreviousCallerViewDirectoryPath = CallerViewDirectoryPath;" + Environment.NewLine;
+            TmpMethodCodeTemplateValue += "            CallerViewPath = \"" + AspxFilePathUrl + "\";" + Environment.NewLine;
+            TmpMethodCodeTemplateValue += "            CallerViewDirectoryPath = \"" + CallerViewDirectoryPath + "\";" + Environment.NewLine + Environment.NewLine;
+
+            if (UseSection)
+                TmpMethodCodeTemplateValue += "            ValueCollectionLock Section = new ValueCollectionLock(\"" + AspxFilePathUrl + "\", RequestPath, " + (RewriteAspxFileToDirectory? "true" : "false" ) + ", " + (IgnoreDefaultAfterRewrite ? "true" : "false") + ");" + Environment.NewLine + Environment.NewLine;
 
             if (!PageIsOnlyView)
             {
                 TmpMethodCodeTemplateValue += "            " + Controller + " controller = new " + Controller + "();" + Environment.NewLine;
+                TmpMethodCodeTemplateValue += "            controller.CallerViewPath = CallerViewPath;" + Environment.NewLine;
+                TmpMethodCodeTemplateValue += "            controller.CallerViewDirectoryPath = CallerViewDirectoryPath;" + Environment.NewLine;
+
+                if (UseSection)
+                    TmpMethodCodeTemplateValue += "            controller.Section.AddList(Section.GetList());" + Environment.NewLine;
 
                 if (!string.IsNullOrEmpty(ControllerConstructor))
-                    TmpMethodCodeTemplateValue += "            controller.CodeBehindConstructor(" + ControllerConstructor + ");" + Environment.NewLine;
+                    TmpMethodCodeTemplateValue += "            controller.CodeBehindConstructor" + ControllerConstructor + ";" + Environment.NewLine;
 
-                TmpMethodCodeTemplateValue += "            controller.PageLoad(context);" + Environment.NewLine;
+                TmpMethodCodeTemplateValue += "            controller.PageLoad(context);" + Environment.NewLine + Environment.NewLine;
 
                 TmpMethodCodeTemplateValue += "            ViewData.AddList(controller.ViewData.GetList());" + Environment.NewLine;
                 TmpMethodCodeTemplateValue += "            if (!string.IsNullOrEmpty(controller.ViewPath))" + Environment.NewLine;
-                TmpMethodCodeTemplateValue += "                return LoadPage(controller.ViewPath, context);" + Environment.NewLine;
+                TmpMethodCodeTemplateValue += "                return LoadPage(controller.ViewPath, context);" + Environment.NewLine + Environment.NewLine;
 
                 TmpMethodCodeTemplateValue += "            if (!string.IsNullOrEmpty(controller.DownloadFilePath))" + Environment.NewLine;
                 TmpMethodCodeTemplateValue += "            {" + Environment.NewLine;
                 TmpMethodCodeTemplateValue += "                Download(context, controller.DownloadFilePath);" + Environment.NewLine;
                 TmpMethodCodeTemplateValue += "                return \"\";" + Environment.NewLine;
-                TmpMethodCodeTemplateValue += "            }" + Environment.NewLine;
+                TmpMethodCodeTemplateValue += "            }" + Environment.NewLine + Environment.NewLine;
 
                 TmpMethodCodeTemplateValue += "            if (!controller.IgnoreViewAndModel)" + Environment.NewLine;
                 TmpMethodCodeTemplateValue += "            {" + Environment.NewLine;
@@ -443,23 +559,38 @@ namespace SetCodeBehind
                 {
                     TmpMethodCodeTemplateValue += "                " + Model + " model = (" + Model + ")controller.CodeBehindModel;" + Environment.NewLine;
 
+                    if (ModelUseAbstract)
+                    {
+                        TmpMethodCodeTemplateValue += "                model.CallerViewPath = CallerViewPath;" + Environment.NewLine;
+                        TmpMethodCodeTemplateValue += "                model.CallerViewDirectoryPath = CallerViewDirectoryPath;" + Environment.NewLine;
+
+                        if (UseSection)
+                            TmpMethodCodeTemplateValue += "                model.Section.AddList(Section.GetList());" + Environment.NewLine;
+                    }
+
                     if (!string.IsNullOrEmpty(ModelConstructor))
-                        TmpMethodCodeTemplateValue += "                model.CodeBehindConstructor(" + ModelConstructor + ");" + Environment.NewLine;
+                        TmpMethodCodeTemplateValue += "                model.CodeBehindConstructor" + ModelConstructor + ";" + Environment.NewLine;
 
-                    TmpMethodCodeTemplateValue += "                ViewData.AddList(model.ViewData.GetList());" + Environment.NewLine;
+                    if (ModelUseAbstract)
+                    {
+                        TmpMethodCodeTemplateValue += "                ViewData.AddList(model.ViewData.GetList());" + Environment.NewLine;
 
-                    TmpMethodCodeTemplateValue += "                if (!string.IsNullOrEmpty(model.DownloadFilePath))" + Environment.NewLine;
-                    TmpMethodCodeTemplateValue += "                {" + Environment.NewLine;
-                    TmpMethodCodeTemplateValue += "                    Download(context, model.DownloadFilePath);" + Environment.NewLine;
-                    TmpMethodCodeTemplateValue += "                    return \"\";" + Environment.NewLine;
-                    TmpMethodCodeTemplateValue += "                }" + Environment.NewLine;
+                        TmpMethodCodeTemplateValue += "                if (!string.IsNullOrEmpty(model.DownloadFilePath))" + Environment.NewLine;
+                        TmpMethodCodeTemplateValue += "                {" + Environment.NewLine;
+                        TmpMethodCodeTemplateValue += "                    Download(context, model.DownloadFilePath);" + Environment.NewLine;
+                        TmpMethodCodeTemplateValue += "                    return \"\";" + Environment.NewLine;
+                        TmpMethodCodeTemplateValue += "                }" + Environment.NewLine + Environment.NewLine;
 
-                    TmpMethodCodeTemplateValue += "                controller.ResponseText += model.ResponseText;" + Environment.NewLine;
+                        TmpMethodCodeTemplateValue += "                controller.ResponseText += model.ResponseText;" + Environment.NewLine;
+                    }
                 }
 
                 TmpMethodCodeTemplateValue += TextToCodeCombination;
-                TmpMethodCodeTemplateValue += "            }" + Environment.NewLine;
+                TmpMethodCodeTemplateValue += "            }" + Environment.NewLine + Environment.NewLine;
                 
+                TmpMethodCodeTemplateValue += "            RequestPath = PreviousRequestPath;" + Environment.NewLine;
+                TmpMethodCodeTemplateValue += "            CallerViewPath = PreviousCallerViewPath;" + Environment.NewLine;
+                TmpMethodCodeTemplateValue += "            CallerViewDirectoryPath = PreviousCallerViewDirectoryPath;" + Environment.NewLine + Environment.NewLine;
                 TmpMethodCodeTemplateValue += "            return " + (!string.IsNullOrEmpty(Layout) ? "SetPageLoadByFullPath(\"" + Layout + "\", context, controller.ResponseText)" : "controller.ResponseText") + ";" + Environment.NewLine;
             }
             else
@@ -470,16 +601,38 @@ namespace SetCodeBehind
                 {
                     TmpMethodCodeTemplateValue += "            " + Model + " model = new " + Model + "();" + Environment.NewLine;
 
+                    if (ModelUseAbstract)
+                    {
+                        TmpMethodCodeTemplateValue += "                model.CallerViewPath = CallerViewPath;" + Environment.NewLine;
+                        TmpMethodCodeTemplateValue += "                model.CallerViewDirectoryPath = CallerViewDirectoryPath;" + Environment.NewLine;
+
+                        if (UseSection)
+                            TmpMethodCodeTemplateValue += "                model.Section.AddList(Section.GetList());" + Environment.NewLine;
+                    }
+
                     if (!string.IsNullOrEmpty(ModelConstructor))
-                        TmpMethodCodeTemplateValue += "            model.CodeBehindConstructor(" + ModelConstructor + ");" + Environment.NewLine;
+                        TmpMethodCodeTemplateValue += "            model.CodeBehindConstructor" + ModelConstructor + ";" + Environment.NewLine;
 
-                    TmpMethodCodeTemplateValue += "            ViewData.AddList(model.ViewData.GetList());" + Environment.NewLine;
+                    if (ModelUseAbstract)
+                    {
 
-                    TmpMethodCodeTemplateValue += "            ReturnValue += model.ResponseText;" + Environment.NewLine;
+                        TmpMethodCodeTemplateValue += "            ViewData.AddList(model.ViewData.GetList());" + Environment.NewLine;
+
+                        TmpMethodCodeTemplateValue += "                if (!string.IsNullOrEmpty(model.DownloadFilePath))" + Environment.NewLine;
+                        TmpMethodCodeTemplateValue += "                {" + Environment.NewLine;
+                        TmpMethodCodeTemplateValue += "                    Download(context, model.DownloadFilePath);" + Environment.NewLine;
+                        TmpMethodCodeTemplateValue += "                    return \"\";" + Environment.NewLine;
+                        TmpMethodCodeTemplateValue += "                }" + Environment.NewLine + Environment.NewLine;
+
+                        TmpMethodCodeTemplateValue += "            ReturnValue += model.ResponseText;" + Environment.NewLine + Environment.NewLine;
+                    }
                 }
 
-                TmpMethodCodeTemplateValue += TextToCodeCombination;
+                TmpMethodCodeTemplateValue += TextToCodeCombination + Environment.NewLine;
 
+                TmpMethodCodeTemplateValue += "            RequestPath = PreviousRequestPath;" + Environment.NewLine;
+                TmpMethodCodeTemplateValue += "            CallerViewPath = PreviousCallerViewPath;" + Environment.NewLine;
+                TmpMethodCodeTemplateValue += "            CallerViewDirectoryPath = PreviousCallerViewDirectoryPath;" + Environment.NewLine + Environment.NewLine;
                 TmpMethodCodeTemplateValue += "            return " + (!string.IsNullOrEmpty(Layout) ? "SetPageLoadByFullPath(\"" + Layout + "\", context, ReturnValue)" : "ReturnValue") + ";" + Environment.NewLine;
             }
 
@@ -517,7 +670,6 @@ namespace SetCodeBehind
             // Set Controller
             string Controller = "";
             string ControllerConstructor = "";
-            string ModelConstructor = "";
 
             if (!PageIsOnlyView)
             {
@@ -526,10 +678,9 @@ namespace SetCodeBehind
                 // Get Controller Constructor Method
                 if (Controller.Contains("("))
                 {
-                    ControllerConstructor = Controller.GetTextAfterValue("(").GetTextBeforeLastValue(")").Replace("&quot;", "\"");
+                    ControllerConstructor = "(" + Controller.GetTextAfterValue("(").GetTextBeforeLastValue(")").Replace("&quot;", "\"") + ")";
                     Controller = Controller.GetTextBeforeValue("(");
                 }
-
 
                 if (!Controller.ClassPathIsFine())
                 {
@@ -541,16 +692,25 @@ namespace SetCodeBehind
 
             // Set Model
             string Model = (PageProperties.Contains(" Model=\"")) ? PageProperties.Split(new string[] { "Model=\"" }, StringSplitOptions.None)[1].Split("\"")[0] : "";
+            string ModelConstructor = "";
+            bool ModelUseAbstract = true;
 
             if (Model != "")
             {
+                if (Model.Length > 1)
+                    if ((Model[0] == '{') && (Model[Model.Length - 1] == '}'))
+                    {
+                        Model = Model.Remove(0, 1);
+                        Model = Model.Remove(Model.Length - 1, 1);
+                        ModelUseAbstract = false;
+                    }
+
                 // Get Model Constructor Method
                 if (Model.Contains("("))
                 {
-                    ModelConstructor = Model.GetTextAfterValue("(").GetTextBeforeLastValue(")").Replace("&quot;", "\"");
+                    ModelConstructor = "(" + Model.GetTextAfterValue("(").GetTextBeforeLastValue(")").Replace("&quot;", "\"") + ")";
                     Model = Model.GetTextBeforeValue("(");
                 }
-
 
                 if (!Model.ClassPathIsFine())
                 {
@@ -600,6 +760,12 @@ namespace SetCodeBehind
             // Set Break
             string Break = (PageProperties.Contains(" Break=\"")) ? PageProperties.Split(new string[] { "Break=\"" }, StringSplitOptions.None)[1].Split("\"")[0] : "";
             bool IsBreak = (Break == "true");
+
+
+            // Set Break
+            string Section = (PageProperties.Contains(" Section=\"")) ? PageProperties.Split(new string[] { "Section=\"" }, StringSplitOptions.None)[1].Split("\"")[0] : "";
+            bool UseSection = (Section == "true");
+
 
             // Set Global Template
             AspxText = GlobalTemplate + AspxText;
@@ -813,7 +979,7 @@ namespace SetCodeBehind
 
             TextToCodeCombination += GetWriteText(AspxText, PageIsOnlyView);
 
-            SetMethod(AspxFilePath, Controller, ControllerConstructor, Model, ModelConstructor, !PageIsOnlyView, Layout, IsLayout, IsBreak, MethodIndexer, TextToCodeCombination);
+            SetMethod(AspxFilePath, Controller, ControllerConstructor, Model, ModelConstructor, ModelUseAbstract,!PageIsOnlyView, Layout, IsLayout, IsBreak, UseSection, MethodIndexer, TextToCodeCombination);
         }
 
         public void AspxTextAndCodeCombinationRazor(string AspxText, string FilePath, string RootDirectoryPath, int MethodIndexer)
@@ -841,42 +1007,83 @@ namespace SetCodeBehind
             AspxText = AspxText.Remove(0, 5);
 
 
+            // Fetch Page Attribute
+            string Controller = "";
+            string Model = "";
+            string Layout = "";
+            bool IsLayout = false;
+            bool IsBreak = false;
+            bool UseSection = false;
+            string Template = "";
+
+            string[] AspxLine = AspxText.Split('\n');
+            foreach (string line in AspxLine)
+            {
+                string TmpLine = ft.FullTrimAll(line);
+
+                if (TmpLine.Length == 0)
+                    continue;
+
+                if (TmpLine[0] != '@')
+                    break;
+
+                // Fetch Controller, Model, Layout, IsLayout, IsBreak, UseSection, Template
+                if (TmpLine.StartsWith("@controller"))
+                {
+                    Controller = ft.FullTrimAll(TmpLine.GetTextAfterValue("@controller"));
+                    AspxText = AspxText.GetTextAfterValue(line);
+                    continue;
+                }
+                else if (TmpLine.StartsWith("@model"))
+                {
+                    Model = ft.FullTrimAll(TmpLine.GetTextAfterValue("@model"));
+                    AspxText = AspxText.GetTextAfterValue(line);
+                    continue;
+                }
+                else if (TmpLine.StartsWith("@layout"))
+                {
+                    Layout = ft.FullTrimAll(TmpLine.GetTextAfterValue("@layout"));
+                    AspxText = AspxText.GetTextAfterValue(line);
+                    continue;
+                }
+                else if (TmpLine == "@islayout")
+                {
+                    IsLayout = true;
+                    AspxText = AspxText.GetTextAfterValue(line);
+                    continue;
+                }
+                else if (TmpLine == "@break")
+                {
+                    IsBreak = true;
+                    AspxText = AspxText.GetTextAfterValue(line);
+                    continue;
+                }
+                else if (TmpLine == "@section")
+                {
+                    UseSection = true;
+                    AspxText = AspxText.GetTextAfterValue(line);
+                    continue;
+                }
+                else if (TmpLine.StartsWith("@template"))
+                {
+                    Template = ft.FullTrimAll(TmpLine.GetTextAfterValue("@template"));
+                    AspxText = AspxText.GetTextAfterValue(line);
+                    continue;
+                }
+                else
+                    break;
+            }
+
+
             // Set Controller
             string ControllerConstructor = "";
             bool ControllerIsSet = false;
-            string Controller = "";
-
-            string TmpAspxText = AspxText;
-
-            while (TmpAspxText.Contains("@controller"))
-            {
-                TmpAspxText = TmpAspxText.GetTextAfterValue("@controller");
-
-                if (TmpAspxText.Length > 1)
-                {
-                    char CharacterAfterController = TmpAspxText[0];
-
-                    if (CharacterAfterController == ' ' || CharacterAfterController == '\n' || CharacterAfterController == '\t' || CharacterAfterController == '\r')
-                    {
-                        TmpAspxText = "@" + ft.FullTrimInStart(TmpAspxText);
-
-                        Controller = syntex.FetchExpressions(TmpAspxText);
-
-                        string BetweenText = AspxText.Split(new string[] { "@controller" + CharacterAfterController }, StringSplitOptions.None)[1].Split(Controller)[0];
-
-                        AspxText = AspxText.Replace("@controller" + CharacterAfterController + BetweenText + Controller, "");
-
-                        break;
-                    }
-                }
-            }
-
             if (Controller != "")
             {
                 // Get Controller Constructor Method
                 if (Controller.Contains("("))
                 {
-                    ControllerConstructor = Controller.GetTextAfterValue("(").GetTextBeforeLastValue(")");
+                    ControllerConstructor = "(" + Controller.GetTextAfterValue("(").GetTextBeforeLastValue(")") + ")";
                     Controller = Controller.GetTextBeforeValue("(");
                 }
 
@@ -892,39 +1099,22 @@ namespace SetCodeBehind
 
             // Set Model
             string ModelConstructor = "";
-            string Model = "";
-            
-            TmpAspxText = AspxText;
-
-            while (TmpAspxText.Contains("@model"))
-            {
-                TmpAspxText = TmpAspxText.GetTextAfterValue("@model");
-
-                if (TmpAspxText.Length > 1)
-                {
-                    char CharacterAfterModel = TmpAspxText[0];
-
-                    if (CharacterAfterModel == ' ' || CharacterAfterModel == '\n' || CharacterAfterModel == '\t' || CharacterAfterModel == '\r')
-                    {
-                        TmpAspxText = "@" + ft.FullTrimInStart(TmpAspxText);
-
-                        Model = syntex.FetchExpressions(TmpAspxText);
-
-                        string BetweenText = AspxText.Split(new string[] { "@model" + CharacterAfterModel }, StringSplitOptions.None)[1].Split(Model)[0];
-
-                        AspxText = AspxText.Replace("@model" + CharacterAfterModel + BetweenText + Model, "");
-
-                        break;
-                    }
-                }
-            }
+            bool ModelUseAbstract = true;
 
             if (Model != "")
             {
+                if (Model.Length > 1)
+                    if ((Model[0] == '{') && (Model[Model.Length - 1] == '}'))
+                    {
+                        Model = Model.Remove(0, 1);
+                        Model = Model.Remove(Model.Length - 1, 1);
+                        ModelUseAbstract = false;
+                    }
+
                 // Get Model Constructor Method
                 if (Model.Contains("("))
                 {
-                    ModelConstructor = Model.GetTextAfterValue("(").GetTextBeforeLastValue(")");
+                    ModelConstructor = "(" + Model.GetTextAfterValue("(").GetTextBeforeLastValue(")") + ")";
                     Model = Model.GetTextBeforeValue("(");
                 }
 
@@ -937,44 +1127,29 @@ namespace SetCodeBehind
 
 
             // Set Layout
-            string Layout = "";
-
-            TmpAspxText = AspxText.GetTextBeforeValue("<");
-
-            while (TmpAspxText.Contains("@layout"))
-            {
-                TmpAspxText = TmpAspxText.GetTextAfterValue("@layout");
-
-                if (TmpAspxText.Length > 1)
-                {
-                    char CharacterAfterLayout = TmpAspxText[0];
-
-                    if (CharacterAfterLayout == ' ' || CharacterAfterLayout == '\n' || CharacterAfterLayout == '\t' || CharacterAfterLayout == '\r')
-                    {
-                        TmpAspxText = ft.FullTrimInStart(TmpAspxText) + "\\";
-
-                        if (TmpAspxText[0] != '\"')
-                            break;
-
-                        for (int i = 1; i < TmpAspxText.Length; i++)
-                        {
-                            if (TmpAspxText[i] == '\"')
-                                break;
-
-                            Layout += TmpAspxText[i];
-                        }
-
-                        string BetweenText = AspxText.Split(new string[] { "@layout" + CharacterAfterLayout }, StringSplitOptions.None)[1].Split(Layout)[0];
-
-                        AspxText = AspxText.Replace("@layout" + CharacterAfterLayout + BetweenText + Layout + '\"', "");
-
-                        break;
-                    }
-                }
-            }
-
             if (Layout != "")
             {
+                if (Layout.Length < 2)
+                {
+                    ErrorList.Add("Error: The layout content is not specified correctly in " + AspxFilePath + " path");
+                    return;
+                }
+
+                if (!Layout.StartsWith('"') )
+                {
+                    ErrorList.Add("Error: The layout content value does not start with double quotes in " + AspxFilePath + " file");
+                    return;
+                }
+
+                if (!Layout.EndsWith('"') )
+                {
+                    ErrorList.Add("Error: The layout content value does not end with double quotes in " + AspxFilePath + " file");
+                    return;
+                }
+
+                Layout = Layout.Remove(0, 1);
+                Layout = Layout.Remove(Layout.Length - 1, 1);
+
                 string LayoutPath = "";
 
                 if (Layout[0] == '/' || Layout[0].ToString() == @"\")
@@ -1000,97 +1175,34 @@ namespace SetCodeBehind
                     return;
                 }
             }
-
-
-            // Set If Is Layout
-            bool IsLayout = false;
-
-            TmpAspxText = AspxText.GetTextBeforeValue("<");
-
-            while (TmpAspxText.Contains("@islayout"))
-            {
-                TmpAspxText = TmpAspxText.GetTextAfterValue("@islayout");
-
-                if (TmpAspxText.Length > 1)
-                {
-                    char CharacterAfterIsLayout = TmpAspxText[0];
-
-                    if (CharacterAfterIsLayout == ' ' || CharacterAfterIsLayout == '\n' || CharacterAfterIsLayout == '\t' || CharacterAfterIsLayout == '\r')
-                    {
-                        AspxText = AspxText.Replace("@islayout" + CharacterAfterIsLayout, CharacterAfterIsLayout.ToString());
-                        IsLayout = true;
-
-                        break;
-                    }
-                }
-            }
-            
-            
-            // Set Break
-            bool IsBreak = false;
-
-            TmpAspxText = AspxText.GetTextBeforeValue("<");
-
-            while (TmpAspxText.Contains("@break"))
-            {
-                TmpAspxText = TmpAspxText.GetTextAfterValue("@break");
-
-                if (TmpAspxText.Length > 1)
-                {
-                    char CharacterAfterBreak = TmpAspxText[0];
-
-                    if (CharacterAfterBreak == ' ' || CharacterAfterBreak == '\n' || CharacterAfterBreak == '\t' || CharacterAfterBreak == '\r')
-                    {
-                        AspxText = AspxText.Replace("@break" + CharacterAfterBreak, CharacterAfterBreak.ToString());
-                        IsBreak = true;
-
-                        break;
-                    }
-                }
-            }
-
+          
             // Set Global Template
             AspxText = GlobalTemplate + AspxText;
 
             // Set Template
-            string Template = "";
-
-            TmpAspxText = AspxText.GetTextBeforeValue("<");
-
-            while (TmpAspxText.Contains("@template"))
-            {
-                TmpAspxText = TmpAspxText.GetTextAfterValue("@template");
-
-                if (TmpAspxText.Length > 1)
-                {
-                    char CharacterAfterTemplate = TmpAspxText[0];
-
-                    if (CharacterAfterTemplate == ' ' || CharacterAfterTemplate == '\n' || CharacterAfterTemplate == '\t' || CharacterAfterTemplate == '\r')
-                    {
-                        TmpAspxText = ft.FullTrimInStart(TmpAspxText) + "\\";
-
-                        if (TmpAspxText[0] != '\"')
-                            break;
-
-                        for (int i = 1; i < TmpAspxText.Length; i++)
-                        {
-                            if (TmpAspxText[i] == '\"')
-                                break;
-
-                            Template += TmpAspxText[i];
-                        }
-
-                        string BetweenText = AspxText.Split(new string[] { "@template" + CharacterAfterTemplate }, StringSplitOptions.None)[1].Split(Template)[0];
-
-                        AspxText = AspxText.Replace("@template" + CharacterAfterTemplate + BetweenText + Template + '\"', "");
-
-                        break;
-                    }
-                }
-            }
-
             if (Template != "")
             {
+                if (Template.Length < 2)
+                {
+                    ErrorList.Add("Error: The template content is not specified correctly in " + AspxFilePath + " path");
+                    return;
+                }
+
+                if (!Template.StartsWith('"'))
+                {
+                    ErrorList.Add("Error: The template content value does not start with double quotes in " + AspxFilePath + " file");
+                    return;
+                }
+
+                if (!Template.EndsWith('"'))
+                {
+                    ErrorList.Add("Error: The template content value does not end with double quotes in " + AspxFilePath + " file");
+                    return;
+                }
+
+                Template = Template.Remove(0, 1);
+                Template = Template.Remove(Template.Length - 1, 1);
+
                 string[] Templates = Template.Split(';');
 
                 foreach (string TmpTemplate in Templates)
@@ -1132,7 +1244,7 @@ namespace SetCodeBehind
             }
 
             // Fetch Template
-            TmpAspxText = AspxText;
+            string TmpAspxText = AspxText;
             while (TmpAspxText.Contains("@#"))
             {
                 TmpAspxText = "@#" + TmpAspxText.GetTextAfterValue("@#");
@@ -1395,6 +1507,7 @@ namespace SetCodeBehind
                             continue;
                         }
 
+                        // If Detection
                         if (char.IsLetter(AspxText[i + 1]))
                         {
                             if (i + 5 < AspxText.Length)
@@ -1441,13 +1554,16 @@ namespace SetCodeBehind
                                         break;
                                     }
 
-                                    string TmpAspxTextForFindElse = ft.FullTrimInStart(AspxText.Substring(i + 1));
+                                    if ((i + 1) < AspxText.Length)
+                                    {
+                                        string TmpAspxTextForFindElse = ft.FullTrimInStart(AspxText.Substring(i + 1));
 
-                                    if (TmpAspxTextForFindElse.Length < 4)
-                                        continue;
+                                        if (TmpAspxTextForFindElse.Length < 4)
+                                            continue;
 
-                                    if (TmpAspxTextForFindElse.Substring(0, 4) != "else")
-                                        continue;
+                                        if (TmpAspxTextForFindElse.Substring(0, 4) != "else")
+                                            continue;
+                                    }
 
 
                                     int ElseIndex = i - 1;
@@ -1906,7 +2022,7 @@ namespace SetCodeBehind
 
             TextToCodeCombination += GetWriteText(TextForWrite, !ControllerIsSet);
 
-            SetMethod(AspxFilePath, Controller, ControllerConstructor, Model, ModelConstructor, ControllerIsSet, Layout, IsLayout, IsBreak, MethodIndexer, TextToCodeCombination);
+            SetMethod(AspxFilePath, Controller, ControllerConstructor, Model, ModelConstructor, ModelUseAbstract, ControllerIsSet, Layout, IsLayout, IsBreak, UseSection, MethodIndexer, TextToCodeCombination);
         }
 
         public string GetWriteText(string Text, bool PageIsOnlyView, bool IsInsideControl = false)
