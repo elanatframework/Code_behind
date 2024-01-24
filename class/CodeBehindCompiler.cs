@@ -12,7 +12,7 @@ namespace SetCodeBehind
     {
         private static Assembly CompiledAssembly;
         
-        public static Assembly CompileAspx(bool UseLastLastSuccessCompiled = false, List<string> CurrentErrorList = null)
+        public static Assembly CompileAspx(bool UseLastSuccessCompiled = false, List<string> CurrentErrorList = null)
         {
             if (CompiledAssembly != null)
             {
@@ -22,7 +22,7 @@ namespace SetCodeBehind
             List<string> ErrorList = (CurrentErrorList != null)? CurrentErrorList : new List<string>();
 
             CodeBehindLibraryCreator la = new CodeBehindLibraryCreator();
-            string code = (UseLastLastSuccessCompiled) ? la.GetLastSuccessCompiledViewClass() : la.GetCodeBehindViews();
+            string code = (UseLastSuccessCompiled) ? la.GetLastSuccessCompiledViewClass() : la.GetCodeBehindViews();
 
             if (string.IsNullOrEmpty(code))
             {
@@ -70,7 +70,7 @@ namespace SetCodeBehind
                     {
                         File.Copy(file.FullName, AppContext.BaseDirectory + "/" + file.Name, true);
                     }
-                    catch (Exception ex)
+                    catch
                     {
                         ErrorList.Add("Failed to copy or over write assembly in bin/" + file.Name + " path.");
                     }
@@ -82,7 +82,7 @@ namespace SetCodeBehind
                     {
                         AssemblyLoadContext.Default.LoadFromAssemblyPath(AppContext.BaseDirectory + "/" + file.Name);
                     }
-                    catch (Exception ex) 
+                    catch
                     {
                         ErrorList.Add("Failed to load the assembly in bin/" + file.Name + " path.");
                     }
@@ -104,7 +104,7 @@ namespace SetCodeBehind
                         {
                             AssemblyLoadContext.Default.LoadFromAssemblyPath(AppContext.BaseDirectory + "/" + DirectoryPath + "/" + file.Name);
                         }
-                        catch (Exception ex)
+                        catch
                         {
                             ErrorList.Add("Failed to load the assembly in bin/" + DirectoryPath + "/" + file.Name + " path.");
                         }
@@ -130,14 +130,32 @@ namespace SetCodeBehind
             {
                 EmitResult result = compilation.Emit(ms);
 
+                CodeBehindOptions options = new CodeBehindOptions();
+
                 if (!result.Success)
                 {
                     foreach (var diagnostic in result.Diagnostics)
-                        ErrorList.Add(diagnostic.ToString());
+                        if (diagnostic.WarningLevel == 0)
+                        {
+                            if (UseLastSuccessCompiled)
+                                ErrorList.Add("views_class_last_success_compiled.cs.tmp - " + diagnostic.ToString());
+                            else
+                                ErrorList.Add("views_class.cs.tmp - " + diagnostic.ToString());
+                        }
+
+                    if (options.ShowMinorErrors)
+                        foreach (var diagnostic in result.Diagnostics)
+                            if (diagnostic.WarningLevel > 0)
+                            {
+                                if (UseLastSuccessCompiled)
+                                    ErrorList.Add("views_class_last_success_compiled.cs.tmp - " + diagnostic.ToString());
+                                else
+                                    ErrorList.Add("views_class.cs.tmp - " + diagnostic.ToString());
+                            }
 
                     SaveError(ErrorList);
 
-                    if (UseLastLastSuccessCompiled)
+                    if (UseLastSuccessCompiled)
                         return null;
                     else
                         return CompileAspx(true, ErrorList); // Set Recursive
@@ -148,7 +166,14 @@ namespace SetCodeBehind
                 byte[] bytes = ms.ToArray();
                 CompiledAssembly = Assembly.Load(bytes);
 
-                if (UseLastLastSuccessCompiled)
+                if (options.ShowMinorErrors)
+                    foreach (var diagnostic in result.Diagnostics)
+                        if (UseLastSuccessCompiled)
+                            ErrorList.Add("views_class_last_success_compiled.cs.tmp - " + diagnostic.ToString());
+                        else
+                            ErrorList.Add("views_class.cs.tmp - " + diagnostic.ToString());
+
+                if (UseLastSuccessCompiled)
                     ErrorList.Add("A problem occurred in the compilation and the last successful compilation was recompiled.");
                 else
                 {
