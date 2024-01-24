@@ -1,6 +1,4 @@
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Net;
-using System.Xml;
 
 namespace CodeBehind
 {
@@ -8,12 +6,21 @@ namespace CodeBehind
     {
         public bool IsBetweenApostrophe(string text, int index)
         {
+            if (index + 1 >= text.Length)
+                return false;
+
             bool InsideApostrophe = false;
+            bool FindNextLine = false;
             char QuoteChar = '\0';
 
             for (int i = 0; i < text.Length; i++)
             {
                 char c = text[i];
+
+                if (c == '\n' && InsideApostrophe)
+                {
+                    FindNextLine = true;
+                }
 
                 if (c == '\'' && !InsideApostrophe)
                 {
@@ -33,11 +40,18 @@ namespace CodeBehind
                 else if (c == QuoteChar && InsideApostrophe)
                 {
                     InsideApostrophe = false;
+                    FindNextLine = false;
                     QuoteChar = '\0';
                 }
                 else if (i == index && InsideApostrophe)
                 {
-                    return true;
+                    bool IsLastCharInLine = false;
+
+                    if ((i + 1) < text.Length)
+                        if (text[i + 1] == '\n')
+                            IsLastCharInLine = true;
+
+                    return !FindNextLine && !IsLastCharInLine;
                 }
             }
 
