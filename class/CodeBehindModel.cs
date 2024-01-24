@@ -20,6 +20,18 @@ namespace CodeBehind
             ResponseText += Text;
         }
 
+        // Overload
+        public void Write(int Number)
+        {
+            ResponseText += Number;
+        }
+
+        // Overload
+        public void Write(long Number)
+        {
+            ResponseText += Number;
+        }
+
         public void Download(string FilePath)
         {
             DownloadFilePath = FilePath;
