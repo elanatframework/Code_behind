@@ -153,6 +153,7 @@ app.Run();
  - [Transfer template block data in ViewData](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/transfer_template_block_data_in_view_data.md)
  - [Layout](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/layout.md)
  - [Section](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/section.md)
+ - [Error handling](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/error_handling.md)
  - [Option](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/option.md)
  - [Namespace and dll for CodeBehind view class](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/namespace_and_dll_for_code_behind_view_class.md)
  - [Error detection](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/error_detection.md)
