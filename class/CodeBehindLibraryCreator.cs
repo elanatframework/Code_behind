@@ -135,6 +135,7 @@ namespace SetCodeBehind
                     file1.WriteLine("<html>");
                     file1.WriteLine("<head>");
                     file1.WriteLine("  <title>CodeBehind Framework - @ViewData.GetValue(\"title\")</title>");
+                    file1.WriteLine("  <meta charset=\"utf-8\" />");
                     file1.WriteLine("  <style>");
                     file1.WriteLine("  body");
                     file1.WriteLine("  {");
