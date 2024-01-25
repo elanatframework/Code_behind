@@ -14,7 +14,9 @@ namespace CodeBehind
             string extension = Path.GetExtension(path);
             path = System.Net.WebUtility.UrlDecode(path);
 
-            if (string.IsNullOrEmpty(extension) || !path.GetTextBeforeValue("?").Contains(".aspx/"))
+            bool HasSection = path.GetTextBeforeValue("?").Contains(".aspx/");
+
+            if (string.IsNullOrEmpty(extension) && !HasSection)
             {
                 bool AddSlash = true;
 
@@ -29,7 +31,7 @@ namespace CodeBehind
                 extension = ".aspx";
             }
 
-            if (extension == ".aspx")
+            if (extension == ".aspx" || HasSection)
             {
                 // Add QueryString Value
                 if (path.Contains('?'))
@@ -126,7 +128,9 @@ namespace CodeBehind
             string extension = Path.GetExtension(path);
             path = System.Net.WebUtility.UrlDecode(path);
 
-            if (string.IsNullOrEmpty(extension) || !path.GetTextBeforeValue("?").Contains(".aspx/"))
+            bool HasSection = path.GetTextBeforeValue("?").Contains(".aspx/");
+
+            if (string.IsNullOrEmpty(extension) && !HasSection)
             {
                 bool AddSlash = true;
 
@@ -141,7 +145,7 @@ namespace CodeBehind
                 extension = ".aspx";
             }
 
-            if (extension == ".aspx")
+            if (extension == ".aspx" || HasSection)
             {
                 Assembly assembly = CodeBehindCompiler.CompileAspx();
                 Type type = assembly.GetType("CodeBehindViews.CodeBehindViewsList");
