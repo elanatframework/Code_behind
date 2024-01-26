@@ -288,6 +288,9 @@ pasting template auto step finally for standard syntax
   </div>
 </div>
 ```
+
+Note: Be careful in naming the templates to make the concept better. For example, if you want to show a list of users, it is better to choose the name of the list of users so that anyone who sees the code will know that this is a list.
+
 **Global template**
 
 Global template are a feature of the CodeBehind framework. All view pages call this template.
