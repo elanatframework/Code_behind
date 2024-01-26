@@ -187,7 +187,7 @@ namespace SetCodeBehind
                     file1.WriteLine();
                     file1.WriteLine("  <nav>");
                     file1.WriteLine("      <ul>");
-                    file1.WriteLine("          <li><a href=\"#\">Home</a></li>");
+                    file1.WriteLine("          <li><a href=\"/\">Home</a></li>");
                     file1.WriteLine("          <li><a href=\"#\">About</a></li>");
                     file1.WriteLine("          <li><a href=\"#\">Contact</a></li>");
                     file1.WriteLine("      </ul>");
@@ -277,8 +277,8 @@ namespace SetCodeBehind
                     file5.WriteLine("  if (Section.GetValue(0).IsNumber())");
                     file5.WriteLine("    ErrorValue = Section.GetValue(0).ToNumber();");
                     file5.WriteLine("}");
-                    file5.WriteLine("  <div>");
-                    file5.WriteLine("      <p>");
+                    file5.WriteLine("  <main>");
+                    file5.WriteLine("      <div>");
                     file5.WriteLine("      @if (ErrorValue == 400)");
                     file5.WriteLine("      {");
                     file5.WriteLine("        <h1>Error 400 Bad request</h1>");
@@ -309,8 +309,8 @@ namespace SetCodeBehind
                     file5.WriteLine("        <h1>Error! Status Code: @ErrorValue</h1>");
                     file5.WriteLine("        <h3>A problem has occurred.</h3>");
                     file5.WriteLine("      }");
-                    file5.WriteLine("      </p>");
-                    file5.WriteLine("  </div>");
+                    file5.WriteLine("      </div>");
+                    file5.WriteLine("  </main>");
 
                     file5.Dispose();
                     file5.Close();
