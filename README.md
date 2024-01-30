@@ -19,6 +19,7 @@ Code Behind framework inherits every advantage of ASP.NET Core and gives it more
  - **Code-Behind**: Code-Behind pattern will be fully respected.
  - **Modern**: CodeBehind is a modern framework with revolutionary ideas.
  - **Understandable**: View is preferable to controller and there is no need to set controllers in route.
+ - **Adaptable**: The CodeBehind framework can even be used with Razor Pages and ASP.NET Core MVC.
 
 **CodeBehind is .NET Diamond!**
 
