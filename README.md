@@ -166,6 +166,7 @@ app.Run();
  - [How is the list of views finally made?](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/how_is_the_list_of_views_finally_made.md)
  - [CodeBehind framework data](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/code_behind_framework_data.md)
  - [MVC architecture in CodeBehind](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/mvc_architecture_in_code_behind.md)
+ - [Performance test, ASP.NET Core MVC and Razor Pages vs CodeBehind Framework](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/performance_test_asp_dot_net_core_mvc_and_razor_pages_vs_code_behind_framework_version_2.2.md)
  - [Performance test in only view section in version 1.5.2 (ASP.NET Core VS CodeBehind)](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/performance_test_in_only_view_section_version_1.5.2.md)
  - [CodeBehind story](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/code_behind_story.md)
  - [ASP.NET Core VS CodeBehind; why should we use CodeBehind?](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/asp_dot_net_core_vs_code_behind.md)
