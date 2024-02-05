@@ -117,13 +117,17 @@ We tested each framework 10 times for this evaluation. Evaluation with 1 request
 
 **Test results**
 
+![Razor Pages vs CodeBehind Framework test results](https://github.com/elanatframework/Code_behind/assets/111444759/68d1fc76-ce7f-4de1-840d-d1d38917ebe5)
+
 The numbers above show the number of responses per requester.
 
 **Chart of results**
 
+![Razor Pages vs CodeBehind Framework performance test chart](https://github.com/elanatframework/Code_behind/assets/111444759/f9a8be7b-5fea-49c1-b2e8-988d2878259f)
+
 As shown in the chart, Razor pages get the highest number of responses (140,240) when running 8 requesters, and the CodeBehind framework gets the highest number of responses (196,433) with 10 requesters running. These results show us that the CodeBehind framework is up to 40% faster than Razor Pages.
 
-## ASP.NET Core MVC VS CodeBehind Framework
+### ASP.NET Core MVC VS CodeBehind Framework
 
 In this test, we created ASP.NET Core MVC along with the Controller and Model, and we also created View pages in the CodeBehind framework along with the Controller and Model.
 
@@ -319,9 +323,13 @@ We tested each framework 10 times for this evaluation. Evaluation with 1 request
 
 **Test results**
 
+![ASP.NET Core MVC vs CodeBehind Framework test results](https://github.com/elanatframework/Code_behind/assets/111444759/f1ffa4dc-cc48-42a5-98d7-950231751866)
+
 The numbers above show the number of responses per requester.
 
 **Chart of results**
+
+![ASP.NET Core MVC vs CodeBehind Framework performance test chart](https://github.com/elanatframework/Code_behind/assets/111444759/0e91622d-a786-4401-b700-4cd740d5dc0c)
 
 As shown in the chart, Razor pages get the highest number of responses (141,260) when running 8 requesters, and the CodeBehind framework gets the highest number of responses (187,387) with 9 requesters running. These results show us that the CodeBehind framework is up to 33% faster than ASP.NET Core MVC.
 
