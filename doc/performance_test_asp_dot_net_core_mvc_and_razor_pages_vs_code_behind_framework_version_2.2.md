@@ -1,4 +1,4 @@
-## Performance Test, ASP.NET Core MVC and Razor Pages vs CodeBehind Framework
+## Performance test, ASP.NET Core MVC and Razor Pages vs CodeBehind Framework
 
 In this article, we want to test the performance of the CodeBehind Framework with the default frameworks of Razor Pages and ASP.NET Core MVC.
 
