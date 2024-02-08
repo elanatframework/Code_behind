@@ -1,4 +1,4 @@
-## Send Data
+## Send data
 
 In this article, we want to teach you how to submit form data in the CodeBehind framework. To keep it simple, we just added a View page with a Controller class and didn't use a Model.
 
