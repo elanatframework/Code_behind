@@ -14,6 +14,13 @@ namespace CodeBehind
             string extension = Path.GetExtension(path);
             path = System.Net.WebUtility.UrlDecode(path);
 
+            if (StaticObject.PreventAccessDefaultAaspx && MethodName == "SetPageLoadByPath")
+                if (path.GetTextBeforeValue("?").EndsWith("/Default.aspx") || path.GetTextBeforeValue("?").Contains("/Default.aspx/"))
+                {
+                    FoundPage = false;
+                    return "";
+                }
+
             bool HasSection = path.GetTextBeforeValue("?").Contains(".aspx/");
 
             if (string.IsNullOrEmpty(extension) && !HasSection)
@@ -127,6 +134,13 @@ namespace CodeBehind
         {
             string extension = Path.GetExtension(path);
             path = System.Net.WebUtility.UrlDecode(path);
+
+            if (StaticObject.PreventAccessDefaultAaspx && MethodName == "SetPageLoadByPath")
+                if (path.GetTextBeforeValue("?").EndsWith("/Default.aspx") || path.GetTextBeforeValue("?").Contains("/Default.aspx/"))
+                {
+                    FoundPage = false;
+                    return "";
+                }
 
             bool HasSection = path.GetTextBeforeValue("?").Contains(".aspx/");
 
