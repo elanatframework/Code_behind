@@ -15,6 +15,8 @@ namespace CodeBehind
         public bool ConvertCsHtmlToAspx { private set; get; }
         public bool ShowMinorErrors { private set; get; }
         public string ErrorPagePath { private set; get; }
+        public bool PreventAccessDefaultAaspx { private set; get; }
+
         public CodeBehindOptions()
         {
             if (!Directory.Exists("code_behind"))
@@ -44,6 +46,7 @@ namespace CodeBehind
                 ConvertCsHtmlToAspx = (reader.ReadLine().GetTextAfterValue("=").Trim() == "true");
                 ShowMinorErrors = (reader.ReadLine().GetTextAfterValue("=").Trim() == "true");
                 ErrorPagePath = (reader.ReadLine().GetTextAfterValue("="));
+                PreventAccessDefaultAaspx = (reader.ReadLine().GetTextAfterValue("=").Trim() == "true");
             }
         }
 
@@ -64,6 +67,7 @@ namespace CodeBehind
             OptionsList.Add("convert_cshtml_to_aspx=false");
             OptionsList.Add("show_minor_errors=false");
             OptionsList.Add("error_page_path=/error.aspx/{value}");
+            OptionsList.Add("prevent_access_default_aspx=false");
 
             bool HasMoreOption = false;
 
