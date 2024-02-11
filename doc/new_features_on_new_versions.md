@@ -106,3 +106,7 @@
  - The ability to create model, without the need to add an abstract
  - The ability to create a CodeBehindConstructor method without the need for input arguments
  - And a series of minor changes and improvements
+
+### Version 2.3
+ - Added option to prevent access to Default.aspx
+ - Added StaticObject class
