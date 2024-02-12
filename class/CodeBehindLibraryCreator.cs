@@ -18,6 +18,7 @@ namespace SetCodeBehind
         private string CaseCodeTemplateValue = "";
         private string SectionTemplateValue = "";
         private string CaseCodeTemplateValueForFullPath = "";
+        private string CaseCodeTemplateValueForFullPathWithModel = "";
         private string MethodCodeTemplateValue = "";
         private string GlobalTemplate = "";
 
@@ -374,10 +375,35 @@ namespace SetCodeBehind
             CodeBehindViews += "            return \"\";" + Environment.NewLine;
             CodeBehindViews += "        }" + Environment.NewLine + Environment.NewLine;
 
+            CodeBehindViews += "        // Load All Page By Full Path With Model, This Method Load Break Page And Does Not Apply Rewrite" + Environment.NewLine;
+            CodeBehindViews += "        public string SetPageLoadByFullPathWithModel(string path, HttpContext context, string PageReturnValue = \"\", object model = null)" + Environment.NewLine;
+            CodeBehindViews += "        {" + Environment.NewLine;
+            CodeBehindViews += "            RequestPath = path;" + Environment.NewLine;
+            CodeBehindViews += "            FoundPage = true;" + Environment.NewLine + Environment.NewLine;
+            CodeBehindViews += "            switch (path)" + Environment.NewLine;
+            CodeBehindViews += "            {" + Environment.NewLine;
+            CodeBehindViews += CaseCodeTemplateValueForFullPathWithModel + Environment.NewLine;
+            CodeBehindViews += "            }" + Environment.NewLine + Environment.NewLine;
+            CodeBehindViews += "            FoundPage = false;" + Environment.NewLine;
+            CodeBehindViews += "            return \"\";" + Environment.NewLine;
+            CodeBehindViews += "        }" + Environment.NewLine + Environment.NewLine;
+
             // Add Load Page Method
             CodeBehindViews += "        private string LoadPage(string path, HttpContext context)" + Environment.NewLine;
             CodeBehindViews += "        {" + Environment.NewLine;
             CodeBehindViews += "            return SetPageLoadByFullPath(path, context);" + Environment.NewLine;
+            CodeBehindViews += "        }" + Environment.NewLine + Environment.NewLine;
+
+            CodeBehindViews += "        // Overload" + Environment.NewLine;
+            CodeBehindViews += "        private string LoadPage(string path, object ModelClass, HttpContext context)" + Environment.NewLine;
+            CodeBehindViews += "        {" + Environment.NewLine;
+            CodeBehindViews += "            return SetPageLoadByFullPathWithModel(path, context, \"\", ModelClass);" + Environment.NewLine;
+            CodeBehindViews += "        }" + Environment.NewLine + Environment.NewLine;
+
+            CodeBehindViews += "        // Overload" + Environment.NewLine;
+            CodeBehindViews += "        private string LoadPage(string path, object ModelClass)" + Environment.NewLine;
+            CodeBehindViews += "        {" + Environment.NewLine;
+            CodeBehindViews += "            return SetPageLoadByFullPathWithModel(path, null, \"\", ModelClass);" + Environment.NewLine;
             CodeBehindViews += "        }" + Environment.NewLine + Environment.NewLine;
 
             CodeBehindViews += "        // Overload" + Environment.NewLine;
@@ -604,11 +630,11 @@ namespace SetCodeBehind
 
                     if (ModelUseAbstract)
                     {
-                        TmpMethodCodeTemplateValue += "                model.CallerViewPath = CallerViewPath;" + Environment.NewLine;
-                        TmpMethodCodeTemplateValue += "                model.CallerViewDirectoryPath = CallerViewDirectoryPath;" + Environment.NewLine;
+                        TmpMethodCodeTemplateValue += "            model.CallerViewPath = CallerViewPath;" + Environment.NewLine;
+                        TmpMethodCodeTemplateValue += "            model.CallerViewDirectoryPath = CallerViewDirectoryPath;" + Environment.NewLine;
 
                         if (UseSection)
-                            TmpMethodCodeTemplateValue += "                model.Section.AddList(Section.GetList());" + Environment.NewLine;
+                            TmpMethodCodeTemplateValue += "            model.Section.AddList(Section.GetList());" + Environment.NewLine;
                     }
 
                     if (!string.IsNullOrEmpty(ModelConstructor))
@@ -619,11 +645,11 @@ namespace SetCodeBehind
 
                         TmpMethodCodeTemplateValue += "            ViewData.AddList(model.ViewData.GetList());" + Environment.NewLine;
 
-                        TmpMethodCodeTemplateValue += "                if (!string.IsNullOrEmpty(model.DownloadFilePath))" + Environment.NewLine;
-                        TmpMethodCodeTemplateValue += "                {" + Environment.NewLine;
-                        TmpMethodCodeTemplateValue += "                    Download(context, model.DownloadFilePath);" + Environment.NewLine;
-                        TmpMethodCodeTemplateValue += "                    return \"\";" + Environment.NewLine;
-                        TmpMethodCodeTemplateValue += "                }" + Environment.NewLine + Environment.NewLine;
+                        TmpMethodCodeTemplateValue += "            if (!string.IsNullOrEmpty(model.DownloadFilePath))" + Environment.NewLine;
+                        TmpMethodCodeTemplateValue += "            {" + Environment.NewLine;
+                        TmpMethodCodeTemplateValue += "                Download(context, model.DownloadFilePath);" + Environment.NewLine;
+                        TmpMethodCodeTemplateValue += "                return \"\";" + Environment.NewLine;
+                        TmpMethodCodeTemplateValue += "            }" + Environment.NewLine + Environment.NewLine;
 
                         TmpMethodCodeTemplateValue += "            ReturnValue += model.ResponseText;" + Environment.NewLine + Environment.NewLine;
                     }
@@ -638,6 +664,133 @@ namespace SetCodeBehind
             }
 
             TmpMethodCodeTemplateValue += "        }" + Environment.NewLine;
+
+            if (!string.IsNullOrEmpty(Model))
+            {
+                CaseCodeTemplateValueForFullPathWithModel += "                case \"" + AspxFilePathUrl + "\": return " + FilePathToMethodName + "_" + Controller.Replace('.', '_') + "_PageLoad" + MethodIndexer + "(context" + (IsLayout ? ", PageReturnValue" : "") + ", model);" + Environment.NewLine;
+
+                TmpMethodCodeTemplateValue += Environment.NewLine;
+
+                // Overload With Model Parameter
+                TmpMethodCodeTemplateValue += "        // View Path: " + AspxFilePathUrl + Environment.NewLine;
+                TmpMethodCodeTemplateValue += "        protected string " + FilePathToMethodName + "_" + Controller.Replace('.', '_') + "_PageLoad" + MethodIndexer + "(HttpContext context" + (IsLayout ? ", string PageReturnValue" : "") + ", object MethodModel)" + Environment.NewLine;
+                TmpMethodCodeTemplateValue += "        {" + Environment.NewLine;
+                TmpMethodCodeTemplateValue += "            string PreviousRequestPath = RequestPath;" + Environment.NewLine;
+                TmpMethodCodeTemplateValue += "            string PreviousCallerViewPath = CallerViewPath;" + Environment.NewLine;
+                TmpMethodCodeTemplateValue += "            string PreviousCallerViewDirectoryPath = CallerViewDirectoryPath;" + Environment.NewLine;
+                TmpMethodCodeTemplateValue += "            CallerViewPath = \"" + AspxFilePathUrl + "\";" + Environment.NewLine;
+                TmpMethodCodeTemplateValue += "            CallerViewDirectoryPath = \"" + CallerViewDirectoryPath + "\";" + Environment.NewLine + Environment.NewLine;
+
+                TmpMethodCodeTemplateValue += "            " + Model + " model = (" + Model + ")MethodModel;" + Environment.NewLine + Environment.NewLine;
+
+                if (UseSection)
+                    TmpMethodCodeTemplateValue += "            ValueCollectionLock Section = new ValueCollectionLock(\"" + AspxFilePathUrl + "\", RequestPath, " + (RewriteAspxFileToDirectory ? "true" : "false") + ", " + (IgnoreDefaultAfterRewrite ? "true" : "false") + ");" + Environment.NewLine + Environment.NewLine;
+
+                if (!PageIsOnlyView)
+                {
+                    TmpMethodCodeTemplateValue += "            " + Controller + " controller = new " + Controller + "();" + Environment.NewLine;
+                    TmpMethodCodeTemplateValue += "            controller.CallerViewPath = CallerViewPath;" + Environment.NewLine;
+                    TmpMethodCodeTemplateValue += "            controller.CallerViewDirectoryPath = CallerViewDirectoryPath;" + Environment.NewLine;
+
+                    if (UseSection)
+                        TmpMethodCodeTemplateValue += "            controller.Section.AddList(Section.GetList());" + Environment.NewLine;
+
+                    if (!string.IsNullOrEmpty(ControllerConstructor))
+                        TmpMethodCodeTemplateValue += "            controller.CodeBehindConstructor" + ControllerConstructor + ";" + Environment.NewLine;
+
+                    TmpMethodCodeTemplateValue += "            controller.PageLoad(context);" + Environment.NewLine + Environment.NewLine;
+
+                    TmpMethodCodeTemplateValue += "            ViewData.AddList(controller.ViewData.GetList());" + Environment.NewLine;
+                    TmpMethodCodeTemplateValue += "            if (!string.IsNullOrEmpty(controller.ViewPath))" + Environment.NewLine;
+                    TmpMethodCodeTemplateValue += "            {" + Environment.NewLine;
+                    TmpMethodCodeTemplateValue += "                if (controller.CodeBehindModel == null)" + Environment.NewLine;
+                    TmpMethodCodeTemplateValue += "                    return LoadPage(controller.ViewPath, context);" + Environment.NewLine;
+                    TmpMethodCodeTemplateValue += "                else" + Environment.NewLine;
+                    TmpMethodCodeTemplateValue += "                    return LoadPage(controller.ViewPath, MethodModel, context);" + Environment.NewLine;
+                    TmpMethodCodeTemplateValue += "            }" + Environment.NewLine + Environment.NewLine;
+
+                    TmpMethodCodeTemplateValue += "            if (!string.IsNullOrEmpty(controller.DownloadFilePath))" + Environment.NewLine;
+                    TmpMethodCodeTemplateValue += "            {" + Environment.NewLine;
+                    TmpMethodCodeTemplateValue += "                Download(context, controller.DownloadFilePath);" + Environment.NewLine;
+                    TmpMethodCodeTemplateValue += "                return \"\";" + Environment.NewLine;
+                    TmpMethodCodeTemplateValue += "            }" + Environment.NewLine + Environment.NewLine;
+
+                    TmpMethodCodeTemplateValue += "            if (!controller.IgnoreViewAndModel)" + Environment.NewLine;
+                    TmpMethodCodeTemplateValue += "            {" + Environment.NewLine;
+
+                    if (ModelUseAbstract)
+                    {
+                        TmpMethodCodeTemplateValue += "                model.CallerViewPath = CallerViewPath;" + Environment.NewLine;
+                        TmpMethodCodeTemplateValue += "                model.CallerViewDirectoryPath = CallerViewDirectoryPath;" + Environment.NewLine;
+
+                        if (UseSection)
+                            TmpMethodCodeTemplateValue += "                model.Section.AddList(Section.GetList());" + Environment.NewLine;
+                    }
+
+                    if (!string.IsNullOrEmpty(ModelConstructor))
+                        TmpMethodCodeTemplateValue += "                model.CodeBehindConstructor" + ModelConstructor + ";" + Environment.NewLine;
+
+                    if (ModelUseAbstract)
+                    {
+                        TmpMethodCodeTemplateValue += "                ViewData.AddList(model.ViewData.GetList());" + Environment.NewLine;
+
+                        TmpMethodCodeTemplateValue += "                if (!string.IsNullOrEmpty(model.DownloadFilePath))" + Environment.NewLine;
+                        TmpMethodCodeTemplateValue += "                {" + Environment.NewLine;
+                        TmpMethodCodeTemplateValue += "                    Download(context, model.DownloadFilePath);" + Environment.NewLine;
+                        TmpMethodCodeTemplateValue += "                    return \"\";" + Environment.NewLine;
+                        TmpMethodCodeTemplateValue += "                }" + Environment.NewLine + Environment.NewLine;
+
+                        TmpMethodCodeTemplateValue += "                controller.ResponseText += model.ResponseText;" + Environment.NewLine;
+                    }
+
+                    TmpMethodCodeTemplateValue += TextToCodeCombination;
+                    TmpMethodCodeTemplateValue += "            }" + Environment.NewLine + Environment.NewLine;
+
+                    TmpMethodCodeTemplateValue += "            RequestPath = PreviousRequestPath;" + Environment.NewLine;
+                    TmpMethodCodeTemplateValue += "            CallerViewPath = PreviousCallerViewPath;" + Environment.NewLine;
+                    TmpMethodCodeTemplateValue += "            CallerViewDirectoryPath = PreviousCallerViewDirectoryPath;" + Environment.NewLine + Environment.NewLine;
+                    TmpMethodCodeTemplateValue += "            return " + (!string.IsNullOrEmpty(Layout) ? "SetPageLoadByFullPath(\"" + Layout + "\", context, controller.ResponseText)" : "controller.ResponseText") + ";" + Environment.NewLine;
+                }
+                else
+                {
+                    TmpMethodCodeTemplateValue += "            string ReturnValue = \"\";" + Environment.NewLine;
+
+                    if (ModelUseAbstract)
+                    {
+                        TmpMethodCodeTemplateValue += "            model.CallerViewPath = CallerViewPath;" + Environment.NewLine;
+                        TmpMethodCodeTemplateValue += "            model.CallerViewDirectoryPath = CallerViewDirectoryPath;" + Environment.NewLine;
+
+                        if (UseSection)
+                            TmpMethodCodeTemplateValue += "            model.Section.AddList(Section.GetList());" + Environment.NewLine;
+                    }
+
+                    if (!string.IsNullOrEmpty(ModelConstructor))
+                        TmpMethodCodeTemplateValue += "            model.CodeBehindConstructor" + ModelConstructor + ";" + Environment.NewLine;
+
+                    if (ModelUseAbstract)
+                    {
+
+                        TmpMethodCodeTemplateValue += "            ViewData.AddList(model.ViewData.GetList());" + Environment.NewLine;
+
+                        TmpMethodCodeTemplateValue += "            if (!string.IsNullOrEmpty(model.DownloadFilePath))" + Environment.NewLine;
+                        TmpMethodCodeTemplateValue += "            {" + Environment.NewLine;
+                        TmpMethodCodeTemplateValue += "                Download(context, model.DownloadFilePath);" + Environment.NewLine;
+                        TmpMethodCodeTemplateValue += "                return \"\";" + Environment.NewLine;
+                        TmpMethodCodeTemplateValue += "            }" + Environment.NewLine + Environment.NewLine;
+
+                        TmpMethodCodeTemplateValue += "            ReturnValue += model.ResponseText;" + Environment.NewLine + Environment.NewLine;
+                    }
+
+                    TmpMethodCodeTemplateValue += TextToCodeCombination + Environment.NewLine;
+
+                    TmpMethodCodeTemplateValue += "            RequestPath = PreviousRequestPath;" + Environment.NewLine;
+                    TmpMethodCodeTemplateValue += "            CallerViewPath = PreviousCallerViewPath;" + Environment.NewLine;
+                    TmpMethodCodeTemplateValue += "            CallerViewDirectoryPath = PreviousCallerViewDirectoryPath;" + Environment.NewLine + Environment.NewLine;
+                    TmpMethodCodeTemplateValue += "            return " + (!string.IsNullOrEmpty(Layout) ? "SetPageLoadByFullPath(\"" + Layout + "\", context, ReturnValue)" : "ReturnValue") + ";" + Environment.NewLine;
+                }
+
+                TmpMethodCodeTemplateValue += "        }" + Environment.NewLine;
+            }
 
             MethodCodeTemplateValue += TmpMethodCodeTemplateValue;
         }
