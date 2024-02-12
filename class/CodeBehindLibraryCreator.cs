@@ -704,9 +704,9 @@ namespace SetCodeBehind
                     TmpMethodCodeTemplateValue += "            if (!string.IsNullOrEmpty(controller.ViewPath))" + Environment.NewLine;
                     TmpMethodCodeTemplateValue += "            {" + Environment.NewLine;
                     TmpMethodCodeTemplateValue += "                if (controller.CodeBehindModel == null)" + Environment.NewLine;
-                    TmpMethodCodeTemplateValue += "                    return LoadPage(controller.ViewPath, context);" + Environment.NewLine;
+                    TmpMethodCodeTemplateValue += "                    return controller.ResponseText + LoadPage(controller.ViewPath, context);" + Environment.NewLine;
                     TmpMethodCodeTemplateValue += "                else" + Environment.NewLine;
-                    TmpMethodCodeTemplateValue += "                    return LoadPage(controller.ViewPath, MethodModel, context);" + Environment.NewLine;
+                    TmpMethodCodeTemplateValue += "                    return controller.ResponseText + LoadPage(controller.ViewPath, MethodModel, context);" + Environment.NewLine;
                     TmpMethodCodeTemplateValue += "            }" + Environment.NewLine + Environment.NewLine;
 
                     TmpMethodCodeTemplateValue += "            if (!string.IsNullOrEmpty(controller.DownloadFilePath))" + Environment.NewLine;
