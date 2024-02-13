@@ -110,7 +110,7 @@
 ### Version 2.3
  - Ability to specify View along with Model from all Controllers
  - Support strings written from the previous Controller
- - Added option to prevent access to Default.aspx
+ - Added possible to prevent access to Default.aspx
  - - Added the prevent access to Default.aspx in the options file
  - Added StaticObject class
 
