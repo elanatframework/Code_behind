@@ -108,5 +108,10 @@
  - And a series of minor changes and improvements
 
 ### Version 2.3
+ - Ability to specify View along with Model from all Controllers
+ - Support strings written from the previous Controller
  - Added option to prevent access to Default.aspx
  - Added StaticObject class
+
+**Problems that were solved**
+ - In cases where the current View is wrongly requested from the Controller, the loop is avoided.
