@@ -113,6 +113,7 @@
  - Added possible to prevent access to Default.aspx
  - - Added the prevent access to Default.aspx in the options file
  - Added StaticObject class
+ - And a series of minor changes and improvements
 
 **Problems that were solved**
  - In cases where the current View is wrongly requested from the Controller, the loop is avoided.
