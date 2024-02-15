@@ -104,5 +104,30 @@ namespace CodeBehind
 
             return count;
         }
+
+        /// <param name="MatchingType">start_with, end_with, exist, full_match, regex</param>
+        public static bool HasMatching(this string Text, string MatchingType, string Matching)
+        {
+            switch (MatchingType)
+            {
+                case "start_with": return Text.StartsWith(Matching);
+                case "end_with": return Text.EndsWith(Matching);
+                case "exist": return Text.Contains(Matching);
+                case "full_match": return (Text == Matching);
+                case "regex":
+                    {
+                        Regex re = new Regex(Matching, RegexOptions.IgnoreCase);
+                        return re.IsMatch(Text);
+                    }            
+            }
+
+            return false;
+        }
+
+        /// <param name="MatchingType">start_with, end_with, exist, full_match, regex</param>
+        public static bool HasMatching(this object Text, string MatchingType, string Matching)
+        {
+            return HasMatching(Text.ToString(), MatchingType, Matching);
+        }
     }
 }
