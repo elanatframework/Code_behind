@@ -265,6 +265,8 @@ namespace SetCodeBehind
 
         public static void Initialization(bool BreakExist = false)
         {
+            StaticObject.SetValue();
+
             if (BreakExist && (CompiledAssembly != null))
                 return;
 
