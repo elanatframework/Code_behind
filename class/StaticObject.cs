@@ -1,4 +1,4 @@
-﻿namespace CodeBehind
+namespace CodeBehind
 {
     public static class StaticObject
     {
