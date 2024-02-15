@@ -1,3 +1,4 @@
+using CodeBehind.HtmlData;
 using Microsoft.AspNetCore.Http;
 using SetCodeBehind;
 using System.Reflection;
@@ -213,6 +214,66 @@ namespace CodeBehind
             string path = option.ErrorPagePath.Replace("{value}", ErrorValue.ToString());
 
             return Run(context, path);
+        }
+
+        internal string RunControllerValue(HttpContext context, string ViewPath, object CodeBehindModel, NameValueCollection ViewData, string DownloadFilePath)
+        {
+            if (string.IsNullOrEmpty(ViewPath) && string.IsNullOrEmpty(DownloadFilePath))
+            {
+                FoundPage = false;
+                return "";
+            }
+
+            string path = context.Request.Path.ToString();
+            path = System.Net.WebUtility.UrlDecode(path);
+
+            if (StaticObject.PreventAccessDefaultAaspx)
+                if (path.GetTextBeforeValue("?").EndsWith("/Default.aspx") || path.GetTextBeforeValue("?").Contains("/Default.aspx/"))
+                {
+                    FoundPage = false;
+                    return "";
+                }
+
+            if (context.Request.ContentType == null)
+                context.Request.ContentType = "application/x-www-form-urlencoded; charset=utf-8";
+
+            Assembly assembly = CodeBehindCompiler.CompileAspx();
+            Type type = assembly.GetType("CodeBehindViews.CodeBehindViewsList");
+            object obj = Activator.CreateInstance(type);
+            MethodInfo method = type.GetMethod("RunController");
+            object[] Arguments = new object[] { context, ViewPath, CodeBehindModel, ViewData, DownloadFilePath };
+            string ReturnResult = (string)method.Invoke(obj, Arguments);
+
+            method = type.GetMethod("PageHasFound");
+            FoundPage = (bool)method.Invoke(obj, null);
+
+            return ReturnResult;
+        }
+
+        public string RunController(object ControllerClass, HttpContext context)
+        {
+            Type myType = ControllerClass.GetType();
+            MethodInfo myMethod = myType.GetMethod("FillSection");
+            myMethod.Invoke(ControllerClass, new object[] { context });
+            myMethod = myType.GetMethod("PageLoad");
+            myMethod.Invoke(ControllerClass, new object[] { context });
+            myMethod = myType.GetMethod("Run");
+            string ReturnResult = (string)myMethod.Invoke(ControllerClass, new object[] { context });
+
+            return ReturnResult;
+        }
+
+        public string RunController(object ControllerClass)
+        {
+            Type myType = ControllerClass.GetType();
+            MethodInfo myMethod = myType.GetMethod("FillSection");
+            myMethod.Invoke(ControllerClass, new object[] { null });
+            myMethod = myType.GetMethod("PageLoad");
+            myMethod.Invoke(ControllerClass, new object[] { null });
+            myMethod = myType.GetMethod("Run");
+            string ReturnResult = (string)myMethod.Invoke(ControllerClass, new object[] { null });
+
+            return ReturnResult;
         }
     }
 }
