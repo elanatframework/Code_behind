@@ -48,14 +48,55 @@ namespace CodeBehind
             CodeBehindModel = ModelClass;
         }
 
+        // Overload
         public void View(string ViewPath)
         {
             this.ViewPath = ViewPath;
         }
 
+        // Overload
+        public void View(string ViewPath, object ModelClass)
+        {
+            this.ViewPath = ViewPath;
+            CodeBehindModel = ModelClass;
+        }
+
         public void Download(string FilePath)
         {
             DownloadFilePath = FilePath;
+        }
+
+        /// <summary>
+        /// Never Call This Method In Controller
+        /// </summary>
+        public string Run(HttpContext context)
+        {
+            if (!string.IsNullOrEmpty(CallerViewPath))
+                return "";
+
+            if (IgnoreViewAndModel)
+                return ResponseText;
+
+            CodeBehindExecute execute = new CodeBehindExecute();
+            return ResponseText + execute.RunControllerValue(context, ViewPath, CodeBehindModel, ViewData, DownloadFilePath);
+        }
+
+        public void FillSection(HttpContext context)
+        {
+            if (!string.IsNullOrEmpty(CallerViewPath))
+                return;
+
+            if (context == null)
+                return;
+
+            string RequestPath = context.Request.Path;
+
+            if (RequestPath.Length > 0)
+                if (RequestPath[0] == '/')
+                    RequestPath = RequestPath.Remove(0, 1);
+
+            string[] ValueList = RequestPath.GetTextBeforeValue("?").Split('/');
+            Section.AddList(ValueList);
         }
     }
 }
