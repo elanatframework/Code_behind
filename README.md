@@ -153,7 +153,7 @@ app.Run();
  - [Layout](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/layout.md)
  - [Section](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/section.md)
  - [Error handling](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/error_handling.md)
- - [Option](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/option.md)
+ - [Options](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/options.md)
  - [Namespace and dll for CodeBehind view class](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/namespace_and_dll_for_code_behind_view_class.md)
  - [Error detection](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/error_detection.md)
  - [How to use CodeBehind?](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/how_to_use_code_behind.md)
