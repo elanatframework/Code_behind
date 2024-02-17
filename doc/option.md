@@ -27,11 +27,15 @@ show_minor_errors=false
 
 CodeBehind framework users can remove the path of aspx files from wwwroot and add them to their desired directory. If you use server-side code in view (aspx) pages, this option leads to more security of your applications.
 
+Operation location: Compiling view files
+
 **Move views from wwwroot path**
 
 (`move_view_from_wwwroot=true`)
 
 If you have selected the path of the view file in a path other than the wwwroot path, if the option to move from the wwwroot path is enabled, automatically after recompile, all aspx and astx files will be moved from the wwwroot path to your chosen path.
+
+Operation location: Compiling view files
 
 **Rewrite aspx path as directory**
 
@@ -48,11 +52,15 @@ Also access aspx file after rewrite as directory
 (`access_aspx_file_after_rewrite=false`)
 If you have enabled rewriting the path of aspx files as a directory name, enabling this option will allow you to still access the path of the aspx file.
 
+Operation location: Compiling view files
+
 **Ignore Default.aspx after rewrite**
 
 (`ignore_default_after_rewrite=true`)
 
 Naming the aspx file as Default.aspx makes it unnecessary to add the name of this file after the last directory, and this file is recognized automatically; If you have enabled rewriting the path of aspx files as a directory name, enabling this option will make the Default.aspx files be considered as the default file of the previous directory path. Therefore, the Default directory will not be executed.
+
+Operation location: Compiling view files
 
 **Don't worry about new lines and extra tabs and spaces.**
 
@@ -88,6 +96,8 @@ This way there will be no extra lines
 <!DOCTYPE html>
 ```
 
+Operation location: Compiling view files
+
 **Trim in inner aspx**
 
 (`inner_trim_in_aspx_file=true`)
@@ -102,17 +112,23 @@ Example for Razor syntax
 Example for standard syntax
 `<% code %>`
 
+Operation location: Compiling view files
+
 **Trim in end**
 
 (`end_trim_in_aspx_file=true`)
 
 If this option is active, every new line and extra tab and space will be deleted from the bottom of the aspx files.
 
+Operation location: Compiling view files
+
 **Break for layout**
 
 (`set_break_for_layout_page=true`)
 
 If this option is enabled, layout files are automatically ignored from direct access and cannot be accessed via url.
+
+Operation location: Compiling view files
 
 **Support cshtml extension**
 
@@ -127,6 +143,8 @@ For default cshtml pages, the name should be Default.cshtml; So pages named Inde
 Please note that these files must not be added to projects in Visual Studio; The reason for this is that, in addition to the CodeBehind framework, these pages are also compiled in the default .NET mode and can create unstable situation and security risk conditions.
 Also note that the default code highlighter of Visual Studio may in some cases have unnecessary errors from cshtml pages based on the CodeBehind framework.
 
+Operation location: Compiling view files
+
 **Show minor errors**
 
 (`show_minor_errors=false`)
@@ -134,3 +152,5 @@ Also note that the default code highlighter of Visual Studio may in some cases h
 By enabling the show minor errors option, when compiling, errors that do not cause problems in the compilation process but are not optimal will be displayed in the `views_compile_error.log` file in the code_behind directory.
 
 In the future, more customization options will be added to the options file.
+
+Operation location: Compiling view files
