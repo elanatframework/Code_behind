@@ -17,6 +17,8 @@ end_trim_in_aspx_file=true
 set_break_for_layout_page=true
 convert_cshtml_to_aspx=false
 show_minor_errors=false
+error_page_path=/error.aspx/{value}
+prevent_access_default_aspx=false
 ```
 
 **The possibility to load aspx page names as directory names**
@@ -138,9 +140,9 @@ In the options file, exist an option to support cshtml files so that users of th
 
 You can code in these files with razor syntax and standard syntax.
 cshtml files will be available with aspx extension after compilation.
-For default cshtml pages, the name should be Default.cshtml; So pages named Index.cshtml will not be the default route.
+For default cshtml pages, the name should be Default.cshtml; so pages named Index.cshtml will not be the default route.
 
-Please note that these files must not be added to projects in Visual Studio; The reason for this is that, in addition to the CodeBehind framework, these pages are also compiled in the default .NET mode and can create unstable situation and security risk conditions.
+Please note that these files must not be added to projects in Visual Studio; the reason for this is that, in addition to the CodeBehind framework, these pages are also compiled in the default .NET mode and can create unstable situation and security risk conditions.
 Also note that the default code highlighter of Visual Studio may in some cases have unnecessary errors from cshtml pages based on the CodeBehind framework.
 
 Operation location: Compiling view files
@@ -154,3 +156,41 @@ By enabling the show minor errors option, when compiling, errors that do not cau
 In the future, more customization options will be added to the options file.
 
 Operation location: Compiling view files
+
+**Error page path**
+
+(`error_page_path=/error.aspx/{value}`)
+
+The default CodeBehind template includes an error page. In the options file, there is an option that determines the path of the error file; the path of the error page is set by default in this option. In the error page, we activated the page section attribute by default. If you look carefully at the path of the error page in the options file, you will see the value value surrounded by two brackets. This is a variant and the numeric value of the error replaces this variant.
+
+Example
+`/error.aspx/500`
+
+According to the path above, the value 500 is substituted for the {value} variant.
+
+You can call up the error page according to the type of error.
+
+The link below is a tutorial on how to configure the error page.
+
+[Error handling](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/error_handling.md)
+
+Operation location: Every request
+
+**prevent_access_default_aspx=false**
+
+(`prevent_access_default_aspx=false`)
+
+View files in CodeBehind framework have aspx extension; if you create a View file named Default.aspx in a directory, accessing the directory will execute that file. So Default.aspx is a default View for a directory path.
+
+Example:
+If there is a `Default.aspx` file in the root, the `example.com` request executes the `example.com/Default.aspx` path.
+Similarly, if there is a `Default.aspx` file in `root/dir`, requesting `example.com/dir` will execute the `example.com/dir/Default.aspx` path.
+
+However, the `Default.aspx` file path will still be accessible. Enabling this option disables access to the `Default.aspx` path.
+
+Example:
+The path `example.com/dir/Default.aspx` will not be available, but the path `example.com/dir/` will still be accessible.
+
+By activating this option, additional urls are prevented and thus SEO is improved.
+
+Operation location: Every request
