@@ -1,4 +1,4 @@
-## Option
+## Options
 
 There is an options file in the code_behind/options.ini path. This file will contain many options for customization.
 
