@@ -832,6 +832,16 @@ namespace SetCodeBehind
 
             string PageProperties = " " + AspxText.Split(new string[] { "<%@" }, StringSplitOptions.None)[1].Split("%>")[0] + " ";
 
+            // Support Lowercase
+            PageProperties = PageProperties.Replace(" page ", " Page ");
+            PageProperties = PageProperties.Replace(" controller=\"", " Controller=\"");
+            PageProperties = PageProperties.Replace(" model=\"", " Model=\"");
+            PageProperties = PageProperties.Replace(" layout=\"", " Layout=\"");
+            PageProperties = PageProperties.Replace(" islayout=\"", " IsLayout=\"");
+            PageProperties = PageProperties.Replace(" break=\"", " Break=\"");
+            PageProperties = PageProperties.Replace(" section=\"", " Section=\"");
+            PageProperties = PageProperties.Replace(" template=\"", " Template=\"");
+
             if (!PageProperties.Contains(" Page "))
             {
                 ErrorList.Add("Error: Page not exist after index <%@ in " + AspxFilePath + " file");
@@ -941,7 +951,7 @@ namespace SetCodeBehind
             bool IsBreak = (Break == "true");
 
 
-            // Set Break
+            // Set Section
             string Section = (PageProperties.Contains(" Section=\"")) ? PageProperties.Split(new string[] { "Section=\"" }, StringSplitOptions.None)[1].Split("\"")[0] : "";
             bool UseSection = (Section == "true");
 
