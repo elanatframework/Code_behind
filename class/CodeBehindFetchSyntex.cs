@@ -334,6 +334,7 @@ namespace CodeBehind
                     Index++;
                 }
 
+
                 string[] InnerTextLines = InnerText.Split('\n');
                 FullTrim ft = new FullTrim();
 
@@ -360,11 +361,37 @@ namespace CodeBehind
                     {
                         if (ft.FullTrimInStart(Line)[0] == '<')
                         {
+                            // Fetch Single Line Text Tag
                             string TmpLine = ft.FullTrimAll(Line);
                             if (ft.FullTrimAll(TmpLine).Length > 12)
                                 if (TmpLine.StartsWith("<text>") && TmpLine.EndsWith("</text>"))
                                 {
                                     AddedTextForEndedCharacter.AddList(FetchExpressionsInLine(TmpLine.GetTextAfterValue("<text>").GetTextBeforeLastValue("</text>")).GetList());
+                                    continue;
+                                }
+
+                            // Fetch Multi Line Text Tag
+                            if (ft.FullTrimAll(TmpLine).Length > 6)
+                                if (TmpLine.StartsWith("<text>") && !TmpLine.EndsWith("</text>"))
+                                {
+                                    AddedTextForEndedCharacter.AddList(FetchExpressionsInLine(TmpLine.GetTextAfterValue("<text>")).GetList());
+                                    i++;
+                                    for (; i < InnerTextLines.Length; i++)
+                                    {
+                                        string TextLine = InnerTextLines[i];
+
+                                        if (TextLine.Length > 6)
+                                        {
+                                            if (TextLine.EndsWith("</text>"))
+                                            {
+                                                AddedTextForEndedCharacter.AddList(FetchExpressionsInLine(TextLine.GetTextBeforeLastValue("</text>")).GetList());
+                                                break;
+                                            }
+                                        }
+
+                                        AddedTextForEndedCharacter.AddList(FetchExpressionsInLine(TextLine).GetList());
+                                    }
+
                                     continue;
                                 }
 
