@@ -120,4 +120,5 @@
  - In cases where the current View is wrongly requested from the Controller, the loop is avoided.
 
 ### Version 2.4
+ - Applying multi-threaded processing to create the View class
  - Ability to set page attributes with lowercase letters in standard syntax
