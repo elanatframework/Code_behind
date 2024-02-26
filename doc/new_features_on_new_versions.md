@@ -123,3 +123,4 @@
  - Applying multi-threaded processing to create the View class
  - Marking the View class for when new View pages are added
  - Ability to set page attributes with lowercase letters in standard syntax
+ - Ability to add text tag with multiple lines in Razor syntax
