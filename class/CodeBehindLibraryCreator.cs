@@ -118,8 +118,9 @@ namespace SetCodeBehind
 
             DirectoryInfo RootDir = new DirectoryInfo(options.ViewPath);
             string RootDirectoryPath = RootDir.FullName;
+            object EmptyObjectForLock = new object();
             int i = 1;
-            foreach (FileInfo file in RootDir.GetFiles("*.aspx", SearchOption.AllDirectories))
+            Parallel.ForEach(RootDir.GetFiles("*.aspx", SearchOption.AllDirectories), (file) =>
             {
                 ViewCodeCombination combination = new ViewCodeCombination();
                 combination.RewriteAspxFileToDirectory = options.RewriteAspxFileToDirectory;
@@ -133,17 +134,20 @@ namespace SetCodeBehind
 
                 combination.Set(file.FullName, RootDirectoryPath, i);
 
-                CaseCodeTemplateValue += combination.CaseCodeTemplateValue;
-                SectionTemplateValue += combination.SectionTemplateValue;
-                CaseCodeTemplateValueForFullPath += combination.CaseCodeTemplateValueForFullPath;
-                CaseCodeTemplateValueForFullPathWithModel += combination.CaseCodeTemplateValueForFullPathWithModel;
-                MethodCodeTemplateValue += combination.MethodCodeTemplateValue;
+                lock (EmptyObjectForLock)
+                {
+                    CaseCodeTemplateValue += combination.CaseCodeTemplateValue;
+                    SectionTemplateValue += combination.SectionTemplateValue;
+                    CaseCodeTemplateValueForFullPath += combination.CaseCodeTemplateValueForFullPath;
+                    CaseCodeTemplateValueForFullPathWithModel += combination.CaseCodeTemplateValueForFullPathWithModel;
+                    MethodCodeTemplateValue += combination.MethodCodeTemplateValue;
 
-                i++;
-            }
+                    i++;
+                }
+            });
 
             if (options.ConvertCsHtmlToAspx)
-            foreach (FileInfo file in RootDir.GetFiles("*.cshtml", SearchOption.AllDirectories))
+                Parallel.ForEach(RootDir.GetFiles("*.cshtml", SearchOption.AllDirectories), (file) =>
                 {
                     ViewCodeCombination combination = new ViewCodeCombination();
                     combination.RewriteAspxFileToDirectory = options.RewriteAspxFileToDirectory;
@@ -154,27 +158,30 @@ namespace SetCodeBehind
                     combination.SetBreakForLayoutPage = options.SetBreakForLayoutPage;
                     combination.InnerTrimInAspxFile = options.InnerTrimInAspxFile;
                     combination.GlobalTemplate = GetGlobalTemplate();
-                    
+
                     combination.Set(file.FullName, RootDirectoryPath, i);
 
-                    CaseCodeTemplateValue += combination.CaseCodeTemplateValue;
-                    SectionTemplateValue += combination.SectionTemplateValue;
-                    CaseCodeTemplateValueForFullPath += combination.CaseCodeTemplateValueForFullPath;
-                    CaseCodeTemplateValueForFullPathWithModel += combination.CaseCodeTemplateValueForFullPathWithModel;
-                    MethodCodeTemplateValue += combination.MethodCodeTemplateValue;
+                    lock (EmptyObjectForLock)
+                    {
+                        CaseCodeTemplateValue += combination.CaseCodeTemplateValue;
+                        SectionTemplateValue += combination.SectionTemplateValue;
+                        CaseCodeTemplateValueForFullPath += combination.CaseCodeTemplateValueForFullPath;
+                        CaseCodeTemplateValueForFullPathWithModel += combination.CaseCodeTemplateValueForFullPathWithModel;
+                        MethodCodeTemplateValue += combination.MethodCodeTemplateValue;
 
-                    i++;
-                }
+                        i++;
+                    }
+                });
 
             CodeBehindViews += "        // It Works Based On Rewriting The Option File" + Environment.NewLine;
             CodeBehindViews += "        public string SetPageLoadByPath(string path, HttpContext context)" + Environment.NewLine;
             CodeBehindViews += "        {" + Environment.NewLine;
             CodeBehindViews += "            RequestPath = path;" + Environment.NewLine;
             CodeBehindViews += "            FoundPage = true;" + Environment.NewLine + Environment.NewLine;
-            CodeBehindViews += (!string.IsNullOrEmpty(SectionTemplateValue))? SectionTemplateValue + Environment.NewLine : "";
+            CodeBehindViews += SectionTemplateValue + "/*{SectionTemplateValue}*/" + Environment.NewLine;
             CodeBehindViews += "            switch (path)" + Environment.NewLine;
             CodeBehindViews += "            {" + Environment.NewLine;
-            CodeBehindViews += CaseCodeTemplateValue + Environment.NewLine;
+            CodeBehindViews += CaseCodeTemplateValue + Environment.NewLine + "/*{CaseCodeTemplateValue}*/" + Environment.NewLine;
             CodeBehindViews += "            }" + Environment.NewLine + Environment.NewLine;
             CodeBehindViews += "            FoundPage = false;" + Environment.NewLine;
             CodeBehindViews += "            return \"\";" + Environment.NewLine;
@@ -187,7 +194,7 @@ namespace SetCodeBehind
             CodeBehindViews += "            FoundPage = true;" + Environment.NewLine + Environment.NewLine;
             CodeBehindViews += "            switch (path)" + Environment.NewLine;
             CodeBehindViews += "            {" + Environment.NewLine;
-            CodeBehindViews += CaseCodeTemplateValueForFullPath + Environment.NewLine;
+            CodeBehindViews += CaseCodeTemplateValueForFullPath + Environment.NewLine + "/*{CaseCodeTemplateValueForFullPath}*/" + Environment.NewLine;
             CodeBehindViews += "            }" + Environment.NewLine + Environment.NewLine;
             CodeBehindViews += "            FoundPage = false;" + Environment.NewLine;
             CodeBehindViews += "            return \"\";" + Environment.NewLine;
@@ -200,7 +207,7 @@ namespace SetCodeBehind
             CodeBehindViews += "            FoundPage = true;" + Environment.NewLine + Environment.NewLine;
             CodeBehindViews += "            switch (path)" + Environment.NewLine;
             CodeBehindViews += "            {" + Environment.NewLine;
-            CodeBehindViews += CaseCodeTemplateValueForFullPathWithModel + Environment.NewLine;
+            CodeBehindViews += CaseCodeTemplateValueForFullPathWithModel + Environment.NewLine + "/*{CaseCodeTemplateValueForFullPathWithModel}*/" + Environment.NewLine;
             CodeBehindViews += "            }" + Environment.NewLine + Environment.NewLine;
             CodeBehindViews += "            FoundPage = false;" + Environment.NewLine;
             CodeBehindViews += "            return \"\";" + Environment.NewLine;
@@ -276,7 +283,7 @@ namespace SetCodeBehind
             CodeBehindViews += "            }" + Environment.NewLine;
             CodeBehindViews += "        }" + Environment.NewLine;
 
-            CodeBehindViews += MethodCodeTemplateValue;
+            CodeBehindViews += MethodCodeTemplateValue + "/*{MethodCodeTemplateValue}*/" + Environment.NewLine;
 
             CodeBehindViews += "    }" + Environment.NewLine;
             CodeBehindViews += "}" + Environment.NewLine + Environment.NewLine;
@@ -385,7 +392,6 @@ namespace SetCodeBehind
 
                 file.Dispose();
                 file.Close();
-
             }
 
             using (StreamReader reader = new StreamReader(NamespaceImportListPath))
