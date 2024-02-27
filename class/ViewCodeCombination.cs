@@ -1,4 +1,4 @@
-﻿using CodeBehind;
+using CodeBehind;
 using CodeBehind.HtmlData;
 using System.Text.RegularExpressions;
 
@@ -36,7 +36,8 @@ namespace SetCodeBehind
             Lines.Close();
 
             // Fetch Page
-            if (AspxText.Contains("<%@"))
+            FullTrim ft = new FullTrim();
+            if (ft.FullTrimInStart(AspxText).StartsWith("<%@"))
                 AspxTextAndCodeCombinationStandard(AspxText, FilePath, RootDirectoryPath, MethodIndexer);
             else
                 AspxTextAndCodeCombinationRazor(AspxText, FilePath, RootDirectoryPath, MethodIndexer);
@@ -52,10 +53,25 @@ namespace SetCodeBehind
                 return;
             }
 
-            string PageProperties = " " + AspxText.Split(new string[] { "<%@" }, StringSplitOptions.None)[1].Split("%>")[0] + " ";
+            string PageProperties = AspxText.Split(new string[] { "<%@" }, StringSplitOptions.None)[1].Split("%>")[0] + " ";
+
+            FullTrim ft = new FullTrim();
+            PageProperties = " " + ft.FullTrimInStart(PageProperties);
+
+            if (PageProperties.Length < 5)
+            {
+                ErrorList.Add("Error: Page not exist after index <%@ in " + AspxFilePath + " file");
+                return;
+            }
+
+            if (PageProperties.Substring(0, 5) != " Page" && PageProperties.Substring(0, 5) != " page")
+            {
+                ErrorList.Add("Error: Page not exist after index <%@ in " + AspxFilePath + " file");
+                return;
+            }
 
             // Support Lowercase
-            PageProperties = PageProperties.Replace(" page ", " Page ");
+            PageProperties = " Page" + PageProperties.Remove(0, 5);
             PageProperties = PageProperties.Replace(" controller=\"", " Controller=\"");
             PageProperties = PageProperties.Replace(" model=\"", " Model=\"");
             PageProperties = PageProperties.Replace(" layout=\"", " Layout=\"");
@@ -63,12 +79,6 @@ namespace SetCodeBehind
             PageProperties = PageProperties.Replace(" break=\"", " Break=\"");
             PageProperties = PageProperties.Replace(" section=\"", " Section=\"");
             PageProperties = PageProperties.Replace(" template=\"", " Template=\"");
-
-            if (!PageProperties.Contains(" Page "))
-            {
-                ErrorList.Add("Error: Page not exist after index <%@ in " + AspxFilePath + " file");
-                return;
-            }
 
 
             bool PageIsOnlyView = (PageProperties.Trim() == "Page");
@@ -338,7 +348,6 @@ namespace SetCodeBehind
 
 
             // Set Trim Option
-            FullTrim ft = new FullTrim();
             if (StartTrimInAspxFile)
                 AspxText = ft.FullTrimInStart(AspxText);
             if (EndTrimInAspxFile)
