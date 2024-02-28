@@ -120,6 +120,8 @@
  - In cases where the current View is wrongly requested from the Controller, the loop is avoided.
 
 ### Version 2.4
+ - New feature for route configuration
+ - The possibility of running the controller with the text name of the controller
  - Applying multi-threaded processing to create the View class
  - Marking the View class for when new View pages are added
  - Ability to set page attributes with lowercase letters in standard syntax
