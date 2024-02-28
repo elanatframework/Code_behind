@@ -127,3 +127,5 @@
  - Ability to set page attributes with lowercase letters in standard syntax
  - Ability to add text tag with multiple lines in Razor syntax
  - And a series of minor changes and improvements
+
+**In this version, it is possible to give preference to the controller**
