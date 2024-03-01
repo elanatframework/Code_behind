@@ -131,4 +131,4 @@
 **In this version, it is possible to give preference to the controller**
 
 **Problems that were solved**
- - Fixed the problem of matching projects whose names start with numbers.
+ - Fixed problem matching projects whose name does not match for namespace name.
