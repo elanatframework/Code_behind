@@ -22,13 +22,13 @@
 
 **This version guarantees 100% Code-Behind support**
 
-**Problems that were solved**
+**Problems that were solved:**
  - The problem of executing the path with extra characters after the slash character was solved.
  - Fixed the problem of replacing the class file with failed compilation in the last successful compilation.
 
 ### Version 1.8.1
 
-**Problems that were solved**
+**Problems that were solved:**
  - Solving the problem of removing one or two characters after Razor syntax.
 
 ### Version 1.9
@@ -39,13 +39,13 @@
  - Ability to call aspx files in their own path, after rewriting
  - Improvements in the trim operation at the beginning of the aspx file
 
-**Problems that were solved**
+**Problems that were solved:**
  - The problem of loading the constructor model without a controller was solved.
  - Fixed else detection problem for if in Razor syntax.
 
 ### Version 1.9.1
 
-**Problems that were solved**
+**Problems that were solved:**
  - A mistake caused the arguments of the model constructor to be wrongly placed in the controller constructor; this problem has been fixed now.
  - In this version, if the CodeBehind framework is activated for the first time, it will no longer give the wwwroot directory missing error and a default welcome file will be placed in it.
  - The error that occurred when activating the set break for layout page (`set_break_for_layout_page=true`) option was resolved.
@@ -56,12 +56,12 @@
  - In this version and later, in the methods of the final view class, when creating a new instance of the controller class, the term controller is used instead of the term CurrentController
  - In this version and later, the context inside the astx files are added at the beginning of the aspx file
 
-**Problems that were solved**
+**Problems that were solved:**
  - In the standard syntax, the problem of identifying template blocks that have the next line character or Tab character after the template name was solved.
 
 ### Version 1.9.3
 
-**Problems that were solved**
+**Problems that were solved:**
  - Fixed the problem of naming templates with numbers in the standard syntax.
  - Solving the problem of not ignoring two consecutive at sign (@) in conditional blocks and loop blocks.
 
@@ -80,12 +80,12 @@
  - Complete rewriting of the codes related to creating files
  - And a series of minor changes and improvements
 
-**Problems that were solved**
+**Problems that were solved:**
  - Deleting unused ex variable from the final view class.
 
 ### Version 2.1.1
 
-**Problems that were solved**
+**Problems that were solved:**
  - Resolving the problem of Razor syntax page attributes ending with the less-than (<) character.
 
 ### Version 2.1.2
@@ -116,7 +116,7 @@
  - Added StaticObject class
  - And a series of minor changes and improvements
 
-**Problems that were solved**
+**Problems that were solved:**
  - In cases where the current View is wrongly requested from the Controller, the loop is avoided.
 
 ### Version 2.4
@@ -130,5 +130,5 @@
 
 **In this version, it is possible to give preference to the controller**
 
-**Problems that were solved**
+**Problems that were solved:**
  - Fixed problem matching projects whose name does not match for namespace name.
