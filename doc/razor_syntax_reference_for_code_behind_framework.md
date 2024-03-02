@@ -172,6 +172,7 @@ Note: If you use quote ('), double quote ("), and backtick (`) characters, you m
 @if (IsTrue)
 {
 	<p>You don't do it.</p>}<b>bold text</b>
+}
 ```
 
 In the code above, there is a character quote (') and closing bracket (}) is closed in the same line. After that, the html character is written; the above code may give an unexpected error, so it should be written as below.
