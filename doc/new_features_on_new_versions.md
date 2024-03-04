@@ -131,4 +131,5 @@
 **In this version, it is possible to give preference to the controller**
 
 **Problems that were solved:**
+ - Fixed the problem of finding the `Microsoft.AspNetCore.App` directory for some operating systems
  - Fixed problem matching projects whose name does not match for namespace name.
