@@ -64,7 +64,7 @@ Example
 
 ### Page attributes in Razor syntax
 
-The CodeBehind framework framework supports several attributes for view pages. Each of the adjectives are placed at the top of the page. Page attributes and their values must be specified on one line only.
+The CodeBehind framework supports several attributes for view pages. Each of the adjectives are placed at the top of the page. Page attributes and their values must be specified on one line only.
 
 **Model attribute**
 
@@ -139,6 +139,8 @@ Example
 ```
 
 ### Code block
+
+Code block start with `@{` and end with `}` followed by C# code:
 
 **Razor syntax example for code block**
 ```cshtml
