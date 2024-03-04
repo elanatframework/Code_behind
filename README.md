@@ -146,6 +146,7 @@ app.Run();
  - [Send data](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/send_data.md)
  - [Web part in CodeBehind](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/web_part_in_code_behind.md)
  - [Razor syntax reference for CodeBehind framework](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/razor_syntax_reference_for_code_behind_framework.md)
+ - [Standard syntax reference for CodeBehind framework](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/standard_syntax_reference_for_code_behind_framework.md)
  - [Constructor method](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/constructor_method.md)
  - [HtmlData classes](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/html_data_classes.md)
  - [Template](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/template.md)
