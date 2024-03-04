@@ -19,18 +19,15 @@ You can call up the error page according to the type of error. The following exa
 
 Program.cs class
 ```csharp
-using CodeBehind;
-using SetCodeBehind;
-
 var builder = WebApplication.CreateBuilder(args);
 
 var app = builder.Build();
 
-CodeBehindCompiler.Initialization();
+SetCodeBehind.CodeBehindCompiler.Initialization();
 
 app.Run(async context =>
 {
-    CodeBehindExecute execute = new CodeBehindExecute();
+    CodeBehind.CodeBehindExecute execute = new CodeBehind.CodeBehindExecute();
 
     string PageResult = execute.Run(context);
 
@@ -51,3 +48,28 @@ Note: If you do not need to use context in the error page, you can call the RunE
 `RunErrorPage(404)`
 
 Please note that to use the RunErrorPage method, you must create the error view file and set its path in the options file. Of course, if you create a new project under ASP.NET Core 7.0 Empty for the first time and there is no wwwroot directory in your project, if you run the project once, the default CodeBehind framework template along with the view error file will be added.
+
+The Program.cs class below shows an example of error handling by configuring the controller in the route.
+
+Program.cs class
+```csharp
+var builder = WebApplication.CreateBuilder(args);
+
+var app = builder.Build();
+
+SetCodeBehind.CodeBehindCompiler.Initialization();
+
+app.Run(async context =>
+{
+    CodeBehind.CodeBehindExecute execute = new CodeBehind.CodeBehindExecute();
+
+    string PageResult = execute.RunRoute(context, 0);
+
+    if (execute.FoundController)
+        await context.Response.WriteAsync(PageResult);
+    else
+        await context.Response.WriteAsync(execute.RunErrorPage(404));
+});
+
+app.Run();
+```
