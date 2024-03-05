@@ -8,6 +8,7 @@ namespace CodeBehind
     public class CodeBehindExecute
     {
         public bool FoundPage { get; set; } = true;
+        public bool FoundController { get; set; } = true;
 
         private string PrivateRun(HttpContext context, string MethodName)
         {
@@ -252,28 +253,92 @@ namespace CodeBehind
 
         public string RunController(object ControllerClass, HttpContext context)
         {
-            Type myType = ControllerClass.GetType();
-            MethodInfo myMethod = myType.GetMethod("FillSection");
-            myMethod.Invoke(ControllerClass, new object[] { context });
-            myMethod = myType.GetMethod("PageLoad");
-            myMethod.Invoke(ControllerClass, new object[] { context });
-            myMethod = myType.GetMethod("Run");
-            string ReturnResult = (string)myMethod.Invoke(ControllerClass, new object[] { context });
+            Type type = ControllerClass.GetType();
+            MethodInfo method = type.GetMethod("FillSection");
+            method.Invoke(ControllerClass, new object[] { context });
+            method = type.GetMethod("PageLoad");
+            method.Invoke(ControllerClass, new object[] { context });
+            method = type.GetMethod("Run");
+            string ReturnResult = (string)method.Invoke(ControllerClass, new object[] { context });
 
             return ReturnResult;
         }
 
+        // Overload
         public string RunController(object ControllerClass)
         {
-            Type myType = ControllerClass.GetType();
-            MethodInfo myMethod = myType.GetMethod("FillSection");
-            myMethod.Invoke(ControllerClass, new object[] { null });
-            myMethod = myType.GetMethod("PageLoad");
-            myMethod.Invoke(ControllerClass, new object[] { null });
-            myMethod = myType.GetMethod("Run");
-            string ReturnResult = (string)myMethod.Invoke(ControllerClass, new object[] { null });
+            Type type = ControllerClass.GetType();
+            MethodInfo method = type.GetMethod("FillSection");
+            method.Invoke(ControllerClass, new object[] { null });
+            method = type.GetMethod("PageLoad");
+            method.Invoke(ControllerClass, new object[] { null });
+            method = type.GetMethod("Run");
+            string ReturnResult = (string)method.Invoke(ControllerClass, new object[] { null });
 
             return ReturnResult;
+        }
+
+        // Overload
+        public string RunController(string ControllerClass, HttpContext context)
+        {
+            Assembly assembly = CodeBehindCompiler.CompileAspx();
+            Type type = assembly.GetType("CodeBehindViews.CodeBehindViewsList");
+            object obj = Activator.CreateInstance(type);
+            MethodInfo method = type.GetMethod("RunControllerName");
+            string ReturnResult = (string)method.Invoke(obj, new object[] { ControllerClass, context });
+
+            method = type.GetMethod("ControllerHasFound");
+            FoundController = (bool)method.Invoke(obj, null);
+
+            return ReturnResult;
+        }
+
+        // Overload
+        public string RunController(string ControllerClass)
+        {
+            return RunController(ControllerClass, null);
+        }
+
+        public string RunRoute(HttpContext context, int ControllerSection)
+        {
+            if (context == null)
+            {
+                FoundController = false;
+                return "";
+            }
+
+            string RequestPath = context.Request.Path;
+
+            if (RequestPath.Length > 0)
+                if (RequestPath[0] == '/')
+                    RequestPath = RequestPath.Remove(0, 1);
+
+            ValueCollectionLock Section = new ValueCollectionLock();
+
+            string[] ValueList = RequestPath.GetTextBeforeValue("?").Split('/');
+            Section.AddList(ValueList);
+
+            if (Section.Count() <= ControllerSection)
+            {
+                FoundController = false;
+                return "";
+            }
+
+            if (string.IsNullOrEmpty(Section.GetValue(ControllerSection)))
+            {
+                FoundController = false;
+                return "";
+            }
+
+            string ControllerClass = Section.GetValue(ControllerSection);
+
+            if (!ControllerClass.ClassPathIsFine())
+            {
+                FoundController = false;
+                return "";
+            }
+
+            return RunController(ControllerClass, context);
         }
     }
 }
