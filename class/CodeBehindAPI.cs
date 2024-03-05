@@ -12,11 +12,17 @@ namespace CodeBehind.API
         {
             BaseDirectory = AppContext.BaseDirectory;
             BaseDirectory = BaseDirectory.Replace("\\", "/");
+
             RunTimePath = System.IO.Path.GetDirectoryName(typeof(object).GetTypeInfo().Assembly.Location);
             RunTimePath = RunTimePath.Replace("\\", "/");
-            string SharedPath = RunTimePath.GetTextBeforeLastValue("/").GetTextBeforeLastValue("/");
-            string Version = RunTimePath.GetTextAfterLastValue("/");
-            AspRunTimePath = SharedPath + "/Microsoft.AspNetCore.App/" + Version; 
+
+            var assembly = typeof(Microsoft.AspNetCore.Http.HttpContext).Assembly;
+            var codeBase = assembly.CodeBase;
+            var uri = new UriBuilder(codeBase);
+            string path = Uri.UnescapeDataString(uri.Path);
+            var AspNetCorePath = System.IO.Path.GetDirectoryName(path);
+
+            AspRunTimePath = AspNetCorePath.Replace("\\", "/"); 
         }
     }
 }
