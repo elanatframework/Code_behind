@@ -158,6 +158,7 @@ app.Run();
  - [Namespace and dll for CodeBehind view class](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/namespace_and_dll_for_code_behind_view_class.md)
  - [Error detection](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/error_detection.md)
  - [How to use CodeBehind?](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/how_to_use_code_behind.md)
+ - [Route configuration](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/route_configuration.md)
  - [Used with Razor Pages and ASP.NET Core MVC](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/used_with_razor_pages_and_asp_dot_net_core_mvc.md)
 
 #### API and applied methods
