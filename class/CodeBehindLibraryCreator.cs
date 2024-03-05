@@ -1,5 +1,10 @@
+using System;
 using System.Reflection;
+using System.Runtime.Loader;
+using System.Text.RegularExpressions;
 using CodeBehind;
+using Microsoft.CodeAnalysis;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace SetCodeBehind
 {
@@ -80,11 +85,14 @@ namespace SetCodeBehind
 
         public string CreateAllAspxFiles()
         {
+            string AssemblyCleanName = SetCleanNameForClass(Assembly.GetEntryAssembly().GetName().Name);
+
             string CodeBehindViews = "";
-            CodeBehindViews += "using " + Assembly.GetEntryAssembly().GetName().Name + ";" + Environment.NewLine;
+            CodeBehindViews += "using " + AssemblyCleanName + ";" + Environment.NewLine;
             CodeBehindViews += "using CodeBehind;" + Environment.NewLine;
             CodeBehindViews += "using System;" + Environment.NewLine;
             CodeBehindViews += "using System.Runtime;" + Environment.NewLine;
+            CodeBehindViews += "using System.Reflection;" + Environment.NewLine;
             CodeBehindViews += "using Microsoft.AspNetCore.Http;" + Environment.NewLine;
             CodeBehindViews += ImportNamespaceList();
             CodeBehindViews += Environment.NewLine;
@@ -96,7 +104,8 @@ namespace SetCodeBehind
             CodeBehindViews += "        private string RequestPath { get; set; } = \"\";" + Environment.NewLine;
             CodeBehindViews += "        private string CallerViewPath { get; set; } = \"\";" + Environment.NewLine;
             CodeBehindViews += "        private string CallerViewDirectoryPath { get; set; } = \"\";" + Environment.NewLine;
-            CodeBehindViews += "        private bool FoundPage { get; set; } = true;" + Environment.NewLine + Environment.NewLine;
+            CodeBehindViews += "        private bool FoundPage { get; set; } = true;" + Environment.NewLine;
+            CodeBehindViews += "        private bool FoundController { get; set; } = true;" + Environment.NewLine + Environment.NewLine;
 
             CodeBehindOptions options = new CodeBehindOptions();
 
@@ -115,6 +124,7 @@ namespace SetCodeBehind
                     MoveViewFromWwwroot(options.ViewPath, "cshtml");
             }
 
+            string GlobalTemplate = GetGlobalTemplate();
 
             DirectoryInfo RootDir = new DirectoryInfo(options.ViewPath);
             string RootDirectoryPath = RootDir.FullName;
@@ -130,7 +140,7 @@ namespace SetCodeBehind
                 combination.EndTrimInAspxFile = options.EndTrimInAspxFile;
                 combination.SetBreakForLayoutPage = options.SetBreakForLayoutPage;
                 combination.InnerTrimInAspxFile = options.InnerTrimInAspxFile;
-                combination.GlobalTemplate = GetGlobalTemplate();
+                combination.GlobalTemplate = GlobalTemplate;
 
                 combination.Set(file.FullName, RootDirectoryPath, i);
 
@@ -157,7 +167,7 @@ namespace SetCodeBehind
                     combination.EndTrimInAspxFile = options.EndTrimInAspxFile;
                     combination.SetBreakForLayoutPage = options.SetBreakForLayoutPage;
                     combination.InnerTrimInAspxFile = options.InnerTrimInAspxFile;
-                    combination.GlobalTemplate = GetGlobalTemplate();
+                    combination.GlobalTemplate = GlobalTemplate;
 
                     combination.Set(file.FullName, RootDirectoryPath, i);
 
@@ -251,9 +261,26 @@ namespace SetCodeBehind
             CodeBehindViews += "                return LoadPage(ViewPath, context);" + Environment.NewLine;
             CodeBehindViews += "        }" + Environment.NewLine + Environment.NewLine;
 
+            CodeBehindViews += "        public string RunControllerName(string ControllerClass, HttpContext context)" + Environment.NewLine;
+            CodeBehindViews += "        {" + Environment.NewLine;
+            CodeBehindViews += "            switch (ControllerClass)" + Environment.NewLine;
+            CodeBehindViews += "            {" + Environment.NewLine;
+            CodeBehindViews += FillControllerNameCase();
+            CodeBehindViews += "/*{CaseCodeTemplateValueForControllerName}*/" + Environment.NewLine;
+            CodeBehindViews += "            }" + Environment.NewLine;
+            CodeBehindViews += Environment.NewLine;
+            CodeBehindViews += "            FoundController = false;" + Environment.NewLine;
+            CodeBehindViews += "            return \"\";" + Environment.NewLine;
+            CodeBehindViews += "        }" + Environment.NewLine + Environment.NewLine;
+
             CodeBehindViews += "        public bool PageHasFound()" + Environment.NewLine;
             CodeBehindViews += "        {" + Environment.NewLine;
             CodeBehindViews += "            return FoundPage;" + Environment.NewLine;
+            CodeBehindViews += "        }" + Environment.NewLine + Environment.NewLine;
+
+            CodeBehindViews += "        public bool ControllerHasFound()" + Environment.NewLine;
+            CodeBehindViews += "        {" + Environment.NewLine;
+            CodeBehindViews += "            return FoundController;" + Environment.NewLine;
             CodeBehindViews += "        }" + Environment.NewLine + Environment.NewLine;
 
             CodeBehindViews += "        private void Download(HttpContext context, string FilePath)" + Environment.NewLine;
@@ -288,7 +315,7 @@ namespace SetCodeBehind
             CodeBehindViews += "    }" + Environment.NewLine;
             CodeBehindViews += "}" + Environment.NewLine + Environment.NewLine;
 
-            CodeBehindViews += "namespace " + Assembly.GetEntryAssembly().GetName().Name + Environment.NewLine;
+            CodeBehindViews += "namespace " + AssemblyCleanName + Environment.NewLine;
             CodeBehindViews += "{" + Environment.NewLine;
             CodeBehindViews += "    public partial class CodeBehindEmptyClass" + Environment.NewLine;
             CodeBehindViews += "    {" + Environment.NewLine;
@@ -335,7 +362,11 @@ namespace SetCodeBehind
 
             if (!File.Exists(FilePath))
             {
-                File.Create(FilePath).Close();
+                var file = File.CreateText(FilePath);
+
+                file.Dispose();
+                file.Close();
+                
                 return "";
             }
 
@@ -409,6 +440,69 @@ namespace SetCodeBehind
             }
 
             return ReturnValue;
+        }
+
+        private string FillAssemblyControllerCase(Assembly assembly, string EntryAssemblyName)
+        {
+            Type ControllerType = typeof(CodeBehindController);
+            var AssemblyClasses = assembly.GetTypes().Where(type => ControllerType.IsAssignableFrom(type) && !type.IsAbstract);
+
+            string ReturnValue = "";
+
+            foreach (var TmpClass in AssemblyClasses)
+            {
+                string NameSpace = (string.IsNullOrEmpty(TmpClass.Namespace) || (TmpClass.Namespace == EntryAssemblyName)) ? "" : TmpClass.Namespace + ".";
+                string ClassName = "Tmp" + TmpClass.Namespace + "_" + TmpClass.Name;
+
+                ReturnValue += "                case \"" + TmpClass.Name + "\":" + Environment.NewLine;
+                ReturnValue += "                " + NameSpace + TmpClass.Name + " " + ClassName + " = new " + NameSpace + TmpClass.Name + "();" + Environment.NewLine;
+                ReturnValue += "                " + ClassName + ".FillSection(context);" + Environment.NewLine;
+                ReturnValue += "                " + ClassName + ".PageLoad(context);" + Environment.NewLine;
+
+                ReturnValue += Environment.NewLine;
+                ReturnValue += "                if (" + ClassName + ".IgnoreViewAndModel)" + Environment.NewLine;
+                ReturnValue += "                    return " + ClassName + ".ResponseText;" + Environment.NewLine + Environment.NewLine;
+                ReturnValue += "                return " + ClassName + ".ResponseText + RunController(context, " + ClassName + ".ViewPath, " + ClassName + ".CodeBehindModel, " + ClassName + ".ViewData, " + ClassName + ".DownloadFilePath); " + Environment.NewLine + Environment.NewLine;
+            }
+
+            return ReturnValue;
+        }
+
+        private string FillDllBinAssemblyControllerCase(string EntryAssemblyName)
+        {
+            if (!Directory.Exists("wwwroot/bin"))
+                return "";
+
+            string ReturnValue = "";
+
+            DirectoryInfo BinDir = new DirectoryInfo("wwwroot/bin");
+            foreach (FileInfo file in BinDir.GetFiles("*.dll"))
+            {
+                Assembly assembly = Assembly.LoadFrom(file.FullName);
+                ReturnValue += FillAssemblyControllerCase(assembly, EntryAssemblyName);
+            }
+
+            return ReturnValue;
+        }
+
+        private string FillControllerNameCase()
+        {
+            string AssemblyCleanName = SetCleanNameForClass(Assembly.GetEntryAssembly().GetName().Name);
+
+            Assembly assembly = Assembly.GetEntryAssembly();
+
+            return FillAssemblyControllerCase(assembly, AssemblyCleanName) + FillDllBinAssemblyControllerCase(AssemblyCleanName);
+        }
+
+        private string SetCleanNameForClass(string CleanName)
+        {
+            Regex regex = new Regex("[^a-zA-Z0-9_]");
+            CleanName = regex.Replace(CleanName, "_");
+
+            if (char.IsNumber(CleanName[0]))
+                CleanName = '_' + CleanName;
+
+            return CleanName;
         }
     }
 }
