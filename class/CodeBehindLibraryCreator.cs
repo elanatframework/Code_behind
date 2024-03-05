@@ -1,10 +1,7 @@
-using System;
 using System.Reflection;
-using System.Runtime.Loader;
 using System.Text.RegularExpressions;
 using CodeBehind;
 using Microsoft.CodeAnalysis;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace SetCodeBehind
 {
