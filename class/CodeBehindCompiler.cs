@@ -60,7 +60,6 @@ namespace SetCodeBehind
             // Add All dll In bin Directory
             if (Directory.Exists("wwwroot/bin"))
             {
-
                 List<string> BinFileList = new List<string>();
                 DirectoryInfo BinDir = new DirectoryInfo("wwwroot/bin");
 
