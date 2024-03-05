@@ -31,19 +31,16 @@ Select CodeBehind among the options and select Install on the right side of the 
 To configure CodeBehind, it is necessary to set the Program.cs class file according to the following codes.
 
 Program File: Program.cs
-```csharp
-using CodeBehind;
-using SetCodeBehind;
-
+```diff
 var builder = WebApplication.CreateBuilder(args);
 
 var app = builder.Build();
 
-+ CodeBehindCompiler.Initialization();
++ SetCodeBehind.CodeBehindCompiler.Initialization();
 
 app.Run(async context =>
 {
-+    CodeBehindExecute execute = new CodeBehindExecute();
++    CodeBehind.CodeBehindExecute execute = new CodeBehind.CodeBehindExecute();
 +    await context.Response.WriteAsync(execute.Run(context));
 });
 
