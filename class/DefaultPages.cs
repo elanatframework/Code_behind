@@ -1,4 +1,4 @@
-﻿namespace SetCodeBehind
+namespace SetCodeBehind
 {
     public class DefaultPages
     {
