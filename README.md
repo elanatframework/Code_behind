@@ -165,6 +165,7 @@ app.Run();
 
 #### API and applied methods
  - [Download file](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/download_file.md)
+ - [Dynamic Model](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/dynamic_model.md)
 
 #### Information
  - [New features on new versions](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/new_features_on_new_versions.md)
