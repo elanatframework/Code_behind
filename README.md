@@ -160,6 +160,7 @@ app.Run();
  - [How to use CodeBehind?](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/how_to_use_code_behind.md)
  - [Route configuration](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/route_configuration.md)
  - [Used with Razor Pages and ASP.NET Core MVC](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/used_with_razor_pages_and_asp_dot_net_core_mvc.md)
+ - [Modularity in the default mode](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/modularity_in_the_default_mode.md)
  - [Modularity in the configuration of the controller in the route](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/modularity_in_the_configuration_of_the_controller_in_the_route.md)
 
 #### API and applied methods
