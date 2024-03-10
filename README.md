@@ -163,7 +163,7 @@ app.Run();
  - [Modularity in the configuration of the controller in the route](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/modularity_in_the_configuration_of_the_controller_in_the_route.md)
 
 #### API and applied methods
- - [Download file](https://github.com/elanatframework/Code_behind/blob/elanat_framework/download_file.md)
+ - [Download file](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/download_file.md)
 
 #### Information
  - [New features on new versions](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/new_features_on_new_versions.md)
