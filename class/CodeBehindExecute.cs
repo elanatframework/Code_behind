@@ -13,8 +13,8 @@ namespace CodeBehind
         private string PrivateRun(HttpContext context, string MethodName)
         {
             string path = context.Request.Path.ToString();
-            string extension = Path.GetExtension(path);
             path = System.Net.WebUtility.UrlDecode(path);
+            string extension = Path.GetExtension(path.GetTextBeforeValue("?"));
 
             if (StaticObject.PreventAccessDefaultAaspx && MethodName == "SetPageLoadByPath")
                 if (path.GetTextBeforeValue("?").EndsWith("/Default.aspx") || path.GetTextBeforeValue("?").Contains("/Default.aspx/"))
@@ -57,6 +57,8 @@ namespace CodeBehind
                         else
                             context.Request.QueryString.Add(NameValue[0], "");
                     }
+
+                    path = path.GetTextBeforeValue("?");
                 }
 
                 if (context.Request.ContentType == null)
