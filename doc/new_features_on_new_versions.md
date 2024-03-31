@@ -131,5 +131,10 @@
 **In this version, it is possible to give preference to the controller**
 
 **Problems that were solved:**
- - Fixed the problem of finding the `Microsoft.AspNetCore.App` directory for some operating systems
+ - Fixed the problem of finding the `Microsoft.AspNetCore.App` directory for some operating systems.
  - Fixed problem matching projects whose name does not match for namespace name.
+
+### Version 2.4.1
+
+**Problems that were solved:**
+ - Fixing the problem of calling the pages that were requested with the query string.
