@@ -138,3 +138,8 @@
 
 **Problems that were solved:**
  - Fixing the problem of calling the pages that were requested with the query string.
+
+### Version 2.4.2
+
+**Problems that were solved:**
+ - Fixed the problem of not creating a query string after calling the pages in the `Run` method.
