@@ -47,15 +47,18 @@ namespace CodeBehind
                 {
                     string QueryString = path.GetTextAfterValue("?");
 
-                    string[] queryElements = QueryString.Split('&');
-                    foreach (string element in queryElements)
+                    if (!string.IsNullOrEmpty(QueryString))
                     {
-                        string[] NameValue = element.Split('=');
+                        string[] queryElements = QueryString.Split('&');
+                        foreach (string element in queryElements)
+                        {
+                            string[] NameValue = element.Split('=');
 
-                        if (NameValue.Length > 1)
-                            context.Request.QueryString.Add(NameValue[0], NameValue[1]);
-                        else
-                            context.Request.QueryString.Add(NameValue[0], "");
+                            if (NameValue.Length > 1)
+                                context.Request.QueryString = context.Request.QueryString.Add(NameValue[0], NameValue[1]);
+                            else
+                                context.Request.QueryString = context.Request.QueryString.Add(NameValue[0], "");
+                        }
                     }
 
                     path = path.GetTextBeforeValue("?");
