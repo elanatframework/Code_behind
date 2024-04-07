@@ -143,3 +143,9 @@
 
 **Problems that were solved:**
  - Fixed the problem of not creating a query string after calling the pages in the `Run` method.
+
+### Version 2.4.3
+ - Adding Name and NameCollection classes in HtmlData namespase
+
+**Problems that were solved:**
+ - Avoiding adding the same query.
