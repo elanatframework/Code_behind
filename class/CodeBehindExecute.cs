@@ -49,19 +49,42 @@ namespace CodeBehind
 
                     if (!string.IsNullOrEmpty(QueryString))
                     {
-                        string[] queryElements = QueryString.Split('&');
-                        foreach (string element in queryElements)
+                        NameCollection QueryValues = new NameCollection();
+                        QueryString TmpQueryString = new QueryString();
+                        string[] QueryElements = QueryString.Split('&');
+                        foreach (string element in QueryElements)
                         {
                             string[] NameValue = element.Split('=');
 
                             if (NameValue.Length > 1)
-                                context.Request.QueryString = context.Request.QueryString.Add(NameValue[0], NameValue[1]);
+                                TmpQueryString = TmpQueryString.Add(NameValue[0], NameValue[1]);
                             else
-                                context.Request.QueryString = context.Request.QueryString.Add(NameValue[0], "");
-                        }
-                    }
+                                TmpQueryString = TmpQueryString.Add(NameValue[0], "");
 
-                    path = path.GetTextBeforeValue("?");
+                            QueryValues.Add(NameValue[0]);
+                        }
+
+                        string RequestQueryString = context.Request.QueryString.Value;
+
+                        if (!string.IsNullOrEmpty(RequestQueryString))
+                        {
+                            RequestQueryString = RequestQueryString.GetTextAfterValue("?");
+                            string[] TmpQueryElements = RequestQueryString.Split('&');
+                            foreach (string element in TmpQueryElements)
+                            {
+                                string[] NameValue = element.Split('=');
+
+                                if (!QueryValues.Exist(NameValue[0]))
+                                    if (NameValue.Length > 1)
+                                        TmpQueryString = TmpQueryString.Add(NameValue[0], NameValue[1]);
+                                    else
+                                        TmpQueryString = TmpQueryString.Add(NameValue[0], "");
+                            }
+                        }
+
+                        context.Request.QueryString = TmpQueryString;
+                        path = path.GetTextBeforeValue("?");
+                    }
                 }
 
                 if (context.Request.ContentType == null)
