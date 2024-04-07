@@ -1,5 +1,88 @@
 namespace CodeBehind.HtmlData
 {
+    public class Name
+    {
+        public string TheName { get; set; }
+
+        public Name()
+        {
+
+        }
+
+        public Name(string Name)
+        {
+            TheName = Name;
+        }
+    }
+
+    public class NameCollection
+    {
+        private List<Name> NameList = new List<Name>();
+
+        public void Add(string Name)
+        {
+            NameList.Add(new Name(Name));
+        }
+
+        public void Set(string Name)
+        {
+            if (!Exist(Name))
+                Add(Name);
+        }
+
+        public void Delete(string Name)
+        {
+            List<Name> TmpNameList = new List<Name>();
+
+            foreach (Name n in NameList)
+            {
+                if (n.TheName != Name)
+                    TmpNameList.Add(n);
+            }
+
+            NameList = TmpNameList;
+        }
+
+        public void Empty()
+        {
+            NameList = new List<Name>();
+        }
+
+        public bool Exist(string Name)
+        {
+            foreach (Name n in NameList)
+            {
+                if (n.TheName == Name)
+                    return true;
+            }
+
+            return false;
+        }
+
+        public void ChangeName(string Name, string NewName)
+        {
+            foreach (Name n in NameList)
+            {
+                if (n.TheName == Name)
+                {
+                    n.TheName = NewName;
+                    break;
+                }
+            }
+        }
+
+        public void AddList(List<Name> NameList)
+        {
+            foreach (Name n in NameList)
+                this.NameList.Add(n);
+        }
+
+        public List<Name> GetList()
+        {
+            return NameList;
+        }
+    }
+
     public class NameValue
     {
         public string Name { get; set; }
