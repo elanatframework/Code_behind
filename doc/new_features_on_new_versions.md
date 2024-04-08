@@ -2,12 +2,20 @@
 
 **New releases policy:** Our effort at Elanat team is to add new features to new releases. We put a lot of effort into testing the CodeBehind framework before releasing new versions, but usually adding new features causes a series of new bugs. We receive bug reports very quickly and provide new sub-versions with bug fixes. So try to always use the latest versions of the CodeBehind framework.
 
+### Early versions
+
+The first version of CodeBehind is based on .NET Core version 7.0; if the version of .NET Core is updated in a version compared to the previous one, it will be explained in the description section of that new version.
+
 ### Version 1.7
+
+**New features:**
  - The possibility of creating a page view without having to follow the MVC pattern
    - Possibility to create only view without controller and model
    - Possibility to create model and view without controller
 
 ### Version 1.8
+
+**New features:**
  - Razor syntax support 
  - Template support
    - Added return template
@@ -32,6 +40,8 @@
  - Solving the problem of removing one or two characters after Razor syntax.
 
 ### Version 1.9
+
+**New features:**
  - Ability to add layout page
    - Ability to send data from the current page to the layout page
    - The possibility of calling external pages from the view section
@@ -53,6 +63,8 @@
  - The problem of not applying, ignoring the default Default.aspx files to rewrite as a directory, was solved.
 
 ### Version 1.9.2
+
+**New features:**
  - In this version and later, in the methods of the final view class, when creating a new instance of the controller class, the term controller is used instead of the term CurrentController
  - In this version and later, the context inside the astx files are added at the beginning of the aspx file
 
@@ -66,6 +78,8 @@
  - Solving the problem of not ignoring two consecutive at sign (@) in conditional blocks and loop blocks.
 
 ### Version 2.0
+
+**New features:**
  - Ability to add data to ViewData in controller and model
  - The addition of download API and the possibility of downloading files from executive pages in all three sections, view, model and controller
  - The addition of a global template file to support all view pages
@@ -74,6 +88,8 @@
  - Added default pages (include layout) after first run
 
 ### Version 2.1
+
+**New features:**
  - Ability to change the view in the controller
  - Ability to transfer template block data in ViewData
  - Complete rewriting of codes related to new lines and backslash of executable files
@@ -89,10 +105,14 @@
  - Resolving the problem of Razor syntax page attributes ending with the less-than (<) character.
 
 ### Version 2.1.2
+
+**New features:**
  - Complete rewrite codes related of page attribute recognition in Razor syntax
  - Adding the view file path comment above their methods in the view class
 
 ### Version 2.2
+
+**New features:**
  - Added CallerViewPath and CallerViewDirectoryPath to view, model and controller
  - New option to display minor errors in the options file
  - Improved debugging and improved `views_compile_error.log` error file
@@ -108,6 +128,8 @@
  - And a series of minor changes and improvements
 
 ### Version 2.3
+
+**New features:**
  - Ability to specify View along with Model from all Controllers
  - - The possibility of loading pages with the model in the LoadPage method in View pages
  - Support strings written from the previous Controller
@@ -120,6 +142,8 @@
  - In cases where the current View is wrongly requested from the Controller, the loop is avoided.
 
 ### Version 2.4
+
+**New features:**
  - New feature for route configuration
  - The possibility of running the controller with the text name of the controller
  - Applying multi-threaded processing to create the View class
@@ -145,6 +169,8 @@
  - Fixed the problem of not creating a query string after calling the pages in the `Run` method.
 
 ### Version 2.4.3
+
+**New features:**
  - Adding Name and NameCollection classes in HtmlData namespase
 
 **Problems that were solved:**
