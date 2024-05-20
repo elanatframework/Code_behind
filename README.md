@@ -120,18 +120,14 @@ namespace YourProjectName
 
 ### CodeBehind Configure in ASP.NET Core
 Program File: Program.cs
-```diff
+```csharp
 var builder = WebApplication.CreateBuilder(args);
 
 var app = builder.Build();
 
-+ SetCodeBehind.CodeBehindCompiler.Initialization();
+SetCodeBehind.CodeBehindCompiler.Initialization();
 
-app.Run(async context =>
-{
-+    CodeBehind.CodeBehindExecute execute = new CodeBehind.CodeBehindExecute();
-+    await context.Response.WriteAsync(execute.Run(context));
-});
+app.UseCodeBehind();
 
 app.Run();
 ```
