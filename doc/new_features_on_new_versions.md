@@ -175,3 +175,8 @@ The first version of CodeBehind is based on .NET Core version 7.0; if the versio
 
 **Problems that were solved:**
  - Avoiding adding the same query.
+
+### Version 2.5
+
+**New features:**
+ - Adding middleware for easier configuration
