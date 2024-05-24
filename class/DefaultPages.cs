@@ -112,6 +112,7 @@ namespace SetCodeBehind
             file2.WriteLine("          <li><b>Code-Behind:</b> Code-Behind pattern will be fully respected.</li>");
             file2.WriteLine("          <li><b>Modern:</b> CodeBehind is a modern framework with revolutionary ideas.</li>");
             file2.WriteLine("          <li><b>Understandable:</b> View is preferable to controller and there is no need to set controllers in route.</li>");
+            file2.WriteLine("          <li><b>Adaptable:</b> The CodeBehind framework can even be used with Razor Pages and ASP.NET Core MVC.</li>");
             file2.WriteLine("      </ul>");
             file2.WriteLine("      <p><b>CodeBehind is .NET Diamond!</b></p>");
             file2.WriteLine("      <p>In every scenario, CodeBehind performs better than the default structure in ASP.NET Core.</p>");
