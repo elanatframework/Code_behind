@@ -81,10 +81,10 @@ app.UseCodeBehind();
 app.Run();
 ```
 
-If you enter the value true in CodeBehindCompiler.Initialization(), as long as the CodeBehindLastSuccessCompiled.dll.tmp file exists next to the main dll files of the program, recompilation will not be done. Doing this makes the response speed of the requests high after the first request since the program goes to sleep.
+If you enter the value true in SetCodeBehind.CodeBehindCompiler.Initialization(), as long as the CodeBehindLastSuccessCompiled.dll.tmp file exists next to the main dll files of the program, recompilation will not be done. Doing this makes the response speed of the requests high after the first request since the program goes to sleep.
 
 ```csharp
-CodeBehindCompiler.Initialization(true);
+SetCodeBehind.CodeBehindCompiler.Initialization(true);
 ```
 
 Note : If you configure the Program.cs class like this, any changes in the aspx files, or adding new web parts or removing web parts, requires deleting the CodeBehindLastSuccessCompiled.dll.tmp file.
