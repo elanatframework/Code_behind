@@ -114,4 +114,6 @@ The image below is a screenshot of the About page.
 
 ![CodeBehind framework about page](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/nn6ehefgeawhxteuxolv.png)
 
+> Note: Please note that the CodeBehind framework version of the new module project must be equal or lower than the CodeBehind version of the main project.
+
 As you can see, we introduced the modular structure of the powerful CodeBehind framework in practice.
