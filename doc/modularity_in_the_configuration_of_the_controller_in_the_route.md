@@ -197,4 +197,6 @@ Result for `example.com/module` request
 </html>
 ```
 
+> Note: Please note that the CodeBehind framework version of the new module project must be equal or lower than the CodeBehind version of the main project.
+
 As you can see, we introduced the modular structure of the powerful [CodeBehind framework](https://elanat.net/page_content/code_behind) in practice.
