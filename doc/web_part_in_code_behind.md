@@ -29,3 +29,5 @@ First, copy your compiled project files to the desired path in wwwroot; then cop
 // Recompile
 CodeBehindCompiler.ReCompile();
 ```
+
+> Note: Please note that the CodeBehind framework version of the new web part must be equal or lower than the CodeBehind version of the main project.
