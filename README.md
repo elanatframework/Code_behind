@@ -102,13 +102,13 @@ using CodeBehind;
 
 public partial class DefaultController : CodeBehindController
 {
-    public DefaultModel model = new DefaultModel();
     public void PageLoad(HttpContext context)
     {
+        public DefaultModel model = new DefaultModel();
         model.PageTitle = "My Title";
         model.BodyValue = "HTML Body";
         View(model);
-	    }
+    }
 }
 ```
 
