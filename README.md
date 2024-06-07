@@ -56,8 +56,8 @@ View section: aspx page (standard syntax)
 View File: Default.aspx (razor syntax)
 ```aspx
 @page
-@controller YourProjectName.DefaultController
-@model YourProjectName.DefaultModel
+@controller DefaultController
+@model DefaultModel
 <!DOCTYPE html>
 <html>
 <head>
@@ -72,7 +72,7 @@ View File: Default.aspx (razor syntax)
 
 View File: Default.aspx (standard syntax)
 ```aspx
-<%@ Page Controller="YourProjectName.DefaultController" Model="YourProjectName.DefaultModel" %>
+<%@ Page Controller="DefaultController" Model="DefaultModel" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -89,13 +89,10 @@ Model File: Default.aspx.Model.cs
 ```csharp
 using CodeBehind;
 
-namespace YourProjectName
+public partial class DefaultModel : CodeBehindModel
 {
-    public partial class DefaultModel : CodeBehindModel
-    {
-        public string PageTitle { get; set; }
-        public string BodyValue { get; set; }
-    }
+    public string PageTitle { get; set; }
+    public string BodyValue { get; set; }
 }
 ```
 
@@ -103,18 +100,15 @@ Controler File: Default.aspx.Controller.cs
 ```csharp
 using CodeBehind;
 
-namespace YourProjectName
+public partial class DefaultController : CodeBehindController
 {
-    public partial class DefaultController : CodeBehindController
+    public DefaultModel model = new DefaultModel();
+    public void PageLoad(HttpContext context)
     {
-        public DefaultModel model = new DefaultModel();
-        public void PageLoad(HttpContext context)
-        {
-            model.PageTitle = "My Title";
-            model.BodyValue = "HTML Body";
-            View(model);
-        }
-    }
+        model.PageTitle = "My Title";
+        model.BodyValue = "HTML Body";
+        View(model);
+	    }
 }
 ```
 
