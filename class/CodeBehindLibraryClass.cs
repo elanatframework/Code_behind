@@ -16,6 +16,12 @@ namespace CodeBehind
 
             Sections = Sections.GetTextBeforeValue("?");
 
+            if (StaticObject.PreventAccessDefaultAspx && Sections.EndsWith("/Default.aspx"))
+                Sections = Sections.GetTextBeforeLastValue("/Default.aspx");
+
+            if (string.IsNullOrEmpty(Sections))
+                return;
+
             if (Sections.StartsWith(AspxPagePath))
                 Sections = Sections.Remove(0, AspxPagePath.Length);
             else if (Sections.StartsWith(AspxPagePath.GetTextBeforeValue(".aspx") + "/") && RewriteAspxFileToDirectory && !IgnoreDefaultAfterRewrite)
