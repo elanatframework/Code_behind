@@ -16,7 +16,7 @@ namespace CodeBehind
             path = System.Net.WebUtility.UrlDecode(path);
             string extension = Path.GetExtension(path.GetTextBeforeValue("?"));
 
-            if (StaticObject.PreventAccessDefaultAaspx && MethodName == "SetPageLoadByPath")
+            if (StaticObject.PreventAccessDefaultAspx && MethodName == "SetPageLoadByPath")
                 if (path.GetTextBeforeValue("?").EndsWith("/Default.aspx") || path.GetTextBeforeValue("?").Contains("/Default.aspx/"))
                 {
                     FoundPage = false;
@@ -165,7 +165,7 @@ namespace CodeBehind
             string extension = Path.GetExtension(path);
             path = System.Net.WebUtility.UrlDecode(path);
 
-            if (StaticObject.PreventAccessDefaultAaspx && MethodName == "SetPageLoadByPath")
+            if (StaticObject.PreventAccessDefaultAspx && MethodName == "SetPageLoadByPath")
                 if (path.GetTextBeforeValue("?").EndsWith("/Default.aspx") || path.GetTextBeforeValue("?").Contains("/Default.aspx/"))
                 {
                     FoundPage = false;
@@ -256,7 +256,7 @@ namespace CodeBehind
             string path = context.Request.Path.ToString();
             path = System.Net.WebUtility.UrlDecode(path);
 
-            if (StaticObject.PreventAccessDefaultAaspx)
+            if (StaticObject.PreventAccessDefaultAspx)
                 if (path.GetTextBeforeValue("?").EndsWith("/Default.aspx") || path.GetTextBeforeValue("?").Contains("/Default.aspx/"))
                 {
                     FoundPage = false;
