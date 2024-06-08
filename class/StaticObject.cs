@@ -3,7 +3,7 @@ namespace CodeBehind
     public static class StaticObject
     {
         private static bool StaticObjectHasInitialization { get; set; } = false;
-        public static bool PreventAccessDefaultAaspx { get; private set; } = false;
+        public static bool PreventAccessDefaultAspx { get; private set; } = false;
 
         public static void SetValue()
         {
@@ -11,7 +11,7 @@ namespace CodeBehind
                 return;
 
             CodeBehindOptions options = new CodeBehindOptions();
-            PreventAccessDefaultAaspx = options.PreventAccessDefaultAaspx;
+            PreventAccessDefaultAspx = options.PreventAccessDefaultAspx;
 
             StaticObjectHasInitialization = true;
         }
