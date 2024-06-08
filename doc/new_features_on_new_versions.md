@@ -188,3 +188,4 @@ The first version of CodeBehind is based on .NET Core version 7.0; if the versio
  - - Adding role access middleware
  - - The possibility of preventing the access of the rolls to the routes
  - - Ability to define action and give action access for roles
+ - And a series of minor changes and improvements
