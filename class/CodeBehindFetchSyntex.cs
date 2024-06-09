@@ -340,7 +340,7 @@ namespace CodeBehind
 
                 for (int i = 0; i < InnerTextLines.Length; i++)
                 {
-                    string Line = InnerTextLines[i];
+                    string Line = InnerTextLines[i] + '\n';
 
                     if (ft.FullTrimInStart(Line).Length > 0)
                         if (ft.FullTrimInStart(Line)[0] == '@')
