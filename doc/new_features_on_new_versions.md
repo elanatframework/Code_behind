@@ -181,6 +181,12 @@ The first version of CodeBehind is based on .NET Core version 7.0; if the versio
 **New features:**
  - Adding middleware for easier configuration
 
+### Version 2.5.1
+
+**New features:**
+ - Default.aspx not being added in Section when `prevent access default aspx` is enabled
+ - And a series of minor changes and improvements
+
 ### Version 2.6
 
 **New features:**
@@ -188,4 +194,3 @@ The first version of CodeBehind is based on .NET Core version 7.0; if the versio
  - - Adding role access middleware
  - - The possibility of preventing the access of the rolls to the routes
  - - Ability to define action and give action access for roles
- - And a series of minor changes and improvements
