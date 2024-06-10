@@ -146,6 +146,7 @@ app.Run();
  - [Error handling](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/error_handling.md)
  - [Options](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/options.md)
  - [Namespace and dll for CodeBehind view class](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/namespace_and_dll_for_code_behind_view_class.md)
+ - [Controller class constructor and Model class constructor](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/controller_class_constructor_and_model_class_constructor.md)
  - [Error detection](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/error_detection.md)
  - [How to use CodeBehind?](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/how_to_use_code_behind.md)
  - [Route configuration](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/route_configuration.md)
