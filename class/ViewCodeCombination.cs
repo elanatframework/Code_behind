@@ -70,15 +70,38 @@ namespace SetCodeBehind
                 return;
             }
 
+
             // Support Lowercase
             PageProperties = " Page" + PageProperties.Remove(0, 5);
-            PageProperties = PageProperties.Replace(" controller=\"", " Controller=\"");
-            PageProperties = PageProperties.Replace(" model=\"", " Model=\"");
-            PageProperties = PageProperties.Replace(" layout=\"", " Layout=\"");
-            PageProperties = PageProperties.Replace(" islayout=\"", " IsLayout=\"");
-            PageProperties = PageProperties.Replace(" break=\"", " Break=\"");
-            PageProperties = PageProperties.Replace(" section=\"", " Section=\"");
-            PageProperties = PageProperties.Replace(" template=\"", " Template=\"");
+            PageProperties = PageProperties.Replace("controller=\"",  "Controller=\"");
+            PageProperties = PageProperties.Replace("model=\"", "Model=\"");
+            PageProperties = PageProperties.Replace("layout=\"", "Layout=\"");
+            PageProperties = PageProperties.Replace("islayout=\"", "IsLayout=\"");
+            PageProperties = PageProperties.Replace("break=\"", "Break=\"");
+            PageProperties = PageProperties.Replace("section=\"", "Section=\"");
+            PageProperties = PageProperties.Replace("template=\"", "Template=\"");
+            PageProperties = PageProperties.Replace("controllerconstructor=\"", "ControllerConstructor=\"");
+            PageProperties = PageProperties.Replace("modelconstructor=\"", "ModelConstructor=\"");
+
+            // Replace Space Instead Of Tab And New Line
+            PageProperties = PageProperties.Replace('\t' + "Controller=\"", " Controller=\"");
+            PageProperties = PageProperties.Replace('\t' + "Model=\"", " Model=\"");
+            PageProperties = PageProperties.Replace('\t' + "Layout=\"", " Layout=\"");
+            PageProperties = PageProperties.Replace('\t' + "IsLayout=\"", " IsLayout=\"");
+            PageProperties = PageProperties.Replace('\t' + "Break=\"", " Break=\"");
+            PageProperties = PageProperties.Replace('\t' + "Section=\"", " Section=\"");
+            PageProperties = PageProperties.Replace('\t' + "Template=\"", " Template=\"");
+            PageProperties = PageProperties.Replace('\t' + "ControllerConstructor=\"", " ControllerConstructor=\"");
+            PageProperties = PageProperties.Replace('\t' + "ModelConstructor=\"", " ModelConstructor=\"");
+            PageProperties = PageProperties.Replace('\n' + "Controller=\"", " Controller=\"");
+            PageProperties = PageProperties.Replace('\n' + "Model=\"", " Model=\"");
+            PageProperties = PageProperties.Replace('\n' + "Layout=\"", " Layout=\"");
+            PageProperties = PageProperties.Replace('\n' + "IsLayout=\"", " IsLayout=\"");
+            PageProperties = PageProperties.Replace('\n' + "Break=\"", " Break=\"");
+            PageProperties = PageProperties.Replace('\n' + "Section=\"", " Section=\"");
+            PageProperties = PageProperties.Replace('\n' + "Template=\"", " Template=\"");
+            PageProperties = PageProperties.Replace('\n' + "ControllerConstructor=\"", " ControllerConstructor=\"");
+            PageProperties = PageProperties.Replace('\n' + "ModelConstructor=\"", " ModelConstructor=\"");
 
 
             bool PageIsOnlyView = (PageProperties.Trim() == "Page");
@@ -111,6 +134,20 @@ namespace SetCodeBehind
             }
 
 
+            // Set Controller Class Constructor
+            string ControllerClassConstructor = "";
+
+            if (!PageIsOnlyView)
+            {
+                if (PageProperties.Contains(" ControllerConstructor=\""))
+                {
+                    ControllerClassConstructor = PageProperties.Split(new string[] { "ControllerConstructor=\"" }, StringSplitOptions.None)[1].Split("\"")[0];
+
+                    ControllerClassConstructor = ControllerClassConstructor.Replace("&quot;", "\"");
+                }
+            }
+
+
             // Set Model
             string Model = (PageProperties.Contains(" Model=\"")) ? PageProperties.Split(new string[] { "Model=\"" }, StringSplitOptions.None)[1].Split("\"")[0] : "";
             string ModelConstructor = "";
@@ -137,6 +174,20 @@ namespace SetCodeBehind
                 {
                     ErrorList.Add("Error: Model class path is not fine in " + AspxFilePath + " file");
                     return;
+                }
+            }
+
+
+            // Set Model Class Constructor
+            string ModelClassConstructor = "";
+
+            if (Model != "")
+            {
+                if (PageProperties.Contains(" ModelConstructor=\""))
+                {
+                    ModelClassConstructor = PageProperties.Split(new string[] { "ModelConstructor=\"" }, StringSplitOptions.None)[1].Split("\"")[0];
+
+                    ModelClassConstructor = ModelClassConstructor.Replace("&quot;", "\"");
                 }
             }
 
@@ -399,7 +450,7 @@ namespace SetCodeBehind
 
             TextToCodeCombination += GetWriteText(AspxText, PageIsOnlyView);
 
-            SetMethod(AspxFilePath, Controller, ControllerConstructor, Model, ModelConstructor, ModelUseAbstract, !PageIsOnlyView, Layout, IsLayout, IsBreak, UseSection, MethodIndexer, TextToCodeCombination);
+            SetMethod(AspxFilePath, Controller, ControllerConstructor, ControllerClassConstructor, Model, ModelConstructor, ModelClassConstructor, ModelUseAbstract, !PageIsOnlyView, Layout, IsLayout, IsBreak, UseSection, MethodIndexer, TextToCodeCombination);
         }
 
         public void AspxTextAndCodeCombinationRazor(string AspxText, string FilePath, string RootDirectoryPath, int MethodIndexer)
@@ -429,7 +480,9 @@ namespace SetCodeBehind
 
             // Fetch Page Attribute
             string Controller = "";
+            string ControllerClassConstructor = "";
             string Model = "";
+            string ModelClassConstructor = "";
             string Layout = "";
             bool IsLayout = false;
             bool IsBreak = false;
@@ -447,10 +500,22 @@ namespace SetCodeBehind
                 if (TmpLine[0] != '@')
                     break;
 
-                // Fetch Controller, Model, Layout, IsLayout, IsBreak, UseSection, Template
-                if (TmpLine.StartsWith("@controller"))
+                // Fetch ControllerConstructor, Controller, Model, ModelConstructor, Layout, IsLayout, IsBreak, UseSection, Template
+                if (TmpLine.StartsWith("@controllerconstructor"))
+                {
+                    ControllerClassConstructor = ft.FullTrimAll(TmpLine.GetTextAfterValue("@controllerconstructor"));
+                    AspxText = AspxText.GetTextAfterValue(line);
+                    continue;
+                }
+                else if (TmpLine.StartsWith("@controller"))
                 {
                     Controller = ft.FullTrimAll(TmpLine.GetTextAfterValue("@controller"));
+                    AspxText = AspxText.GetTextAfterValue(line);
+                    continue;
+                }
+                else if (TmpLine.StartsWith("@modelconstructor"))
+                {
+                    ModelClassConstructor = ft.FullTrimAll(TmpLine.GetTextAfterValue("@modelconstructor"));
                     AspxText = AspxText.GetTextAfterValue(line);
                     continue;
                 }
@@ -1442,10 +1507,10 @@ namespace SetCodeBehind
 
             TextToCodeCombination += GetWriteText(TextForWrite, !ControllerIsSet);
 
-            SetMethod(AspxFilePath, Controller, ControllerConstructor, Model, ModelConstructor, ModelUseAbstract, ControllerIsSet, Layout, IsLayout, IsBreak, UseSection, MethodIndexer, TextToCodeCombination);
+            SetMethod(AspxFilePath, Controller, ControllerConstructor, ControllerClassConstructor, Model, ModelConstructor, ModelClassConstructor, ModelUseAbstract, ControllerIsSet, Layout, IsLayout, IsBreak, UseSection, MethodIndexer, TextToCodeCombination);
         }
 
-        public void SetMethod(string AspxFilePath, string Controller, string ControllerConstructor, string Model, string ModelConstructor, bool ModelUseAbstract, bool ControllerIsSet, string Layout, bool IsLayout, bool IsBreak, bool UseSection, int MethodIndexer, string TextToCodeCombination)
+        public void SetMethod(string AspxFilePath, string Controller, string ControllerConstructor, string ControllerClassConstructor, string Model, string ModelConstructor, string ModelClassConstructor, bool ModelUseAbstract, bool ControllerIsSet, string Layout, bool IsLayout, bool IsBreak, bool UseSection, int MethodIndexer, string TextToCodeCombination)
         {
             if (AspxFilePath.EndsWith(".cshtml"))
                 AspxFilePath = AspxFilePath.GetTextBeforeLastValue(".cshtml") + ".aspx";
@@ -1520,7 +1585,7 @@ namespace SetCodeBehind
 
             if (!PageIsOnlyView)
             {
-                TmpMethodCodeTemplateValue += "            " + Controller + " controller = new " + Controller + "();" + Environment.NewLine;
+                TmpMethodCodeTemplateValue += "            " + Controller + " controller = new " + Controller + (string.IsNullOrEmpty(ControllerClassConstructor) ? "()" : ControllerClassConstructor) + ";" + Environment.NewLine;
                 TmpMethodCodeTemplateValue += "            controller.CallerViewPath = CallerViewPath;" + Environment.NewLine;
                 TmpMethodCodeTemplateValue += "            controller.CallerViewDirectoryPath = CallerViewDirectoryPath;" + Environment.NewLine;
 
@@ -1597,7 +1662,7 @@ namespace SetCodeBehind
 
                 if (!string.IsNullOrEmpty(Model))
                 {
-                    TmpMethodCodeTemplateValue += "            " + Model + " model = new " + Model + "();" + Environment.NewLine;
+                    TmpMethodCodeTemplateValue += "            " + Model + " model = new " + Model + (string.IsNullOrEmpty(ModelClassConstructor) ? "()" : ModelClassConstructor) + ";" + Environment.NewLine;
 
                     if (ModelUseAbstract)
                     {
@@ -1659,7 +1724,7 @@ namespace SetCodeBehind
 
                 if (!PageIsOnlyView)
                 {
-                    TmpMethodCodeTemplateValue += "            " + Controller + " controller = new " + Controller + "();" + Environment.NewLine;
+                    TmpMethodCodeTemplateValue += "            " + Controller + " controller = new " + Controller + (string.IsNullOrEmpty(ControllerClassConstructor) ? "()" : ControllerClassConstructor) + ";" + Environment.NewLine;
                     TmpMethodCodeTemplateValue += "            controller.CallerViewPath = CallerViewPath;" + Environment.NewLine;
                     TmpMethodCodeTemplateValue += "            controller.CallerViewDirectoryPath = CallerViewDirectoryPath;" + Environment.NewLine;
 
