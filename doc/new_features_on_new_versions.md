@@ -190,6 +190,12 @@ The first version of CodeBehind is based on .NET Core version 7.0; if the versio
 ### Version 2.6
 
 **New features:**
+ - Support for constructor method of Controller class and Model class
+ - Improved detection of View page attributes in standard syntax
+
+### Version 2.7
+
+**New features:**
  - Adding CodeBehind roles
  - - Adding role access middleware
  - - The possibility of preventing the access of the rolls to the routes
