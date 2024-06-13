@@ -442,6 +442,7 @@ namespace SetCodeBehind
                 file.Write("        <action type=\"static\" name=\"write_html\" value=\"true\" active=\"false\" reason=\"inability to write html tags\" />" + Environment.NewLine);
                 file.Write("        <action type=\"session\" name=\"maximum_login_try\" value=\"10\" active=\"false\" reason=\"the maximum possible number of login attempts has been reached\" />" + Environment.NewLine);
                 file.Write("    </role>" + Environment.NewLine);
+                file.Write("    <role name=\"admin\" active=\"false\"></role>" + Environment.NewLine);
                 file.Write("</role_list>");
 
                 file.Dispose();
