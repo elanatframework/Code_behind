@@ -302,6 +302,8 @@ namespace SetCodeBehind
             FilePath = "code_behind/views_class_aggregation_error.log";
             if (File.Exists(FilePath))
                 File.Delete(FilePath);
+
+            FillRoles();
         }
 
         public static void ReCompile()
@@ -418,6 +420,37 @@ namespace SetCodeBehind
             }
 
             return ImportDllList;
+        }
+
+        private static void FillRoles()
+        {
+            const string RolePath = "code_behind/role.xml";
+
+            if (!Directory.Exists("code_behind"))
+                Directory.CreateDirectory("code_behind");
+
+            if (!File.Exists(RolePath))
+            {
+                var file = File.CreateText(RolePath);
+
+                file.Write("<?xml version=\"1.0\" encoding=\"utf-8\" ?>" + Environment.NewLine);
+                file.Write("<role_list>" + Environment.NewLine);
+                file.Write("    <role name=\"guest\" active=\"false\">" + Environment.NewLine);
+                file.Write("        <deny active=\"false\" reason=\"only administrators have access to the admin path\">" + Environment.NewLine);
+                file.Write("            <path match_type=\"start\">/admin</path>" + Environment.NewLine);
+                file.Write("        </deny>" + Environment.NewLine);
+                file.Write("        <action type=\"static\" name=\"write_html\" value=\"true\" active=\"false\" reason=\"inability to write html tags\" />" + Environment.NewLine);
+                file.Write("        <action type=\"session\" name=\"maximum_login_try\" value=\"10\" active=\"false\" reason=\"the maximum possible number of login attempts has been reached\" />" + Environment.NewLine);
+                file.Write("    </role>" + Environment.NewLine);
+                file.Write("</role_list>");
+
+                file.Dispose();
+                file.Close();
+
+                return;
+            }
+
+            new FillRoleList().Set();
         }
     }
 }
