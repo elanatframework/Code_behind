@@ -1,6 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http;
 using System.Data;
-using System.Text.RegularExpressions;
 using System.Xml;
 
 namespace CodeBehind
@@ -127,15 +126,15 @@ namespace CodeBehind
                     foreach (Roleِeny deny in role.RoleDenials)
                     {
                         if (!string.IsNullOrEmpty(deny.Path))
-                            if (!HasMatching(Path, deny.PathMatchType, deny.Path))
+                            if (!Path.HasMatching(deny.PathMatchType, deny.Path))
                                 continue;
 
                         if (!string.IsNullOrEmpty(deny.Query))
-                            if (!HasMatching(QueryString, deny.QueryMatchType, deny.Query))
+                            if (!QueryString.HasMatching(deny.QueryMatchType, deny.Query))
                                 continue;
 
                         if (!string.IsNullOrEmpty(deny.FormData))
-                            if (!HasMatching(FormData, deny.FormDataMatchType, deny.FormData))
+                            if (!FormData.HasMatching(deny.FormDataMatchType, deny.FormData))
                                 continue;
 
                         return false;
@@ -146,24 +145,6 @@ namespace CodeBehind
             }
 
             return true;
-        }
-
-        private bool HasMatching(string Text, string MatchingType, string Matching)
-        {
-            switch (MatchingType)
-            {
-                case "start": return Text.StartsWith(Matching);
-                case "end": return Text.EndsWith(Matching);
-                case "exist": return Text.Contains(Matching);
-                case "full_match": return (Text == Matching);
-                case "regex":
-                    {
-                        Regex re = new Regex(Matching, RegexOptions.IgnoreCase);
-                        return re.IsMatch(Text);
-                    }
-            }
-
-            return false;
         }
     }
 
