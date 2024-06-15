@@ -110,15 +110,15 @@ namespace CodeBehind
         {
             switch (MatchingType)
             {
-                case "start_with": return Text.StartsWith(Matching);
-                case "end_with": return Text.EndsWith(Matching);
+                case "start": return Text.StartsWith(Matching);
+                case "end": return Text.EndsWith(Matching);
                 case "exist": return Text.Contains(Matching);
                 case "full_match": return (Text == Matching);
                 case "regex":
                     {
                         Regex re = new Regex(Matching, RegexOptions.IgnoreCase);
                         return re.IsMatch(Text);
-                    }            
+                    }
             }
 
             return false;
