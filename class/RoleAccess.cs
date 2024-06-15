@@ -90,7 +90,7 @@ namespace CodeBehind
         // Overload
         public void SetSessionAction(string name, int number)
         {
-            _Session.SetString("code_behind_role_action_" + name, number.ToString());
+            SetSessionAction(name, number.ToString());
         }
 
         public string GetStaticAction(string name)
