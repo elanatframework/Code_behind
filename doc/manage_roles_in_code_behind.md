@@ -98,7 +98,7 @@ The path tag is for the requested path.
 
 Example:
 
-example.com/admin
+`example.com/admin`
 
 The query tag is for querystring.
 
