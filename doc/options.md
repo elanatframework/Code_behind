@@ -19,6 +19,7 @@ convert_cshtml_to_aspx=false
 show_minor_errors=false
 error_page_path=/error.aspx/{value}
 prevent_access_default_aspx=false
+default_role=guest
 ```
 
 **The possibility to load aspx page names as directory names**
@@ -176,7 +177,7 @@ The link below is a tutorial on how to configure the error page.
 
 Operation location: Every request
 
-**prevent_access_default_aspx=false**
+**Prevent Access Default.aspx file**
 
 (`prevent_access_default_aspx=false`)
 
@@ -194,3 +195,9 @@ The path `example.com/dir/Default.aspx` will not be available, but the path `exa
 By activating this option, additional urls are prevented and thus SEO is improved.
 
 Operation location: Every request
+
+**Default user role**
+
+(`default_role=guest`)
+
+This option is used to set the default role, the default value of which is `guest`. By default, any user who logs into your web application will have the `guest` role.
