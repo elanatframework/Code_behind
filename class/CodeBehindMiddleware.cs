@@ -85,11 +85,11 @@ public class UseCodeBehindRouteMiddlewareWithErrorHandling
     }
 }
 
-public class UseRollAccessMiddleware
+public class UseRoleAccessMiddleware
 {
     private readonly RequestDelegate _next;
 
-    public UseRollAccessMiddleware(RequestDelegate next)
+    public UseRoleAccessMiddleware(RequestDelegate next)
     {
         _next = next;
     }
@@ -105,11 +105,11 @@ public class UseRollAccessMiddleware
     }
 }
 
-public class UseRollAccessMiddlewareWithErrorHandling
+public class UseRoleAccessMiddlewareWithErrorHandling
 {
     private readonly RequestDelegate _next;
 
-    public UseRollAccessMiddlewareWithErrorHandling(RequestDelegate next)
+    public UseRoleAccessMiddlewareWithErrorHandling(RequestDelegate next)
     {
         _next = next;
     }
@@ -161,19 +161,19 @@ public static class CodeBehindMiddlewareExtensions
     /// <summary>
     /// Session Must Be Activated
     /// </summary>
-    public static IApplicationBuilder UseRollAccess(this IApplicationBuilder builder)
+    public static IApplicationBuilder UseRoleAccess(this IApplicationBuilder builder)
     {
-        return builder.UseMiddleware<UseRollAccessMiddleware>();
+        return builder.UseMiddleware<UseRoleAccessMiddleware>();
     }
 
     /// <summary>
     /// Session Must Be Activated
     /// </summary>
-    public static IApplicationBuilder UseRollAccess(this IApplicationBuilder builder, bool ErrorHandling)
+    public static IApplicationBuilder UseRoleAccess(this IApplicationBuilder builder, bool ErrorHandling)
     {
         if (ErrorHandling)
-            return builder.UseMiddleware<UseRollAccessMiddlewareWithErrorHandling>();
+            return builder.UseMiddleware<UseRoleAccessMiddlewareWithErrorHandling>();
         else
-            return builder.UseMiddleware<UseRollAccessMiddleware>();
+            return builder.UseMiddleware<UseRoleAccessMiddleware>();
     }
 }
