@@ -4,10 +4,12 @@ CodeBehind framework creates a directory named code_behind in the project direct
 
 There are the following files in the code_behind directory:
  - dll_import_list.ini
+ - global_template.astx
  - namespace_import_list.ini
  - options.ini
- - views_class.cs
- - views_class_last_success_compiled.cs
+ - role.xml
+ - views_class.cs.tmp
+ - views_class_last_success_compiled.cs.tmp
  - views_compile_error.log (maybe)
  - views_class_aggregation_error.log (maybe)
 
@@ -17,6 +19,10 @@ Apart from the list above, a file called CodeBehindLastSuccessCompiled.dll.tmp i
 
 This file set dlls path in the view class aggregating aspx files.
 
+### global_template.astx
+
+This file is a global template that is applied to all aspx files.
+
 ### namespace_import_list.ini
 
 This file adds namespaces to the view class aggregating aspx files.
@@ -25,11 +31,15 @@ This file adds namespaces to the view class aggregating aspx files.
 
 This file will contain many options for customization.
 
-### views_class.cs
+### role.xml
+
+In this file, user roles and their access are determined.
+
+### views_class.cs.tmp
 
 This file is the final class of views that is made from aspx files.
 
-### views_class_last_success_compiled.cs
+### views_class_last_success_compiled.cs.tmp
 
 This file is a copy of the final view class that was compiled without problems.
 
