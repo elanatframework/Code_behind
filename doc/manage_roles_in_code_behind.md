@@ -19,7 +19,7 @@ app.UseSession();
 
 SetCodeBehind.CodeBehindCompiler.Initialization();
 
-+app.UseRollAccess(true);
++app.UseRoleAccess(true);
 
 app.UseCodeBehind(true);
 
@@ -28,9 +28,9 @@ app.Run();
 
 To activate the CodeBehind roles, you must also activate the session service.
 
-> Please note that the `UseRollAccess` middleware must be added before the `UseCodeBehind` or `UseCodeBehindRoute` middleware. Also, if you want the access of static files to be checked, you must add the `UseStaticFiles` middleware after the `UseRollAccess` middleware.
+> Please note that the `UseRoleAccess` middleware must be added before the `UseCodeBehind` or `UseCodeBehindRoute` middleware. Also, if you want the access of static files to be checked, you must add the `UseStaticFiles` middleware after the `UseRoleAccess` middleware.
 
-As you can see, `UseRollAccess` method is initialized with `true` input argument; this means that automatically if access to the path is not possible, the error page with code `403` will be displayed to the user.
+As you can see, `UseRoleAccess` method is initialized with `true` input argument; this means that automatically if access to the path is not possible, the error page with code `403` will be displayed to the user.
 
 ## role.xml file
 
