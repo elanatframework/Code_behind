@@ -177,7 +177,7 @@ The link below is a tutorial on how to configure the error page.
 
 Operation location: Every request
 
-**Prevent Access Default.aspx file**
+**Prevent access for default.aspx file**
 
 (`prevent_access_default_aspx=false`)
 
