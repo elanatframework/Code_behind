@@ -206,3 +206,8 @@ The first version of CodeBehind is based on .NET Core version 7.0; if the versio
 
 **Problems that were solved:**
  - Correcting a typo in the `UseRollAccess` middleware and changing it to `UseRoleAccess`.
+
+### Version 2.8
+
+**New features:**
+ - Improved numbering of aspx file methods in the View final class
