@@ -139,7 +139,7 @@ namespace SetCodeBehind
                 combination.InnerTrimInAspxFile = options.InnerTrimInAspxFile;
                 combination.GlobalTemplate = GlobalTemplate;
 
-                combination.Set(file.FullName, RootDirectoryPath, i);
+                combination.Set(file.FullName, RootDirectoryPath, i++);
 
                 lock (EmptyObjectForLock)
                 {
@@ -148,8 +148,6 @@ namespace SetCodeBehind
                     CaseCodeTemplateValueForFullPath += combination.CaseCodeTemplateValueForFullPath;
                     CaseCodeTemplateValueForFullPathWithModel += combination.CaseCodeTemplateValueForFullPathWithModel;
                     MethodCodeTemplateValue += combination.MethodCodeTemplateValue;
-
-                    i++;
                 }
             });
 
@@ -166,7 +164,7 @@ namespace SetCodeBehind
                     combination.InnerTrimInAspxFile = options.InnerTrimInAspxFile;
                     combination.GlobalTemplate = GlobalTemplate;
 
-                    combination.Set(file.FullName, RootDirectoryPath, i);
+                    combination.Set(file.FullName, RootDirectoryPath, i++);
 
                     lock (EmptyObjectForLock)
                     {
@@ -175,8 +173,6 @@ namespace SetCodeBehind
                         CaseCodeTemplateValueForFullPath += combination.CaseCodeTemplateValueForFullPath;
                         CaseCodeTemplateValueForFullPathWithModel += combination.CaseCodeTemplateValueForFullPathWithModel;
                         MethodCodeTemplateValue += combination.MethodCodeTemplateValue;
-
-                        i++;
                     }
                 });
 
