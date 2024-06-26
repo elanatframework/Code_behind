@@ -7,8 +7,8 @@ namespace CodeBehind
 {
     public class CodeBehindExecute
     {
-        public bool FoundPage { get; set; } = true;
-        public bool FoundController { get; set; } = true;
+        public bool FoundPage { get; private set; } = true;
+        public bool FoundController { get; private set; } = true;
 
         private string PrivateRun(HttpContext context, string MethodName)
         {
