@@ -16,6 +16,7 @@ namespace CodeBehind
         public bool ShowMinorErrors { private set; get; }
         public string ErrorPagePath { private set; get; }
         public bool PreventAccessDefaultAspx { private set; get; }
+        public string DefaultRole { private set; get; }
 
         public CodeBehindOptions()
         {
@@ -47,6 +48,7 @@ namespace CodeBehind
                 ShowMinorErrors = (reader.ReadLine().GetTextAfterValue("=").Trim() == "true");
                 ErrorPagePath = (reader.ReadLine().GetTextAfterValue("="));
                 PreventAccessDefaultAspx = (reader.ReadLine().GetTextAfterValue("=").Trim() == "true");
+                DefaultRole = (reader.ReadLine().GetTextAfterValue("="));
             }
         }
 
@@ -68,6 +70,7 @@ namespace CodeBehind
             OptionsList.Add("show_minor_errors=false");
             OptionsList.Add("error_page_path=/error.aspx/{value}");
             OptionsList.Add("prevent_access_default_aspx=false");
+            OptionsList.Add("default_role=guest");
 
             bool HasMoreOption = false;
 
