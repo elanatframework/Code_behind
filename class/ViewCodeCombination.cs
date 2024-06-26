@@ -1525,46 +1525,49 @@ namespace SetCodeBehind
 
             string AspxFilePathUrl = AspxFilePath.Replace("\\", "/");
 
+            CodeBehindViewCache ViewCache = new CodeBehindViewCache();
+            bool ViewHasCache = ViewCache.ViewHasCache(AspxFilePathUrl);
+
+            string ReturnMethodValue = FilePathToMethodName + "_" + Controller.Replace('.', '_') + "_PageLoad" + MethodIndexer + "(context" + (IsLayout ? ", \"\"" : "") + ")";
+            string ReturnMethodValueByCache = FilePathToMethodName + "_" + Controller.Replace('.', '_') + "_PageLoadCache" + MethodIndexer + "(context" + (IsLayout ? ", \"\"" : "") + ")";
+
             if (!IsBreak)
             {
-                string ReturnMethodValue = FilePathToMethodName + "_" + Controller.Replace('.', '_') + "_PageLoad" + MethodIndexer + "(context" + (IsLayout ? ", \"\"" : "") + ")";
-
-
                 if (!RewriteAspxFileToDirectory || (RewriteAspxFileToDirectory && AccessAspxFileAfterRewrite && !(IgnoreDefaultAfterRewrite && (AspxFilePath.GetTextAfterLastValue('\\'.ToString()) == "Default.aspx"))))
                 {
-                    CaseCodeTemplateValue += "                case \"" + AspxFilePathUrl + "\": return " + ReturnMethodValue + ";" + Environment.NewLine;
+                    CaseCodeTemplateValue += "                case \"" + AspxFilePathUrl + "\": return " + (ViewHasCache? ReturnMethodValueByCache : ReturnMethodValue) + ";" + Environment.NewLine;
 
                     if (UseSection)
                     {
                         SectionTemplateValue += "            if (path.StartsWith(\"" + AspxFilePathUrl + "/\")" + ((AspxFilePath.GetTextAfterLastValue('\\'.ToString()) == "Default.aspx") ? " || path.StartsWith(\"" + AspxFilePathUrl.GetTextBeforeLastValue("Default.aspx") + "\")" : "") + ")" + Environment.NewLine;
-                        SectionTemplateValue += "                return " + ReturnMethodValue + ";" + Environment.NewLine;
+                        SectionTemplateValue += "                return " + (ViewHasCache ? ReturnMethodValueByCache : ReturnMethodValue) + ";" + Environment.NewLine;
                     }
                 }
 
                 if (RewriteAspxFileToDirectory)
                     if (IgnoreDefaultAfterRewrite && (AspxFilePath.GetTextAfterLastValue('\\'.ToString()) == "Default.aspx"))
                     {
-                        CaseCodeTemplateValue += "                case \"" + AspxFilePathUrl + "\": return " + ReturnMethodValue + ";" + Environment.NewLine;
+                        CaseCodeTemplateValue += "                case \"" + AspxFilePathUrl + "\": return " + (ViewHasCache ? ReturnMethodValueByCache : ReturnMethodValue) + ";" + Environment.NewLine;
 
                         if (UseSection)
                         {
                             SectionTemplateValue += "            if (path.StartsWith(\"" + AspxFilePathUrl.GetTextBeforeLastValue("Default.aspx") + "\") || path.StartsWith(\"" + AspxFilePathUrl + "/\"))" + Environment.NewLine;
-                            SectionTemplateValue += "                return " + ReturnMethodValue + ";" + Environment.NewLine;
+                            SectionTemplateValue += "                return " + (ViewHasCache ? ReturnMethodValueByCache : ReturnMethodValue) + ";" + Environment.NewLine;
                         }
                     }
                     else
                     {
-                        CaseCodeTemplateValue += "                case \"" + AspxFilePathUrl.GetTextBeforeLastValue(".aspx") + "/Default.aspx" + "\": return " + ReturnMethodValue + ";" + Environment.NewLine;
+                        CaseCodeTemplateValue += "                case \"" + AspxFilePathUrl.GetTextBeforeLastValue(".aspx") + "/Default.aspx" + "\": return " + (ViewHasCache ? ReturnMethodValueByCache : ReturnMethodValue) + ";" + Environment.NewLine;
 
                         if (UseSection)
                         {
                             SectionTemplateValue += "            if (path.StartsWith(\"" + AspxFilePathUrl.GetTextBeforeLastValue(".aspx") + "/\"))" + Environment.NewLine;
-                            SectionTemplateValue += "                return " + ReturnMethodValue + ";" + Environment.NewLine;
+                            SectionTemplateValue += "                return " + (ViewHasCache ? ReturnMethodValueByCache : ReturnMethodValue) + ";" + Environment.NewLine;
                         }
                     }
             }
 
-            CaseCodeTemplateValueForFullPath += "                case \"" + AspxFilePathUrl + "\": return " + FilePathToMethodName + "_" + Controller.Replace('.', '_') + "_PageLoad" + MethodIndexer + "(context" + (IsLayout ? ", PageReturnValue" : "") + ");" + Environment.NewLine;
+            CaseCodeTemplateValueForFullPath += "                case \"" + AspxFilePathUrl + "\": return " + FilePathToMethodName + "_" + Controller.Replace('.', '_') + "_PageLoad" + (ViewHasCache? "Cache" : "") + MethodIndexer + "(context" + (IsLayout ? ", PageReturnValue" : "") + ");" + Environment.NewLine;
 
             string CallerViewDirectoryPath = AspxFilePathUrl.GetTextBeforeLastValue("/");
             if (string.IsNullOrEmpty(CallerViewDirectoryPath))
@@ -1701,9 +1704,40 @@ namespace SetCodeBehind
 
             TmpMethodCodeTemplateValue += "        }" + Environment.NewLine;
 
+
+            // Set Cache Method Section
+            if (ViewHasCache)
+            {
+                TmpMethodCodeTemplateValue += Environment.NewLine;
+                TmpMethodCodeTemplateValue += "        // View Path: " + AspxFilePathUrl + Environment.NewLine;
+                TmpMethodCodeTemplateValue += "        protected string " + FilePathToMethodName + "_" + Controller.Replace('.', '_') + "_PageLoadCache" + MethodIndexer + "(HttpContext context" + (IsLayout ? ", string PageReturnValue" : "") + ")" + Environment.NewLine;
+                TmpMethodCodeTemplateValue += "        {" + Environment.NewLine;
+
+                TmpMethodCodeTemplateValue += "            // Get Cache" + Environment.NewLine;
+                TmpMethodCodeTemplateValue += "            bool HasMatchingView = new CodeBehindViewCache().HasMatchingView(context.Request, \"" + AspxFilePathUrl + "\");" + Environment.NewLine;
+                TmpMethodCodeTemplateValue += "            if (HasMatchingView)" + Environment.NewLine;
+                TmpMethodCodeTemplateValue += "            {" + Environment.NewLine;
+                TmpMethodCodeTemplateValue += "                ViewCache cache = new ViewCache(context);" + Environment.NewLine;
+                TmpMethodCodeTemplateValue += "                string CacheResult = cache.GetViewCache(\"" + AspxFilePathUrl + "\");" + Environment.NewLine;
+                TmpMethodCodeTemplateValue += "                if (cache.ViewHasCache)" + Environment.NewLine;
+                TmpMethodCodeTemplateValue += "                    return CacheResult;" + Environment.NewLine;
+                TmpMethodCodeTemplateValue += "            }" + Environment.NewLine + Environment.NewLine;
+
+                TmpMethodCodeTemplateValue += "            // Set Cache" + Environment.NewLine;
+                TmpMethodCodeTemplateValue += "            string ViewReturnValue = " + ReturnMethodValue + ";" + Environment.NewLine;
+                TmpMethodCodeTemplateValue += "            if (HasMatchingView)" + Environment.NewLine;
+                TmpMethodCodeTemplateValue += "            {" + Environment.NewLine;
+                TmpMethodCodeTemplateValue += "                ViewCache cache = new ViewCache(context);" + Environment.NewLine;
+                TmpMethodCodeTemplateValue += "                cache.SetViewCache(\"" + AspxFilePathUrl + "\", ViewReturnValue, " + ViewCache.Duration + ");" + Environment.NewLine;
+                TmpMethodCodeTemplateValue += "            }" + Environment.NewLine + Environment.NewLine;
+                TmpMethodCodeTemplateValue += "            return ViewReturnValue;" + Environment.NewLine;
+                TmpMethodCodeTemplateValue += "        }" + Environment.NewLine;
+            }
+
+
             if (!string.IsNullOrEmpty(Model))
             {
-                CaseCodeTemplateValueForFullPathWithModel += "                case \"" + AspxFilePathUrl + "\": return " + FilePathToMethodName + "_" + Controller.Replace('.', '_') + "_PageLoad" + MethodIndexer + "(context" + (IsLayout ? ", PageReturnValue" : "") + ", model);" + Environment.NewLine;
+                CaseCodeTemplateValueForFullPathWithModel += "                case \"" + AspxFilePathUrl + "\": return " + FilePathToMethodName + "_" + Controller.Replace('.', '_') + "_PageLoad" + (ViewHasCache ? "Cache" : "") + MethodIndexer + "(context" + (IsLayout ? ", PageReturnValue" : "") + ", model);" + Environment.NewLine;
 
                 TmpMethodCodeTemplateValue += Environment.NewLine;
 
@@ -1829,6 +1863,36 @@ namespace SetCodeBehind
                 }
 
                 TmpMethodCodeTemplateValue += "        }" + Environment.NewLine;
+
+
+                // Set Cache Method Section
+                if (ViewHasCache)
+                {
+                    TmpMethodCodeTemplateValue += Environment.NewLine;
+                    TmpMethodCodeTemplateValue += "        // View Path: " + AspxFilePathUrl + Environment.NewLine;
+                    TmpMethodCodeTemplateValue += "        protected string " + FilePathToMethodName + "_" + Controller.Replace('.', '_') + "_PageLoadCache" + MethodIndexer + "(HttpContext context" + (IsLayout ? ", string PageReturnValue" : "") + ", object ModelClass)" + Environment.NewLine;
+                    TmpMethodCodeTemplateValue += "        {" + Environment.NewLine;
+
+                    TmpMethodCodeTemplateValue += "            // Get Cache" + Environment.NewLine;
+                    TmpMethodCodeTemplateValue += "            bool HasMatchingView = new CodeBehindViewCache().HasMatchingView(context.Request, \"" + AspxFilePathUrl + "\");" + Environment.NewLine;
+                    TmpMethodCodeTemplateValue += "            if (HasMatchingView)" + Environment.NewLine;
+                    TmpMethodCodeTemplateValue += "            {" + Environment.NewLine;
+                    TmpMethodCodeTemplateValue += "                ViewCache cache = new ViewCache(context);" + Environment.NewLine;
+                    TmpMethodCodeTemplateValue += "                string CacheResult = cache.GetViewCache(\"" + AspxFilePathUrl + "\");" + Environment.NewLine;
+                    TmpMethodCodeTemplateValue += "                if (cache.ViewHasCache)" + Environment.NewLine;
+                    TmpMethodCodeTemplateValue += "                    return CacheResult;" + Environment.NewLine;
+                    TmpMethodCodeTemplateValue += "            }" + Environment.NewLine + Environment.NewLine;
+
+                    TmpMethodCodeTemplateValue += "            // Set Cache" + Environment.NewLine;
+                    TmpMethodCodeTemplateValue += "            string ViewReturnValue = " + FilePathToMethodName + "_" + Controller.Replace('.', '_') + "_PageLoad" + MethodIndexer + "(context" + (IsLayout ? ", PageReturnValue" : "") + ", ModelClass);" + Environment.NewLine;
+                    TmpMethodCodeTemplateValue += "            if (HasMatchingView)" + Environment.NewLine;
+                    TmpMethodCodeTemplateValue += "            {" + Environment.NewLine;
+                    TmpMethodCodeTemplateValue += "                ViewCache cache = new ViewCache(context);" + Environment.NewLine;
+                    TmpMethodCodeTemplateValue += "                cache.SetViewCache(\"" + AspxFilePathUrl + "\", ViewReturnValue, " + ViewCache.Duration + ");" + Environment.NewLine;
+                    TmpMethodCodeTemplateValue += "            }" + Environment.NewLine + Environment.NewLine;
+                    TmpMethodCodeTemplateValue += "            return ViewReturnValue;" + Environment.NewLine;
+                    TmpMethodCodeTemplateValue += "        }" + Environment.NewLine;
+                }
             }
 
             MethodCodeTemplateValue += TmpMethodCodeTemplateValue;
