@@ -304,6 +304,8 @@ namespace SetCodeBehind
                 File.Delete(FilePath);
 
             FillRoles();
+
+            FillCache();
         }
 
         public static void ReCompile()
@@ -452,6 +454,37 @@ namespace SetCodeBehind
             }
 
             new FillRoleList().Set();
+        }
+
+        private static void FillCache()
+        {
+            const string CachePath = "code_behind/cache.xml";
+
+            if (!Directory.Exists("code_behind"))
+                Directory.CreateDirectory("code_behind");
+
+            if (!File.Exists(CachePath))
+            {
+                var file = File.CreateText(CachePath);
+
+                file.Write("<?xml version=\"1.0\" encoding=\"utf-8\" ?>" + Environment.NewLine);
+                file.Write("<cache_list>" + Environment.NewLine);
+                file.Write("    <cache duration=\"60\" active=\"false\">" + Environment.NewLine);
+                file.Write("        <controller>main</controller>" + Environment.NewLine);
+                file.Write("        <view>/file_and_directory/EditFile.aspx</view>" + Environment.NewLine);
+                file.Write("        <path match_type=\"start\">/page/book</path>" + Environment.NewLine);
+                file.Write("        <query match_type=\"exist\">value=true</query>" + Environment.NewLine);
+                file.Write("        <form match_type=\"exist\">hdn_HiddenValue=0</form>" + Environment.NewLine);
+                file.Write("    </cache>" + Environment.NewLine);
+                file.Write("</cache_list>");
+
+                file.Dispose();
+                file.Close();
+
+                return;
+            }
+
+            new FillCacheList().Set();
         }
     }
 }
