@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using System.Xml;
@@ -97,15 +97,15 @@ namespace CodeBehind
                 {
                     if (!string.IsNullOrEmpty(cache.Path))
                         if (!Path.HasMatching(cache.PathMatchType, cache.Path))
-                            return false;
+                            continue;
 
                     if (!string.IsNullOrEmpty(cache.Query))
                         if (!QueryString.HasMatching(cache.QueryMatchType, cache.Query))
-                            return false;
+                            continue;
 
                     if (!string.IsNullOrEmpty(cache.FormData))
                         if (!FormData.HasMatching(cache.FormDataMatchType, cache.FormData))
-                            return false;
+                            continue;
 
                     return true;
                 }
@@ -151,15 +151,15 @@ namespace CodeBehind
                 {
                     if (!string.IsNullOrEmpty(cache.Path))
                         if (!Path.HasMatching(cache.PathMatchType, cache.Path))
-                            return false;
+                            continue;
 
                     if (!string.IsNullOrEmpty(cache.Query))
                         if (!QueryString.HasMatching(cache.QueryMatchType, cache.Query))
-                            return false;
+                            continue;
 
                     if (!string.IsNullOrEmpty(cache.FormData))
                         if (!FormData.HasMatching(cache.FormDataMatchType, cache.FormData))
-                            return false;
+                            continue;
 
                     return true;
                 }
