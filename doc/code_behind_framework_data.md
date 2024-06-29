@@ -3,6 +3,7 @@
 CodeBehind framework creates a directory named code_behind in the project directory after the first execution.
 
 There are the following files in the code_behind directory:
+ - cache.xml
  - dll_import_list.ini
  - global_template.astx
  - namespace_import_list.ini
@@ -10,10 +11,14 @@ There are the following files in the code_behind directory:
  - role.xml
  - views_class.cs.tmp
  - views_class_last_success_compiled.cs.tmp
- - views_compile_error.log (maybe)
  - views_class_aggregation_error.log (maybe)
+ - views_compile_error.log (maybe)
 
-Apart from the list above, a file called CodeBehindLastSuccessCompiled.dll.tmp is added next to the CodeBehind.dll library and the main project dll.
+Apart from the list above, a file called `CodeBehindLastSuccessCompiled.dll.tmp` is added next to the `CodeBehind.dll` library and the main project dll.
+
+### cache.xml
+
+In this file, the cache is determined on the View pages and Controller classes.
 
 ### dll_import_list.ini
 
