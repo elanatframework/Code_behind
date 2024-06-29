@@ -169,7 +169,7 @@ View (random.aspx)
 <b>@RandomValue</b>
 ```
 
-After running the project, if you request the following path, the random answer will remain constant for 10 seconds.
+After running the project, if you request the following path, the random response will remain constant for 10 seconds.
 `example.com/random.aspx?value=true`
 
 Consequently, if you request the following paths, the cache will not be activated:
