@@ -33,12 +33,12 @@ The contents of the default cache.xml file are as follows:
 <?xml version="1.0" encoding="utf-8" ?>
 <cache_list>
     <cache duration="60" active="false">
-		<controller>main</controller>
-		<view>/file_and_directory/EditFile.aspx</view>
-		<path match_type="start">/page/book</path>
-		<query match_type="exist">value=true</query>
-		<form match_type="exist">hdn_HiddenValue=0</form>
-	</cache>
+        <controller>main</controller>
+        <view>/file_and_directory/EditFile.aspx</view>
+        <path match_type="start">/page/book</path>
+        <query match_type="exist">value=true</query>
+        <form match_type="exist">hdn_HiddenValue=0</form>
+    </cache>
 </cache_list>
 ```
 
