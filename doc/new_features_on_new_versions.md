@@ -212,3 +212,8 @@ The first version of CodeBehind is based on .NET Core version 7.0; if the versio
 **New features:**
  - Adding cache
  - Improved numbering of aspx file methods in the View final class
+
+### Version 2.9
+
+**New features:**
+ - Added possibility to ignore Layout through Controller class
