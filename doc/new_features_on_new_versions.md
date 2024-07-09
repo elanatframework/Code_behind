@@ -222,4 +222,4 @@ The first version of CodeBehind is based on .NET Core version 7.0; if the versio
  - Added possibility to ignore View through Model class
  - And a series of minor changes and improvements
 
-**In this version, access to web-form controls has been added**
+**In this version, access to Web-Forms controls has been added**
