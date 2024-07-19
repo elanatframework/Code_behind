@@ -58,10 +58,10 @@ namespace SetCodeBehind
 
 
             // Add All dll In bin Directory
-            if (Directory.Exists("wwwroot/bin"))
+            if (Directory.Exists(StaticObject.ViewPath + "/bin"))
             {
                 List<string> BinFileList = new List<string>();
-                DirectoryInfo BinDir = new DirectoryInfo("wwwroot/bin");
+                DirectoryInfo BinDir = new DirectoryInfo(StaticObject.ViewPath + "/bin");
 
                 foreach (FileInfo file in BinDir.GetFiles("*.dll"))
                 {
@@ -236,7 +236,7 @@ namespace SetCodeBehind
 
         private static void RemovingUnusedDll()
         {
-            if (!Directory.Exists("wwwroot/bin"))
+            if (!Directory.Exists(StaticObject.ViewPath + "/bin"))
                 return;
 
             const string FilePath = "code_behind/bin_file_list.ini";
@@ -254,7 +254,7 @@ namespace SetCodeBehind
 
                         string FileName = line.GetTextAfterValue("file=");
 
-                        if (!File.Exists("wwwroot/bin/" + FileName))
+                        if (!File.Exists(StaticObject.ViewPath + "/bin/" + FileName))
                             if (File.Exists(AppContext.BaseDirectory + "/" + FileName))
                                 File.Delete(AppContext.BaseDirectory + "/" + FileName);
                     }
@@ -345,10 +345,10 @@ namespace SetCodeBehind
             List<MetadataReference> ReferencesList = new List<MetadataReference>();
 
             // Add All dll In bin Directory
-            if (Directory.Exists("wwwroot/bin"))
+            if (Directory.Exists(StaticObject.ViewPath + "/bin"))
             {
                 List<string> BinFileList = new List<string>();
-                DirectoryInfo BinDir = new DirectoryInfo("wwwroot/bin");
+                DirectoryInfo BinDir = new DirectoryInfo(StaticObject.ViewPath + "/bin");
 
                 foreach (FileInfo file in BinDir.GetFiles("*.dll"))
                 {
