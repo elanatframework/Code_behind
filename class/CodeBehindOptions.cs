@@ -17,6 +17,9 @@ namespace CodeBehind
         public string ErrorPagePath { private set; get; }
         public bool PreventAccessDefaultAspx { private set; get; }
         public string DefaultRole { private set; get; }
+        public string WebFormsScriptPath { private set; get; }
+        public bool RecreateWebFormsScriptAfterRecompile { private set; get; }
+        public string WebFormsViewPlace { private set; get; }
 
         public CodeBehindOptions()
         {
@@ -48,7 +51,10 @@ namespace CodeBehind
                 ShowMinorErrors = (reader.ReadLine().GetTextAfterValue("=").Trim() == "true");
                 ErrorPagePath = (reader.ReadLine().GetTextAfterValue("="));
                 PreventAccessDefaultAspx = (reader.ReadLine().GetTextAfterValue("=").Trim() == "true");
-                DefaultRole = (reader.ReadLine().GetTextAfterValue("="));
+                DefaultRole = (reader.ReadLine().GetTextAfterValue("=").Trim());
+                WebFormsScriptPath = (reader.ReadLine().GetTextAfterValue("="));
+                RecreateWebFormsScriptAfterRecompile = (reader.ReadLine().GetTextAfterValue("=").Trim() == "true");
+                WebFormsViewPlace = (reader.ReadLine().GetTextAfterValue("=").Trim());
             }
         }
 
@@ -71,6 +77,9 @@ namespace CodeBehind
             OptionsList.Add("error_page_path=/error.aspx/{value}");
             OptionsList.Add("prevent_access_default_aspx=false");
             OptionsList.Add("default_role=guest");
+            OptionsList.Add("web_forms_script_path=/script");
+            OptionsList.Add("recreate_web_forms_script_after_recompile=false");
+            OptionsList.Add("web_forms_view_place=<body>");
 
             bool HasMoreOption = false;
 
