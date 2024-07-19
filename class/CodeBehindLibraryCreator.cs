@@ -99,10 +99,12 @@ namespace SetCodeBehind
             CodeBehindViews += "    {" + Environment.NewLine;
             CodeBehindViews += "        private CodeBehind.HtmlData.NameValueCollection ViewData = new CodeBehind.HtmlData.NameValueCollection();" + Environment.NewLine;
             CodeBehindViews += "        private string RequestPath { get; set; } = \"\";" + Environment.NewLine;
+            CodeBehindViews += "        private string WebFormsValue { get; set; } = \"\";" + Environment.NewLine;
             CodeBehindViews += "        private string CallerViewPath { get; set; } = \"\";" + Environment.NewLine;
             CodeBehindViews += "        private string CallerViewDirectoryPath { get; set; } = \"\";" + Environment.NewLine;
             CodeBehindViews += "        private bool FoundPage { get; set; } = true;" + Environment.NewLine;
-            CodeBehindViews += "        private bool FoundController { get; set; } = true;" + Environment.NewLine + Environment.NewLine;
+            CodeBehindViews += "        private bool FoundController { get; set; } = true;" + Environment.NewLine;
+            CodeBehindViews += "        private bool IgnoreLayout { get; set; } = false;" + Environment.NewLine + Environment.NewLine;
 
             CodeBehindOptions options = new CodeBehindOptions();
 
@@ -110,6 +112,10 @@ namespace SetCodeBehind
             if (options.ViewPath == "wwwroot" && !Directory.Exists("wwwroot"))
                 new DefaultPages().Set();
 
+            // Create Web-Forms Script
+            if (!Directory.Exists("wwwroot"))
+                Directory.CreateDirectory("wwwroot");
+            new DefaultPages().SetWebFormsScript(options.WebFormsScriptPath, options.RecreateWebFormsScriptAfterRecompile);
 
             // Move View From Wwwroot
             if ((options.ViewPath != "wwwroot") && options.MoveViewFromWwwroot)
@@ -119,6 +125,8 @@ namespace SetCodeBehind
 
                 if (options.ConvertCsHtmlToAspx)
                     MoveViewFromWwwroot(options.ViewPath, "cshtml");
+
+                MoveDllFromWwwrootBin(options.ViewPath);
             }
 
             string GlobalTemplate = GetGlobalTemplate();
@@ -219,7 +227,7 @@ namespace SetCodeBehind
             // Add Load Page Method
             CodeBehindViews += "        private string LoadPage(string path, HttpContext context)" + Environment.NewLine;
             CodeBehindViews += "        {" + Environment.NewLine;
-            CodeBehindViews += "            return SetPageLoadByFullPath(path, context);" + Environment.NewLine;
+            CodeBehindViews += "            return SetPageLoadByFullPath(path, context, \"\");" + Environment.NewLine;
             CodeBehindViews += "        }" + Environment.NewLine + Environment.NewLine;
 
             CodeBehindViews += "        // Overload" + Environment.NewLine;
@@ -237,17 +245,19 @@ namespace SetCodeBehind
             CodeBehindViews += "        // Overload" + Environment.NewLine;
             CodeBehindViews += "        private string LoadPage(string path)" + Environment.NewLine;
             CodeBehindViews += "        {" + Environment.NewLine;
-            CodeBehindViews += "            return SetPageLoadByFullPath(path, null);" + Environment.NewLine;
+            CodeBehindViews += "            return SetPageLoadByFullPath(path, null, \"\");" + Environment.NewLine;
             CodeBehindViews += "        }" + Environment.NewLine + Environment.NewLine;
 
-            CodeBehindViews += "        public string RunController(HttpContext context, string ViewPath, object ModelClass, CodeBehind.HtmlData.NameValueCollection ViewData, string DownloadFilePath)" + Environment.NewLine;
+            CodeBehindViews += "        public string RunController(HttpContext context, string ViewPath, object ModelClass, CodeBehind.HtmlData.NameValueCollection ViewData, string DownloadFilePath, bool IgnoreLayout, string WebFormsValue)" + Environment.NewLine;
             CodeBehindViews += "        {" + Environment.NewLine;
             CodeBehindViews += "            if (!string.IsNullOrEmpty(DownloadFilePath))" + Environment.NewLine;
             CodeBehindViews += "            {" + Environment.NewLine;
             CodeBehindViews += "                Download(context, DownloadFilePath);" + Environment.NewLine;
             CodeBehindViews += "                return \"\";" + Environment.NewLine;
             CodeBehindViews += "            }" + Environment.NewLine + Environment.NewLine;
-            CodeBehindViews += "            ViewData.AddList(ViewData.GetList());" + Environment.NewLine + Environment.NewLine;
+            CodeBehindViews += "            ViewData.AddList(ViewData.GetList());" + Environment.NewLine;
+            CodeBehindViews += "            this.IgnoreLayout = IgnoreLayout;" + Environment.NewLine;
+            CodeBehindViews += "            this.WebFormsValue += WebFormsValue;" + Environment.NewLine + Environment.NewLine;
             CodeBehindViews += "            if (ModelClass != null)" + Environment.NewLine;
             CodeBehindViews += "                return LoadPage(ViewPath, ModelClass, context);" + Environment.NewLine;
             CodeBehindViews += "            else" + Environment.NewLine;
@@ -274,6 +284,16 @@ namespace SetCodeBehind
             CodeBehindViews += "        public bool ControllerHasFound()" + Environment.NewLine;
             CodeBehindViews += "        {" + Environment.NewLine;
             CodeBehindViews += "            return FoundController;" + Environment.NewLine;
+            CodeBehindViews += "        }" + Environment.NewLine + Environment.NewLine;
+
+            CodeBehindViews += "        public string GetWebFormsValue()" + Environment.NewLine;
+            CodeBehindViews += "        {" + Environment.NewLine;
+            CodeBehindViews += "            return WebFormsValue;" + Environment.NewLine;
+            CodeBehindViews += "        }" + Environment.NewLine + Environment.NewLine;
+
+            CodeBehindViews += "        public void Control(WebForms Forms)" + Environment.NewLine;
+            CodeBehindViews += "        {" + Environment.NewLine;
+            CodeBehindViews += "            WebFormsValue += Forms.GetFormsActionData();" + Environment.NewLine;
             CodeBehindViews += "        }" + Environment.NewLine + Environment.NewLine;
 
             CodeBehindViews += "        private void Download(HttpContext context, string FilePath)" + Environment.NewLine;
@@ -378,10 +398,10 @@ namespace SetCodeBehind
             if (!Directory.Exists("wwwroot"))
                 return;
 
-            DirectoryInfo WwwrootDir = new DirectoryInfo("wwwroot");
-
             if (!Directory.Exists(Path.GetFullPath(ViewPath)))
                 Directory.CreateDirectory(Path.GetFullPath(ViewPath));
+
+            DirectoryInfo WwwrootDir = new DirectoryInfo("wwwroot");
 
             foreach (FileInfo file in WwwrootDir.GetFiles("*." + Extension, SearchOption.AllDirectories))
             {
@@ -392,6 +412,16 @@ namespace SetCodeBehind
 
                 File.Move(file.FullName, Path.GetFullPath(ViewPath) + ParrentDirectories + @"\" + file.Name, true);
             }
+        }
+
+        private void MoveDllFromWwwrootBin(string ViewPath)
+        {
+            if (!Directory.Exists("wwwroot/bin"))
+                return;
+
+            DirectoryCopy(Path.GetFullPath("wwwroot/bin"), Path.GetFullPath(ViewPath + "/bin"), true);
+
+           new DirectoryInfo("wwwroot/bin").Delete();
         }
 
         private string ImportNamespaceList()
@@ -468,6 +498,7 @@ namespace SetCodeBehind
                 ReturnValue += "                " + NameSpace + TmpClass.Name + " " + ClassName + " = new " + NameSpace + TmpClass.Name + "();" + Environment.NewLine;
                 ReturnValue += "                " + ClassName + ".FillSection(context);" + Environment.NewLine;
                 ReturnValue += "                " + ClassName + ".PageLoad(context);" + Environment.NewLine;
+                ReturnValue += "                this.WebFormsValue += " + ClassName + ".WebFormsValue;" + Environment.NewLine;
 
                 ReturnValue += Environment.NewLine;
 
@@ -484,7 +515,7 @@ namespace SetCodeBehind
                     ReturnValue += "                    }" + Environment.NewLine;
                     ReturnValue += "                    else" + Environment.NewLine;
                     ReturnValue += "                    {" + Environment.NewLine;
-                    ReturnValue += "                        string ControllerReturnValue = " + ClassName + ".ResponseText + RunController(context, " + ClassName + ".ViewPath, " + ClassName + ".CodeBehindModel, " + ClassName + ".ViewData, " + ClassName + ".DownloadFilePath);" + Environment.NewLine;
+                    ReturnValue += "                        string ControllerReturnValue = " + ClassName + ".ResponseText + RunController(context, " + ClassName + ".ViewPath, " + ClassName + ".CodeBehindModel, " + ClassName + ".ViewData, " + ClassName + ".DownloadFilePath, " + ClassName + ".IgnoreLayout, " + ClassName + ".WebFormsValue);" + Environment.NewLine;
                     ReturnValue += "                        cache.SetControllerCache(\"" + TmpClass.Name + "\", ControllerReturnValue, " + ControllerCache.Duration + ");" + Environment.NewLine;
                     ReturnValue += "                        return ControllerReturnValue;" + Environment.NewLine;
                     ReturnValue += "                    }" + Environment.NewLine;
@@ -493,7 +524,7 @@ namespace SetCodeBehind
 
                 ReturnValue += "                if (" + ClassName + ".IgnoreViewAndModel)" + Environment.NewLine;
                 ReturnValue += "                    return " + ClassName + ".ResponseText;" + Environment.NewLine + Environment.NewLine;
-                ReturnValue += "                return " + ClassName + ".ResponseText + RunController(context, " + ClassName + ".ViewPath, " + ClassName + ".CodeBehindModel, " + ClassName + ".ViewData, " + ClassName + ".DownloadFilePath);" + Environment.NewLine + Environment.NewLine;
+                ReturnValue += "                return " + ClassName + ".ResponseText + RunController(context, " + ClassName + ".ViewPath, " + ClassName + ".CodeBehindModel, " + ClassName + ".ViewData, " + ClassName + ".DownloadFilePath, " + ClassName + ".IgnoreLayout, " + ClassName + ".WebFormsValue);" + Environment.NewLine + Environment.NewLine;
             }
 
             return ReturnValue;
@@ -501,12 +532,12 @@ namespace SetCodeBehind
 
         private string FillDllBinAssemblyControllerCase(string EntryAssemblyName)
         {
-            if (!Directory.Exists("wwwroot/bin"))
+            if (!Directory.Exists(StaticObject.ViewPath + "/bin"))
                 return "";
 
             string ReturnValue = "";
 
-            DirectoryInfo BinDir = new DirectoryInfo("wwwroot/bin");
+            DirectoryInfo BinDir = new DirectoryInfo(StaticObject.ViewPath + "/bin");
             foreach (FileInfo file in BinDir.GetFiles("*.dll"))
             {
                 Assembly assembly = Assembly.LoadFrom(file.FullName);
@@ -534,6 +565,42 @@ namespace SetCodeBehind
                 CleanName = '_' + CleanName;
 
             return CleanName;
+        }
+
+        private void DirectoryCopy(string SourceDirName, string DestDirName, bool CopySubDirs, bool OwerWrite = false)
+        {
+            DirectoryInfo dir = new DirectoryInfo(SourceDirName);
+            DirectoryInfo[] dirs = dir.GetDirectories();
+
+            if (!Directory.Exists(DestDirName))
+            {
+                Directory.CreateDirectory(DestDirName);
+            }
+
+            // Create All Directories, Include Empty Directories
+            foreach (DirectoryInfo subdir in dirs)
+            {
+                if (!Directory.Exists(DestDirName + "/" + subdir.Name))
+                    Directory.CreateDirectory(DestDirName + "/" + subdir.Name);
+            }
+
+            FileInfo[] files = dir.GetFiles();
+            foreach (FileInfo file in files)
+            {
+                string TmpPath = Path.Combine(DestDirName, file.Name);
+                file.CopyTo(TmpPath, OwerWrite);
+            }
+
+            if (CopySubDirs)
+            {
+                foreach (DirectoryInfo subdir in dirs)
+                {
+                    string TmpPath = Path.Combine(DestDirName, subdir.Name);
+
+                    // Set Recursive
+                    DirectoryCopy(subdir.FullName, TmpPath, CopySubDirs, OwerWrite);
+                }
+            }
         }
     }
 }
