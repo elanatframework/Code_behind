@@ -6,7 +6,9 @@ namespace CodeBehind
     {
         public object CodeBehindModel { get; protected set; }
         public string ResponseText = "";
+        public string WebFormsValue = "";
         public bool IgnoreViewAndModel = false;
+        public bool IgnoreLayout = false;
         public HtmlData.NameValueCollection ViewData = new HtmlData.NameValueCollection();
         public ValueCollectionLock Section = new ValueCollectionLock();
         public string ViewPath { get; protected set; } = "";
@@ -23,7 +25,7 @@ namespace CodeBehind
 
         public void PageLoad(HttpContext context)
         {
-
+            
         }
 
         public void Write(string Text)
@@ -41,6 +43,23 @@ namespace CodeBehind
         public void Write(long Number)
         {
             ResponseText += Number;
+        }
+
+        public void WriteLine(string Text)
+        {
+            Write(Text + Environment.NewLine);
+        }
+
+        // Overload
+        public void WriteLine(int Number)
+        {
+            Write(Number + Environment.NewLine);
+        }
+
+        // Overload
+        public void WriteLine(long Number)
+        {
+            Write(Number + Environment.NewLine);
         }
 
         public void View(object ModelClass)
@@ -61,6 +80,11 @@ namespace CodeBehind
             CodeBehindModel = ModelClass;
         }
 
+        public void Control(WebForms Forms)
+        {
+            WebFormsValue = Forms.GetFormsActionData();
+        }
+
         public void Download(string FilePath)
         {
             DownloadFilePath = FilePath;
@@ -78,7 +102,7 @@ namespace CodeBehind
                 return ResponseText;
 
             CodeBehindExecute execute = new CodeBehindExecute();
-            return ResponseText + execute.RunControllerValue(context, ViewPath, CodeBehindModel, ViewData, DownloadFilePath);
+            return ResponseText + execute.RunControllerValue(context, ViewPath, CodeBehindModel, ViewData, DownloadFilePath, IgnoreLayout, WebFormsValue);
         }
 
         public void FillSection(HttpContext context)
