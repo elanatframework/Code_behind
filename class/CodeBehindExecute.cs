@@ -100,6 +100,27 @@ namespace CodeBehind
                 method = type.GetMethod("PageHasFound");
                 FoundPage = (bool)method.Invoke(obj, null);
 
+                // Set Web-Forms Control
+                method = type.GetMethod("GetWebFormsValue");
+                string WebFormsValue = (string)method.Invoke(obj, null);
+
+                if (!string.IsNullOrEmpty(WebFormsValue))
+                {
+                    bool HasPostBack = false;
+
+                    if (context.Request.Headers.TryGetValue("Post-Back", out var value))
+                        if (value == "true")
+                            HasPostBack = true;
+
+                    if (HasPostBack)
+                    {
+                        ReturnResult = SetWebFormsCombinate(ReturnResult, WebFormsValue);
+                        context.Response.Headers.Add("Content-Type", "text/plain");
+                    }
+                    else
+                        ReturnResult = SetWebFormsCombinateFirstResponse(ReturnResult, WebFormsValue);
+                }
+
                 return ReturnResult;
             }
 
@@ -158,7 +179,9 @@ namespace CodeBehind
 
         // Overload
         /// <summary>
-        /// This Overload Method Does Not Support HttpContext And Sends null Value Instead Of HttpContext. This Overload Method Does Not Support Query String
+        /// This Overload Method Does Not Support HttpContext And Sends null Value Instead Of HttpContext.
+        /// This Overload Method Does Not Support Query String
+        /// This Overload Method Does Not Support Web-Forms Control
         /// </summary>
         private string PrivateRun(string path, string MethodName)
         {
@@ -245,7 +268,7 @@ namespace CodeBehind
             return Run(context, path);
         }
 
-        internal string RunControllerValue(HttpContext context, string ViewPath, object CodeBehindModel, NameValueCollection ViewData, string DownloadFilePath)
+        internal string RunControllerValue(HttpContext context, string ViewPath, object CodeBehindModel, NameValueCollection ViewData, string DownloadFilePath, bool IgnoreLayout, string WebFormsValue)
         {
             if (string.IsNullOrEmpty(ViewPath) && string.IsNullOrEmpty(DownloadFilePath))
             {
@@ -270,11 +293,32 @@ namespace CodeBehind
             Type type = assembly.GetType("CodeBehindViews.CodeBehindViewsList");
             object obj = Activator.CreateInstance(type);
             MethodInfo method = type.GetMethod("RunController");
-            object[] Arguments = new object[] { context, ViewPath, CodeBehindModel, ViewData, DownloadFilePath };
+            object[] Arguments = new object[] { context, ViewPath, CodeBehindModel, ViewData, DownloadFilePath, IgnoreLayout, WebFormsValue };
             string ReturnResult = (string)method.Invoke(obj, Arguments);
 
             method = type.GetMethod("PageHasFound");
             FoundPage = (bool)method.Invoke(obj, null);
+
+            // Set Web-Forms Control
+            method = type.GetMethod("GetWebFormsValue");
+            string TmpWebFormsValue = (string)method.Invoke(obj, null);
+
+            if (!string.IsNullOrEmpty(TmpWebFormsValue))
+            {
+                bool HasPostBack = false;
+
+                if (context.Request.Headers.TryGetValue("Post-Back", out var value))
+                    if (value == "true")
+                        HasPostBack = true;
+
+                if (HasPostBack)
+                {
+                    ReturnResult = SetWebFormsCombinate(ReturnResult, TmpWebFormsValue);
+                    context.Response.Headers.Add("Content-Type", "text/plain");
+                }
+                else
+                    ReturnResult = SetWebFormsCombinateFirstResponse(ReturnResult, TmpWebFormsValue);
+            }
 
             return ReturnResult;
         }
@@ -317,6 +361,27 @@ namespace CodeBehind
 
             method = type.GetMethod("ControllerHasFound");
             FoundController = (bool)method.Invoke(obj, null);
+
+            // Set Web-Forms Control
+            method = type.GetMethod("GetWebFormsValue");
+            string TmpWebFormsValue = (string)method.Invoke(obj, null);
+
+            if (!string.IsNullOrEmpty(TmpWebFormsValue))
+            {
+                bool HasPostBack = false;
+
+                if (context.Request.Headers.TryGetValue("Post-Back", out var value))
+                    if (value == "true")
+                        HasPostBack = true;
+
+                if (HasPostBack)
+                {
+                    ReturnResult = SetWebFormsCombinate(ReturnResult, TmpWebFormsValue);
+                    context.Response.Headers.Add("Content-Type", "text/plain");
+                }
+                else
+                    ReturnResult = SetWebFormsCombinateFirstResponse(ReturnResult, TmpWebFormsValue);
+            }
 
             return ReturnResult;
         }
@@ -367,6 +432,16 @@ namespace CodeBehind
             }
 
             return RunController(ControllerClass, context);
+        }
+
+        private string SetWebFormsCombinate(string ResponseText, string WebFormsValue) => "[web-forms]" + (!string.IsNullOrEmpty(ResponseText) ? Environment.NewLine + "st" + StaticObject.ViewPlace + "=" + ResponseText.Replace('\n'.ToString(), "$[ln];") : "") + WebFormsValue;
+
+        private string SetWebFormsCombinateFirstResponse(string ResponseText, string WebFormsValue)
+        {
+            if (string.IsNullOrEmpty(ResponseText))
+                return "";
+
+            return ResponseText + "<script>cb_SetWebFormsValues(`[web-forms]" + WebFormsValue.Replace('`'.ToString(), "$[bt];").Replace(Environment.NewLine, "$[sln];") + "`);</script>";
         }
     }
 }
