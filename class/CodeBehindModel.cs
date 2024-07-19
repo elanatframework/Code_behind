@@ -3,6 +3,9 @@ namespace CodeBehind
     public abstract class CodeBehindModel
     {
         public string ResponseText = "";
+        public string WebFormsValue = "";
+        public bool IgnoreView = false;
+        public bool IgnoreLayout = false;
         public HtmlData.NameValueCollection ViewData = new HtmlData.NameValueCollection();
         public ValueCollectionLock Section = new ValueCollectionLock();
         public string DownloadFilePath { get; protected set; } = "";
@@ -30,6 +33,28 @@ namespace CodeBehind
         public void Write(long Number)
         {
             ResponseText += Number;
+        }
+
+        public void WriteLine(string Text)
+        {
+            Write(Text + Environment.NewLine);
+        }
+
+        // Overload
+        public void WriteLine(int Number)
+        {
+            Write(Number + Environment.NewLine);
+        }
+
+        // Overload
+        public void WriteLine(long Number)
+        {
+            Write(Number + Environment.NewLine);
+        }
+
+        public void Control(WebForms Forms)
+        {
+            WebFormsValue = Forms.GetFormsActionData();
         }
 
         public void Download(string FilePath)
