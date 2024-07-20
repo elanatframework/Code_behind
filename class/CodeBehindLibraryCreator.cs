@@ -115,7 +115,9 @@ namespace SetCodeBehind
             // Create Web-Forms Script
             if (!Directory.Exists("wwwroot"))
                 Directory.CreateDirectory("wwwroot");
-            new DefaultPages().SetWebFormsScript(options.WebFormsScriptPath, options.RecreateWebFormsScriptAfterRecompile);
+
+            if (options.AutoCreateWebFormsScript)
+                new DefaultPages().SetWebFormsScript(options.WebFormsScriptPath, options.RecreateWebFormsScriptAfterRecompile);
 
             // Move View From Wwwroot
             if ((options.ViewPath != "wwwroot") && options.MoveViewFromWwwroot)
