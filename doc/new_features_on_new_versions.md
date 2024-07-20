@@ -217,7 +217,7 @@ The first version of CodeBehind is based on .NET Core version 7.0; if the versio
 
 **New features:**
  - Added support for Web-Forms controls
- - Added PostBack method
+ - Added PostBack and GetBack method
  - Added possibility to ignore Layout through Controller class and Model class and View page
  - Added possibility to ignore View through Model class
  - Automatic moving of dll files from the `wwwroot/dll` path to the designated View path
