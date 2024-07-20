@@ -216,6 +216,7 @@ The first version of CodeBehind is based on .NET Core version 7.0; if the versio
 ### Version 2.9
 
 **New features:**
+ - Added WebFormsJS
  - Added support for Web-Forms controls
  - Added PostBack and GetBack method
  - Added possibility to ignore Layout through Controller class and Model class and View page
