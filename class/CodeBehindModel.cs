@@ -57,6 +57,12 @@ namespace CodeBehind
             WebFormsValue = Forms.GetFormsActionData();
         }
 
+        public void IgnoreAll()
+        {
+            IgnoreView = true;
+            IgnoreLayout = true;
+        }
+
         public void Download(string FilePath)
         {
             DownloadFilePath = FilePath;
