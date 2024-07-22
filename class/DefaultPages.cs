@@ -751,493 +751,615 @@ function cb_SetWebFormsValues(WebFormsValues, UsePostBack)
 function cb_SetValueToInput(ActionOperation, ActionFeature, ActionValue)
 {
     var ElementPlace = ActionValue.GetTextBefore(""="");
-    var CurrentElement = cb_GetElementByElementPlace(ElementPlace);
     var Value = ActionValue.GetTextAfter(""="").FullTrim();
     var LabelForIndexer = 0;
 
-    if (!CurrentElement)
-        return;
+    var ElementPlaceList;
 
-    // Without Server Attribute
-    switch (ActionOperation)
+    if (ElementPlace.substring(0, 1) == '[')
     {
-        case 'a':
-            switch (ActionFeature)
-            {
-                case 'i': CurrentElement.id = (CurrentElement.id) ? CurrentElement.id + Value : Value; break;
-                case 'n':
-                    if (CurrentElement.tagName.IsInput())
-                        CurrentElement.name = (CurrentElement.name) ? CurrentElement.name + Value : Value;
-                    else
-                        if (CurrentElement.hasAttribute(""name""))
-                        {
-                            var NameAttr = CurrentElement.getAttribute(""name"");
-                            CurrentElement.setAttribute(""name"", NameAttr + Value);
-                        }
-                        else
-                            CurrentElement.setAttribute(""name"", Value);
-                    break;
-                case 'v':
-                    if (CurrentElement.tagName.IsInput())
-                        CurrentElement.value = (CurrentElement.value) ? CurrentElement.value + Value : Value;
-                    else
-                        if (CurrentElement.hasAttribute(""value""))
-                        {
-                            var ValueAttr = CurrentElement.getAttribute(""value"");
-                            CurrentElement.setAttribute(""value"", ValueAttr + Value);
-                        }
-                        else
-                            CurrentElement.setAttribute(""value"", Value);
-                    break;
-                case 'c':
-                    if (CurrentElement.hasAttribute(""class""))
-                    {
-                        var ClassAttr = CurrentElement.getAttribute(""class"");
-                        CurrentElement.setAttribute(""class"", ClassAttr + ' ' + Value);
-                    }
-                    else
-                        CurrentElement.setAttribute(""class"", Value);
-                    break;
-                case 's':
-                    if (CurrentElement.hasAttribute(""style""))
-                    {
-                        var StyleAttr = CurrentElement.getAttribute(""style"");
-                        if (StyleAttr.charAt(StyleAttr.length - 1) == ';')
-                            CurrentElement.setAttribute(""style"", StyleAttr + Value);
-                        else
-                            CurrentElement.setAttribute(""style"", StyleAttr + ';' + Value);
-                    }
-                    else
-                        CurrentElement.setAttribute(""style"", Value);
-                    break;
-                case 'o':
-                    var OptionTag = document.createElement(""option"");
-                    var OptionValue = Value.GetTextBefore(""|"");
-                    var OptionText = Value.GetTextAfter(""|"");
-                    if (OptionText.Contains(""|""))
-                    {
-                        OptionTag.selected = (OptionText.GetTextAfter(""|"") == ""1"");
-                        OptionText = OptionText.GetTextBefore(""|"");
-                    }
-
-                    OptionTag.value = OptionValue;
-                    OptionTag.text = OptionText;
-
-                    CurrentElement.appendChild(OptionTag);
-                    break;
-                case 'k':
-                    var CheckBoxTag = document.createElement(""input"");
-                    CheckBoxTag.setAttribute(""type"", ""checkbox"");
-
-                    var CheckBoxValue = Value.GetTextBefore(""|"");
-                    var CheckBoxText = Value.GetTextAfter(""|"");
-                    if (CheckBoxText.Contains(""|""))
-                    {
-                        CheckBoxTag.checked = (CheckBoxText.GetTextAfter(""|"") == ""1"");
-                        CheckBoxText = CheckBoxText.GetTextBefore(""|"");
-                    }
-
-                    CheckBoxTag.setAttribute(""value"", CheckBoxValue);
-                    var CeckBoxIndex = CurrentElement.querySelectorAll('input[type=""checkbox""]').length;
-
-                    var CheckBoxNameAndText = ""cblst_NoneSet"";
-                    if (CurrentElement.id)
-                        CheckBoxNameAndText = CurrentElement.id;
-                    else
-                        if (CeckBoxIndex > 0)
-                            CheckBoxNameAndText = CurrentElement.querySelectorAll('input[type=""checkbox""]')[0].name.GetTextBefore(""$"");
-
-                    CheckBoxTag.id = CheckBoxNameAndText + ""_"" + CeckBoxIndex;
-                    CheckBoxTag.name = CheckBoxNameAndText + ""$"" + CeckBoxIndex;
-
-                    CurrentElement.appendChild(document.createElement(""br""));
-
-                    CurrentElement.appendChild(CheckBoxTag);
-
-                    var LabelTag = document.createElement(""label"");
-                    LabelTag.setAttribute(""for"", CheckBoxTag.id);
-                    LabelTag.innerText = CheckBoxText;
-                    CurrentElement.appendChild(LabelTag);
-
-                    break;
-                case 'l':
-                    if (!CurrentElement.tagName.IsInput())
-                    {
-                        if (CurrentElement.hasAttribute(""title""))
-                        {
-                            var TitleAttr = CurrentElement.getAttribute(""title"");
-                            CurrentElement.setAttribute(""title"", TitleAttr + Value);
-                        }
-                        else
-                            CurrentElement.setAttribute(""title"", Value);
-                        break;
-                    }
-
-                    if (!CurrentElement.id)
-                        CurrentElement.id = ""tmp_Element"" + LabelForIndexer++;
-
-                    var LabelTag = document.querySelector('label[for=""' + CurrentElement.id + '""]');
-
-                    if (LabelTag)
-                        LabelTag.innerText = LabelTag.innerText + Value;
-                    else
-                    {
-                        LabelTag = document.createElement(""label"");
-                        LabelTag.setAttribute(""for"", CurrentElement.id);
-                        LabelTag.innerText = Value;
-                        CurrentElement.outerHTML = CurrentElement.outerHTML + LabelTag.outerHTML;
-                    }
-                    break;
-                case 't':
-                    CurrentElement.innerHTML = CurrentElement.innerHTML + Value.Replace(""$[ln];"", ""\n"").toDOM();
-                    cb_SetPostBackFunctionToSubmit(CurrentElement);
-                    break;
-                case 'a':
-                    var AttrName = Value.GetTextBefore(""|"");
-                    var AttrValue = Value.GetTextAfter(""|"");
-                    if (CurrentElement.hasAttribute(AttrName))
-                    {
-                        var CurrentAttr = CurrentElement.getAttribute(AttrName);
-                        if (CurrentAttr.charAt(CurrentAttr.length - 1) == ';')
-                            CurrentElement.setAttribute(AttrName, CurrentAttr + AttrValue);
-                        else
-                            CurrentElement.setAttribute(AttrName, CurrentAttr + ';' + AttrValue);
-                    }
-                    else
-                        CurrentElement.setAttribute(AttrName, AttrValue);
-                    break;
-            }
-            break;
-
-        case 's':
-        case 'i':
-            switch (ActionFeature)
-            {
-                case 'i':
-                    if ((ActionOperation == 'i') && (CurrentElement.id))
-                        break;
-
-                    CurrentElement.id = Value;
-                    break;
-                case 'n':
-                    if (CurrentElement.tagName.IsInput())
-                    {
-                        if ((ActionOperation == 'i') && CurrentElement.name)
-                            break;
-
-                        CurrentElement.name = Value;
-                    }
-                    else
-                    {
-                        if (ActionOperation == 'i' && CurrentElement.hasAttribute(""name""))
-                            break;
-
-                        CurrentElement.setAttribute(""name"", Value);
-                    }
-                    break;
-                case 'v':
-                    if (CurrentElement.tagName.IsInput())
-                    {
-                        if ((ActionOperation == 'i') && CurrentElement.value)
-                            break;
-
-                        CurrentElement.value = Value;
-                    }
-                    else
-                    {
-                        if (ActionOperation == 'i' && CurrentElement.hasAttribute(""value""))
-                            break;
-
-                        CurrentElement.setAttribute(""value"", Value);
-                    }
-                    break;
-                case 'c':
-                    if (CurrentElement.hasAttribute(""class""))
-                    {
-                        var ClassAttr = CurrentElement.getAttribute(""class"");
-
-                        if ((ActionOperation == 'i') && (ClassAttr.ContainsWithSpliter(Value, "" "")))
-                            break;
-
-                        CurrentElement.setAttribute(""class"", ClassAttr + ' ' + Value);
-                    }
-                    else
-                        CurrentElement.setAttribute(""class"", Value);
-                    break;
-                case 's':
-                    if (CurrentElement.hasAttribute(""style""))
-                    {
-                        var StyleAttr = CurrentElement.getAttribute(""style"");
-
-                        if ((ActionOperation == 'i') && (StyleAttr.ContainsWithSpliter(Value, "";"")))
-                            break;
-
-                        if (StyleAttr.charAt(StyleAttr.length - 1) == ';')
-                            CurrentElement.setAttribute(""style"", StyleAttr + Value);
-                        else
-                            CurrentElement.setAttribute(""style"", StyleAttr + ';' + Value);
-                    }
-                    else
-                        CurrentElement.setAttribute(""style"", Value);
-                    break;
-                case 'o':
-                    if ((ActionOperation == 'i') && (CurrentElement.querySelectorAll('option[value=""' + Value.GetTextBefore(""|"") + ' ""]').length > 0))
-                        break;
-
-                    var OptionTag = document.createElement(""option"");
-                    var OptionValue = Value.GetTextBefore(""|"");
-                    var OptionText = Value.GetTextAfter(""|"");
-                    if (OptionText.Contains(""|""))
-                    {
-                        OptionTag.selected = (OptionText.GetTextAfter(""|"") == ""1"");
-                        OptionText = OptionText.GetTextBefore(""|"");
-                    }
-
-                    OptionTag.value = OptionValue;
-                    OptionTag.text = OptionText;
-
-                    CurrentElement.appendChild(OptionTag);
-                    break;
-                case 'k':
-                    if ((CurrentElement.tagName.toLowerCase() == ""input"") && ((CurrentElement.type.toLowerCase() == ""checkbox"") || (CurrentElement.type.toLowerCase() == ""radio"")))
-                    {
-                        CurrentElement.checked = (Value == ""1"");
-                        break;
-                    }
-
-                    if ((ActionOperation == 'i') && (CurrentElement.querySelectorAll('input[type=""checkbox""][value=""' + Value.GetTextBefore(""|"") + '""]').length > 0))
-                        break;
-
-                    var CheckBoxTag = document.createElement(""input"");
-                    CheckBoxTag.setAttribute(""type"", ""checkbox"");
-
-                    var CheckBoxValue = Value.GetTextBefore(""|"");
-                    var CheckBoxText = Value.GetTextAfter(""|"");
-                    if (CheckBoxText.Contains(""|""))
-                    {
-                        CheckBoxTag.checked = (CheckBoxText.GetTextAfter(""|"") == ""1"");
-                        CheckBoxText = CheckBoxText.GetTextBefore(""|"");
-                    }
-
-                    CheckBoxTag.setAttribute(""value"", CheckBoxValue);
-                    var CeckBoxIndex = CurrentElement.querySelectorAll('input[type=""checkbox""]').length;
-
-                    var CheckBoxNameAndText = ""cblst_NoneSet"";
-                    if (CurrentElement.id)
-                        CheckBoxNameAndText = CurrentElement.id;
-                    else
-                        if (CeckBoxIndex > 0)
-                            CheckBoxNameAndText = CurrentElement.querySelectorAll('input[type=""checkbox""]')[0].name.GetTextBefore(""$"");
-
-                    CheckBoxTag.id = CheckBoxNameAndText + ""_"" + CeckBoxIndex;
-                    CheckBoxTag.name = CheckBoxNameAndText + ""$"" + CeckBoxIndex;
-
-                    CurrentElement.appendChild(document.createElement(""br""));
-
-                    CurrentElement.appendChild(CheckBoxTag);
-
-                    var LabelTag = document.createElement(""label"");
-                    LabelTag.setAttribute(""for"", CheckBoxTag.id);
-                    LabelTag.innerText = CheckBoxText;
-                    CurrentElement.appendChild(LabelTag);
-
-                    break;
-                case 'l':
-                    if (!CurrentElement.tagName.IsInput())
-                    {
-                        if (CurrentElement.hasAttribute(""title""))
-                        {
-                            if ((ActionOperation == 'i') && CurrentElement.getAttribute(""title""))
-                                break;
-
-                            var TitleAttr = CurrentElement.getAttribute(""title"");
-                            CurrentElement.setAttribute(""title"", TitleAttr + Value);
-                        }
-                        else
-                            CurrentElement.setAttribute(""title"", Value);
-                        break;
-                    }
-
-                    if (!CurrentElement.id)
-                        CurrentElement.id = ""tmp_Element"" + LabelForIndexer++;
-
-                    var LabelTag = document.querySelector('label[for=""' + CurrentElement.id + '""]');
-
-                    if (LabelTag)
-                    {
-                        if ((ActionOperation == 'i') && CurrentElement.innerText)
-                            break;
-
-                        LabelTag.innerText = Value;
-                    }
-                    else
-                    {
-                        LabelTag = document.createElement(""label"");
-                        LabelTag.setAttribute(""for"", CurrentElement.id);
-                        LabelTag.innerText = Value;
-                        CurrentElement.outerHTML = CurrentElement.outerHTML + LabelTag.outerHTML;
-                    }
-                    break;
-                case 't':
-                    if ((ActionOperation == 'i') && (CurrentElement.innerHTML || CurrentElement.innerText))
-                        break;
-
-                    CurrentElement.innerHTML = Value.Replace(""$[ln];"", ""\n"").toDOM();
-                    cb_SetPostBackFunctionToSubmit(CurrentElement);
-                    break;
-                case 'a':
-                    var AttrName = Value.GetTextBefore(""|"");
-                    var AttrValue = Value.GetTextAfter(""|"");
-                    if (CurrentElement.hasAttribute(AttrName))
-                    {
-                        var CurrentAttr = CurrentElement.getAttribute(AttrName);
-
-                        if ((ActionOperation == 'i') && (CurrentAttr.ContainsWithSpliter(AttrValue, "";"")))
-                            break;
-
-                        if (CurrentAttr.charAt(CurrentAttr.length - 1) == ';')
-                            CurrentElement.setAttribute(AttrName, CurrentAttr + AttrValue);
-                        else
-                            CurrentElement.setAttribute(AttrName, CurrentAttr + ';' + AttrValue);
-                    }
-                    else
-                        CurrentElement.setAttribute(AttrName, AttrValue);
-                    break;
-            }
-            break;
-
-        case 'd':
-            switch (ActionFeature)
-            {
-                case 'i':
-                    if (CurrentElement.id && Value == ""1"")
-                        CurrentElement.removeAttribute(""id"");
-                    break;
-                case 'n':
-                    if (CurrentElement.name && Value == ""1"")
-                        CurrentElement.removeAttribute(""name"");
-                    break;
-                case 'v':
-                    if (CurrentElement.value && Value == ""1"")
-                        CurrentElement.value = """";
-                    break;
-                case 'c':
-                    if (CurrentElement.className)
-                        CurrentElement.className = CurrentElement.className.DeleteHtmlClass(Value);
-                    break;
-                case 's':
-                    if (CurrentElement.hasAttribute(""style""))
-                    {
-                        var StyleAttr = CurrentElement.getAttribute(""style"").DeleteHtmlStyle(Value);
-                        CurrentElement.setAttribute(""style"", StyleAttr);
-                    }
-                    break;
-                case 'o':
-                    if (CurrentElement.querySelectorAll('option[value=""' + Value + '""]').length > 0)
-                        CurrentElement.querySelectorAll('option[value=""' + Value + '""]')[0].outerHTML = """";
-                    break;
-                case 'k':
-                    var CheckBoxTagLength = CurrentElement.querySelectorAll('input[type=""checkbox""][value=""' + Value + '""]').length;
-                    if (CheckBoxTagLength > 0)
-                    {
-                        var CheckBoxTag = CurrentElement.querySelectorAll('input[type=""checkbox""][value=""' + Value + '""]')[0];
-                        if (CheckBoxTag.id)
-                            if (CurrentElement.querySelectorAll('label[for=""' + CheckBoxTag.id + '""]').length > 0)
-                                CurrentElement.querySelectorAll('label[for=""' + CheckBoxTag.id + '""]')[0].outerHTML = """";
-
-                        CheckBoxTag.outerHTML = """";
-                    }
-                    break;
-                case 'l':
-                    if (!CurrentElement.tagName.IsInput())
-                    {
-                        if (CurrentElement.hasAttribute(""title"") && Value == ""1"")
-                            CurrentElement.removeAttribute(""title"");
-
-                        break;
-                    }
-
-                    if (CurrentElement.id)
-                    {
-                        var LabelTag = document.querySelector('label[for=""' + CurrentElement.id + '""]');
-                        if (LabelTag)
-                            LabelTag.outerHTML = """";
-                    }
-
-                    break;
-                case 't':
-                    if (Value == ""1"")
-                        CurrentElement.innerHTML = """";
-                    break;
-                case 'a':
-                    if (CurrentElement.hasAttribute(Value))
-                        CurrentElement.removeAttribute(Value);
-
-                    break;
-                case 'e':
-                    if (Value == ""1"")
-                        CurrentElement.outerHTML = """";
-
-                    break;
-            }
-            break;
+        var QueryAll = ElementPlace.substring(1);
+        ElementPlaceList = document.querySelectorAll(QueryAll.Replace(""$[eq];"", ""=""));
+    }
+    else
+    {
+        ElementPlaceList = new Array();
+        ElementPlaceList[0] = cb_GetElementByElementPlace(ElementPlace);
     }
 
-    switch (ActionOperation + ActionFeature)
+    for (var i = 0; i < ElementPlaceList.length; i++)
     {
-        case ""sw"": CurrentElement.style.width = Value; break;
-        case ""sh"": CurrentElement.style.height = Value; break;
-        case ""bc"": CurrentElement.style.backgroundColor = Value; break;
-        case ""tc"": CurrentElement.style.color = Value; break;
-        case ""fn"": CurrentElement.style.fontFamily = Value; break;
-        case ""fs"": CurrentElement.style.fontSize = Value; break;
-        case ""fb"": CurrentElement.style.fontWeight = (Value == ""1"") ? ""bold"" : ""unset""; break;
-        case ""vi"": CurrentElement.style.visibility = (Value == ""1"") ? ""visible"" : ""hidden""; break;
-        case ""ta"": CurrentElement.style.textAlign = Value; break;
-        case ""sr"": (Value == ""1"") ? CurrentElement.setAttribute(""readonly"", """") : CurrentElement.removeAttribute(""readonly""); break;
-        case ""mn"": CurrentElement.setAttribute(""minlength"", Value); break;
-        case ""mx"": CurrentElement.setAttribute(""maxlength"", Value); break;
-        case ""ts"": CurrentElement.value = Value; break;
-        case ""ti"": CurrentElement.selectedIndex = Value; break;
-        case ""ks"":
-            var CheckBoxValue = Value.GetTextBefore(""|"");
-            var CheckBoxChecked = Value.GetTextAfter(""|"");
-            var CheckBoxTagLength = CurrentElement.querySelectorAll('input[type=""checkbox""][value=""' + CheckBoxValue + '""]').length;
-            if (CheckBoxTagLength > 0)
-                CurrentElement.querySelectorAll('input[type=""checkbox""][value=""' + CheckBoxValue + '""]')[0].checked = (CheckBoxChecked == ""1"");
-            break;
-        case ""ki"":
-            var CheckBoxIndex = Value.GetTextBefore(""|"");
-            var CheckBoxChecked = Value.GetTextAfter(""|"");
-            var CheckBoxTag = CurrentElement.querySelectorAll('input[type=""checkbox""]')[CheckBoxIndex];
-            if (CheckBoxTag)
-                CheckBoxTag.checked = (CheckBoxChecked == ""1"");
-            break;
+        CurrentElement = ElementPlaceList[i];
+
+        if (!CurrentElement)
+            continue;
+
+        // Without Server Attribute
+        switch (ActionOperation)
+        {
+            case 'a':
+                switch (ActionFeature)
+                {
+                    case 'i': CurrentElement.id = (CurrentElement.id) ? CurrentElement.id + Value : Value; break;
+                    case 'n':
+                        if (CurrentElement.tagName.IsInput())
+                            CurrentElement.name = (CurrentElement.name) ? CurrentElement.name + Value : Value;
+                        else
+                            if (CurrentElement.hasAttribute(""name""))
+                            {
+                                var NameAttr = CurrentElement.getAttribute(""name"");
+                                CurrentElement.setAttribute(""name"", NameAttr + Value);
+                            }
+                            else
+                                CurrentElement.setAttribute(""name"", Value);
+                        break;
+                    case 'v':
+                        if (CurrentElement.tagName.IsInput())
+                            CurrentElement.value = (CurrentElement.value) ? CurrentElement.value + Value : Value;
+                        else
+                            if (CurrentElement.hasAttribute(""value""))
+                            {
+                                var ValueAttr = CurrentElement.getAttribute(""value"");
+                                CurrentElement.setAttribute(""value"", ValueAttr + Value);
+                            }
+                            else
+                                CurrentElement.setAttribute(""value"", Value);
+                        break;
+                    case 'c':
+                        if (CurrentElement.hasAttribute(""class""))
+                        {
+                            var ClassAttr = CurrentElement.getAttribute(""class"");
+                            CurrentElement.setAttribute(""class"", ClassAttr + ' ' + Value);
+                        }
+                        else
+                            CurrentElement.setAttribute(""class"", Value);
+                        break;
+                    case 's':
+                        if (CurrentElement.hasAttribute(""style""))
+                        {
+                            var StyleAttr = CurrentElement.getAttribute(""style"");
+                            if (StyleAttr.charAt(StyleAttr.length - 1) == ';')
+                                CurrentElement.setAttribute(""style"", StyleAttr + Value);
+                            else
+                                CurrentElement.setAttribute(""style"", StyleAttr + ';' + Value);
+                        }
+                        else
+                            CurrentElement.setAttribute(""style"", Value);
+                        break;
+                    case 'o':
+                        var OptionTag = document.createElement(""option"");
+                        var OptionValue = Value.GetTextBefore(""|"");
+                        var OptionText = Value.GetTextAfter(""|"");
+                        if (OptionText.Contains(""|""))
+                        {
+                            OptionTag.selected = (OptionText.GetTextAfter(""|"") == ""1"");
+                            OptionText = OptionText.GetTextBefore(""|"");
+                        }
+
+                        OptionTag.value = OptionValue;
+                        OptionTag.text = OptionText;
+
+                        CurrentElement.appendChild(OptionTag);
+                        break;
+                    case 'k':
+                        var CheckBoxTag = document.createElement(""input"");
+                        CheckBoxTag.setAttribute(""type"", ""checkbox"");
+
+                        var CheckBoxValue = Value.GetTextBefore(""|"");
+                        var CheckBoxText = Value.GetTextAfter(""|"");
+                        if (CheckBoxText.Contains(""|""))
+                        {
+                            CheckBoxTag.checked = (CheckBoxText.GetTextAfter(""|"") == ""1"");
+                            CheckBoxText = CheckBoxText.GetTextBefore(""|"");
+                        }
+
+                        CheckBoxTag.setAttribute(""value"", CheckBoxValue);
+                        var CeckBoxIndex = CurrentElement.querySelectorAll('input[type=""checkbox""]').length;
+
+                        var CheckBoxNameAndText = ""cblst_NoneSet"";
+                        if (CurrentElement.id)
+                            CheckBoxNameAndText = CurrentElement.id;
+                        else
+                            if (CeckBoxIndex > 0)
+                                CheckBoxNameAndText = CurrentElement.querySelectorAll('input[type=""checkbox""]')[0].name.GetTextBefore(""$"");
+
+                        CheckBoxTag.id = CheckBoxNameAndText + ""_"" + CeckBoxIndex;
+                        CheckBoxTag.name = CheckBoxNameAndText + ""$"" + CeckBoxIndex;
+
+                        CurrentElement.appendChild(document.createElement(""br""));
+
+                        CurrentElement.appendChild(CheckBoxTag);
+
+                        var LabelTag = document.createElement(""label"");
+                        LabelTag.setAttribute(""for"", CheckBoxTag.id);
+                        LabelTag.innerText = CheckBoxText;
+                        CurrentElement.appendChild(LabelTag);
+
+                        break;
+                    case 'l':
+                        if (!CurrentElement.tagName.IsInput())
+                        {
+                            if (CurrentElement.hasAttribute(""title""))
+                            {
+                                var TitleAttr = CurrentElement.getAttribute(""title"");
+                                CurrentElement.setAttribute(""title"", TitleAttr + Value);
+                            }
+                            else
+                                CurrentElement.setAttribute(""title"", Value);
+                            break;
+                        }
+
+                        if (!CurrentElement.id)
+                            CurrentElement.id = ""tmp_Element"" + LabelForIndexer++;
+
+                        var LabelTag = document.querySelector('label[for=""' + CurrentElement.id + '""]');
+
+                        if (LabelTag)
+                            LabelTag.innerText = LabelTag.innerText + Value;
+                        else
+                        {
+                            LabelTag = document.createElement(""label"");
+                            LabelTag.setAttribute(""for"", CurrentElement.id);
+                            LabelTag.innerText = Value;
+                            CurrentElement.outerHTML = CurrentElement.outerHTML + LabelTag.outerHTML;
+                        }
+                        break;
+                    case 't':
+                        CurrentElement.innerHTML = CurrentElement.innerHTML + Value.Replace(""$[ln];"", ""\n"").toDOM();
+                        cb_SetPostBackFunctionToSubmit(CurrentElement);
+                        break;
+                    case 'a':
+                        var AttrName = Value;
+                        var AttrValue = """";
+                        if (Value.Contains(""|""))
+                        {
+                            AttrName = Value.GetTextBefore(""|"");
+                            AttrValue = Value.GetTextAfter(""|"");
+                        }
+                        if (CurrentElement.hasAttribute(AttrName))
+                        {
+                            var CurrentAttr = CurrentElement.getAttribute(AttrName);
+                            if (CurrentAttr.charAt(CurrentAttr.length - 1) == ';')
+                                CurrentElement.setAttribute(AttrName, CurrentAttr + AttrValue);
+                            else
+                                CurrentElement.setAttribute(AttrName, CurrentAttr + ';' + AttrValue);
+                        }
+                        else
+                            CurrentElement.setAttribute(AttrName, AttrValue);
+                }
+                break;
+
+            case 's':
+            case 'i':
+                switch (ActionFeature)
+                {
+                    case 'i':
+                        if ((ActionOperation == 'i') && (CurrentElement.id))
+                            break;
+
+                        CurrentElement.id = Value;
+                        break;
+                    case 'n':
+                        if (CurrentElement.tagName.IsInput())
+                        {
+                            if ((ActionOperation == 'i') && CurrentElement.name)
+                                break;
+
+                            CurrentElement.name = Value;
+                        }
+                        else
+                        {
+                            if (ActionOperation == 'i' && CurrentElement.hasAttribute(""name""))
+                                break;
+
+                            CurrentElement.setAttribute(""name"", Value);
+                        }
+                        break;
+                    case 'v':
+                        if (CurrentElement.tagName.IsInput())
+                        {
+                            if ((ActionOperation == 'i') && CurrentElement.value)
+                                break;
+
+                            CurrentElement.value = Value;
+                        }
+                        else
+                        {
+                            if (ActionOperation == 'i' && CurrentElement.hasAttribute(""value""))
+                                break;
+
+                            CurrentElement.setAttribute(""value"", Value);
+                        }
+                        break;
+                    case 'c':
+                        if (CurrentElement.hasAttribute(""class""))
+                        {
+                            var ClassAttr = CurrentElement.getAttribute(""class"");
+
+                            if ((ActionOperation == 'i') && (ClassAttr.ContainsWithSpliter(Value, "" "")))
+                                break;
+
+                            CurrentElement.setAttribute(""class"", ClassAttr + ' ' + Value);
+                        }
+                        else
+                            CurrentElement.setAttribute(""class"", Value);
+                        break;
+                    case 's':
+                        if (CurrentElement.hasAttribute(""style""))
+                        {
+                            var StyleAttr = CurrentElement.getAttribute(""style"");
+
+                            if ((ActionOperation == 'i') && (StyleAttr.ContainsWithSpliter(Value, "";"")))
+                                break;
+
+                            if (StyleAttr.charAt(StyleAttr.length - 1) == ';')
+                                CurrentElement.setAttribute(""style"", StyleAttr + Value);
+                            else
+                                CurrentElement.setAttribute(""style"", StyleAttr + ';' + Value);
+                        }
+                        else
+                            CurrentElement.setAttribute(""style"", Value);
+                        break;
+                    case 'o':
+                        if ((ActionOperation == 'i') && (CurrentElement.querySelectorAll('option[value=""' + Value.GetTextBefore(""|"") + ' ""]').length > 0))
+                            break;
+
+                        var OptionTag = document.createElement(""option"");
+                        var OptionValue = Value.GetTextBefore(""|"");
+                        var OptionText = Value.GetTextAfter(""|"");
+                        if (OptionText.Contains(""|""))
+                        {
+                            OptionTag.selected = (OptionText.GetTextAfter(""|"") == ""1"");
+                            OptionText = OptionText.GetTextBefore(""|"");
+                        }
+
+                        OptionTag.value = OptionValue;
+                        OptionTag.text = OptionText;
+
+                        CurrentElement.appendChild(OptionTag);
+                        break;
+                    case 'k':
+                        if ((CurrentElement.tagName.toLowerCase() == ""input"") && ((CurrentElement.type.toLowerCase() == ""checkbox"") || (CurrentElement.type.toLowerCase() == ""radio"")))
+                        {
+                            CurrentElement.checked = (Value == ""1"");
+                            break;
+                        }
+
+                        if ((ActionOperation == 'i') && (CurrentElement.querySelectorAll('input[type=""checkbox""][value=""' + Value.GetTextBefore(""|"") + '""]').length > 0))
+                            break;
+
+                        var CheckBoxTag = document.createElement(""input"");
+                        CheckBoxTag.setAttribute(""type"", ""checkbox"");
+
+                        var CheckBoxValue = Value.GetTextBefore(""|"");
+                        var CheckBoxText = Value.GetTextAfter(""|"");
+                        if (CheckBoxText.Contains(""|""))
+                        {
+                            CheckBoxTag.checked = (CheckBoxText.GetTextAfter(""|"") == ""1"");
+                            CheckBoxText = CheckBoxText.GetTextBefore(""|"");
+                        }
+
+                        CheckBoxTag.setAttribute(""value"", CheckBoxValue);
+                        var CeckBoxIndex = CurrentElement.querySelectorAll('input[type=""checkbox""]').length;
+
+                        var CheckBoxNameAndText = ""cblst_NoneSet"";
+                        if (CurrentElement.id)
+                            CheckBoxNameAndText = CurrentElement.id;
+                        else
+                            if (CeckBoxIndex > 0)
+                                CheckBoxNameAndText = CurrentElement.querySelectorAll('input[type=""checkbox""]')[0].name.GetTextBefore(""$"");
+
+                        CheckBoxTag.id = CheckBoxNameAndText + ""_"" + CeckBoxIndex;
+                        CheckBoxTag.name = CheckBoxNameAndText + ""$"" + CeckBoxIndex;
+
+                        CurrentElement.appendChild(document.createElement(""br""));
+
+                        CurrentElement.appendChild(CheckBoxTag);
+
+                        var LabelTag = document.createElement(""label"");
+                        LabelTag.setAttribute(""for"", CheckBoxTag.id);
+                        LabelTag.innerText = CheckBoxText;
+                        CurrentElement.appendChild(LabelTag);
+
+                        break;
+                    case 'l':
+                        if (!CurrentElement.tagName.IsInput())
+                        {
+                            if (CurrentElement.hasAttribute(""title""))
+                            {
+                                if ((ActionOperation == 'i') && CurrentElement.getAttribute(""title""))
+                                    break;
+
+                                var TitleAttr = CurrentElement.getAttribute(""title"");
+                                CurrentElement.setAttribute(""title"", TitleAttr + Value);
+                            }
+                            else
+                                CurrentElement.setAttribute(""title"", Value);
+                            break;
+                        }
+
+                        if (!CurrentElement.id)
+                            CurrentElement.id = ""tmp_Element"" + LabelForIndexer++;
+
+                        var LabelTag = document.querySelector('label[for=""' + CurrentElement.id + '""]');
+
+                        if (LabelTag)
+                        {
+                            if ((ActionOperation == 'i') && CurrentElement.innerText)
+                                break;
+
+                            LabelTag.innerText = Value;
+                        }
+                        else
+                        {
+                            LabelTag = document.createElement(""label"");
+                            LabelTag.setAttribute(""for"", CurrentElement.id);
+                            LabelTag.innerText = Value;
+                            CurrentElement.outerHTML = CurrentElement.outerHTML + LabelTag.outerHTML;
+                        }
+                        break;
+                    case 't':
+                        if ((ActionOperation == 'i') && (CurrentElement.innerHTML || CurrentElement.innerText))
+                            break;
+
+                        CurrentElement.innerHTML = Value.Replace(""$[ln];"", ""\n"").toDOM();
+                        cb_SetPostBackFunctionToSubmit(CurrentElement);
+                        break;
+                    case 'a':
+                        var AttrName = Value;
+                        var AttrValue = """";
+                        if (Value.Contains(""|""))
+                        {
+                            AttrName = Value.GetTextBefore(""|"");
+                            AttrValue = Value.GetTextAfter(""|"");
+                        }
+                        if (CurrentElement.hasAttribute(AttrName))
+                        {
+                            var CurrentAttr = CurrentElement.getAttribute(AttrName);
+
+                            if ((ActionOperation == 'i') && (CurrentAttr.ContainsWithSpliter(AttrValue, "";"")))
+                                break;
+
+                            if (CurrentAttr.charAt(CurrentAttr.length - 1) == ';')
+                                CurrentElement.setAttribute(AttrName, CurrentAttr + AttrValue);
+                            else
+                                CurrentElement.setAttribute(AttrName, CurrentAttr + ';' + AttrValue);
+                        }
+                        else
+                            CurrentElement.setAttribute(AttrName, AttrValue);
+                }
+                break;
+
+            case 'd':
+                switch (ActionFeature)
+                {
+                    case 'i':
+                        if (CurrentElement.id && Value == ""1"")
+                            CurrentElement.removeAttribute(""id"");
+                        break;
+                    case 'n':
+                        if (CurrentElement.name && Value == ""1"")
+                            CurrentElement.removeAttribute(""name"");
+                        break;
+                    case 'v':
+                        if (CurrentElement.value && Value == ""1"")
+                            CurrentElement.value = """";
+                        break;
+                    case 'c':
+                        if (CurrentElement.className)
+                            CurrentElement.className = CurrentElement.className.DeleteHtmlClass(Value);
+                        break;
+                    case 's':
+                        if (CurrentElement.hasAttribute(""style""))
+                        {
+                            var StyleAttr = CurrentElement.getAttribute(""style"").DeleteHtmlStyle(Value);
+                            CurrentElement.setAttribute(""style"", StyleAttr);
+                        }
+                        break;
+                    case 'o':
+                        if (CurrentElement.querySelectorAll('option[value=""' + Value + '""]').length > 0)
+                            CurrentElement.querySelectorAll('option[value=""' + Value + '""]')[0].outerHTML = """";
+                        break;
+                    case 'k':
+                        var CheckBoxTagLength = CurrentElement.querySelectorAll('input[type=""checkbox""][value=""' + Value + '""]').length;
+                        if (CheckBoxTagLength > 0)
+                        {
+                            var CheckBoxTag = CurrentElement.querySelectorAll('input[type=""checkbox""][value=""' + Value + '""]')[0];
+                            if (CheckBoxTag.id)
+                                if (CurrentElement.querySelectorAll('label[for=""' + CheckBoxTag.id + '""]').length > 0)
+                                    CurrentElement.querySelectorAll('label[for=""' + CheckBoxTag.id + '""]')[0].outerHTML = """";
+
+                            CheckBoxTag.outerHTML = """";
+                        }
+                        break;
+                    case 'l':
+                        if (!CurrentElement.tagName.IsInput())
+                        {
+                            if (CurrentElement.hasAttribute(""title"") && Value == ""1"")
+                                CurrentElement.removeAttribute(""title"");
+
+                            break;
+                        }
+
+                        if (CurrentElement.id)
+                        {
+                            var LabelTag = document.querySelector('label[for=""' + CurrentElement.id + '""]');
+                            if (LabelTag)
+                                LabelTag.outerHTML = """";
+                        }
+
+                        break;
+                    case 't':
+                        if (Value == ""1"")
+                            CurrentElement.innerHTML = """";
+                        break;
+                    case 'a':
+                        if (CurrentElement.hasAttribute(Value))
+                            CurrentElement.removeAttribute(Value);
+
+                        break;
+                    case 'e':
+                        if (Value == ""1"")
+                            CurrentElement.outerHTML = """";
+                }
+                break;
+
+            case '+':
+            case '-':
+                switch (ActionFeature)
+                {
+                    case ""n"":
+                        if (CurrentElement.hasAttribute(""minlength""))
+                        {
+                            var ElementMinLength = (ActionOperation == '+') ? parseInt(CurrentElement.getAttribute(""minlength"")) + parseInt(Value) : parseInt(CurrentElement.getAttribute(""minlength"")) - parseInt(Value);
+                            CurrentElement.setAttribute(""minlength"", ElementMinLength);
+                        }
+                        else
+                            if ((ActionOperation == '+'))
+                                CurrentElement.setAttribute(""minlength"", Value);
+                        break;
+                    case ""x"":
+                        if (CurrentElement.hasAttribute(""maxlength""))
+                        {
+                            var ElementMaxLength = (ActionOperation == '+') ? parseInt(CurrentElement.getAttribute(""maxlength"")) + parseInt(Value) : parseInt(CurrentElement.getAttribute(""maxlength"")) - parseInt(Value);
+                            CurrentElement.setAttribute(""maxlength"", ElementMaxLength);
+                        }
+                        else
+                            if ((ActionOperation == '+'))
+                                CurrentElement.setAttribute(""maxlength"", Value);
+                        break;
+                    case ""f"":
+                        if (CurrentElement.style.fontSize)
+                        {
+                            var Unit = CurrentElement.style.fontSize.GetUnit();
+                            var ElementFontSize = (ActionOperation == '+') ? parseInt(CurrentElement.style.fontSize) + parseInt(Value) : parseInt(CurrentElement.style.fontSize) - parseInt(Value);
+                            CurrentElement.style.fontSize = ElementFontSize.toString() + Unit;
+                        }
+                        else
+                            if ((ActionOperation == '+'))
+                                CurrentElement.style.fontSize = Value + ""px"";
+                        break;
+                    case ""w"":
+                        if (CurrentElement.style.width)
+                        {
+                            var Unit = CurrentElement.style.width.GetUnit();
+                            var ElementWidth = (ActionOperation == '+') ? parseInt(CurrentElement.style.width) + parseInt(Value) : parseInt(CurrentElement.style.width) - parseInt(Value);
+                            CurrentElement.style.width = ElementWidth.toString() + Unit;
+                        }
+                        else
+                            if ((ActionOperation == '+'))
+                                CurrentElement.style.width = Value + ""px"";
+                        break;
+                    case ""h"":
+                        if (CurrentElement.style.height)
+                        {
+                            var Unit = CurrentElement.style.height.GetUnit();
+                            var ElementHeight = (ActionOperation == '+') ? parseInt(CurrentElement.style.height) + parseInt(Value) : parseInt(CurrentElement.style.height) - parseInt(Value);
+                            CurrentElement.style.height = ElementHeight.toString() + Unit;
+                        }
+                        else
+                            if ((ActionOperation == '+'))
+                                CurrentElement.style.height = Value + ""px"";
+                        break;
+                    case ""v"":
+                        if (CurrentElement.value)
+                        {
+                            var ElementValue = (ActionOperation == '+') ? parseInt(CurrentElement.value) + parseInt(Value) : parseInt(CurrentElement.value) - parseInt(Value);
+                            CurrentElement.value = ElementValue.toString();
+                        }
+                        else
+                            if ((ActionOperation == '+'))
+                                CurrentElement.value = Value;
+                }
+                break;
+        }
+
+        switch (ActionOperation + ActionFeature)
+        {
+            case ""sw"": CurrentElement.style.width = Value; break;
+            case ""sh"": CurrentElement.style.height = Value; break;
+            case ""bc"": CurrentElement.style.backgroundColor = Value; break;
+            case ""tc"": CurrentElement.style.color = Value; break;
+            case ""fn"": CurrentElement.style.fontFamily = Value; break;
+            case ""fs"": CurrentElement.style.fontSize = Value; break;
+            case ""fb"": CurrentElement.style.fontWeight = (Value == ""1"") ? ""bold"" : ""unset""; break;
+            case ""vi"": CurrentElement.style.visibility = (Value == ""1"") ? ""visible"" : ""hidden""; break;
+            case ""ta"": CurrentElement.style.textAlign = Value; break;
+            case ""sr"": (Value == ""1"") ? CurrentElement.setAttribute(""readonly"", """") : CurrentElement.removeAttribute(""readonly""); break;
+            case ""sd"": (Value == ""1"") ? CurrentElement.setAttribute(""disabled"", """") : CurrentElement.removeAttribute(""disabled""); break;
+            case ""mn"": CurrentElement.setAttribute(""minlength"", Value); break;
+            case ""mx"": CurrentElement.setAttribute(""maxlength"", Value); break;
+            case ""ts"": CurrentElement.value = Value; break;
+            case ""ti"": CurrentElement.selectedIndex = Value; break;
+            case ""ks"":
+                var CheckBoxValue = Value.GetTextBefore(""|"");
+                var CheckBoxChecked = Value.GetTextAfter(""|"");
+                var CheckBoxTagLength = CurrentElement.querySelectorAll('input[type=""checkbox""][value=""' + CheckBoxValue + '""]').length;
+                if (CheckBoxTagLength > 0)
+                    CurrentElement.querySelectorAll('input[type=""checkbox""][value=""' + CheckBoxValue + '""]')[0].checked = (CheckBoxChecked == ""1"");
+                break;
+            case ""ki"":
+                var CheckBoxIndex = Value.GetTextBefore(""|"");
+                var CheckBoxChecked = Value.GetTextAfter(""|"");
+                var CheckBoxTag = CurrentElement.querySelectorAll('input[type=""checkbox""]')[CheckBoxIndex];
+                if (CheckBoxTag)
+                    CheckBoxTag.checked = (CheckBoxChecked == ""1"");
+                break;
+            case ""nt"":
+                if (Value.Contains(""|""))
+                {
+                    var TagName = Value.GetTextBefore(""|"");
+                    var TagId = Value.GetTextAfter(""|"");
+                    var TmpTag = document.createElement(TagName);
+                    TmpTag.id = TagId;
+                    CurrentElement.appendChild(TmpTag);
+                }
+                else
+                    CurrentElement.appendChild(document.createElement(Value));
+        }
     }
 }
 
-function cb_GetElementByElementPlace(ElementPlace)
+function cb_GetElementByElementPlace(ElementPlace, obj)
 {
     var ElementPlaceFirstChar = ElementPlace.substring(0, 1);
+
+    const FromPlace = (obj) ? obj : document;
 
     switch (ElementPlaceFirstChar)
     {
         case '<':
             var TagName = ElementPlace.substring(1).GetTextBefore("">"");
             var TagIndex = (ElementPlace.length > (TagName.length + 2)) ? ElementPlace.substring(TagName.length + 2) : 0;
-            return document.getElementsByTagName(TagName)[TagIndex];
+            return FromPlace.getElementsByTagName(TagName)[TagIndex];
 
         case '(':
             var TagNameAttr = ElementPlace.substring(1).GetTextBefore("")"");
             var TagNameIndex = (ElementPlace.length > (TagNameAttr.length + 2)) ? ElementPlace.substring(TagNameAttr.length + 2) : 0;
-            return document.getElementsByName(TagNameAttr)[TagNameIndex];
+            return FromPlace.getElementsByName(TagNameAttr)[TagNameIndex];
 
         case '{':
             var ClassName = ElementPlace.substring(1).GetTextBefore(""}"");
             var ClassIndex = (ElementPlace.length > (ClassName.length + 2)) ? ElementPlace.substring(ClassName.length + 2) : 0;
-            return document.getElementsByClassName(ClassName)[ClassIndex];
+            return FromPlace.getElementsByClassName(ClassName)[ClassIndex];
 
-        default: return document.getElementById(ElementPlace);
+        case '*':
+            var Query = ElementPlace.substring(1);
+            return FromPlace.querySelector(Query.Replace(""$[eq];"", ""=""));
+
+        case '>':
+            var PlaceList = ElementPlace.substring(1).split('|');
+            var TmpPlace;
+
+            for (var i = 0; i < PlaceList.length; i++)
+            {
+                var TmpElementPlace = PlaceList[i];
+                TmpPlace = (i == 0) ? cb_GetElementByElementPlace(TmpElementPlace) : cb_GetElementByElementPlace(TmpElementPlace, TmpPlace);
+            }
+
+            return TmpPlace;
+
+        default: return FromPlace.getElementById(ElementPlace);
     }
 }
 
@@ -1358,6 +1480,49 @@ String.prototype.Replace = function (SearchValue, ReplaceValue)
         MainText = MainText.replace(SearchValue, ReplaceValue);
 
     return MainText;
+};
+
+String.prototype.EndsWith = function (Suffix)
+{
+    return this.indexOf(Suffix, this.length - Suffix.length) !== -1;
+};
+
+String.prototype.GetUnit = function ()
+{
+    var Value = this.toLowerCase();
+
+    if (Value.EndsWith(""%""))
+        return ""%"";
+    if (Value.EndsWith(""vmax""))
+        return ""vmax"";
+    if (Value.EndsWith(""vmin""))
+        return ""vmin"";
+    if (Value.EndsWith(""rem""))
+        return ""rem"";
+    if (Value.EndsWith(""pt""))
+        return ""pt"";
+    if (Value.EndsWith(""px""))
+        return ""px"";
+    if (Value.EndsWith(""em""))
+        return ""em"";
+    if (Value.EndsWith(""vw""))
+        return ""vw"";
+    if (Value.EndsWith(""vh""))
+        return ""vh"";
+    if (Value.EndsWith(""ch""))
+        return ""ch"";
+    if (Value.EndsWith(""ex""))
+        return ""ex"";
+    if (Value.EndsWith(""cm""))
+        return ""cm"";
+    if (Value.EndsWith(""mm""))
+        return ""mm"";
+    if (Value.EndsWith(""in""))
+        return ""in"";
+    if (Value.EndsWith(""pc""))
+        return ""pc"";
+
+    return """";
 };
 
 /* End Extension Methods */";
