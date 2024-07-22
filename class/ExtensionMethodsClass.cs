@@ -129,5 +129,19 @@ namespace CodeBehind
         {
             return HasMatching(Text.ToString(), MatchingType, Matching);
         }
+
+        /// <summary>
+        /// This Method Does Not Support QueryAll
+        /// </summary>
+        public static string AppendPlace(this string Text, string Value)
+        {
+            if (Text.Length < 1)
+                return Value;
+
+            if (Text[0] != '>')
+                Text = '>' + Text;
+
+            return Text + "|" + Value;
+        }
     }
 }
