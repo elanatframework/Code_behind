@@ -20,6 +20,10 @@ show_minor_errors=false
 error_page_path=/error.aspx/{value}
 prevent_access_default_aspx=false
 default_role=guest
+web_forms_script_path=/script
+auto_create_web_forms_script=true
+recreate_web_forms_script_after_recompile=false
+web_forms_view_place=<body>
 ```
 
 **The possibility to load aspx page names as directory names**
@@ -201,3 +205,30 @@ Operation location: Every request
 (`default_role=guest`)
 
 This option is used to set the default role, the default value of which is `guest`. By default, any user who logs into your web application will have the `guest` role.
+
+**Using Web-Forms**
+
+**Web Forms Script Path**
+
+(`web_forms_script_path=/script`)
+
+The `web_forms_script_path` option specifies the path to the WebFormsJS file. According to the `/script` value, the WebFormsJS file is created in the following path:
+`/script/web-forms.js`
+
+**Should the Web-Forms script be created automatically?**
+
+(`auto_create_web_forms_script=true`)
+
+If the `auto_create_web_forms_script` option is enabled, the WebFormsJS file will be created automatically.
+
+**Rebuilding the Web-Forms script after each compilation**
+
+(`recreate_web_forms_script_after_recompile=false`)
+
+If the `recreate_web_forms_script_after_recompile` option is enabled, the WebFormsJS file will be created after each compile.
+
+**Determining the location of the server response tag**
+
+(`web_forms_view_place=<body>`)
+
+The `web_forms_view_place` option is for situations where the Action Control is not present in the response and determines the tag location of the server's response.
