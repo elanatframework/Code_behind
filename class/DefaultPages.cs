@@ -257,7 +257,7 @@ function cb_SetPostBackFunctionToSubmit(obj)
                 return;
             }
 
-            if (!OnClickAttr.Contains(""PostBack(this)""))
+            if (!OnClickAttr.ContainsNameWithSpliter(""PostBack"", ';', '('))
                 if (OnClickAttr.charAt(OnClickAttr.length - 1) == ';')
                     InputElement.setAttribute(""onclick"", OnClickAttr + ""PostBack(this)"");
                 else
@@ -1471,6 +1471,11 @@ String.prototype.Contains = function (Text)
 String.prototype.ContainsWithSpliter = function (Text, Spliter)
 {
     return (Spliter + this + Spliter).indexOf(Spliter + Text + Spliter) !== -1;
+};
+
+String.prototype.ContainsNameWithSpliter = function (Text, Spliter, SpliterNameValue)
+{
+    return (Spliter + this).indexOf(Spliter + Text + SpliterNameValue) !== -1;
 };
 
 String.prototype.Replace = function (SearchValue, ReplaceValue)
