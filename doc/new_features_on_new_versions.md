@@ -230,4 +230,9 @@ The first version of CodeBehind is based on .NET Core version 7.0; if the versio
 ### Version 2.9.1
 
 **Problems that were solved:**
- - Fixing server response location problem in WebFormsJS
+ - Fixing server response location problem in WebFormsJS.
+
+### Version 2.9.2
+
+**Problems that were solved:**
+ - Better identification of the `PostBack` method in submit type inputs in WebFormsJS.
