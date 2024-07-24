@@ -226,3 +226,8 @@ The first version of CodeBehind is based on .NET Core version 7.0; if the versio
  - And a series of minor changes and improvements
 
 **In this version, access to Web-Forms controls has been added**
+
+### Version 2.9.1
+
+**Problems that were solved:**
+ - Fixing server response location problem in WebFormsJS
