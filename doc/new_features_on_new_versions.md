@@ -1,19 +1,19 @@
-## New features on new versions
+# New features on new versions
 
 **New releases policy:** Our effort at Elanat team is to add new features to new releases. We put a lot of effort into testing the CodeBehind framework before releasing new versions, but usually adding new features causes a series of new bugs. We receive bug reports very quickly and provide new sub-versions with bug fixes. So try to always use the latest versions of the CodeBehind framework.
 
-### Early versions
+## Early versions
 
 The first version of CodeBehind is based on .NET Core version 7.0; if the version of .NET Core is updated in a version compared to the previous one, it will be explained in the description section of that new version.
 
-### Version 1.7
+## Version 1.7
 
 **New features:**
  - The possibility of creating a page view without having to follow the MVC pattern
    - Possibility to create only view without controller and model
    - Possibility to create model and view without controller
 
-### Version 1.8
+## Version 1.8
 
 **New features:**
  - Razor syntax support 
@@ -39,7 +39,7 @@ The first version of CodeBehind is based on .NET Core version 7.0; if the versio
 **Problems that were solved:**
  - Solving the problem of removing one or two characters after Razor syntax.
 
-### Version 1.9
+## Version 1.9
 
 **New features:**
  - Ability to add layout page
@@ -77,7 +77,7 @@ The first version of CodeBehind is based on .NET Core version 7.0; if the versio
  - Fixed the problem of naming templates with numbers in the standard syntax.
  - Solving the problem of not ignoring two consecutive at sign (@) in conditional blocks and loop blocks.
 
-### Version 2.0
+## Version 2.0
 
 **New features:**
  - Ability to add data to ViewData in controller and model
@@ -87,7 +87,7 @@ The first version of CodeBehind is based on .NET Core version 7.0; if the versio
  - New option to support cshtml files in the options file
  - Added default pages (include layout) after first run
 
-### Version 2.1
+## Version 2.1
 
 **New features:**
  - Ability to change the view in the controller
@@ -110,7 +110,7 @@ The first version of CodeBehind is based on .NET Core version 7.0; if the versio
  - Complete rewrite codes related of page attribute recognition in Razor syntax
  - Adding the view file path comment above their methods in the view class
 
-### Version 2.2
+## Version 2.2
 
 **New features:**
  - Added CallerViewPath and CallerViewDirectoryPath to view, model and controller
@@ -127,7 +127,7 @@ The first version of CodeBehind is based on .NET Core version 7.0; if the versio
  - The ability to create a CodeBehindConstructor method without the need for input arguments
  - And a series of minor changes and improvements
 
-### Version 2.3
+## Version 2.3
 
 **New features:**
  - Ability to specify View along with Model from all Controllers
@@ -141,7 +141,7 @@ The first version of CodeBehind is based on .NET Core version 7.0; if the versio
 **Problems that were solved:**
  - In cases where the current View is wrongly requested from the Controller, the loop is avoided.
 
-### Version 2.4
+## Version 2.4
 
 **New features:**
  - New feature for route configuration
@@ -176,7 +176,7 @@ The first version of CodeBehind is based on .NET Core version 7.0; if the versio
 **Problems that were solved:**
  - Avoiding adding the same query.
 
-### Version 2.5
+## Version 2.5
 
 **New features:**
  - Adding middleware for easier configuration
@@ -187,13 +187,13 @@ The first version of CodeBehind is based on .NET Core version 7.0; if the versio
  - Default.aspx not being added in Section when `prevent access default aspx` is enabled
  - And a series of minor changes and improvements
 
-### Version 2.6
+## Version 2.6
 
 **New features:**
  - Support for constructor method of Controller class and Model class
  - Improved detection of View page attributes in standard syntax
 
-### Version 2.7
+## Version 2.7
 
 **New features:**
  - Adding CodeBehind roles
@@ -207,13 +207,13 @@ The first version of CodeBehind is based on .NET Core version 7.0; if the versio
 **Problems that were solved:**
  - Correcting a typo in the `UseRollAccess` middleware and changing it to `UseRoleAccess`.
 
-### Version 2.8
+## Version 2.8
 
 **New features:**
  - Adding cache
  - Improved numbering of aspx file methods in the View final class
 
-### Version 2.9
+## Version 2.9
 
 **New features:**
  - Added WebFormsJS
@@ -236,3 +236,8 @@ The first version of CodeBehind is based on .NET Core version 7.0; if the versio
 
 **Problems that were solved:**
  - Better identification of the `PostBack` method in submit type inputs in WebFormsJS.
+
+## Version 3.0
+
+**New features:**
+ - Support for specifying the location of the tag to place the data received from the server in WebFormsJS
