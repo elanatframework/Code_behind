@@ -228,6 +228,8 @@ PostBackOptions.ConnectionErrorMessage = ""Connection Error"";
 PostBackOptions.AutoSetSubmitOnClick = true;
 PostBackOptions.SendDataOnlyByPostMethod = false;
 PostBackOptions.ResponseLocation = null;
+PostBackOptions.WebFormsTagsBackgroundColor = ""#eee"";
+PostBackOptions.SetResponseInsideDivTag = true;
 
 function cb_SetResponseLocation()
 {
@@ -271,8 +273,22 @@ function cb_SetPostBackFunctionToSubmit(obj)
 window.onload = function ()
 {
 	cb_SetResponseLocation();
-    cb_SetPostBackFunctionToSubmit();
+    cb_Initialization();
 };
+
+function cb_Initialization(obj)
+{
+    if (obj)
+    {
+        cb_SetPostBackFunctionToSubmit(obj);
+        cb_SetWebFormsTagsValue(obj);
+    }
+    else
+    {
+        cb_SetPostBackFunctionToSubmit();
+        cb_SetWebFormsTagsValue();
+    }
+}
 
 /* End Event */
 
@@ -349,13 +365,33 @@ function PostBack(obj, ViewState)
 
                 if (ViewState)
                 {
-                    PostBackOptions.ResponseLocation.prepend(TmpDiv);
-                    cb_SetPostBackFunctionToSubmit(PostBackOptions.ResponseLocation.getElementsByTagName(""div"")[0]);
+                    if (typeof ViewState === ""string"")
+                    {
+                        var ViewStateObject = cb_GetElementByElementPlace(ViewState);
+                        ViewStateObject.innerHTML = TmpDiv.outerHTML;
+                        cb_Initialization(ViewStateObject.getElementsByTagName(""div"")[0]);
+                        if (!PostBackOptions.SetResponseInsideDivTag)
+                            ViewStateObject.getElementsByTagName(""div"")[0].outerHTML = ViewStateObject.getElementsByTagName(""div"")[0].innerHTML;
+                    }
+                    else if (typeof ViewState === ""object"")
+                    {
+                        ViewState.innerHTML = TmpDiv.outerHTML;
+                        cb_Initialization(ViewState.getElementsByTagName(""div"")[0]);
+                        if (!PostBackOptions.SetResponseInsideDivTag)
+                            ViewState.getElementsByTagName(""div"")[0].outerHTML = ViewState.getElementsByTagName(""div"")[0].innerHTML;
+                    }
+                    else
+                    {
+                        PostBackOptions.ResponseLocation.prepend(TmpDiv);
+                        cb_Initialization(PostBackOptions.ResponseLocation.getElementsByTagName(""div"")[0]);
+                        if (!PostBackOptions.SetResponseInsideDivTag)
+                            PostBackOptions.ResponseLocation.getElementsByTagName(""div"")[0].outerHTML = PostBackOptions.ResponseLocation.getElementsByTagName(""div"")[0].innerHTML;
+                    }
                 }
                 else
                 {
-                    PostBackOptions.ResponseLocation.innerHTML = TmpDiv.outerHTML;
-                    cb_SetPostBackFunctionToSubmit(PostBackOptions.ResponseLocation);
+                    PostBackOptions.ResponseLocation.innerHTML = (PostBackOptions.SetResponseInsideDivTag) ? TmpDiv.outerHTML : TmpDiv.innerHTML;
+                    cb_Initialization(PostBackOptions.ResponseLocation);
                 }
 
                 Form.focus();
@@ -456,16 +492,34 @@ function GetBack(FormAction, ViewState)
 
                 if (ViewState)
                 {
-                    PostBackOptions.ResponseLocation.prepend(TmpDiv);
-                    cb_SetPostBackFunctionToSubmit(PostBackOptions.ResponseLocation.getElementsByTagName(""div"")[0]);
+                    if (typeof ViewState === ""string"")
+                    {
+                        var ViewStateObject = cb_GetElementByElementPlace(ViewState);
+                        ViewStateObject.innerHTML = TmpDiv.outerHTML;
+                        cb_Initialization(ViewStateObject.getElementsByTagName(""div"")[0]);
+                        if (!PostBackOptions.SetResponseInsideDivTag)
+                            ViewStateObject.getElementsByTagName(""div"")[0].outerHTML = ViewStateObject.getElementsByTagName(""div"")[0].innerHTML;
+                    }
+                    else if (typeof ViewState === ""object"")
+                    {
+                        ViewState.innerHTML = TmpDiv.outerHTML;
+                        cb_Initialization(ViewState.getElementsByTagName(""div"")[0]);
+                        if (!PostBackOptions.SetResponseInsideDivTag)
+                            ViewState.getElementsByTagName(""div"")[0].outerHTML = ViewState.getElementsByTagName(""div"")[0].innerHTML;
+                    }
+                    else
+                    {
+                        PostBackOptions.ResponseLocation.prepend(TmpDiv);
+                        cb_Initialization(PostBackOptions.ResponseLocation.getElementsByTagName(""div"")[0]);
+                        if (!PostBackOptions.SetResponseInsideDivTag)
+                            PostBackOptions.ResponseLocation.getElementsByTagName(""div"")[0].outerHTML = PostBackOptions.ResponseLocation.getElementsByTagName(""div"")[0].innerHTML;
+                    }
                 }
                 else
                 {
-                    PostBackOptions.ResponseLocation.innerHTML = TmpDiv.outerHTML;
-                    cb_SetPostBackFunctionToSubmit(PostBackOptions.ResponseLocation);
+                    PostBackOptions.ResponseLocation.innerHTML = (PostBackOptions.SetResponseInsideDivTag) ? TmpDiv.outerHTML : TmpDiv.innerHTML;
+                    cb_Initialization(PostBackOptions.ResponseLocation);
                 }
-
-                Form.focus();
             }
         }
     }
@@ -732,11 +786,46 @@ function cb_HasFileInput(Form)
 
 /* End Progress Bar */
 
+/* Start Web-Forms Tags */
+
+function cb_SetWebFormsTagsValue(obj)
+{
+    const WebFormsTags = (obj) ? obj.querySelectorAll('web-forms') : document.querySelectorAll('web-forms');
+
+    WebFormsTags.forEach(function (WebForms)
+    {
+        if (WebForms.hasAttribute(""src""))
+        {
+            WebForms.style.backgroundColor = PostBackOptions.WebFormsTagsBackgroundColor;
+            if (WebForms.hasAttribute(""width""))
+                WebForms.style.width = WebForms.getAttribute(""width"");
+            if (WebForms.hasAttribute(""height""))
+                WebForms.style.height = WebForms.getAttribute(""height"");
+
+            var Src = WebForms.getAttribute(""src"");
+            if (Src)
+                GetBack(Src, WebForms);
+
+            WebForms.style.backgroundColor = ""unset"";
+        }
+
+        if (WebForms.hasAttribute(""ac""))
+        {
+            var ActionControl = WebForms.getAttribute(""ac"");
+            if (ActionControl)
+                cb_SetWebFormsValues(ActionControl.Replace(""$[dq];"",""\""""), false, true);
+        }
+    });
+}
+
+/* End Web-Forms Tags */
+
 /* Start Fetch Web-Forms */
 
-function cb_SetWebFormsValues(WebFormsValues, UsePostBack)
+function cb_SetWebFormsValues(WebFormsValues, UsePostBack, WithoutWebFormsSection)
 {
-    WebFormsValues = WebFormsValues.substring(11);
+    if (!WithoutWebFormsSection)
+        WebFormsValues = WebFormsValues.substring(11);
 
     var WebFormsList = (UsePostBack) ? WebFormsValues.split('\n') : WebFormsValues.split(""$[sln];"");
 
@@ -745,13 +834,32 @@ function cb_SetWebFormsValues(WebFormsValues, UsePostBack)
         if (!WebFormsList[i].FullTrim())
             continue;
 
+        var PreRunner = new Array();
+        var FirstChar = WebFormsList[i].substring(0, 1);
+        var PreRunnerIndexer = 0;
+        while ((FirstChar == '→') || (FirstChar == '↑'))
+        {
+            PreRunner[PreRunnerIndexer++] = WebFormsList[i].GetTextBefore("")"");
+            WebFormsList[i] = WebFormsList[i].GetTextAfter("")"");
+            FirstChar = WebFormsList[i].substring(0, 1);
+        }
+
+        switch (FirstChar)
+        {
+            case '_':
+                var ScriptValue = WebFormsList[i].GetTextAfter(""="").Replace(""$[ln];"", ""\n"").FullTrim();
+                cb_SetPreRunnerQueueForEval(PreRunner, ScriptValue);
+                continue;
+        }
+
+
         var ActionName = WebFormsList[i].substring(0, 2);
         var ActionValue = WebFormsList[i].substring(2);
 
         var ActionOperation = ActionName.substring(0, 1);
         var ActionFeature = ActionName.substring(1, 2);
 
-        cb_SetValueToInput(ActionOperation, ActionFeature, ActionValue);
+        cb_SetPreRunnerQueueForSetValueToInput(PreRunner, ActionOperation, ActionFeature, ActionValue);
     }
 }
 
@@ -913,7 +1021,7 @@ function cb_SetValueToInput(ActionOperation, ActionFeature, ActionValue)
                         break;
                     case 't':
                         CurrentElement.innerHTML = CurrentElement.innerHTML + Value.Replace(""$[ln];"", ""\n"").toDOM();
-                        cb_SetPostBackFunctionToSubmit(CurrentElement);
+                        cb_Initialization(CurrentElement);
                         break;
                     case 'a':
                         var AttrName = Value;
@@ -1110,7 +1218,7 @@ function cb_SetValueToInput(ActionOperation, ActionFeature, ActionValue)
                             break;
 
                         CurrentElement.innerHTML = Value.Replace(""$[ln];"", ""\n"").toDOM();
-                        cb_SetPostBackFunctionToSubmit(CurrentElement);
+                        cb_Initialization(CurrentElement);
                         break;
                     case 'a':
                         var AttrName = Value;
@@ -1297,7 +1405,13 @@ function cb_SetValueToInput(ActionOperation, ActionFeature, ActionValue)
             case ""mn"": CurrentElement.setAttribute(""minlength"", Value); break;
             case ""mx"": CurrentElement.setAttribute(""maxlength"", Value); break;
             case ""ts"": CurrentElement.value = Value; break;
-            case ""ti"": CurrentElement.selectedIndex = Value; break;
+            case ""ti"":
+                var SelectedIndex = parseInt(Value);
+                if (SelectedIndex >= 0)
+                    CurrentElement.selectedIndex = SelectedIndex;
+                else
+                    CurrentElement.selectedIndex = (CurrentElement.getElementsByTagName(""option"").length + SelectedIndex);
+                break;
             case ""ks"":
                 var CheckBoxValue = Value.GetTextBefore(""|"");
                 var CheckBoxChecked = Value.GetTextAfter(""|"");
@@ -1306,9 +1420,10 @@ function cb_SetValueToInput(ActionOperation, ActionFeature, ActionValue)
                     CurrentElement.querySelectorAll('input[type=""checkbox""][value=""' + CheckBoxValue + '""]')[0].checked = (CheckBoxChecked == ""1"");
                 break;
             case ""ki"":
-                var CheckBoxIndex = Value.GetTextBefore(""|"");
+                var CheckBoxIndex = parseInt(Value.GetTextBefore(""|""));
                 var CheckBoxChecked = Value.GetTextAfter(""|"");
-                var CheckBoxTag = CurrentElement.querySelectorAll('input[type=""checkbox""]')[CheckBoxIndex];
+                var CheckBoxTags = CurrentElement.querySelectorAll('input[type=""checkbox""]');
+                var CheckBoxTag = (ClassIndex >= 0) ? CheckBoxTags[CheckBoxIndex] : CheckBoxTags[CheckBoxTags.length + CheckBoxIndex];
                 if (CheckBoxTag)
                     CheckBoxTag.checked = (CheckBoxChecked == ""1"");
                 break;
@@ -1323,6 +1438,8 @@ function cb_SetValueToInput(ActionOperation, ActionFeature, ActionValue)
                 }
                 else
                     CurrentElement.appendChild(document.createElement(Value));
+                break;
+            case ""lu"": GetBack(Value, ElementPlace);
         }
     }
 }
@@ -1337,18 +1454,27 @@ function cb_GetElementByElementPlace(ElementPlace, obj)
     {
         case '<':
             var TagName = ElementPlace.substring(1).GetTextBefore("">"");
-            var TagIndex = (ElementPlace.length > (TagName.length + 2)) ? ElementPlace.substring(TagName.length + 2) : 0;
-            return FromPlace.getElementsByTagName(TagName)[TagIndex];
+            var TagIndex = (ElementPlace.length > (TagName.length + 2)) ? parseInt(ElementPlace.substring(TagName.length + 2)) : 0;
+            if (TagIndex >= 0)
+                return FromPlace.getElementsByTagName(TagName)[TagIndex];
+            else
+                return FromPlace.getElementsByTagName(TagName)[FromPlace.getElementsByTagName(TagName).length + TagIndex];
 
         case '(':
             var TagNameAttr = ElementPlace.substring(1).GetTextBefore("")"");
-            var TagNameIndex = (ElementPlace.length > (TagNameAttr.length + 2)) ? ElementPlace.substring(TagNameAttr.length + 2) : 0;
-            return FromPlace.getElementsByName(TagNameAttr)[TagNameIndex];
+            var TagNameIndex = (ElementPlace.length > (TagNameAttr.length + 2)) ? parseInt(ElementPlace.substring(TagNameAttr.length + 2)) : 0;
+            if (TagNameIndex >= 0)
+                return FromPlace.getElementsByName(TagNameAttr)[TagNameIndex];
+            else
+                return FromPlace.getElementsByName(TagNameAttr)[FromPlace.getElementsByName(TagNameAttr).length + TagNameIndex];
 
         case '{':
             var ClassName = ElementPlace.substring(1).GetTextBefore(""}"");
-            var ClassIndex = (ElementPlace.length > (ClassName.length + 2)) ? ElementPlace.substring(ClassName.length + 2) : 0;
-            return FromPlace.getElementsByClassName(ClassName)[ClassIndex];
+            var ClassIndex = (ElementPlace.length > (ClassName.length + 2)) ? parseInt(ElementPlace.substring(ClassName.length + 2)) : 0;
+            if (ClassIndex >= 0)
+                return FromPlace.getElementsByClassName(ClassName)[ClassIndex];
+            else
+                return FromPlace.getElementsByClassName(ClassName)[FromPlace.getElementsByClassName(ClassName).length + ClassIndex];
 
         case '*':
             var Query = ElementPlace.substring(1);
@@ -1537,7 +1663,59 @@ String.prototype.GetUnit = function ()
     return """";
 };
 
-/* End Extension Methods */";
+/* End Extension Methods */
+
+/* Start Pre Runner Queue Methods */
+
+function cb_SetPreRunnerQueueForEval(PreRunner, ScriptValue)
+{
+    if (PreRunner.length < 1)
+    {
+        eval(ScriptValue);
+        return;
+    }
+
+    var FirstChar = PreRunner[0].substring(0, 1);
+
+    switch (FirstChar)
+    {
+        case ""↑"":
+            PeriodMiliSecond = parseFloat(PreRunner[0].GetTextAfter(""↑"")) * 1000;
+            PreRunner.shift();
+            setInterval(function () { cb_SetPreRunnerQueueForEval(PreRunner, ScriptValue); }, PeriodMiliSecond);
+            break;
+        case ""→"":
+            DelayMiliSecond = parseFloat(PreRunner[0].GetTextAfter(""→"")) * 1000;
+            PreRunner.shift();
+            setTimeout(function () { cb_SetPreRunnerQueueForEval(PreRunner, ScriptValue); }, DelayMiliSecond);
+    }
+}
+
+function cb_SetPreRunnerQueueForSetValueToInput(PreRunner, ActionOperation, ActionFeature, ActionValue)
+{
+    if (PreRunner.length < 1)
+    {
+        cb_SetValueToInput(ActionOperation, ActionFeature, ActionValue);
+        return;
+    }
+
+    var FirstChar = PreRunner[0].substring(0, 1);
+
+    switch (FirstChar)
+    {
+        case ""↑"":
+            PeriodMiliSecond = parseFloat(PreRunner[0].GetTextAfter(""↑"")) * 1000;
+            PreRunner.shift();
+            setInterval(function () { cb_SetPreRunnerQueueForSetValueToInput(PreRunner, ActionOperation, ActionFeature, ActionValue); }, PeriodMiliSecond);
+            break;
+        case ""→"":
+            DelayMiliSecond = parseFloat(PreRunner[0].GetTextAfter(""→"")) * 1000;
+            PreRunner.shift();
+            setTimeout(function () { cb_SetPreRunnerQueueForSetValueToInput(PreRunner, ActionOperation, ActionFeature, ActionValue); }, DelayMiliSecond);
+    }
+}
+
+/* End Pre Runner Queue Methods */";
 
             file.Write(FileContent);
 
