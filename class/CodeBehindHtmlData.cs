@@ -43,6 +43,12 @@ namespace CodeBehind.HtmlData
             NameList = TmpNameList;
         }
 
+        public void DeleteByIndex(int Index)
+        {
+            int TmpIndex = (Index >= 0) ? Index : NameList.Count + Index;
+            NameList.RemoveAt(TmpIndex);
+        }
+
         public void Empty()
         {
             NameList = new List<Name>();
@@ -71,10 +77,24 @@ namespace CodeBehind.HtmlData
             }
         }
 
+        public void ChangeNameByIndex(int Index, string Name)
+        {
+            if (Index >= 0)
+                NameList[Index].TheName = Name;
+            else
+                NameList[NameList.Count + Index].TheName = Name;
+        }
+
         public void AddList(List<Name> NameList)
         {
             foreach (Name n in NameList)
                 this.NameList.Add(n);
+        }
+
+        public string GetNameByIndex(int Index)
+        {
+            int TmpIndex = (Index >= 0) ? Index : NameList.Count + Index;
+            return NameList[TmpIndex].TheName;
         }
 
         public List<Name> GetList()
@@ -128,6 +148,12 @@ namespace CodeBehind.HtmlData
             }
 
             NameValueList = TmpNameValueList;
+        }
+
+        public void DeleteByIndex(int Index)
+        {
+            int TmpIndex = (Index >= 0) ? Index : NameValueList.Count + Index;
+            NameValueList.RemoveAt(TmpIndex);
         }
 
         public void Empty()
@@ -184,6 +210,36 @@ namespace CodeBehind.HtmlData
             }
         }
 
+        public void ChangeValueByIndex(int Index, string Value)
+        {
+            if (Index >= 0)
+                NameValueList[Index].Value = Value;
+            else
+                NameValueList[NameValueList.Count + Index].Value = Value;
+        }
+
+        public void ChangeNameByIndex(int Index, string Name)
+        {
+            if (Index >= 0)
+                NameValueList[Index].Name = Name;
+            else
+                NameValueList[NameValueList.Count + Index].Name = Name;
+        }
+
+        public void ChangeNameValueByIndex(int Index, string Name, string Value)
+        {
+            if (Index >= 0)
+            {
+                NameValueList[Index].Name = Name;
+                NameValueList[Index].Value = Value;
+            }
+            else
+            {
+                NameValueList[NameValueList.Count + Index].Name = Name;
+                NameValueList[NameValueList.Count + Index].Value = Value;
+            }
+        }
+
         public void AddList(List<NameValue> NameValueList)
         {
             foreach (NameValue nv in NameValueList)
@@ -199,6 +255,18 @@ namespace CodeBehind.HtmlData
             }
 
             return "";
+        }
+
+        public string GetNameByIndex(int Index)
+        {
+            int TmpIndex = (Index >= 0) ? Index : NameValueList.Count + Index;
+            return NameValueList[TmpIndex].Name;
+        }
+
+        public string GetValueByIndex(int Index)
+        {
+            int TmpIndex = (Index >= 0) ? Index : NameValueList.Count + Index;
+            return NameValueList[TmpIndex].Value; ;
         }
 
         public List<NameValue> GetList()
@@ -259,6 +327,12 @@ namespace CodeBehind.HtmlData
             AttributeList = TmpAttributeList;
         }
 
+        public void DeleteByIndex(int Index)
+        {
+            int TmpIndex = (Index >= 0) ? Index : AttributeList.Count + Index;
+            AttributeList.RemoveAt(TmpIndex);
+        }
+
         public void Empty()
         {
             AttributeList = new List<Attribute>();
@@ -296,6 +370,36 @@ namespace CodeBehind.HtmlData
                     attr.Name = NewName;
                     break;
                 }
+            }
+        }
+
+        public void ChangeValueByIndex(int Index, string Value)
+        {
+            if (Index >= 0)
+                AttributeList[Index].Value = Value;
+            else
+                AttributeList[AttributeList.Count + Index].Value = Value;
+        }
+
+        public void ChangeNameByIndex(int Index, string Name)
+        {
+            if (Index >= 0)
+                AttributeList[Index].Name = Name;
+            else
+                AttributeList[AttributeList.Count + Index].Name = Name;
+        }
+
+        public void ChangeNameValueByIndex(int Index, string Name, string Value)
+        {
+            if (Index >= 0)
+            {
+                AttributeList[Index].Name = Name;
+                AttributeList[Index].Value = Value;
+            }
+            else
+            {
+                AttributeList[AttributeList.Count + Index].Name = Name;
+                AttributeList[AttributeList.Count + Index].Value = Value;
             }
         }
 
@@ -339,6 +443,18 @@ namespace CodeBehind.HtmlData
         {
             foreach (Attribute atr in AttributeList)
                 this.AttributeList.Add(atr);
+        }
+
+        public string GetNameByIndex(int Index)
+        {
+            int TmpIndex = (Index >= 0) ? Index : AttributeList.Count + Index;
+            return AttributeList[TmpIndex].Name;
+        }
+
+        public string GetValueByIndex(int Index)
+        {
+            int TmpIndex = (Index >= 0) ? Index : AttributeList.Count + Index;
+            return AttributeList[TmpIndex].Value; ;
         }
 
         public List<Attribute> GetList()
@@ -421,6 +537,12 @@ namespace CodeBehind.HtmlData
             OptionTagList = TmpOptionTagList;
         }
 
+        public void DeleteByIndex(int Index)
+        {
+            int TmpIndex = (Index >= 0) ? Index : OptionTagList.Count + Index;
+            OptionTagList.RemoveAt(TmpIndex);
+        }
+
         public void Empty()
         {
             OptionTagList = new List<OptionTag>();
@@ -446,6 +568,44 @@ namespace CodeBehind.HtmlData
                     tag.Text = Text;
                     break;
                 }
+            }
+        }
+
+        public void ChangeValueByIndex(int Index, string Value)
+        {
+            if (Index >= 0)
+                OptionTagList[Index].Value = Value;
+            else
+                OptionTagList[OptionTagList.Count + Index].Value = Value;
+        }
+
+        public void ChangeTextByIndex(int Index, string Text)
+        {
+            if (Index >= 0)
+                OptionTagList[Index].Text = Text;
+            else
+                OptionTagList[OptionTagList.Count + Index].Text = Text;
+        }
+
+        public void ChangeSelectedByIndex(int Index, bool Selected)
+        {
+            if (Index >= 0)
+                OptionTagList[Index].Selected = Selected;
+            else
+                OptionTagList[OptionTagList.Count + Index].Selected = Selected;
+        }
+
+        public void ChangeTextValueByIndex(int Index, string Text, string Value)
+        {
+            if (Index >= 0)
+            {
+                OptionTagList[Index].Text = Text;
+                OptionTagList[Index].Value = Value;
+            }
+            else
+            {
+                OptionTagList[OptionTagList.Count + Index].Text = Text;
+                OptionTagList[OptionTagList.Count + Index].Value = Value;
             }
         }
 
@@ -540,6 +700,24 @@ namespace CodeBehind.HtmlData
         {
             foreach (OptionTag tag in OptionTagList)
                 this.OptionTagList.Add(tag);
+        }
+
+        public string GetTextByIndex(int Index)
+        {
+            int TmpIndex = (Index >= 0) ? Index : OptionTagList.Count + Index;
+            return OptionTagList[TmpIndex].Text;
+        }
+
+        public string GetValueByIndex(int Index)
+        {
+            int TmpIndex = (Index >= 0) ? Index : OptionTagList.Count + Index;
+            return OptionTagList[TmpIndex].Value; ;
+        }
+
+        public bool GetSelectedByIndex(int Index)
+        {
+            int TmpIndex = (Index >= 0) ? Index : OptionTagList.Count + Index;
+            return OptionTagList[TmpIndex].Selected; ;
         }
 
         public List<OptionTag> GetList()
@@ -653,6 +831,12 @@ namespace CodeBehind.HtmlData
                 ChangeName(Name, Name, Value, Text, Selected);
         }
 
+        public void DeleteByIndex(int Index)
+        {
+            int TmpIndex = (Index >= 0) ? Index : CheckBoxItemList.Count + Index;
+            CheckBoxItemList.RemoveAt(TmpIndex);
+        }
+
         public void Delete(string Name)
         {
             List<CheckBoxItem> TmpCheckBoxItemList = new List<CheckBoxItem>();
@@ -691,6 +875,44 @@ namespace CodeBehind.HtmlData
                     item.Text = Text;
                     break;
                 }
+            }
+        }
+
+        public void ChangeValueByIndex(int Index, string Value)
+        {
+            if (Index >= 0)
+                CheckBoxItemList[Index].Value = Value;
+            else
+                CheckBoxItemList[CheckBoxItemList.Count + Index].Value = Value;
+        }
+
+        public void ChangeNameByIndex(int Index, string Name)
+        {
+            if (Index >= 0)
+                CheckBoxItemList[Index].Name = Name;
+            else
+                CheckBoxItemList[CheckBoxItemList.Count + Index].Name = Name;
+        }
+
+        public void ChangeSelectedByIndex(int Index, bool Checked)
+        {
+            if (Index >= 0)
+                CheckBoxItemList[Index].Checked = Checked;
+            else
+                CheckBoxItemList[CheckBoxItemList.Count + Index].Checked = Checked;
+        }
+
+        public void ChangeNameValueByIndex(int Index, string Name, string Value)
+        {
+            if (Index >= 0)
+            {
+                CheckBoxItemList[Index].Name = Name;
+                CheckBoxItemList[Index].Value = Value;
+            }
+            else
+            {
+                CheckBoxItemList[CheckBoxItemList.Count + Index].Name = Name;
+                CheckBoxItemList[CheckBoxItemList.Count + Index].Value = Value;
             }
         }
 
@@ -835,6 +1057,24 @@ namespace CodeBehind.HtmlData
         {
             foreach (CheckBoxItem item in CheckBoxItemList)
                 this.CheckBoxItemList.Add(item);
+        }
+
+        public string GetNameByIndex(int Index)
+        {
+            int TmpIndex = (Index >= 0) ? Index : CheckBoxItemList.Count + Index;
+            return CheckBoxItemList[TmpIndex].Name;
+        }
+
+        public string GetValueByIndex(int Index)
+        {
+            int TmpIndex = (Index >= 0) ? Index : CheckBoxItemList.Count + Index;
+            return CheckBoxItemList[TmpIndex].Value; ;
+        }
+
+        public bool GetCheckedByIndex(int Index)
+        {
+            int TmpIndex = (Index >= 0) ? Index : CheckBoxItemList.Count + Index;
+            return CheckBoxItemList[TmpIndex].Checked; ;
         }
 
         public List<CheckBoxItem> GetList()
