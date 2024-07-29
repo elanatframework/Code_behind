@@ -12,16 +12,18 @@ Code Behind framework inherits every advantage of ASP.NET Core and gives it more
 **CodeBehind framework is an alternative to ASP.NET Core.**
 
 ### Why use CodeBehind?
- - **Fast**: The CodeBehind framework is faster than the default structure of cshtml pages in ASP.NET Core.
- - **Simple**: Developing with CodeBehind is very simple. You can use mvc pattern or model-view or controller-view or only view.
- - **Modular**: It is modular. Just copy the new project files, including dll and aspx, into the current active project.
- - **Get output**: You can call the output of the aspx page in another aspx page and modify its output.
- - **Under .NET Core**: Your project will still be under ASP.NET Core and you will benefit from all the benefits of .NET Core.
- - **Code-Behind**: Code-Behind pattern will be fully respected.
- - **Modern**: CodeBehind is a modern framework with revolutionary ideas.
- - **Understandable**: View is preferable to controller and there is no need to set controllers in route.
- - **Adaptable**: The CodeBehind framework can even be used with Razor Pages and ASP.NET Core MVC.
- - **Loose coupling**: The different components of CodeBehind work independently of each other.
+- **Fast**: The CodeBehind framework is faster than Microsoft's default web frameworks (ASP.NET Core MVC and Razor Pages).
+- **Simple**: Developing with CodeBehind is very simple. You can use MVC pattern or Model-View or Controller-View or only View.
+- **Modular**: It is modular. Just copy the new project files, including DLL and aspx, into the current active project.
+- **Get output**: You can call the output of the aspx page in another aspx page and modify its output.
+- **Under .NET Core**: Your project will still be under ASP.NET Core and you will benefit from all the benefits of .NET Core.
+- **Code-Behind**: Code-Behind pattern will be fully respected.
+- **Modern**: CodeBehind is a modern framework with revolutionary ideas.
+- **Understandable**: View is preferable to Controller and there is no need to set Controllers in route.
+- **Adaptable**: The CodeBehind framework can even be used with Razor Pages and ASP.NET Core MVC.
+- **Loose coupling**: The different components of CodeBehind work independently of each other.
+- **RAD**: Everything is automated in CodeBehind framework, just focus on development.
+- **New Web-Forms**: Supports a new and unique approach modeled after Microsoft's former Web-Forms.
 
 **CodeBehind is .NET Diamond!**
 
@@ -147,7 +149,7 @@ app.Run();
  - [Section](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/section.md)
  - [Error handling](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/error_handling.md)
  - [Options](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/options.md)
- - [Namespace and dll for CodeBehind view class](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/namespace_and_dll_for_code_behind_view_class.md)
+ - [Namespace and DLL for CodeBehind view class](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/namespace_and_dll_for_code_behind_view_class.md)
  - [Manage roles in CodeBehind (Authentication and Authorization)](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/manage_roles_in_code_behind.md)
  - [Use cache](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/use_cache.md)
  - [Controller class constructor and Model class constructor](https://github.com/elanatframework/Code_behind/blob/elanat_framework/doc/controller_class_constructor_and_model_class_constructor.md)
