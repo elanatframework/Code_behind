@@ -441,7 +441,11 @@ namespace CodeBehind
             if (string.IsNullOrEmpty(ResponseText))
                 return "";
 
-            return ResponseText + "<script>cb_SetWebFormsValues(`[web-forms]" + WebFormsValue.Replace('`'.ToString(), "$[bt];").Replace(Environment.NewLine, "$[sln];") + "`);</script>";
+            if (!string.IsNullOrEmpty(WebFormsValue))
+                if (WebFormsValue.StartsWith(Environment.NewLine))
+                    WebFormsValue = WebFormsValue.Remove(0, Environment.NewLine.Length);
+
+            return ResponseText + WebFormsValue.Replace(Environment.NewLine, "$[sln];").ExportActionControlsToWebFormsTag();
         }
     }
 }
