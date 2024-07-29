@@ -1,10 +1,10 @@
-using static System.Net.Mime.MediaTypeNames;
+using CodeBehind.HtmlData;
 
 namespace CodeBehind
 {
     public class WebForms
     {
-        private HtmlData.NameValueCollection WebFormsData = new HtmlData.NameValueCollection();
+        private NameValueCollection WebFormsData = new NameValueCollection();
 
         // Add
         public void AddId(string InputPlace, string Id) => WebFormsData.Add("ai" + InputPlace, Id);
@@ -35,6 +35,7 @@ namespace CodeBehind
         public void SetWidth(string InputPlace, int Width) => SetWidth(InputPlace, Width.ToString() + "px");
         public void SetHeight(string InputPlace, string Height) => WebFormsData.Add("sh" + InputPlace, Height);
         public void SetHeight(string InputPlace, int Height) => SetHeight(InputPlace, Height.ToString() + "px");
+        public void LoadUrl(string InputPlace, string Url) => WebFormsData.Add("lu" + InputPlace, Url);
 
         // Insert
         public void InsertId(string InputPlace, string Id) => WebFormsData.Add("ii" + InputPlace, Id);
@@ -78,6 +79,7 @@ namespace CodeBehind
         public void SetSelectedIndex(string InputPlace, int Index) => WebFormsData.Add("ti" + InputPlace, Index.ToString());
         public void SetCheckedValue(string InputPlace, string Value, bool Selected) => WebFormsData.Add("ks" + InputPlace, Value + "|" + (Selected ? "1" : "0"));
         public void SetCheckedIndex(string InputPlace, int Index, bool Selected) => WebFormsData.Add("ki" + InputPlace, Index.ToString() + "|" + (Selected ? "1" : "0"));
+        public void CallScript(string ScriptText) => WebFormsData.Add("_" , ScriptText.Replace('\n'.ToString(), "$[ln];"));
 
         // Increase
         public void IncreaseMinLength(string InputPlace, int Value) => WebFormsData.Add("+n" + InputPlace, Value.ToString());
@@ -87,7 +89,6 @@ namespace CodeBehind
         public void IncreaseHeight(string InputPlace, int Value) => WebFormsData.Add("+h" + InputPlace, Value.ToString());
         public void IncreaseValue(string InputPlace, int Value) => WebFormsData.Add("+v" + InputPlace, Value.ToString());
 
-
         // Descrease
         public void DescreaseMinLength(string InputPlace, int Value) => WebFormsData.Add("-n" + InputPlace, Value.ToString());
         public void DescreaseMaxLength(string InputPlace, int Value) => WebFormsData.Add("-x" + InputPlace, Value.ToString());
@@ -96,14 +97,68 @@ namespace CodeBehind
         public void DescreaseHeight(string InputPlace, int Value) => WebFormsData.Add("-h" + InputPlace, Value.ToString());
         public void DescreaseValue(string InputPlace, int Value) => WebFormsData.Add("-v" + InputPlace, Value.ToString());
 
+        public void SetDelay(float Second, int Index = -1)
+        {
+            string CurrentName = WebFormsData.GetNameByIndex(Index);
+
+            if (string.IsNullOrEmpty(CurrentName))
+                return;
+
+            CurrentName = CurrentName.RemoveOuter("→", ")");
+
+            WebFormsData.ChangeNameByIndex(Index, "→" + Second + ")" + CurrentName);
+        }
+
+        public void SetInterval(float Second, int Index = -1)
+        {
+            string CurrentName = WebFormsData.GetNameByIndex(Index);
+
+            if (string.IsNullOrEmpty(CurrentName))
+                return;
+
+            CurrentName = CurrentName.RemoveOuter("↑", ")");
+
+            WebFormsData.ChangeNameByIndex(Index, "↑" + Second + ")" + CurrentName);
+        }
+
         public string GetFormsActionData()
         {
             string ReturnValue = "";
 
-            foreach (HtmlData.NameValue nv in WebFormsData.GetList())
+            foreach (NameValue nv in WebFormsData.GetList())
                 ReturnValue += Environment.NewLine + nv.Name + "=" + nv.Value;
 
             return ReturnValue;
+        }
+
+        public string GetFormsActionDataLineBreak()
+        {
+            string ReturnValue = "";
+
+            List<NameValue> WebFormsDataList = WebFormsData.GetList();
+
+            int i = WebFormsDataList.Count;
+            foreach (NameValue nv in WebFormsData.GetList())
+                ReturnValue += nv.Name + "=" + nv.Value.Replace("\"", "$[dq];") + ((i-- > 1) ? "$[sln];" : "");
+
+            return ReturnValue;
+        }
+
+        public string ExportToWebFormsTag(string src = null)
+        {
+            return "<web-forms ac=\"" + GetFormsActionDataLineBreak() + "\"" + (!string.IsNullOrEmpty(src) ? " src=\"" + src + "\"" : "") + "></web-forms>";
+        }
+
+        // Overload
+        public string ExportToWebFormsTag(string Width, string Height, string src = null)
+        {
+            return "<web-forms ac=\"" + GetFormsActionDataLineBreak() + "\" width=\"" + Width + "\" height=\"" + Height + "\"" + (!string.IsNullOrEmpty(src) ? " src=\"" + src + "\"" : "") + "></web-forms>";
+        }
+
+        // Overload
+        public string ExportToWebFormsTag(int Width, int Height, string src = null)
+        {
+            return ExportToWebFormsTag(Width.ToString() + "px", Height.ToString() + "px", src);
         }
     }
 
