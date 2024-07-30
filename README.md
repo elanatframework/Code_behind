@@ -60,8 +60,8 @@ View section: aspx page (standard syntax)
 View File: Default.aspx (razor syntax)
 ```aspx
 @page
-@controller DefaultController
-@model DefaultModel
+@controller MyController
+@model MyModel
 <!DOCTYPE html>
 <html>
 <head>
@@ -76,7 +76,7 @@ View File: Default.aspx (razor syntax)
 
 View File: Default.aspx (standard syntax)
 ```aspx
-<%@ Page Controller="DefaultController" Model="DefaultModel" %>
+<%@ Page Controller="MyController" Model="MyModel" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -93,7 +93,7 @@ Model File: Default.aspx.Model.cs
 ```csharp
 using CodeBehind;
 
-public partial class DefaultModel : CodeBehindModel
+public partial class MyModel : CodeBehindModel
 {
     public string PageTitle { get; set; }
     public string BodyValue { get; set; }
@@ -104,11 +104,11 @@ Controler File: Default.aspx.Controller.cs
 ```csharp
 using CodeBehind;
 
-public partial class DefaultController : CodeBehindController
+public partial class MyController : CodeBehindController
 {
     public void PageLoad(HttpContext context)
     {
-        DefaultModel model = new DefaultModel();
+        MyModel model = new MyModel();
         model.PageTitle = "My Title";
         model.BodyValue = "HTML Body";
         View(model);
