@@ -243,7 +243,7 @@ The first version of CodeBehind is based on .NET Core version 7.0; if the versio
 - Improved implementation structure of Action Controls for the first browser request
 - Extending WebForms class methods to support new WebFormsJS features
 - Support for specifying the location of the tag to place the data received from the server in WebFormsJS
-- Added new web-forms tag in WebFormsJS
+- Added new `web-forms` tag in WebFormsJS
 - Multiple ViewState types in PostBack and GetBack methods in WebFormsJS
 - Support for Pre Runners and running them back to back in the queue in WebFormsJS
 - Script code execution support in WebFormsJS
