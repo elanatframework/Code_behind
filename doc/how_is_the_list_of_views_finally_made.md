@@ -1,5 +1,7 @@
 This article tells how to create the final class of views in the CodeBehind framework.
 
+When you create a project under the CodeBehind framework, all classes (including Controller and Model) are compiled in a dll file; but aspx pages are rendered and compiled into one class when the project is first run. The final View class is built from rendering and separating server-side code from static values ​​(like HTML).
+
 In this example, an MVC page named Default.aspx, and a single page named Random.aspx are created. The Default.aspx page is located in the root and the Random.aspx page is located in the test directory located in the root.
 
 **Note: This class is a simplified example of the view class; the View class in the CodeBehind framework has a more complex structure.**
