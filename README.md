@@ -100,7 +100,7 @@ public partial class MyModel : CodeBehindModel
 }
 ```
 
-Controler File: Default.aspx.Controller.cs
+Controller File: Default.aspx.Controller.cs
 ```csharp
 using CodeBehind;
 
