@@ -1,7 +1,7 @@
 using System.Reflection;
 using System.Text.RegularExpressions;
-using CodeBehind;
 using Microsoft.CodeAnalysis;
+using CodeBehind;
 
 namespace SetCodeBehind
 {
@@ -407,12 +407,12 @@ namespace SetCodeBehind
 
             foreach (FileInfo file in WwwrootDir.GetFiles("*." + Extension, SearchOption.AllDirectories))
             {
-                string ParrentDirectories = file.FullName.GetTextAfterValue(Path.GetFullPath("wwwroot")).GetTextBeforeLastValue(@"\" + file.Name);
+                string ParrentDirectories = file.FullName.GetTextAfterValue(Path.GetFullPath("wwwroot")).GetTextBeforeLastValue(StaticObject.OsDirectorySplitter + file.Name);
 
                 if (!Directory.Exists(Path.GetFullPath(ViewPath) + ParrentDirectories))
                     Directory.CreateDirectory(Path.GetFullPath(ViewPath) + ParrentDirectories);
 
-                File.Move(file.FullName, Path.GetFullPath(ViewPath) + ParrentDirectories + @"\" + file.Name, true);
+                File.Move(file.FullName, Path.GetFullPath(ViewPath) + ParrentDirectories + StaticObject.OsDirectorySplitter + file.Name, true);
             }
         }
 
