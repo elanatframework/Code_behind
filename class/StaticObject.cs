@@ -7,6 +7,7 @@ namespace CodeBehind
         public static string ViewPath { get; private set; }
         public static string DefaultRole { get; private set; }
         public static string ViewPlace { get; private set; }
+        public static char OsDirectorySplitter = OperatingSystem.IsWindows() ? '\\' : '/';
 
         public static void SetValue()
         {
