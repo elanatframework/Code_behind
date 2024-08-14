@@ -70,7 +70,6 @@ namespace SetCodeBehind
                 return;
             }
 
-            char OsDirectorySplitter = OperatingSystem.IsWindows() ? '\\' : '/';
 
             // Support Lowercase
             PageProperties = " Page" + PageProperties.Remove(0, 5);
@@ -201,9 +200,9 @@ namespace SetCodeBehind
                 string LayoutPath = "";
 
                 if (Layout[0] == '/' || Layout[0].ToString() == @"\")
-                    LayoutPath = RootDirectoryPath + OsDirectorySplitter + Layout.Remove(0, 1);
+                    LayoutPath = RootDirectoryPath + StaticObject.OsDirectorySplitter + Layout.Remove(0, 1);
                 else
-                    LayoutPath = FilePath.GetTextBeforeLastValue(OsDirectorySplitter.ToString()) + OsDirectorySplitter + Layout;
+                    LayoutPath = FilePath.GetTextBeforeLastValue(StaticObject.OsDirectorySplitter.ToString()) + StaticObject.OsDirectorySplitter + Layout;
 
                 if (!Path.HasExtension(LayoutPath))
                 {
@@ -257,9 +256,9 @@ namespace SetCodeBehind
                     string TemplatePath = "";
 
                     if (Template[0] == '/' || Template[0].ToString() == @"\")
-                        TemplatePath = RootDirectoryPath + OsDirectorySplitter + Template.Remove(0,1);
+                        TemplatePath = RootDirectoryPath + StaticObject.OsDirectorySplitter + Template.Remove(0,1);
                     else
-                        TemplatePath = FilePath.GetTextBeforeLastValue(OsDirectorySplitter.ToString()) + OsDirectorySplitter + Template;
+                        TemplatePath = FilePath.GetTextBeforeLastValue(StaticObject.OsDirectorySplitter.ToString()) + StaticObject.OsDirectorySplitter + Template;
 
                     if (!Path.HasExtension(TemplatePath))
                         TemplatePath += ".astx";
@@ -476,8 +475,6 @@ namespace SetCodeBehind
                 return;
             }
 
-            char OsDirectorySplitter = OperatingSystem.IsWindows() ? '\\' : '/';
-
             AspxText = AspxText.Remove(0, 5);
 
 
@@ -641,9 +638,9 @@ namespace SetCodeBehind
                 string LayoutPath = "";
 
                 if (Layout[0] == '/' || Layout[0].ToString() == @"\")
-                    LayoutPath = RootDirectoryPath + OsDirectorySplitter + Layout.Remove(0, 1);
+                    LayoutPath = RootDirectoryPath + StaticObject.OsDirectorySplitter + Layout.Remove(0, 1);
                 else
-                    LayoutPath = FilePath.GetTextBeforeLastValue(OsDirectorySplitter.ToString()) + OsDirectorySplitter + Layout;
+                    LayoutPath = FilePath.GetTextBeforeLastValue(StaticObject.OsDirectorySplitter.ToString()) + StaticObject.OsDirectorySplitter + Layout;
 
                 if (!Path.HasExtension(LayoutPath))
                 {
@@ -700,9 +697,9 @@ namespace SetCodeBehind
                     string TemplatePath = "";
 
                     if (Template[0] == '/' || Template[0].ToString() == @"\")
-                        TemplatePath = RootDirectoryPath + OsDirectorySplitter + Template.Remove(0, 1);
+                        TemplatePath = RootDirectoryPath + StaticObject.OsDirectorySplitter + Template.Remove(0, 1);
                     else
-                        TemplatePath = FilePath.GetTextBeforeLastValue(OsDirectorySplitter.ToString()) + OsDirectorySplitter + Template;
+                        TemplatePath = FilePath.GetTextBeforeLastValue(StaticObject.OsDirectorySplitter.ToString()) + StaticObject.OsDirectorySplitter + Template;
 
                     if (!Path.HasExtension(TemplatePath))
                         TemplatePath += ".astx";
@@ -1536,19 +1533,19 @@ namespace SetCodeBehind
 
             if (!IsBreak)
             {
-                if (!RewriteAspxFileToDirectory || (RewriteAspxFileToDirectory && AccessAspxFileAfterRewrite && !(IgnoreDefaultAfterRewrite && (AspxFilePath.GetTextAfterLastValue('\\'.ToString()) == "Default.aspx"))))
+                if (!RewriteAspxFileToDirectory || (RewriteAspxFileToDirectory && AccessAspxFileAfterRewrite && !(IgnoreDefaultAfterRewrite && (AspxFilePath.GetTextAfterLastValue(StaticObject.OsDirectorySplitter.ToString()) == "Default.aspx"))))
                 {
                     CaseCodeTemplateValue += "                case \"" + AspxFilePathUrl + "\": return " + (ViewHasCache? ReturnMethodValueByCache : ReturnMethodValue) + ";" + Environment.NewLine;
 
                     if (UseSection)
                     {
-                        SectionTemplateValue += "            if (path.StartsWith(\"" + AspxFilePathUrl + "/\")" + ((AspxFilePath.GetTextAfterLastValue('\\'.ToString()) == "Default.aspx") ? " || path.StartsWith(\"" + AspxFilePathUrl.GetTextBeforeLastValue("Default.aspx") + "\")" : "") + ")" + Environment.NewLine;
+                        SectionTemplateValue += "            if (path.StartsWith(\"" + AspxFilePathUrl + "/\")" + ((AspxFilePath.GetTextAfterLastValue(StaticObject.OsDirectorySplitter.ToString()) == "Default.aspx") ? " || path.StartsWith(\"" + AspxFilePathUrl.GetTextBeforeLastValue("Default.aspx") + "\")" : "") + ")" + Environment.NewLine;
                         SectionTemplateValue += "                return " + (ViewHasCache ? ReturnMethodValueByCache : ReturnMethodValue) + ";" + Environment.NewLine;
                     }
                 }
 
                 if (RewriteAspxFileToDirectory)
-                    if (IgnoreDefaultAfterRewrite && (AspxFilePath.GetTextAfterLastValue('\\'.ToString()) == "Default.aspx"))
+                    if (IgnoreDefaultAfterRewrite && (AspxFilePath.GetTextAfterLastValue(StaticObject.OsDirectorySplitter.ToString()) == "Default.aspx"))
                     {
                         CaseCodeTemplateValue += "                case \"" + AspxFilePathUrl + "\": return " + (ViewHasCache ? ReturnMethodValueByCache : ReturnMethodValue) + ";" + Environment.NewLine;
 
