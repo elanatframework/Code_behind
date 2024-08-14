@@ -70,6 +70,7 @@ namespace SetCodeBehind
                 return;
             }
 
+            char OsDirectorySplitter = OperatingSystem.IsWindows() ? '\\' : '/';
 
             // Support Lowercase
             PageProperties = " Page" + PageProperties.Remove(0, 5);
@@ -200,9 +201,9 @@ namespace SetCodeBehind
                 string LayoutPath = "";
 
                 if (Layout[0] == '/' || Layout[0].ToString() == @"\")
-                    LayoutPath = RootDirectoryPath + @"\" + Layout;
+                    LayoutPath = RootDirectoryPath + OsDirectorySplitter + Layout.Remove(0, 1);
                 else
-                    LayoutPath = FilePath.GetTextBeforeLastValue(@"\") + @"\" + Layout;
+                    LayoutPath = FilePath.GetTextBeforeLastValue(OsDirectorySplitter.ToString()) + OsDirectorySplitter + Layout;
 
                 if (!Path.HasExtension(LayoutPath))
                 {
@@ -256,9 +257,9 @@ namespace SetCodeBehind
                     string TemplatePath = "";
 
                     if (Template[0] == '/' || Template[0].ToString() == @"\")
-                        TemplatePath = RootDirectoryPath + @"\" + Template;
+                        TemplatePath = RootDirectoryPath + OsDirectorySplitter + Template.Remove(0,1);
                     else
-                        TemplatePath = FilePath.GetTextBeforeLastValue(@"\") + @"\" + Template;
+                        TemplatePath = FilePath.GetTextBeforeLastValue(OsDirectorySplitter.ToString()) + OsDirectorySplitter + Template;
 
                     if (!Path.HasExtension(TemplatePath))
                         TemplatePath += ".astx";
@@ -475,6 +476,8 @@ namespace SetCodeBehind
                 return;
             }
 
+            char OsDirectorySplitter = OperatingSystem.IsWindows() ? '\\' : '/';
+
             AspxText = AspxText.Remove(0, 5);
 
 
@@ -638,9 +641,9 @@ namespace SetCodeBehind
                 string LayoutPath = "";
 
                 if (Layout[0] == '/' || Layout[0].ToString() == @"\")
-                    LayoutPath = RootDirectoryPath + @"\" + Layout;
+                    LayoutPath = RootDirectoryPath + OsDirectorySplitter + Layout.Remove(0, 1);
                 else
-                    LayoutPath = FilePath.GetTextBeforeLastValue(@"\") + @"\" + Layout;
+                    LayoutPath = FilePath.GetTextBeforeLastValue(OsDirectorySplitter.ToString()) + OsDirectorySplitter + Layout;
 
                 if (!Path.HasExtension(LayoutPath))
                 {
@@ -697,9 +700,9 @@ namespace SetCodeBehind
                     string TemplatePath = "";
 
                     if (Template[0] == '/' || Template[0].ToString() == @"\")
-                        TemplatePath = RootDirectoryPath + @"\" + Template;
+                        TemplatePath = RootDirectoryPath + OsDirectorySplitter + Template.Remove(0, 1);
                     else
-                        TemplatePath = FilePath.GetTextBeforeLastValue(@"\") + @"\" + Template;
+                        TemplatePath = FilePath.GetTextBeforeLastValue(OsDirectorySplitter.ToString()) + OsDirectorySplitter + Template;
 
                     if (!Path.HasExtension(TemplatePath))
                         TemplatePath += ".astx";
