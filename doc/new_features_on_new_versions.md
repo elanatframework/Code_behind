@@ -261,3 +261,9 @@ The first version of CodeBehind is based on .NET Core version 7.0; if the versio
 
 **Problems that were solved:**
 - Solved the problem of other operating systems not working due to the wrong determination of the separator of directories in the path.
+
+## Version 3.2
+
+**New features:**
+- Support for default Controller
+- - Support for Section mode in the default Controller
