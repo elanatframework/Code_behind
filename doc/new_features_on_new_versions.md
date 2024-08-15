@@ -131,7 +131,7 @@ The first version of CodeBehind is based on .NET Core version 7.0; if the versio
 
 **New features:**
 - Ability to specify View along with Model from all Controllers
-- - The possibility of loading pages with the model in the LoadPage method in View pages
+  - The possibility of loading pages with the model in the LoadPage method in View pages
 - Support strings written from the previous Controller
 - Added possible to prevent access to Default.aspx
   - Added the prevent access to Default.aspx in the options file
@@ -266,4 +266,4 @@ The first version of CodeBehind is based on .NET Core version 7.0; if the versio
 
 **New features:**
 - Support for default Controller
-- - Support for Section mode in the default Controller
+  - Support for Section mode in the default Controller
