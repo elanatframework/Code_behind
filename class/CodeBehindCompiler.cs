@@ -43,7 +43,7 @@ namespace SetCodeBehind
             List<MetadataReference> ReferencesList = new List<MetadataReference>
             {
                 MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
-                MetadataReference.CreateFromFile(path.BaseDirectory + "/" + CurrentProjectName + ".dll"),
+                MetadataReference.CreateFromFile(path.BaseDirectory + "/" + CurrentProjectName + ".dll"), // When You Run Your Program Under CodeBehind Source, Remove This Line
                 MetadataReference.CreateFromFile(path.BaseDirectory + "/CodeBehind.dll"),
                 MetadataReference.CreateFromFile(path.AspRunTimePath + "/Microsoft.AspNetCore.Http.Abstractions.dll"),
                 MetadataReference.CreateFromFile(path.AspRunTimePath + "/Microsoft.AspNetCore.Http.Features.dll"),
