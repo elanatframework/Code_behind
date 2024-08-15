@@ -219,7 +219,7 @@ namespace SetCodeBehind
 
             var file = File.CreateText(FilePath);
 
-            string FileContent = @"/* WebFormsJS - Providing Infrastructure For Web Controls In CodeBehind Framework Owned By Elanat (elanat.net) */
+            string FileContent = @"/* WebFormsJS 1.2 - Providing Infrastructure For Web Controls In CodeBehind Framework Owned By Elanat (elanat.net) */
 
 /* Start Options */
 
@@ -685,7 +685,7 @@ function cb_FormDataSerialize(form, TagSubmitName, TagSubmitValue, FormIsMultiPa
 function cb_ExtractScriptTags(Html)
 {
     var ScriptList = new Array();
-    const regex = /<script[^>]+>(.*?)<\/script>/gs;
+    const regex = /<script[^>]*>([\s\S]*?)<\/script>/g;
     let match;
 
     while ((match = regex.exec(Html)) !== null)
@@ -839,7 +839,7 @@ function cb_SetWebFormsValues(WebFormsValues, UsePostBack, WithoutWebFormsSectio
         var PreRunner = new Array();
         var FirstChar = WebFormsList[i].substring(0, 1);
         var PreRunnerIndexer = 0;
-        while ((FirstChar == '→') || (FirstChar == '↑'))
+        while ((FirstChar == ':') || (FirstChar == '('))
         {
             PreRunner[PreRunnerIndexer++] = WebFormsList[i].GetTextBefore("")"");
             WebFormsList[i] = WebFormsList[i].GetTextAfter("")"");
@@ -1681,13 +1681,13 @@ function cb_SetPreRunnerQueueForEval(PreRunner, ScriptValue)
 
     switch (FirstChar)
     {
-        case ""↑"":
-            PeriodMiliSecond = parseFloat(PreRunner[0].GetTextAfter(""↑"")) * 1000;
+        case ""("":
+            PeriodMiliSecond = parseFloat(PreRunner[0].GetTextAfter(""("")) * 1000;
             PreRunner.shift();
             setInterval(function () { cb_SetPreRunnerQueueForEval(PreRunner, ScriptValue); }, PeriodMiliSecond);
             break;
-        case ""→"":
-            DelayMiliSecond = parseFloat(PreRunner[0].GetTextAfter(""→"")) * 1000;
+        case "":"":
+            DelayMiliSecond = parseFloat(PreRunner[0].GetTextAfter("":"")) * 1000;
             PreRunner.shift();
             setTimeout(function () { cb_SetPreRunnerQueueForEval(PreRunner, ScriptValue); }, DelayMiliSecond);
     }
@@ -1705,13 +1705,13 @@ function cb_SetPreRunnerQueueForSetValueToInput(PreRunner, ActionOperation, Acti
 
     switch (FirstChar)
     {
-        case ""↑"":
-            PeriodMiliSecond = parseFloat(PreRunner[0].GetTextAfter(""↑"")) * 1000;
+        case ""("":
+            PeriodMiliSecond = parseFloat(PreRunner[0].GetTextAfter(""("")) * 1000;
             PreRunner.shift();
             setInterval(function () { cb_SetPreRunnerQueueForSetValueToInput(PreRunner, ActionOperation, ActionFeature, ActionValue); }, PeriodMiliSecond);
             break;
-        case ""→"":
-            DelayMiliSecond = parseFloat(PreRunner[0].GetTextAfter(""→"")) * 1000;
+        case "":"":
+            DelayMiliSecond = parseFloat(PreRunner[0].GetTextAfter("":"")) * 1000;
             PreRunner.shift();
             setTimeout(function () { cb_SetPreRunnerQueueForSetValueToInput(PreRunner, ActionOperation, ActionFeature, ActionValue); }, DelayMiliSecond);
     }
