@@ -252,3 +252,12 @@ The first version of CodeBehind is based on .NET Core version 7.0; if the versio
 - Support for calling URLs in WebFormsJS
 - Improving the functionality of HtmlData classes by adding new methods
 - And a series of minor changes and improvements
+
+## Version 3.1
+
+**New features:**
+- Better compatibility with older browsers in WebFormsJS
+- And a series of minor changes and improvements
+
+**Problems that were solved:**
+- Solved the problem of other operating systems not working due to the wrong determination of the separator of directories in the path.
