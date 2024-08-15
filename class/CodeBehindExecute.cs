@@ -265,6 +265,8 @@ namespace CodeBehind
             CodeBehindOptions option = new CodeBehindOptions();
             string path = option.ErrorPagePath.Replace("{value}", ErrorValue.ToString());
 
+            context.Response.StatusCode = ErrorValue;
+
             return Run(context, path);
         }
 
