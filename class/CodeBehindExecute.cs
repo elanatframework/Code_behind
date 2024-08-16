@@ -353,13 +353,13 @@ namespace CodeBehind
         }
 
         // Overload
-        public string RunController(string ControllerClass, HttpContext context)
+        public string RunController(string ControllerClass, HttpContext context, bool IsDefaultController = false)
         {
             Assembly assembly = CodeBehindCompiler.CompileAspx();
             Type type = assembly.GetType("CodeBehindViews.CodeBehindViewsList");
             object obj = Activator.CreateInstance(type);
             MethodInfo method = type.GetMethod("RunControllerName");
-            string ReturnResult = (string)method.Invoke(obj, new object[] { ControllerClass, context });
+            string ReturnResult = (string)method.Invoke(obj, new object[] { ControllerClass, context, IsDefaultController, false });
 
             method = type.GetMethod("ControllerHasFound");
             FoundController = (bool)method.Invoke(obj, null);
@@ -421,8 +421,13 @@ namespace CodeBehind
 
             if (string.IsNullOrEmpty(Section.GetValue(ControllerSection)))
             {
-                FoundController = false;
-                return "";
+                if (StaticObject.UseDefaultController)
+                    return RunController(StaticObject.DefaultController, context, true);
+                else
+                {
+                    FoundController = false;
+                    return "";
+                }
             }
 
             string ControllerClass = Section.GetValue(ControllerSection);
