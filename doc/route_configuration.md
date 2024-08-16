@@ -50,6 +50,8 @@ namespace YourProjectName
 }
 ```
 
+> Note: When the Controller is executed, the sections are created after the Controller path.
+
 According to the Controller class above, if the path `example.com/home` is requested, the Controller class above is executed and the `Route work fine` string is returned.
 
 If the name of the Controller class matches the section in the url, Regardless of the namespace, the Controller class is executed.
@@ -72,13 +74,13 @@ namespace YourProjectName
     {
         public void PageLoad(HttpContext context)
         {
-            if (Section.Count() < 2)
+            if (Section.Count() == 0)
             {
                 Write("This is main page");
                 return;
             }
 
-            switch (Section.GetValue(1))
+            switch (Section.GetValue(0))
             {
                 case "first": View("/page1.aspx"); break;
                 case "second": View("/page2.aspx"); break;
@@ -90,7 +92,7 @@ namespace YourProjectName
 }
 ```
 
-The code above shows a Controller that returns the string `This is main page` if there is no other section after section main. If another section named first, second, third, and fourth is requested after the main section, the pages `page1.aspx`, `page2.aspx`, `page3.aspx` and `page4.aspx` will be returned respectively.
+The code above shows a Controller that returns the string `This is main page` if there is no section. If there is section named first, second, third, and fourth is requested after the main path, the pages `page1.aspx`, `page2.aspx`, `page3.aspx` and `page4.aspx` will be returned respectively.
 
 Example:
 
