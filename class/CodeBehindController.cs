@@ -111,7 +111,7 @@ namespace CodeBehind
             return ResponseText + execute.RunControllerValue(context, ViewPath, CodeBehindModel, ViewData, DownloadFilePath, IgnoreLayout, WebFormsValue);
         }
 
-        public void FillSection(HttpContext context)
+        public void FillSection(HttpContext context, string FillAfter = "")
         {
             if (!string.IsNullOrEmpty(CallerViewPath))
                 return;
@@ -121,11 +121,20 @@ namespace CodeBehind
 
             string RequestPath = context.Request.Path;
 
+            if (!string.IsNullOrEmpty(FillAfter))
+                if (RequestPath.StartsWith(FillAfter))
+                    RequestPath = RequestPath.Remove(0, FillAfter.Length);
+
+            RequestPath = RequestPath.GetTextBeforeValue("?");
+
+            if (string.IsNullOrEmpty(RequestPath))
+                return;
+
             if (RequestPath.Length > 0)
                 if (RequestPath[0] == '/')
                     RequestPath = RequestPath.Remove(0, 1);
-
-            string[] ValueList = RequestPath.GetTextBeforeValue("?").Split('/');
+               
+            string[] ValueList = RequestPath.Split('/');
             Section.AddList(ValueList);
         }
     }
