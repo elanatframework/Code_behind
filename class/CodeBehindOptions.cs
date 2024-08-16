@@ -21,6 +21,11 @@ namespace CodeBehind
         public bool AutoCreateWebFormsScript { private set; get; }
         public bool RecreateWebFormsScriptAfterRecompile { private set; get; }
         public string WebFormsViewPlace { private set; get; }
+        public bool UseDefaultController { private set; get; }
+        public string DefaultController { private set; get; }
+        public bool UseSectionInDefaultController { private set; get; }
+        public bool SetBreakForDefaultController { private set; get; }
+
 
         public CodeBehindOptions()
         {
@@ -57,6 +62,10 @@ namespace CodeBehind
                 AutoCreateWebFormsScript = (reader.ReadLine().GetTextAfterValue("=").Trim() == "true");
                 RecreateWebFormsScriptAfterRecompile = (reader.ReadLine().GetTextAfterValue("=").Trim() == "true");
                 WebFormsViewPlace = (reader.ReadLine().GetTextAfterValue("=").Trim());
+                UseDefaultController = (reader.ReadLine().GetTextAfterValue("=").Trim() == "true");
+                DefaultController = (reader.ReadLine().GetTextAfterValue("=").Trim());
+                UseSectionInDefaultController = (reader.ReadLine().GetTextAfterValue("=").Trim() == "true");
+                SetBreakForDefaultController = (reader.ReadLine().GetTextAfterValue("=").Trim() == "true");
             }
         }
 
@@ -83,6 +92,10 @@ namespace CodeBehind
             OptionsList.Add("auto_create_web_forms_script=true");
             OptionsList.Add("recreate_web_forms_script_after_recompile=false");
             OptionsList.Add("web_forms_view_place=<body>");
+            OptionsList.Add("use_default_controller=true");
+            OptionsList.Add("default_controller=DefaultController");
+            OptionsList.Add("use_section_in_default_controller=true");
+            OptionsList.Add("set_break_for_default_controller=true");
 
             bool HasMoreOption = false;
 
