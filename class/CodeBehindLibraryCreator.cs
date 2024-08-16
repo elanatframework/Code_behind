@@ -266,12 +266,11 @@ namespace SetCodeBehind
             CodeBehindViews += "                return LoadPage(ViewPath, context);" + Environment.NewLine;
             CodeBehindViews += "        }" + Environment.NewLine + Environment.NewLine;
 
-            CodeBehindViews += "        public string RunControllerName(string ControllerClass, HttpContext context)" + Environment.NewLine;
+            CodeBehindViews += "        public string RunControllerName(string ControllerClass, HttpContext context, bool IsDefaultController, bool BreakDefaultInSwitch)" + Environment.NewLine;
             CodeBehindViews += "        {" + Environment.NewLine;
             CodeBehindViews += "            switch (ControllerClass)" + Environment.NewLine;
             CodeBehindViews += "            {" + Environment.NewLine;
             CodeBehindViews += FillControllerNameCase();
-            CodeBehindViews += "/*{CaseCodeTemplateValueForControllerName}*/" + Environment.NewLine;
             CodeBehindViews += "            }" + Environment.NewLine;
             CodeBehindViews += Environment.NewLine;
             CodeBehindViews += "            FoundController = false;" + Environment.NewLine;
@@ -481,6 +480,15 @@ namespace SetCodeBehind
 
                 ReturnValue += "                case \"" + TmpClass.Name + "\":" + Environment.NewLine;
 
+                if ((TmpClass.Name == StaticObject.DefaultController) && StaticObject.SetBreakForDefaultController)
+                {
+                    ReturnValue += "                if (!IsDefaultController)" + Environment.NewLine;
+                    ReturnValue += "                {" + Environment.NewLine;
+                    ReturnValue += "                    FoundController = false;" + Environment.NewLine;
+                    ReturnValue += "                    return \"\";" + Environment.NewLine;
+                    ReturnValue += "                }" + Environment.NewLine;
+                }
+
                 // Get Cache
                 CodeBehindControllerCache ControllerCache = new CodeBehindControllerCache();
                 bool ControllerHasCache = ControllerCache.ControllerHasCache(TmpClass.Name);
@@ -498,7 +506,7 @@ namespace SetCodeBehind
                 }
 
                 ReturnValue += "                " + NameSpace + TmpClass.Name + " " + ClassName + " = new " + NameSpace + TmpClass.Name + "();" + Environment.NewLine;
-                ReturnValue += "                " + ClassName + ".FillSection(context);" + Environment.NewLine;
+                ReturnValue += "                " + ClassName + ".FillSection(context, \"/" + TmpClass.Name + "\");" + Environment.NewLine;
                 ReturnValue += "                " + ClassName + ".PageLoad(context);" + Environment.NewLine;
                 ReturnValue += "                this.WebFormsValue += " + ClassName + ".WebFormsValue;" + Environment.NewLine;
 
@@ -528,6 +536,14 @@ namespace SetCodeBehind
                 ReturnValue += "                    return " + ClassName + ".ResponseText;" + Environment.NewLine + Environment.NewLine;
                 ReturnValue += "                return " + ClassName + ".ResponseText + RunController(context, " + ClassName + ".ViewPath, " + ClassName + ".CodeBehindModel, " + ClassName + ".ViewData, " + ClassName + ".DownloadFilePath, " + ClassName + ".IgnoreLayout, " + ClassName + ".WebFormsValue);" + Environment.NewLine + Environment.NewLine;
             }
+
+            ReturnValue += "/*{CaseCodeTemplateValueForControllerName}*/" + Environment.NewLine;
+
+            if (StaticObject.UseDefaultController && StaticObject.UseSectionInDefaultController)
+                ReturnValue += "                default:" + Environment.NewLine;
+                ReturnValue += "                    if (!BreakDefaultInSwitch)" + Environment.NewLine;
+                ReturnValue += "                        return RunControllerName(\"" + StaticObject.DefaultController + "\", context, true, true);" + Environment.NewLine;
+                ReturnValue += "                break;" + Environment.NewLine;
 
             return ReturnValue;
         }
