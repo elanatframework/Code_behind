@@ -268,9 +268,10 @@ The first version of CodeBehind is based on .NET Core version 7.0; if the versio
 - Support for default Controller
   - Support for Section mode in the default Controller
 
-## Version 3.3
+### Version 3.2.1
 
 **New features:**
 
 **Problems that were solved:**
 - Fixed extra line issue in Razor syntax code blocks
+- Fixed a minor problem in creating the list of Sections in Controllers
