@@ -1018,7 +1018,7 @@ namespace SetCodeBehind
                                         if (AspxText[++i] != '{')
                                             continue;
 
-                                        TextToCodeCombination += GetAddCode("{", !ControllerIsSet);
+                                        TextToCodeCombination += GetAddOpenBlock(!ControllerIsSet);
 
                                         syntex.FetchSyntexWithEndedCharacter("@" + AspxText.Substring(i));
 
@@ -1032,7 +1032,7 @@ namespace SetCodeBehind
                                             }
                                         }
 
-                                        TextToCodeCombination += GetAddCode("}", !ControllerIsSet);
+                                        TextToCodeCombination += GetAddCloseBlock(!ControllerIsSet);
 
                                         i += syntex.RazorIndexLength - 3;
 
@@ -1089,7 +1089,7 @@ namespace SetCodeBehind
                                                     if (AspxText[++i] != '{')
                                                         continue;
 
-                                                    TextToCodeCombination += GetAddCode("{", !ControllerIsSet);
+                                                    TextToCodeCombination += GetAddOpenBlock(!ControllerIsSet);
 
                                                     syntex.FetchSyntexWithEndedCharacter("@" + AspxText.Substring(i));
 
@@ -1103,7 +1103,7 @@ namespace SetCodeBehind
                                                         }
                                                     }
 
-                                                    TextToCodeCombination += GetAddCode("}", !ControllerIsSet);
+                                                    TextToCodeCombination += GetAddCloseBlock(!ControllerIsSet);
 
                                                     i += syntex.RazorIndexLength - 3;
 
@@ -1129,7 +1129,7 @@ namespace SetCodeBehind
                                         if (AspxText[++i] != '{')
                                             continue;
 
-                                        TextToCodeCombination += GetAddCode("{", !ControllerIsSet);
+                                        TextToCodeCombination += GetAddOpenBlock(!ControllerIsSet);
 
                                         syntex.FetchSyntexWithEndedCharacter("@" + AspxText.Substring(i));
 
@@ -1143,7 +1143,7 @@ namespace SetCodeBehind
                                             }
                                         }
 
-                                        TextToCodeCombination += GetAddCode("}", !ControllerIsSet);
+                                        TextToCodeCombination += GetAddCloseBlock(!ControllerIsSet);
 
                                         i += syntex.RazorIndexLength - 3;
 
@@ -1206,7 +1206,7 @@ namespace SetCodeBehind
                                         if (AspxText[++i] != '{')
                                             continue;
 
-                                        TextToCodeCombination += GetAddCode("{", !ControllerIsSet);
+                                        TextToCodeCombination += GetAddOpenBlock(!ControllerIsSet);
 
                                         syntex.FetchSyntexWithEndedCharacter("@" + AspxText.Substring(i));
 
@@ -1220,7 +1220,7 @@ namespace SetCodeBehind
                                             }
                                         }
 
-                                        TextToCodeCombination += GetAddCode("}", !ControllerIsSet);
+                                        TextToCodeCombination += GetAddCloseBlock(!ControllerIsSet);
 
                                         i += syntex.RazorIndexLength - 3;
 
@@ -1253,7 +1253,7 @@ namespace SetCodeBehind
                                         if (AspxText[++i] != '{')
                                             continue;
 
-                                        TextToCodeCombination += GetAddCode("{", !ControllerIsSet);
+                                        TextToCodeCombination += GetAddOpenBlock(!ControllerIsSet);
 
                                         syntex.FetchSyntexWithEndedCharacter("@" + AspxText.Substring(i));
 
@@ -1267,7 +1267,7 @@ namespace SetCodeBehind
                                             }
                                         }
 
-                                        TextToCodeCombination += GetAddCode("}", !ControllerIsSet);
+                                        TextToCodeCombination += GetAddCloseBlock(!ControllerIsSet);
 
                                         i += syntex.RazorIndexLength - 3;
 
@@ -1300,7 +1300,7 @@ namespace SetCodeBehind
                                         if (AspxText[++i] != '{')
                                             continue;
 
-                                        TextToCodeCombination += GetAddCode("{", !ControllerIsSet);
+                                        TextToCodeCombination += GetAddOpenBlock(!ControllerIsSet);
 
                                         syntex.FetchSyntexWithEndedCharacter("@" + AspxText.Substring(i));
 
@@ -1314,7 +1314,7 @@ namespace SetCodeBehind
                                             }
                                         }
 
-                                        TextToCodeCombination += GetAddCode("}", !ControllerIsSet);
+                                        TextToCodeCombination += GetAddCloseBlock(!ControllerIsSet);
 
                                         i += syntex.RazorIndexLength - 3;
 
@@ -1347,7 +1347,7 @@ namespace SetCodeBehind
                                         if (AspxText[++i] != '{')
                                             continue;
 
-                                        TextToCodeCombination += GetAddCode("{", !ControllerIsSet);
+                                        TextToCodeCombination += GetAddOpenBlock(!ControllerIsSet);
 
                                         syntex.FetchSyntexWithEndedCharacter("@" + AspxText.Substring(i));
 
@@ -1361,7 +1361,7 @@ namespace SetCodeBehind
                                             }
                                         }
 
-                                        TextToCodeCombination += GetAddCode("}", !ControllerIsSet);
+                                        TextToCodeCombination += GetAddCloseBlock(!ControllerIsSet);
 
                                         i += syntex.RazorIndexLength - 3;
 
@@ -1394,7 +1394,7 @@ namespace SetCodeBehind
                                         if (AspxText[++i] != '{')
                                             continue;
 
-                                        TextToCodeCombination += GetAddCode("{", !ControllerIsSet);
+                                        TextToCodeCombination += GetAddOpenBlock(!ControllerIsSet);
 
                                         syntex.FetchSyntexWithEndedCharacter("@" + AspxText.Substring(i));
 
@@ -1408,7 +1408,7 @@ namespace SetCodeBehind
                                             }
                                         }
 
-                                        TextToCodeCombination += GetAddCode("}", !ControllerIsSet);
+                                        TextToCodeCombination += GetAddCloseBlock(!ControllerIsSet);
 
                                         i += syntex.RazorIndexLength - 3;
 
@@ -1441,7 +1441,7 @@ namespace SetCodeBehind
                                         if (AspxText[++i] != '{')
                                             continue;
 
-                                        TextToCodeCombination += GetAddCode("{", !ControllerIsSet);
+                                        TextToCodeCombination += GetAddOpenBlock(!ControllerIsSet);
 
                                         syntex.FetchSyntexWithEndedCharacter("@" + AspxText.Substring(i));
 
@@ -1455,7 +1455,7 @@ namespace SetCodeBehind
                                             }
                                         }
 
-                                        TextToCodeCombination += GetAddCode("}", !ControllerIsSet);
+                                        TextToCodeCombination += GetAddCloseBlock(!ControllerIsSet);
 
                                         i += syntex.RazorIndexLength - 3;
 
@@ -1958,9 +1958,25 @@ namespace SetCodeBehind
         public string GetAddCode(string Code, bool PageIsOnlyView)
         {
             if (!PageIsOnlyView)
-                return "                " + Code.Replace('\n'.ToString(), Environment.NewLine + "            ") + Environment.NewLine;
+                return "                " + Code;
             else
-                return "            " + Code.Replace('\n'.ToString(), Environment.NewLine + "            ") + Environment.NewLine;
+                return "            " + Code;
+        }
+
+        public string GetAddOpenBlock(bool PageIsOnlyView)
+        {
+            if (!PageIsOnlyView)
+                return '\n' + "                {";
+            else
+                return '\n' + "            {";
+        }
+
+        public string GetAddCloseBlock(bool PageIsOnlyView)
+        {
+            if (!PageIsOnlyView)
+                return "                }" + '\n';
+            else
+                return "            }" + '\n';
         }
 
         public string GetTemplatePartName(string Text)
