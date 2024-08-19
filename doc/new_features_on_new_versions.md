@@ -276,5 +276,8 @@ The first version of CodeBehind is based on .NET Core version 7.0; if the versio
 
 ### Version 3.2.2
 
+**New features:**
+- Adding manual cache class
+
 **Problems that were solved:**
 - Resolving the problem of detecting `else` after `else if` in Razor syntax
