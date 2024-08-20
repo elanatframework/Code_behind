@@ -4,24 +4,24 @@ using System.Text.RegularExpressions;
 
 namespace SetCodeBehind
 {
-    public class ViewCodeCombination
+    internal class ViewCodeCombination
     {
-        public List<string> ErrorList = new List<string>();
-        public bool RewriteAspxFileToDirectory;
-        public bool AccessAspxFileAfterRewrite;
-        public bool IgnoreDefaultAfterRewrite;
-        public bool StartTrimInAspxFile;
-        public bool EndTrimInAspxFile;
-        public bool SetBreakForLayoutPage;
-        public bool InnerTrimInAspxFile;
-        public string CaseCodeTemplateValue = "";
-        public string SectionTemplateValue = "";
-        public string CaseCodeTemplateValueForFullPath = "";
-        public string CaseCodeTemplateValueForFullPathWithModel = "";
-        public string MethodCodeTemplateValue = "";
-        public string GlobalTemplate = "";
+        internal List<string> ErrorList = new List<string>();
+        internal bool RewriteAspxFileToDirectory;
+        internal bool AccessAspxFileAfterRewrite;
+        internal bool IgnoreDefaultAfterRewrite;
+        internal bool StartTrimInAspxFile;
+        internal bool EndTrimInAspxFile;
+        internal bool SetBreakForLayoutPage;
+        internal bool InnerTrimInAspxFile;
+        internal string CaseCodeTemplateValue = "";
+        internal string SectionTemplateValue = "";
+        internal string CaseCodeTemplateValueForFullPath = "";
+        internal string CaseCodeTemplateValueForFullPathWithModel = "";
+        internal string MethodCodeTemplateValue = "";
+        internal string GlobalTemplate = "";
 
-        public void Set(string FilePath, string RootDirectoryPath, int MethodIndexer)
+        internal void Set(string FilePath, string RootDirectoryPath, int MethodIndexer)
         {
             var Lines = File.OpenText(FilePath);
             string AspxText = "";
@@ -43,7 +43,7 @@ namespace SetCodeBehind
                 AspxTextAndCodeCombinationRazor(AspxText, FilePath, RootDirectoryPath, MethodIndexer);
         }
 
-        public void AspxTextAndCodeCombinationStandard(string AspxText, string FilePath, string RootDirectoryPath, int MethodIndexer)
+        private void AspxTextAndCodeCombinationStandard(string AspxText, string FilePath, string RootDirectoryPath, int MethodIndexer)
         {
             string AspxFilePath = FilePath.GetTextAfterValue(RootDirectoryPath);
 
@@ -453,7 +453,7 @@ namespace SetCodeBehind
             SetMethod(AspxFilePath, Controller, ControllerConstructor, ControllerClassConstructor, Model, ModelConstructor, ModelClassConstructor, ModelUseAbstract, !PageIsOnlyView, Layout, IsLayout, IsBreak, UseSection, MethodIndexer, TextToCodeCombination);
         }
 
-        public void AspxTextAndCodeCombinationRazor(string AspxText, string FilePath, string RootDirectoryPath, int MethodIndexer)
+        private void AspxTextAndCodeCombinationRazor(string AspxText, string FilePath, string RootDirectoryPath, int MethodIndexer)
         {
             string AspxFilePath = FilePath.GetTextAfterValue(RootDirectoryPath);
 
@@ -1065,6 +1065,9 @@ namespace SetCodeBehind
                                                 int ElseIfIndex = i + 4;
                                                 for (; (ElseIfIndex + 2) < AspxText.Length; ElseIfIndex++)
                                                 {
+                                                    if (AspxText[ElseIfIndex] == '{')
+                                                        break;
+
                                                     if (AspxText[ElseIfIndex] == 'i' && AspxText[ElseIfIndex + 1] == 'f' && (AspxText[ElseIfIndex + 2] == ' ' || AspxText[ElseIfIndex + 2] == '(' || AspxText[ElseIfIndex + 2] == '\n' || AspxText[ElseIfIndex + 2] == '\t' || AspxText[ElseIfIndex + 2] == '\r'))
                                                     {
                                                         HasElseIf = true;
@@ -1510,7 +1513,7 @@ namespace SetCodeBehind
             SetMethod(AspxFilePath, Controller, ControllerConstructor, ControllerClassConstructor, Model, ModelConstructor, ModelClassConstructor, ModelUseAbstract, ControllerIsSet, Layout, IsLayout, IsBreak, UseSection, MethodIndexer, TextToCodeCombination);
         }
 
-        public void SetMethod(string AspxFilePath, string Controller, string ControllerConstructor, string ControllerClassConstructor, string Model, string ModelConstructor, string ModelClassConstructor, bool ModelUseAbstract, bool ControllerIsSet, string Layout, bool IsLayout, bool IsBreak, bool UseSection, int MethodIndexer, string TextToCodeCombination)
+        private void SetMethod(string AspxFilePath, string Controller, string ControllerConstructor, string ControllerClassConstructor, string Model, string ModelConstructor, string ModelClassConstructor, bool ModelUseAbstract, bool ControllerIsSet, string Layout, bool IsLayout, bool IsBreak, bool UseSection, int MethodIndexer, string TextToCodeCombination)
         {
             if (AspxFilePath.EndsWith(".cshtml"))
                 AspxFilePath = AspxFilePath.GetTextBeforeLastValue(".cshtml") + ".aspx";
@@ -1575,7 +1578,7 @@ namespace SetCodeBehind
 
             string TmpMethodCodeTemplateValue = Environment.NewLine;
             TmpMethodCodeTemplateValue += "        // View Path: " + AspxFilePathUrl + Environment.NewLine;
-            TmpMethodCodeTemplateValue += "        protected string " + FilePathToMethodName + "_" + Controller.Replace('.', '_') + "_PageLoad" + MethodIndexer + "(HttpContext context" + (IsLayout ? ", string PageReturnValue" : "") + ")" + Environment.NewLine;
+            TmpMethodCodeTemplateValue += "        private string " + FilePathToMethodName + "_" + Controller.Replace('.', '_') + "_PageLoad" + MethodIndexer + "(HttpContext context" + (IsLayout ? ", string PageReturnValue" : "") + ")" + Environment.NewLine;
             TmpMethodCodeTemplateValue += "        {" + Environment.NewLine;
             TmpMethodCodeTemplateValue += "            string PreviousRequestPath = RequestPath;" + Environment.NewLine;
             TmpMethodCodeTemplateValue += "            string PreviousCallerViewPath = CallerViewPath;" + Environment.NewLine;
@@ -1724,7 +1727,7 @@ namespace SetCodeBehind
             {
                 TmpMethodCodeTemplateValue += Environment.NewLine;
                 TmpMethodCodeTemplateValue += "        // View Path: " + AspxFilePathUrl + Environment.NewLine;
-                TmpMethodCodeTemplateValue += "        protected string " + FilePathToMethodName + "_" + Controller.Replace('.', '_') + "_PageLoadCache" + MethodIndexer + "(HttpContext context" + (IsLayout ? ", string PageReturnValue" : "") + ")" + Environment.NewLine;
+                TmpMethodCodeTemplateValue += "        private string " + FilePathToMethodName + "_" + Controller.Replace('.', '_') + "_PageLoadCache" + MethodIndexer + "(HttpContext context" + (IsLayout ? ", string PageReturnValue" : "") + ")" + Environment.NewLine;
                 TmpMethodCodeTemplateValue += "        {" + Environment.NewLine;
 
                 TmpMethodCodeTemplateValue += "            // Get Cache" + Environment.NewLine;
@@ -1757,7 +1760,7 @@ namespace SetCodeBehind
 
                 // Overload With Model Parameter
                 TmpMethodCodeTemplateValue += "        // View Path: " + AspxFilePathUrl + Environment.NewLine;
-                TmpMethodCodeTemplateValue += "        protected string " + FilePathToMethodName + "_" + Controller.Replace('.', '_') + "_PageLoad" + MethodIndexer + "(HttpContext context" + (IsLayout ? ", string PageReturnValue" : "") + ", object ModelClass)" + Environment.NewLine;
+                TmpMethodCodeTemplateValue += "        private string " + FilePathToMethodName + "_" + Controller.Replace('.', '_') + "_PageLoad" + MethodIndexer + "(HttpContext context" + (IsLayout ? ", string PageReturnValue" : "") + ", object ModelClass)" + Environment.NewLine;
                 TmpMethodCodeTemplateValue += "        {" + Environment.NewLine;
                 TmpMethodCodeTemplateValue += "            string PreviousRequestPath = RequestPath;" + Environment.NewLine;
                 TmpMethodCodeTemplateValue += "            string PreviousCallerViewPath = CallerViewPath;" + Environment.NewLine;
@@ -1896,7 +1899,7 @@ namespace SetCodeBehind
                 {
                     TmpMethodCodeTemplateValue += Environment.NewLine;
                     TmpMethodCodeTemplateValue += "        // View Path: " + AspxFilePathUrl + Environment.NewLine;
-                    TmpMethodCodeTemplateValue += "        protected string " + FilePathToMethodName + "_" + Controller.Replace('.', '_') + "_PageLoadCache" + MethodIndexer + "(HttpContext context" + (IsLayout ? ", string PageReturnValue" : "") + ", object ModelClass)" + Environment.NewLine;
+                    TmpMethodCodeTemplateValue += "        private string " + FilePathToMethodName + "_" + Controller.Replace('.', '_') + "_PageLoadCache" + MethodIndexer + "(HttpContext context" + (IsLayout ? ", string PageReturnValue" : "") + ", object ModelClass)" + Environment.NewLine;
                     TmpMethodCodeTemplateValue += "        {" + Environment.NewLine;
 
                     TmpMethodCodeTemplateValue += "            // Get Cache" + Environment.NewLine;
@@ -1924,7 +1927,7 @@ namespace SetCodeBehind
             MethodCodeTemplateValue += TmpMethodCodeTemplateValue;
         }
 
-        public string GetWriteText(string Text, bool PageIsOnlyView, bool IsInsideControl = false)
+        private string GetWriteText(string Text, bool PageIsOnlyView, bool IsInsideControl = false)
         {
             if (Text.Length > 0)
             {
@@ -1945,7 +1948,7 @@ namespace SetCodeBehind
                 return "";
         }
 
-        public string GetWriteCode(string Code, bool PageIsOnlyView, bool IsInsideControl = false)
+        private string GetWriteCode(string Code, bool PageIsOnlyView, bool IsInsideControl = false)
         {
             string TmpTab = (IsInsideControl) ? "    " : "";
 
@@ -1955,7 +1958,7 @@ namespace SetCodeBehind
                 return TmpTab + "            ReturnValue += " + Code + ";" + Environment.NewLine;
         }
 
-        public string GetAddCode(string Code, bool PageIsOnlyView)
+        private string GetAddCode(string Code, bool PageIsOnlyView)
         {
             if (!PageIsOnlyView)
                 return "                " + Code;
@@ -1963,7 +1966,7 @@ namespace SetCodeBehind
                 return "            " + Code;
         }
 
-        public string GetAddOpenBlock(bool PageIsOnlyView)
+        private string GetAddOpenBlock(bool PageIsOnlyView)
         {
             if (!PageIsOnlyView)
                 return '\n' + "                {";
@@ -1971,7 +1974,7 @@ namespace SetCodeBehind
                 return '\n' + "            {";
         }
 
-        public string GetAddCloseBlock(bool PageIsOnlyView)
+        private string GetAddCloseBlock(bool PageIsOnlyView)
         {
             if (!PageIsOnlyView)
                 return "                }" + '\n';
@@ -1979,7 +1982,7 @@ namespace SetCodeBehind
                 return "            }" + '\n';
         }
 
-        public string GetTemplatePartName(string Text)
+        private string GetTemplatePartName(string Text)
         {
             string ReturnValue = "";
 
@@ -1996,7 +1999,7 @@ namespace SetCodeBehind
             return ReturnValue;
         }
 
-        public char GetCharacterAfterTemplatePartName(string Text)
+        private char GetCharacterAfterTemplatePartName(string Text)
         {
             if (Text.Length < 1)
                 return '!';
@@ -2009,7 +2012,7 @@ namespace SetCodeBehind
             return Text[i - 1];
         }
 
-        public bool PartHasTemplateValue(string Text)
+        private bool PartHasTemplateValue(string Text)
         {
             if (Text.Length < 1)
                 return false;
@@ -2026,7 +2029,7 @@ namespace SetCodeBehind
             return false;
         }
 
-        public bool HasOpenedSyntax(string InnerText, string OpenSyntaxValue, string CloseSyntaxValue)
+        private bool HasOpenedSyntax(string InnerText, string OpenSyntaxValue, string CloseSyntaxValue)
         {
             if ((InnerText.Length < OpenSyntaxValue.Length) || (InnerText.Length < CloseSyntaxValue.Length))
                 return false;
