@@ -15,6 +15,12 @@ namespace CodeBehind
             return Text.Substring(Text.IndexOf(Value) + Value.Length);
         }
 
+        // Overload
+        public static string GetTextAfterValue(this string Text, char Value)
+        {
+            return Text.GetTextAfterValue(Value);
+        }
+
         public static string GetTextAfterLastValue(this string Text, string Value)
         {
             if (Text.Length < Value.Length)
@@ -24,6 +30,12 @@ namespace CodeBehind
                 return Text;
 
             return Text.Substring(Text.LastIndexOf(Value) + Value.Length);
+        }
+
+        // Overload
+        public static string GetTextAfterLastValue(this string Text, char Value)
+        {
+            return Text.GetTextAfterLastValue(Value);
         }
 
         public static string GetTextBeforeValue(this string Text, string Value)
@@ -37,6 +49,12 @@ namespace CodeBehind
             return Text.Substring(0, Text.IndexOf(Value));
         }
 
+        // Overload
+        public static string GetTextBeforeValue(this string Text, char Value)
+        {
+            return Text.GetTextBeforeValue(Value);
+        }
+
         public static string GetTextBeforeLastValue(this string Text, string Value)
         {
             if (Text.Length < Value.Length)
@@ -46,6 +64,12 @@ namespace CodeBehind
                 return Text;
 
             return Text.Substring(0, Text.LastIndexOf(Value));
+        }
+
+        // Overload
+        public static string GetTextBeforeLastValue(this string Text, char Value)
+        {
+            return Text.GetTextBeforeLastValue(Value);
         }
 
         public static int ToNumber(this string Text)
