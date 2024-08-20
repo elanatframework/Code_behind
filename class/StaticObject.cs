@@ -1,19 +1,19 @@
 namespace CodeBehind
 {
-    public static class StaticObject
+    internal static class StaticObject
     {
         private static bool StaticObjectHasInitialization { get; set; } = false;
-        public static bool PreventAccessDefaultAspx { get; private set; } = false;
-        public static string ViewPath { get; private set; }
-        public static string DefaultRole { get; private set; }
-        public static string ViewPlace { get; private set; }
-        public static bool UseDefaultController { get; private set; } = false;
-        public static string DefaultController { get; private set; }
-        public static bool UseSectionInDefaultController { get; private set; } = false;
-        public static bool SetBreakForDefaultController { get; private set; } = false;
-        public static char OsDirectorySplitter = OperatingSystem.IsWindows() ? '\\' : '/';
+        internal static bool PreventAccessDefaultAspx { get; private set; } = false;
+        internal static string ViewPath { get; private set; }
+        internal static string DefaultRole { get; private set; }
+        internal static string ViewPlace { get; private set; }
+        internal static bool UseDefaultController { get; private set; } = false;
+        internal static string DefaultController { get; private set; }
+        internal static bool UseSectionInDefaultController { get; private set; } = false;
+        internal static bool SetBreakForDefaultController { get; private set; } = false;
+        internal static char OsDirectorySplitter = OperatingSystem.IsWindows() ? '\\' : '/';
 
-        public static void SetValue()
+        internal static void SetValue()
         {
             if (StaticObjectHasInitialization)
                 return;
