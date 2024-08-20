@@ -250,40 +250,40 @@ namespace CodeBehind
         }
     }
 
-    public static class RoleList
+    internal static class RoleList
     {
-        public static List<Role> Roles = new List<Role>();
+        internal static List<Role> Roles = new List<Role>();
     }
 
-    public class Role
+    internal class Role
     {
-        public string Name { get; set; }
-        public List<Roleِeny> RoleDenials = new List<Roleِeny>();
-        public List<RoleStaticAction> RoleStaticActions = new List<RoleStaticAction>();
-        public List<RoleSessionAction> RoleSessionActions = new List<RoleSessionAction>();
+        internal string Name { get; set; }
+        internal List<Roleِeny> RoleDenials = new List<Roleِeny>();
+        internal List<RoleStaticAction> RoleStaticActions = new List<RoleStaticAction>();
+        internal List<RoleSessionAction> RoleSessionActions = new List<RoleSessionAction>();
     }
 
-    public class Roleِeny
+    internal class Roleِeny
     {
-        public string Path { get; set; }
-        public string Query { get; set; }
-        public string FormData { get; set; }
+        internal string Path { get; set; }
+        internal string Query { get; set; }
+        internal string FormData { get; set; }
 
         // Accept Values: regex, exist, start, end, full_match
-        public string PathMatchType { get; set; }
-        public string QueryMatchType { get; set; }
-        public string FormDataMatchType { get; set; }
+        internal string PathMatchType { get; set; }
+        internal string QueryMatchType { get; set; }
+        internal string FormDataMatchType { get; set; }
     }
 
-    public class RoleStaticAction
+    internal class RoleStaticAction
     {
-        public string Name { get; set; }
-        public string Value { get; set; }
+        internal string Name { get; set; }
+        internal string Value { get; set; }
     }
 
-    public class RoleSessionAction
+    internal class RoleSessionAction
     {
-        public string Name { get; set; }
-        public string Value { get; set; }
+        internal string Name { get; set; }
+        internal string Value { get; set; }
     }
 }
