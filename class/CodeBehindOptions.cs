@@ -1,33 +1,33 @@
 namespace CodeBehind
 {
-    public class CodeBehindOptions
+    internal class CodeBehindOptions
     {
         private string OptionsFilePath = "code_behind/options.ini";
-        public string ViewPath { private set; get; }
-        public bool MoveViewFromWwwroot { private set; get; }
-        public bool RewriteAspxFileToDirectory { private set; get; }
-        public bool AccessAspxFileAfterRewrite { private set; get; }
-        public bool IgnoreDefaultAfterRewrite { private set; get; }
-        public bool StartTrimInAspxFile { private set; get; }
-        public bool InnerTrimInAspxFile { private set; get; }
-        public bool EndTrimInAspxFile { private set; get; }
-        public bool SetBreakForLayoutPage { private set; get; }
-        public bool ConvertCsHtmlToAspx { private set; get; }
-        public bool ShowMinorErrors { private set; get; }
-        public string ErrorPagePath { private set; get; }
-        public bool PreventAccessDefaultAspx { private set; get; }
-        public string DefaultRole { private set; get; }
-        public string WebFormsScriptPath { private set; get; }
-        public bool AutoCreateWebFormsScript { private set; get; }
-        public bool RecreateWebFormsScriptAfterRecompile { private set; get; }
-        public string WebFormsViewPlace { private set; get; }
-        public bool UseDefaultController { private set; get; }
-        public string DefaultController { private set; get; }
-        public bool UseSectionInDefaultController { private set; get; }
-        public bool SetBreakForDefaultController { private set; get; }
+        internal string ViewPath { private set; get; }
+        internal bool MoveViewFromWwwroot { private set; get; }
+        internal bool RewriteAspxFileToDirectory { private set; get; }
+        internal bool AccessAspxFileAfterRewrite { private set; get; }
+        internal bool IgnoreDefaultAfterRewrite { private set; get; }
+        internal bool StartTrimInAspxFile { private set; get; }
+        internal bool InnerTrimInAspxFile { private set; get; }
+        internal bool EndTrimInAspxFile { private set; get; }
+        internal bool SetBreakForLayoutPage { private set; get; }
+        internal bool ConvertCsHtmlToAspx { private set; get; }
+        internal bool ShowMinorErrors { private set; get; }
+        internal string ErrorPagePath { private set; get; }
+        internal bool PreventAccessDefaultAspx { private set; get; }
+        internal string DefaultRole { private set; get; }
+        internal string WebFormsScriptPath { private set; get; }
+        internal bool AutoCreateWebFormsScript { private set; get; }
+        internal bool RecreateWebFormsScriptAfterRecompile { private set; get; }
+        internal string WebFormsViewPlace { private set; get; }
+        internal bool UseDefaultController { private set; get; }
+        internal string DefaultController { private set; get; }
+        internal bool UseSectionInDefaultController { private set; get; }
+        internal bool SetBreakForDefaultController { private set; get; }
 
 
-        public CodeBehindOptions()
+        internal CodeBehindOptions()
         {
             if (!Directory.Exists("code_behind"))
                 Directory.CreateDirectory("code_behind");
