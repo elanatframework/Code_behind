@@ -5,6 +5,34 @@ using System.Xml;
 
 namespace CodeBehind
 {
+    public class PersonalCache
+    {
+        private readonly IMemoryCache _Cache;
+
+        public PersonalCache(HttpContext context)
+        {
+            _Cache = context.RequestServices.GetService<IMemoryCache>();
+        }
+
+        public void SetPersonalCache(string PersonalName, string ResponseResult, int Duration)
+        {
+            _Cache.Set("code_behind_cache_personal_" + PersonalName, ResponseResult, TimeSpan.FromSeconds(Duration));
+        }
+
+        public bool PersonalHasCache { get; private set; }
+        public string GetPersonalCache(string PersonalName)
+        {
+            if (_Cache.TryGetValue("code_behind_cache_personal_" + PersonalName, out string ResponseResult))
+            {
+                PersonalHasCache = true;
+                return ResponseResult;
+            }
+
+            PersonalHasCache = false;
+            return null;
+        }
+    }
+
     public class ControllerCache
     {
         private readonly IMemoryCache _Cache;
@@ -67,7 +95,7 @@ namespace CodeBehind
 
         public bool ControllerHasCache(string ControllerName)
         {
-            foreach (Cache cache in CacheList.Caches)
+            foreach (CacheProperties cache in CachePropertiesList.Caches)
                 if (cache.ControllerName == ControllerName)
                 {
                     Duration = cache.Duration;
@@ -91,7 +119,7 @@ namespace CodeBehind
             {
             }
 
-            foreach (Cache cache in CacheList.Caches)
+            foreach (CacheProperties cache in CachePropertiesList.Caches)
             {
                 if (cache.ControllerName == ControllerName)
                 {
@@ -121,7 +149,7 @@ namespace CodeBehind
 
         public bool ViewHasCache(string ViewPath)
         {
-            foreach (Cache cache in CacheList.Caches)
+            foreach (CacheProperties cache in CachePropertiesList.Caches)
                 if (cache.ViewPath == ViewPath)
                 {
                     Duration = cache.Duration;
@@ -145,7 +173,7 @@ namespace CodeBehind
             {
             }
 
-            foreach (Cache cache in CacheList.Caches)
+            foreach (CacheProperties cache in CachePropertiesList.Caches)
             {
                 if (cache.ViewPath == ViewPath)
                 {
@@ -170,14 +198,16 @@ namespace CodeBehind
 
     }
 
-    public class FillCacheList
+    internal class FillCacheList
     {
-        public void Set()
+        internal void Set()
         {
             XmlDocument doc = new XmlDocument();
             doc.Load("code_behind/cache.xml");
 
             XmlNodeList NodeList = doc.SelectSingleNode("cache_list").ChildNodes;
+
+            int Id = 0;
 
             foreach (XmlNode node in NodeList)
             {
@@ -188,8 +218,9 @@ namespace CodeBehind
 
                 if (CacheIsActive)
                 {
-                    Cache cache = new Cache();
+                    CacheProperties cache = new CacheProperties();
                     cache.Duration = node.Attributes["duration"].Value.ToNumber();
+                    cache.Id = Id++;
 
                     foreach (XmlNode CacheChild in node.ChildNodes)
                     {
@@ -218,19 +249,20 @@ namespace CodeBehind
                         }
                     }
 
-                    CacheList.Caches.Add(cache);
+                    CachePropertiesList.Caches.Add(cache);
                 }
             }
         }
     }
 
-    public static class CacheList
+    public static class CachePropertiesList
     {
-        public static List<Cache> Caches = new List<Cache>();
+        public static List<CacheProperties> Caches = new List<CacheProperties>();
     }
 
-    public class Cache
+    public class CacheProperties
     {
+        public int Id { get; set; }
         public int Duration { get; set; }
         public string ControllerName { get; set; }
         public string ViewPath { get; set; }
