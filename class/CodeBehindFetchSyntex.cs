@@ -2,9 +2,9 @@ using System.Net;
 
 namespace CodeBehind
 {
-    public class Apostrophe
+    internal class Apostrophe
     {
-        public bool IsBetweenApostrophe(string text, int index)
+        internal bool IsBetweenApostrophe(string text, int index)
         {
             if (index + 1 >= text.Length)
                 return false;
@@ -59,9 +59,9 @@ namespace CodeBehind
         }
     }
 
-    public class FullTrim
+    internal class FullTrim
     {
-        public string FullTrimInStartOverBackslash(string Text)
+        internal string FullTrimInStartOverBackslash(string Text)
         {
             if (Text.Length < 1)
                 return Text;
@@ -107,7 +107,7 @@ namespace CodeBehind
             return ReturnValue;
         }
 
-        public string FullTrimInStart(string Text)
+        internal string FullTrimInStart(string Text)
         {
             if (Text.Length < 1)
                 return Text;
@@ -124,7 +124,7 @@ namespace CodeBehind
             return ReturnValue;
         }
 
-        public string FullTrimInEndOverBackslash(string Text)
+        internal string FullTrimInEndOverBackslash(string Text)
         {
             if (Text.Length < 1)
                 return Text;
@@ -162,7 +162,7 @@ namespace CodeBehind
             return ReturnValue;
         }
 
-        public string FullTrimInEnd(string Text)
+        internal string FullTrimInEnd(string Text)
         {
             if (Text.Length < 1)
                 return Text;
@@ -179,26 +179,26 @@ namespace CodeBehind
             return ReturnValue;
         }
 
-        public string FullTrimAllOverBackslash(string Text)
+        internal string FullTrimAllOverBackslash(string Text)
         {
             return FullTrimInStartOverBackslash(FullTrimInEndOverBackslash(Text));
         }
 
-        public string FullTrimAll(string Text)
+        internal string FullTrimAll(string Text)
         {
             return FullTrimInStart(FullTrimInEnd(Text));
         }
     }
 
-    public class CodeBehindFetchStandardSyntex
+    internal class CodeBehindFetchStandardSyntex
     {
-        public bool FindSyntex { get; private set; } = false;
-        public int StartSyntex { get; private set; } = 0;
-        public int EndSyntex { get; private set; } = 0;
+        internal bool FindSyntex { get; private set; } = false;
+        internal int StartSyntex { get; private set; } = 0;
+        internal int EndSyntex { get; private set; } = 0;
 
         /// <param name="OpenSyntaxValue">A Two-Letter String Must Be Entered</param>
         /// <param name="CloseSyntaxValue">A Two-Letter String Must Be Entered</param>
-        public string FetchInnerText(string FileText, string OpenSyntaxValue, string CloseSyntaxValue)
+        internal string FetchInnerText(string FileText, string OpenSyntaxValue, string CloseSyntaxValue)
         {
             int Index = 0;
             string InnerText = "";
@@ -252,11 +252,11 @@ namespace CodeBehind
         }
     }
 
-    class CodeBehindFetchRazorSyntex
+    internal class CodeBehindFetchRazorSyntex
     {
-        public int RazorIndexLength { get; private set; }
-        public HtmlData.NameValueCollection AddedTextForEndedCharacter;
-        public string FetchSyntexWithEndedCharacter(string BlockText)
+        internal int RazorIndexLength { get; private set; }
+        internal HtmlData.NameValueCollection AddedTextForEndedCharacter;
+        internal string FetchSyntexWithEndedCharacter(string BlockText)
         {
             RazorIndexLength = 0;
             AddedTextForEndedCharacter = new HtmlData.NameValueCollection();
@@ -409,7 +409,7 @@ namespace CodeBehind
             return "";
         }
 
-        public string FetchSyntexWithEndedCharacterText(string BlockText)
+        internal string FetchSyntexWithEndedCharacterText(string BlockText)
         {
             if (BlockText.Length < 3)
                 return "";
@@ -451,8 +451,8 @@ namespace CodeBehind
             return InnerText;
         }
 
-        public int ExpressionsIndexLength { get; private set; }
-        public string FetchExpressions(string Expression)
+        internal int ExpressionsIndexLength { get; private set; }
+        internal string FetchExpressions(string Expression)
         {
             ExpressionsIndexLength = 0;
             Apostrophe apostrophe = new Apostrophe();
@@ -534,7 +534,7 @@ namespace CodeBehind
             return InnerText;
         }
 
-        public HtmlData.NameValueCollection FetchExpressionsInLine(string LineText)
+        private HtmlData.NameValueCollection FetchExpressionsInLine(string LineText)
         {
             HtmlData.NameValueCollection NameValues = new HtmlData.NameValueCollection();
             string WriteText = "";
@@ -579,7 +579,7 @@ namespace CodeBehind
             return NameValues;
         }
 
-        public bool ExistDoubleQuotes(string Text)
+        private bool ExistDoubleQuotes(string Text)
         {
             for (int i = 0; i < Text.Length; i++)
             {
