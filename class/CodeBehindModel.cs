@@ -8,7 +8,7 @@ namespace CodeBehind
         public bool IgnoreLayout = false;
         public HtmlData.NameValueCollection ViewData = new HtmlData.NameValueCollection();
         public ValueCollectionLock Section = new ValueCollectionLock();
-        public string DownloadFilePath { get; protected set; } = "";
+        public string DownloadFilePath { get; private set; } = "";
         /// <summary>
         /// This Attribute Does Not Have A Value In The Constructor Method Of The Class, And Is Set Only After An Instance Of The Class Is Created.
         /// </summary>
