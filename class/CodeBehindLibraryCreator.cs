@@ -1,11 +1,11 @@
+using CodeBehind;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using Microsoft.CodeAnalysis;
-using CodeBehind;
 
 namespace SetCodeBehind
 {
-    class CodeBehindLibraryCreator
+    internal class CodeBehindLibraryCreator
     {
         private List<string> ErrorList = new List<string>();
         private string CaseCodeTemplateValue = "";
@@ -14,7 +14,7 @@ namespace SetCodeBehind
         private string CaseCodeTemplateValueForFullPathWithModel = "";
         private string MethodCodeTemplateValue = "";
 
-        public string GetCodeBehindViews()
+        internal string GetCodeBehindViews()
         {
             if (!Directory.Exists("code_behind"))
                 Directory.CreateDirectory("code_behind");
@@ -54,7 +54,7 @@ namespace SetCodeBehind
             return AllAspxFiles;
         }
 
-        public string GetLastSuccessCompiledViewClass()
+        internal string GetLastSuccessCompiledViewClass()
         {
             string AllAspxFiles = "";
 
@@ -80,7 +80,7 @@ namespace SetCodeBehind
             return AllAspxFiles;
         }
 
-        public string CreateAllAspxFiles()
+        private string CreateAllAspxFiles()
         {
             string AssemblyCleanName = SetCleanNameForClass(Assembly.GetEntryAssembly().GetName().Name);
 
