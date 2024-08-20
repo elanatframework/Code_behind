@@ -129,7 +129,7 @@ namespace CodeBehind
             {
                 if (role.Name == RoleName)
                 {
-                    foreach (Roleِeny deny in role.RoleDenials)
+                    foreach (RoleDeny deny in role.RoleDenials)
                     {
                         if (!string.IsNullOrEmpty(deny.Path))
                             if (!Path.HasMatching(deny.PathMatchType, deny.Path))
@@ -189,7 +189,7 @@ namespace CodeBehind
 
                         if (DenyIsActive)
                         {
-                            Roleِeny deny = new Roleِeny();
+                            RoleDeny deny = new RoleDeny();
 
                             if (DenyNode.SelectSingleNode("path") != null)
                             {
@@ -258,12 +258,12 @@ namespace CodeBehind
     internal class Role
     {
         internal string Name { get; set; }
-        internal List<Roleِeny> RoleDenials = new List<Roleِeny>();
+        internal List<RoleDeny> RoleDenials = new List<RoleDeny>();
         internal List<RoleStaticAction> RoleStaticActions = new List<RoleStaticAction>();
         internal List<RoleSessionAction> RoleSessionActions = new List<RoleSessionAction>();
     }
 
-    internal class Roleِeny
+    internal class RoleDeny
     {
         internal string Path { get; set; }
         internal string Query { get; set; }
