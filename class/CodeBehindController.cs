@@ -4,15 +4,15 @@ namespace CodeBehind
 {
     public abstract class CodeBehindController
     {
-        public object CodeBehindModel { get; protected set; }
+        public object CodeBehindModel { get; private set; }
         public string ResponseText = "";
         public string WebFormsValue = "";
         public bool IgnoreViewAndModel = false;
         public bool IgnoreLayout = false;
         public HtmlData.NameValueCollection ViewData = new HtmlData.NameValueCollection();
         public ValueCollectionLock Section = new ValueCollectionLock();
-        public string ViewPath { get; protected set; } = "";
-        public string DownloadFilePath { get; protected set; } = "";
+        public string ViewPath { get; private set; } = "";
+        public string DownloadFilePath { get; private set; } = "";
 
         /// <summary>
         /// This Attribute Does Not Have A Value In The Constructor Method Of The Class, And Is Set Only After An Instance Of The Class Is Created.
