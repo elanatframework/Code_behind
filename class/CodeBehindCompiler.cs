@@ -1,10 +1,10 @@
+using CodeBehind;
 using Microsoft.AspNetCore.Http;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Emit;
 using System.Reflection;
 using System.Runtime.Loader;
-using CodeBehind;
 
 namespace SetCodeBehind
 {
@@ -12,7 +12,7 @@ namespace SetCodeBehind
     {
         private static Assembly CompiledAssembly;
         
-        public static Assembly CompileAspx(bool UseLastSuccessCompiled = false, List<string> CurrentErrorList = null)
+        internal static Assembly CompileAspx(bool UseLastSuccessCompiled = false, List<string> CurrentErrorList = null)
         {
             if (CompiledAssembly != null)
             {
@@ -314,7 +314,7 @@ namespace SetCodeBehind
             CompileAspx();
         }
 
-        public static void CreateLastSuccessCompiledViewClass()
+        private static void CreateLastSuccessCompiledViewClass()
         {
             const string ViewClassFilePath = "code_behind/views_class.cs.tmp";
             const string ViewClassLastSuccessCompildeFilePath = "code_behind/views_class_last_success_compiled.cs.tmp";
@@ -323,21 +323,21 @@ namespace SetCodeBehind
         }
 
         // Compiled Assembly File
-        public static void CreateLastSuccessCompiledAssemblyFile(byte[] AssemblyBytes)
+        private static void CreateLastSuccessCompiledAssemblyFile(byte[] AssemblyBytes)
         {
             string AssemblyFilePath = AppContext.BaseDirectory + "/CodeBehindLastSuccessCompiled.dll.tmp";
 
             File.WriteAllBytes(AssemblyFilePath, AssemblyBytes);
         }
 
-        public static bool ExistLastSuccessCompiledAssemblyFile()
+        private static bool ExistLastSuccessCompiledAssemblyFile()
         {
             string AssemblyFilePath = AppContext.BaseDirectory + "/CodeBehindLastSuccessCompiled.dll.tmp";
 
             return File.Exists(AssemblyFilePath);
         }
 
-        public static void LoadLastSuccessCompiledAssemblyFile()
+        private static void LoadLastSuccessCompiledAssemblyFile()
         {
             string AssemblyFilePath = AppContext.BaseDirectory + "/CodeBehindLastSuccessCompiled.dll.tmp";
 
