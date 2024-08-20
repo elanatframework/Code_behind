@@ -1,8 +1,8 @@
 namespace SetCodeBehind
 {
-    public class DefaultPages
+    internal class DefaultPages
     {
-        public void Set()
+        internal void Set()
         {
             Directory.CreateDirectory("wwwroot");
 
@@ -204,7 +204,7 @@ namespace SetCodeBehind
             file5.Close();
         }
 
-        public void SetWebFormsScript(string path, bool ReplaceIfExist = false)
+        internal void SetWebFormsScript(string path, bool ReplaceIfExist = false)
         {
             string FilePath = "wwwroot" + path + "/web-forms.js";
 
