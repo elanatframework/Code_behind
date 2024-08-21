@@ -104,9 +104,9 @@ namespace CodeBehind
             if (string.IsNullOrEmpty(CurrentName))
                 return;
 
-            CurrentName = CurrentName.RemoveOuter("→", ")");
+            CurrentName = CurrentName.RemoveOuter(":", ")");
 
-            WebFormsData.ChangeNameByIndex(Index, "→" + Second + ")" + CurrentName);
+            WebFormsData.ChangeNameByIndex(Index, ":" + Second + ")" + CurrentName);
         }
 
         public void SetInterval(float Second, int Index = -1)
@@ -116,9 +116,9 @@ namespace CodeBehind
             if (string.IsNullOrEmpty(CurrentName))
                 return;
 
-            CurrentName = CurrentName.RemoveOuter("↑", ")");
+            CurrentName = CurrentName.RemoveOuter("(", ")");
 
-            WebFormsData.ChangeNameByIndex(Index, "↑" + Second + ")" + CurrentName);
+            WebFormsData.ChangeNameByIndex(Index, "(" + Second + ")" + CurrentName);
         }
 
         public string GetFormsActionData()
