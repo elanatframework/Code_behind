@@ -24,6 +24,10 @@ web_forms_script_path=/script
 auto_create_web_forms_script=true
 recreate_web_forms_script_after_recompile=false
 web_forms_view_place=<body>
+use_default_controller=true
+default_controller=DefaultController
+use_section_in_default_controller=true
+set_break_for_default_controller=true
 ```
 
 **The possibility to load aspx page names as directory names**
@@ -232,3 +236,29 @@ If the `recreate_web_forms_script_after_recompile` option is enabled, the WebFor
 (`web_forms_view_place=<body>`)
 
 The `web_forms_view_place` option is for situations where the Action Control is not present in the response and determines the tag location of the server's response.
+
+**Specify the default Controller**
+
+(`use_default_controller=true`)
+
+If this option is enabled, accessing the root path will cause the default Controller to run.
+
+**Default Controller Name**
+
+(`default_controller=DefaultController`)
+
+This option specifies the name of the default Controller class.
+
+**Activation of Sections in the default Controller class**
+
+(`use_section_in_default_controller=true`)
+
+If this option is enabled, there will be access to Sections in the Controller class.
+
+> Note: If another controller matching the route is found, that controller will be executed and the default controller class will not be executed.
+
+**Overriding the default Controller from route configuration**
+
+(`set_break_for_default_controller=true`)
+
+If this option is enabled, the route configuration will not add the default Controller to the list of Controllers, and only the root path request will execute the default Controller.
