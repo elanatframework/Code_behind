@@ -1,5 +1,18 @@
 ### Load aspx page finally result in another aspx page
 
+Before we explain this tutorial, it is necessary to know that the method we are explaining will recreate and execute an instance of the final View class. This is not recommended under normal circumstances.
+
+Instead, you can use the `LoadPage` method on View pages.
+
+Example:
+```html
+...
+<div>
+@LoadPage(/menu/left.aspx, context);
+</div>
+...
+```
+
 The following example shows the power of CodeBehind:
 
 aspx page (razor syntax)
