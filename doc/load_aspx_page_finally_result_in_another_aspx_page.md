@@ -50,10 +50,10 @@ namespace YourProjectName
 {
     public partial class DefaultController : CodeBehindController
     {
-        public DefaultModel model = new DefaultModel();
-
         public void PageLoad(HttpContext context)
         {
+            public DefaultModel model = new DefaultModel();
+
             model.PageTitle = "My Title";
 
             CodeBehindExecute execute = new CodeBehindExecute();
@@ -61,10 +61,8 @@ namespace YourProjectName
             // Add Left Menu Page
             model.LeftMenuValue = execute.Run(context, "/menu/left.aspx");
 
-
             // Add Right Menu Page
             model.RightMenuValue = execute.Run(context, "/menu/right.aspx");
-
 
             // Add Main Content Page
             model.MainContentValue = execute.Run(context, "/pages/main.aspx");
