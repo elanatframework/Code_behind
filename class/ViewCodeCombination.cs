@@ -1731,11 +1731,12 @@ namespace SetCodeBehind
                 TmpMethodCodeTemplateValue += "        {" + Environment.NewLine;
 
                 TmpMethodCodeTemplateValue += "            // Get Cache" + Environment.NewLine;
-                TmpMethodCodeTemplateValue += "            bool HasMatchingView = new CodeBehindViewCache().HasMatchingView(context.Request, \"" + AspxFilePathUrl + "\");" + Environment.NewLine;
+                TmpMethodCodeTemplateValue += "            CodeBehindViewCache cbvc = new CodeBehindViewCache();" + Environment.NewLine;
+                TmpMethodCodeTemplateValue += "            bool HasMatchingView = cbvc.HasMatchingView(context.Request, \"" + AspxFilePathUrl + "\");" + Environment.NewLine;
                 TmpMethodCodeTemplateValue += "            if (HasMatchingView)" + Environment.NewLine;
                 TmpMethodCodeTemplateValue += "            {" + Environment.NewLine;
                 TmpMethodCodeTemplateValue += "                ViewCache cache = new ViewCache(context);" + Environment.NewLine;
-                TmpMethodCodeTemplateValue += "                string CacheResult = cache.GetViewCache(\"" + AspxFilePathUrl + "\");" + Environment.NewLine;
+                TmpMethodCodeTemplateValue += "                string CacheResult = cache.GetViewCache(\"" + AspxFilePathUrl + "\" + cbvc.CacheFilter);" + Environment.NewLine;
                 TmpMethodCodeTemplateValue += "                if (cache.ViewHasCache)" + Environment.NewLine;
                 TmpMethodCodeTemplateValue += "                    return CacheResult;" + Environment.NewLine;
                 TmpMethodCodeTemplateValue += "            }" + Environment.NewLine + Environment.NewLine;
@@ -1745,7 +1746,7 @@ namespace SetCodeBehind
                 TmpMethodCodeTemplateValue += "            if (HasMatchingView)" + Environment.NewLine;
                 TmpMethodCodeTemplateValue += "            {" + Environment.NewLine;
                 TmpMethodCodeTemplateValue += "                ViewCache cache = new ViewCache(context);" + Environment.NewLine;
-                TmpMethodCodeTemplateValue += "                cache.SetViewCache(\"" + AspxFilePathUrl + "\", ViewReturnValue, " + ViewCache.Duration + ");" + Environment.NewLine;
+                TmpMethodCodeTemplateValue += "                cache.SetViewCache(\"" + AspxFilePathUrl + "\" + cbvc.CacheFilter, ViewReturnValue, " + ViewCache.Duration + ");" + Environment.NewLine;
                 TmpMethodCodeTemplateValue += "            }" + Environment.NewLine + Environment.NewLine;
                 TmpMethodCodeTemplateValue += "            return ViewReturnValue;" + Environment.NewLine;
                 TmpMethodCodeTemplateValue += "        }" + Environment.NewLine;
@@ -1903,11 +1904,12 @@ namespace SetCodeBehind
                     TmpMethodCodeTemplateValue += "        {" + Environment.NewLine;
 
                     TmpMethodCodeTemplateValue += "            // Get Cache" + Environment.NewLine;
-                    TmpMethodCodeTemplateValue += "            bool HasMatchingView = new CodeBehindViewCache().HasMatchingView(context.Request, \"" + AspxFilePathUrl + "\");" + Environment.NewLine;
+                    TmpMethodCodeTemplateValue += "            CodeBehindViewCache cbvc = new CodeBehindViewCache();" + Environment.NewLine;
+                    TmpMethodCodeTemplateValue += "            bool HasMatchingView = cbvc.HasMatchingView(context.Request, \"" + AspxFilePathUrl + "\");" + Environment.NewLine;
                     TmpMethodCodeTemplateValue += "            if (HasMatchingView)" + Environment.NewLine;
                     TmpMethodCodeTemplateValue += "            {" + Environment.NewLine;
                     TmpMethodCodeTemplateValue += "                ViewCache cache = new ViewCache(context);" + Environment.NewLine;
-                    TmpMethodCodeTemplateValue += "                string CacheResult = cache.GetViewCache(\"" + AspxFilePathUrl + "\");" + Environment.NewLine;
+                    TmpMethodCodeTemplateValue += "                string CacheResult = cache.GetViewCache(\"" + AspxFilePathUrl + "\" + cbvc.CacheFilter);" + Environment.NewLine;
                     TmpMethodCodeTemplateValue += "                if (cache.ViewHasCache)" + Environment.NewLine;
                     TmpMethodCodeTemplateValue += "                    return CacheResult;" + Environment.NewLine;
                     TmpMethodCodeTemplateValue += "            }" + Environment.NewLine + Environment.NewLine;
@@ -1917,7 +1919,7 @@ namespace SetCodeBehind
                     TmpMethodCodeTemplateValue += "            if (HasMatchingView)" + Environment.NewLine;
                     TmpMethodCodeTemplateValue += "            {" + Environment.NewLine;
                     TmpMethodCodeTemplateValue += "                ViewCache cache = new ViewCache(context);" + Environment.NewLine;
-                    TmpMethodCodeTemplateValue += "                cache.SetViewCache(\"" + AspxFilePathUrl + "\", ViewReturnValue, " + ViewCache.Duration + ");" + Environment.NewLine;
+                    TmpMethodCodeTemplateValue += "                cache.SetViewCache(\"" + AspxFilePathUrl + "\" + cbvc.CacheFilter, ViewReturnValue, " + ViewCache.Duration + ");" + Environment.NewLine;
                     TmpMethodCodeTemplateValue += "            }" + Environment.NewLine + Environment.NewLine;
                     TmpMethodCodeTemplateValue += "            return ViewReturnValue;" + Environment.NewLine;
                     TmpMethodCodeTemplateValue += "        }" + Environment.NewLine;
