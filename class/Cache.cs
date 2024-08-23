@@ -14,15 +14,15 @@ namespace CodeBehind
             _Cache = context.RequestServices.GetService<IMemoryCache>();
         }
 
-        public void SetPersonalCache(string PersonalName, string ResponseResult, int Duration)
+        public void SetPersonalCache(string CacheParameter, string ResponseResult, int Duration)
         {
-            _Cache.Set("code_behind_cache_personal_" + PersonalName, ResponseResult, TimeSpan.FromSeconds(Duration));
+            _Cache.Set("code_behind_cache_personal_" + CacheParameter, ResponseResult, TimeSpan.FromSeconds(Duration));
         }
 
         public bool PersonalHasCache { get; private set; }
-        public string GetPersonalCache(string PersonalName)
+        public string GetPersonalCache(string CacheParameter)
         {
-            if (_Cache.TryGetValue("code_behind_cache_personal_" + PersonalName, out string ResponseResult))
+            if (_Cache.TryGetValue("code_behind_cache_personal_" + CacheParameter, out string ResponseResult))
             {
                 PersonalHasCache = true;
                 return ResponseResult;
@@ -42,15 +42,15 @@ namespace CodeBehind
             _Cache = context.RequestServices.GetService<IMemoryCache>();
         }
 
-        public void SetControllerCache(string ControllerName, string ResponseResult, int Duration)
+        public void SetControllerCache(string CacheParameter, string ResponseResult, int Duration)
         {
-            _Cache.Set("code_behind_cache_controller_" + ControllerName, ResponseResult, TimeSpan.FromSeconds(Duration));
+            _Cache.Set("code_behind_cache_controller_" + CacheParameter, ResponseResult, TimeSpan.FromSeconds(Duration));
         }
 
         public bool ControllerHasCache { get; private set; }
-        public string GetControllerCache(string ControllerName)
+        public string GetControllerCache(string CacheParameter)
         {
-            if (_Cache.TryGetValue("code_behind_cache_controller_" + ControllerName, out string ResponseResult))
+            if (_Cache.TryGetValue("code_behind_cache_controller_" + CacheParameter, out string ResponseResult))
             {
                 ControllerHasCache = true;
                 return ResponseResult;
@@ -70,15 +70,15 @@ namespace CodeBehind
             _Cache = context.RequestServices.GetService<IMemoryCache>();
         }
 
-        public void SetViewCache(string ViewPath, string ResponseResult, int Duration)
+        public void SetViewCache(string CacheParameter, string ResponseResult, int Duration)
         {
-            _Cache.Set("code_behind_cache_view_" + ViewPath, ResponseResult, TimeSpan.FromSeconds(Duration));
+            _Cache.Set("code_behind_cache_view_" + CacheParameter, ResponseResult, TimeSpan.FromSeconds(Duration));
         }
 
         public bool ViewHasCache { get; private set; }
-        public string GetViewCache(string ViewPath)
+        public string GetViewCache(string CacheParameter)
         {
-            if (_Cache.TryGetValue("code_behind_cache_view_" + ViewPath, out string ResponseResult))
+            if (_Cache.TryGetValue("code_behind_cache_view_" + CacheParameter, out string ResponseResult))
             {
                 ViewHasCache = true;
                 return ResponseResult;
