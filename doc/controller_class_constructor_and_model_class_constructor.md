@@ -71,7 +71,7 @@ The `_Form` field is initialized with the `context.Request.Form` input argument 
 
 The `CodeBehindConstructor` method is called when the page loads and checks if the button has been clicked. If the button is clicked, it calls the `btn_Button_Click` method, which reads the value of the text box and writes it to the page. The `IgnoreViewAndModel` property is set to true, which clears the contents of the View page and displays only the textbox string in the output.
 
-> Note: Considering that in the CodeBehind framework it is possible to configure the Controller in the Route and also to call a controller, the controller class must have a constructor without arguments. For this reason, we set the IFormCollection parameter in the constructor method equal to null.
+> Note: Considering that in the CodeBehind framework it is possible to configure the Controller in the Route and also to call a controller, the controller class must have a constructor without arguments. For this reason, we set the IFormCollection parameter in the constructor method equal to null; of course, we can also create a constructor class without arguments value (`public MyController()`). 
 
 ### Define constructor method class by Attribute in View
 
