@@ -289,3 +289,4 @@ The first version of CodeBehind is based on .NET Core version 7.0; if the versio
 
 **Problems that were solved:**
 - Resolving the problem of detecting multi line between `text` tag in Razor syntax code blocks
+- Solving the problem of ignoring cache parameters
