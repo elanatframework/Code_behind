@@ -384,7 +384,7 @@ namespace CodeBehind
                                         break;
                                     }
 
-                                    AddedTextForEndedCharacter.AddList(FetchExpressionsInLine(TextLine + "\n").GetList());
+                                    AddedTextForEndedCharacter.AddList(FetchExpressionsInLine(TextLine + '\n').GetList());
                                 }
 
                                 continue;
