@@ -495,11 +495,12 @@ namespace SetCodeBehind
                 if (ControllerHasCache)
                 {
                     ReturnValue += "                // Get Cache" + Environment.NewLine;
-                    ReturnValue += "                bool HasMatchingController = new CodeBehindControllerCache().HasMatchingController(context.Request, \"" + TmpClass.Name + "\");" + Environment.NewLine;
+                    ReturnValue += "                CodeBehindControllerCache cbcc = new CodeBehindControllerCache();" + Environment.NewLine;
+                    ReturnValue += "                bool HasMatchingController = cbcc.HasMatchingController(context.Request, \"" + TmpClass.Name + "\");" + Environment.NewLine;
                     ReturnValue += "                if (HasMatchingController)" + Environment.NewLine;
                     ReturnValue += "                {" + Environment.NewLine;
                     ReturnValue += "                    ControllerCache cache = new ControllerCache(context);" + Environment.NewLine;
-                    ReturnValue += "                    string CacheResult = cache.GetControllerCache(\"" + TmpClass.Name + "\");" + Environment.NewLine;
+                    ReturnValue += "                    string CacheResult = cache.GetControllerCache(\"" + TmpClass.Name + "\" + cbcc.CacheFilter);" + Environment.NewLine;
                     ReturnValue += "                    if (cache.ControllerHasCache)" + Environment.NewLine;
                     ReturnValue += "                        return CacheResult;" + Environment.NewLine;
                     ReturnValue += "                }" + Environment.NewLine + Environment.NewLine;
@@ -520,13 +521,13 @@ namespace SetCodeBehind
                     ReturnValue += "                    ControllerCache cache = new ControllerCache(context);" + Environment.NewLine;
                     ReturnValue += "                    if (" + ClassName + ".IgnoreViewAndModel)" + Environment.NewLine;
                     ReturnValue += "                    {" + Environment.NewLine;
-                    ReturnValue += "                        cache.SetControllerCache(\"" + TmpClass.Name + "\", " + ClassName + ".ResponseText, " + ControllerCache.Duration + ");" + Environment.NewLine;
+                    ReturnValue += "                        cache.SetControllerCache(\"" + TmpClass.Name + "\" + cbcc.CacheFilter, " + ClassName + ".ResponseText, " + ControllerCache.Duration + ");" + Environment.NewLine;
                     ReturnValue += "                        return " + ClassName + ".ResponseText;" + Environment.NewLine;
                     ReturnValue += "                    }" + Environment.NewLine;
                     ReturnValue += "                    else" + Environment.NewLine;
                     ReturnValue += "                    {" + Environment.NewLine;
                     ReturnValue += "                        string ControllerReturnValue = " + ClassName + ".ResponseText + RunController(context, " + ClassName + ".ViewPath, " + ClassName + ".CodeBehindModel, " + ClassName + ".ViewData, " + ClassName + ".DownloadFilePath, " + ClassName + ".IgnoreLayout, " + ClassName + ".WebFormsValue);" + Environment.NewLine;
-                    ReturnValue += "                        cache.SetControllerCache(\"" + TmpClass.Name + "\", ControllerReturnValue, " + ControllerCache.Duration + ");" + Environment.NewLine;
+                    ReturnValue += "                        cache.SetControllerCache(\"" + TmpClass.Name + "\" + cbcc.CacheFilter, ControllerReturnValue, " + ControllerCache.Duration + ");" + Environment.NewLine;
                     ReturnValue += "                        return ControllerReturnValue;" + Environment.NewLine;
                     ReturnValue += "                    }" + Environment.NewLine;
                     ReturnValue += "                }" + Environment.NewLine + Environment.NewLine;
