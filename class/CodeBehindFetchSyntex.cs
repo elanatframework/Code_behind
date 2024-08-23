@@ -363,37 +363,32 @@ namespace CodeBehind
                         {
                             // Fetch Single Line Text Tag
                             string TmpLine = ft.FullTrimAll(Line);
-                            if (ft.FullTrimAll(TmpLine).Length > 12)
-                                if (TmpLine.StartsWith("<text>") && TmpLine.EndsWith("</text>"))
-                                {
-                                    AddedTextForEndedCharacter.AddList(FetchExpressionsInLine(TmpLine.GetTextAfterValue("<text>").GetTextBeforeLastValue("</text>")).GetList());
-                                    continue;
-                                }
+                            if (TmpLine.StartsWith("<text>") && TmpLine.EndsWith("</text>"))
+                            {
+                                AddedTextForEndedCharacter.AddList(FetchExpressionsInLine(TmpLine.GetTextAfterValue("<text>").GetTextBeforeLastValue("</text>")).GetList());
+                                continue;
+                            }
 
                             // Fetch Multi Line Text Tag
-                            if (ft.FullTrimAll(TmpLine).Length > 6)
-                                if (TmpLine.StartsWith("<text>") && !TmpLine.EndsWith("</text>"))
+                            if (TmpLine.StartsWith("<text>") && !TmpLine.EndsWith("</text>"))
+                            {
+                                AddedTextForEndedCharacter.AddList(FetchExpressionsInLine(TmpLine.GetTextAfterValue("<text>")).GetList());
+                                i++;
+                                for (; i < InnerTextLines.Length; i++)
                                 {
-                                    AddedTextForEndedCharacter.AddList(FetchExpressionsInLine(TmpLine.GetTextAfterValue("<text>")).GetList());
-                                    i++;
-                                    for (; i < InnerTextLines.Length; i++)
+                                    string TextLine = InnerTextLines[i];
+
+                                    if (ft.FullTrimInEnd(TextLine).EndsWith("</text>"))
                                     {
-                                        string TextLine = InnerTextLines[i];
-
-                                        if (TextLine.Length > 6)
-                                        {
-                                            if (TextLine.EndsWith("</text>"))
-                                            {
-                                                AddedTextForEndedCharacter.AddList(FetchExpressionsInLine(TextLine.GetTextBeforeLastValue("</text>")).GetList());
-                                                break;
-                                            }
-                                        }
-
-                                        AddedTextForEndedCharacter.AddList(FetchExpressionsInLine(TextLine).GetList());
+                                        AddedTextForEndedCharacter.AddList(FetchExpressionsInLine(TextLine.GetTextBeforeLastValue("</text>")).GetList());
+                                        break;
                                     }
 
-                                    continue;
+                                    AddedTextForEndedCharacter.AddList(FetchExpressionsInLine(TextLine + "\n").GetList());
                                 }
+
+                                continue;
+                            }
 
                             AddedTextForEndedCharacter.AddList(FetchExpressionsInLine(Line).GetList());
                             continue;
