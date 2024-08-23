@@ -92,6 +92,7 @@ namespace CodeBehind
     public class CodeBehindControllerCache
     {
         public int Duration { get; set; }
+        public string CacheFilter { get; set; }
 
         public bool ControllerHasCache(string ControllerName)
         {
@@ -126,14 +127,22 @@ namespace CodeBehind
                     if (!string.IsNullOrEmpty(cache.Path))
                         if (!Path.HasMatching(cache.PathMatchType, cache.Path))
                             continue;
+                        else
+                            CacheFilter += "-path-" + cache.PathMatchType + "-" + cache.Path;
 
                     if (!string.IsNullOrEmpty(cache.Query))
                         if (!QueryString.HasMatching(cache.QueryMatchType, cache.Query))
                             continue;
+                        else
+                            CacheFilter += "-query-" + cache.QueryMatchType + "-" + cache.Query;
 
                     if (!string.IsNullOrEmpty(cache.FormData))
                         if (!FormData.HasMatching(cache.FormDataMatchType, cache.FormData))
                             continue;
+                        else
+                            CacheFilter += "-form_data-" + cache.FormDataMatchType + "-" + cache.FormData;
+
+                    CacheFilter += "-index-" + cache.Id;
 
                     return true;
                 }
@@ -146,6 +155,7 @@ namespace CodeBehind
     public class CodeBehindViewCache
     {
         public int Duration { get; set; }
+        public string CacheFilter { get; set; }
 
         public bool ViewHasCache(string ViewPath)
         {
@@ -180,14 +190,22 @@ namespace CodeBehind
                     if (!string.IsNullOrEmpty(cache.Path))
                         if (!Path.HasMatching(cache.PathMatchType, cache.Path))
                             continue;
+                        else
+                            CacheFilter += "-path-" + cache.PathMatchType + "-" + cache.Path;
 
                     if (!string.IsNullOrEmpty(cache.Query))
                         if (!QueryString.HasMatching(cache.QueryMatchType, cache.Query))
                             continue;
+                        else
+                            CacheFilter += "-query-" + cache.QueryMatchType + "-" + cache.Query;
 
                     if (!string.IsNullOrEmpty(cache.FormData))
                         if (!FormData.HasMatching(cache.FormDataMatchType, cache.FormData))
                             continue;
+                        else
+                            CacheFilter += "-form_data-" + cache.FormDataMatchType + "-" + cache.FormData;
+
+                    CacheFilter += "-index-" + cache.Id;
 
                     return true;
                 }
