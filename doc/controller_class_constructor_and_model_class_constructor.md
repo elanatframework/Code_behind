@@ -100,3 +100,5 @@ To call the constructor method of the Model class in View, the `modelconstructor
 
 Example:
 `<%@ page ... modelconstructor="(26, &quot;my text&quot;, 'c')" ... %>`
+
+> Note: The constructor method of the Model is only available when you follow the Model-View pattern; otherwise is will not be available.
