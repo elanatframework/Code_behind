@@ -283,3 +283,9 @@ The first version of CodeBehind is based on .NET Core version 7.0; if the versio
 **Problems that were solved:**
 - Resolving the problem of detecting `else` after `else if` in Razor syntax
 - Adaptation of WebForms class with delay and period
+
+
+## Version 3.3
+
+**Problems that were solved:**
+- Resolving the problem of detecting multi line between `text` tag in Razor syntax code blocks
