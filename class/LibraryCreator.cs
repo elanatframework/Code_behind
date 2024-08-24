@@ -540,11 +540,20 @@ namespace SetCodeBehind
 
             ReturnValue += "/*{CaseCodeTemplateValueForControllerName}*/" + Environment.NewLine;
 
+            return ReturnValue;
+        }
+
+        private string FillDefaultAssemblyControllerCase()
+        {
+            string ReturnValue = "";
+
             if (StaticObject.UseDefaultController && StaticObject.UseSectionInDefaultController)
+            {
                 ReturnValue += "                default:" + Environment.NewLine;
                 ReturnValue += "                    if (!BreakDefaultInSwitch)" + Environment.NewLine;
                 ReturnValue += "                        return RunControllerName(\"" + StaticObject.DefaultController + "\", context, true, true);" + Environment.NewLine;
                 ReturnValue += "                break;" + Environment.NewLine;
+            }
 
             return ReturnValue;
         }
@@ -572,7 +581,7 @@ namespace SetCodeBehind
 
             Assembly assembly = Assembly.GetEntryAssembly();
 
-            return FillAssemblyControllerCase(assembly, AssemblyCleanName) + FillDllBinAssemblyControllerCase(AssemblyCleanName);
+            return FillAssemblyControllerCase(assembly, AssemblyCleanName) + FillDllBinAssemblyControllerCase(AssemblyCleanName) + FillDefaultAssemblyControllerCase();
         }
 
         private string SetCleanNameForClass(string CleanName)
