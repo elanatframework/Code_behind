@@ -25,14 +25,11 @@ But let us show this matter in a practical way with an example.
 
 **Step 3:** Configure the Program.cs class as follows.
 ```csharp
-using CodeBehind;
-using SetCodeBehind;
-
 var builder = WebApplication.CreateBuilder(args);
 
 var app = builder.Build();
 
-CodeBehindCompiler.Initialization();
+SetCodeBehind.CodeBehindCompiler.Initialization();
 
 app.UseCodeBehind();
 
