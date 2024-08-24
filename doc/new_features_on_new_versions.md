@@ -287,6 +287,10 @@ The first version of CodeBehind is based on .NET Core version 7.0; if the versio
 
 ## Version 3.3
 
+**New features:**
+- Adding two middleware named `UseCodeBehindNextNotFound` and `UseCodeBehindRouteNextNotFound` to continue the process if the page or controller is not found
+
 **Problems that were solved:**
 - Resolving the problem of detecting multi line between `text` tag in Razor syntax code blocks
 - Solving the problem of ignoring cache parameters
+- A series of other minor corrections
