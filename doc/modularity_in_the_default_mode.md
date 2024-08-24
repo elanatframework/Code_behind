@@ -34,11 +34,7 @@ var app = builder.Build();
 
 CodeBehindCompiler.Initialization();
 
-app.Run(async context =>
-{
-    CodeBehindExecute execute = new CodeBehindExecute();
-    await context.Response.WriteAsync(execute.Run(context));
-});
+app.UseCodeBehind();
 
 app.Run();
 ```
