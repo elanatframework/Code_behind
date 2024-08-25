@@ -17,7 +17,7 @@ app.Run();
 
 According to the above codes, the `UseCodeBehind` middleware answers the requests and the process of the request and response of the program is terminated.
 
-Using the `UseCodeBehindNextNotFound` middleware will respond if the path matches and otherwise continue the process. Using this middleware allows you to configure CideBehind simultaneously with Razor pages and ASP.NET MVC.
+Using the `UseCodeBehindNextNotFound` middleware will respond if the path matches and otherwise continue the process. Using this middleware allows you to configure CideBehind simultaneously with Razor pages and ASP.NET Core MVC.
 
 ## Razor Pages and CodeBehind config in Program.cs
 
