@@ -1,4 +1,4 @@
-## Used with Razor Pages and ASP.NET Core MVC
+# Used with Razor Pages and ASP.NET Core MVC
 
 In this tutorial, we want to teach how to configure the CodeBehind framework along with Razor pages and ASP.NET Core MVC.
 
@@ -10,16 +10,16 @@ var app = builder.Build();
 
 SetCodeBehind.CodeBehindCompiler.Initialization();
 
-app.Run(async context =>
-{
-    CodeBehind.CodeBehindExecute execute = new CodeBehind.CodeBehindExecute();
-    await context.Response.WriteAsync(execute.Run(context));
-});
+app.UseCodeBehind();
 
 app.Run();
 ```
 
-### Razor Pages and CodeBehind config in Program.cs
+According to the above codes, the `UseCodeBehind` middleware answers the requests and the process of the request and response of the program is terminated.
+
+Using the `UseCodeBehindNextNotFound` middleware will respond if the path matches and otherwise continue the process. Using this middleware allows you to configure CideBehind simultaneously with Razor pages and ASP.NET MVC.
+
+## Razor Pages and CodeBehind config in Program.cs
 
 The codes below are configuration for Razor pages and CodeBehind framework. Using this configuration allows you to use Razor pages and CodeBehind in ASP.NET Core at the same time.
 
@@ -34,22 +34,12 @@ app.MapRazorPages();
 
 SetCodeBehind.CodeBehindCompiler.Initialization();
 
-app.Use(async (context, next) =>
-{
-    CodeBehind.CodeBehindExecute execute = new CodeBehind.CodeBehindExecute();
-
-    string PageResult = execute.Run(context);
-
-    if (execute.FoundPage)
-        await context.Response.WriteAsync(PageResult);
-    else
-        await next();
-});
+app.UseCodeBehindNextNotFound();
 
 app.Run();
 ```
 
-### MVC and CodeBehind config in Program.cs
+## MVC and CodeBehind config in Program.cs
 
 The code below is the configuration for MVC and the CodeBehind framework. Applying this configuration allows you to use the default MVC and CodeBehind in ASP.NET Core at the same time.
 
@@ -68,22 +58,12 @@ app.MapControllerRoute(
 
 SetCodeBehind.CodeBehindCompiler.Initialization();
 
-app.Use(async (context, next) =>
-{
-    CodeBehind.CodeBehindExecute execute = new CodeBehind.CodeBehindExecute();
-
-    string PageResult = execute.Run(context);
-
-    if (execute.FoundPage)
-        await context.Response.WriteAsync(PageResult);
-    else
-        await next();
-});
+app.UseCodeBehindNextNotFound();
 
 app.Run();
 ```
 
-### Razor Pages and MVC and CodeBehind config in Program.cs
+## Razor Pages and MVC and CodeBehind config in Program.cs
 
 The codes below are a super config! MVC and Razor Pages and CodeBehind work side by side without interference.
 ```csharp
@@ -103,17 +83,7 @@ app.MapRazorPages();
 
 SetCodeBehind.CodeBehindCompiler.Initialization();
 
-app.Use(async (context, next) =>
-{
-    CodeBehind.CodeBehindExecute execute = new CodeBehind.CodeBehindExecute();
-
-    string PageResult = execute.Run(context);
-
-    if (execute.FoundPage)
-        await context.Response.WriteAsync(PageResult);
-    else
-        await next();
-});
+app.UseCodeBehindNextNotFound();
 
 app.Run();
 ```
