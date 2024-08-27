@@ -260,6 +260,8 @@ namespace SetCodeBehind
             CodeBehindViews += "            ViewData.AddList(ViewData.GetList());" + Environment.NewLine;
             CodeBehindViews += "            this.IgnoreLayout = IgnoreLayout;" + Environment.NewLine;
             CodeBehindViews += "            this.WebFormsValue += WebFormsValue;" + Environment.NewLine + Environment.NewLine;
+            CodeBehindViews += "            if (string.IsNullOrEmpty(ViewPath))" + Environment.NewLine;
+            CodeBehindViews += "                return \"\";" + Environment.NewLine + Environment.NewLine;
             CodeBehindViews += "            if (ModelClass != null)" + Environment.NewLine;
             CodeBehindViews += "                return LoadPage(ViewPath, ModelClass, context);" + Environment.NewLine;
             CodeBehindViews += "            else" + Environment.NewLine;
