@@ -293,5 +293,13 @@ The first version of CodeBehind is based on .NET Core version 7.0; if the versio
 **Problems that were solved:**
 - Resolving the problem of detecting multi line between `text` tag in Razor syntax code blocks
 - Solving the problem of ignoring cache parameters
-- A series of other minor corrections
 - Solving the problem of additional `default` code in the `switch case` code for load Controllers
+- A series of other minor corrections
+
+## Version 3.4
+
+**New features:**
+- Structure improvements for faster execution and increased performance
+
+**Problems that were solved:**
+- Fixed issue of not allocating controller attributes
