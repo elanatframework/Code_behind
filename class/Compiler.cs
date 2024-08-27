@@ -11,13 +11,12 @@ namespace SetCodeBehind
     public static class CodeBehindCompiler
     {
         private static Assembly CompiledAssembly;
-        
+        private static Type ClassType;
+
         internal static Assembly CompileAspx(bool UseLastSuccessCompiled = false, List<string> CurrentErrorList = null)
         {
             if (CompiledAssembly != null)
-            {
                 return CompiledAssembly;
-            }
 
             List<string> ErrorList = (CurrentErrorList != null)? CurrentErrorList : new List<string>();
 
@@ -186,6 +185,14 @@ namespace SetCodeBehind
             }
         }
 
+        internal static Type CompileAspxAndReturnType()
+        {
+            if (ClassType == null)
+                ClassType = CompileAspx().GetType("CodeBehindViews.CodeBehindViewsList");
+
+            return ClassType;
+        }
+
         private static void SaveError(List<string> ErrorList, bool UseLastLastSuccessCompiled = false)
         {
             if (!Directory.Exists("code_behind"))
@@ -280,6 +287,7 @@ namespace SetCodeBehind
             }
             
             CompiledAssembly = null;
+            ClassType = null;
 
             string FilePath = AppContext.BaseDirectory + "/CodeBehindLastSuccessCompiled.dll.tmp";
             if (File.Exists(FilePath))
