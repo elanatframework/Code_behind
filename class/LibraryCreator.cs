@@ -270,6 +270,7 @@ namespace SetCodeBehind
 
             CodeBehindViews += "        public string RunControllerName(string ControllerClass, HttpContext context, bool IsDefaultController, bool BreakDefaultInSwitch)" + Environment.NewLine;
             CodeBehindViews += "        {" + Environment.NewLine;
+            CodeBehindViews += "            string TmpViewPath = \"\";" + Environment.NewLine;
             CodeBehindViews += "            switch (ControllerClass)" + Environment.NewLine;
             CodeBehindViews += "            {" + Environment.NewLine;
             CodeBehindViews += FillControllerNameCase();
@@ -535,9 +536,11 @@ namespace SetCodeBehind
                     ReturnValue += "                }" + Environment.NewLine + Environment.NewLine;
                 }
 
+                ReturnValue += "                TmpViewPath = " + ClassName + ".ViewPath;" + Environment.NewLine;
                 ReturnValue += "                if (" + ClassName + ".IgnoreViewAndModel)" + Environment.NewLine;
-                ReturnValue += "                    return " + ClassName + ".ResponseText;" + Environment.NewLine + Environment.NewLine;
-                ReturnValue += "                return " + ClassName + ".ResponseText + RunController(context, " + ClassName + ".ViewPath, " + ClassName + ".CodeBehindModel, " + ClassName + ".ViewData, " + ClassName + ".DownloadFilePath, " + ClassName + ".IgnoreLayout, " + ClassName + ".WebFormsValue);" + Environment.NewLine + Environment.NewLine;
+                ReturnValue += "                    TmpViewPath = \"\";" + Environment.NewLine + Environment.NewLine;
+
+                ReturnValue += "                return " + ClassName + ".ResponseText + RunController(context, TmpViewPath, " + ClassName + ".CodeBehindModel, " + ClassName + ".ViewData, " + ClassName + ".DownloadFilePath, " + ClassName + ".IgnoreLayout, " + ClassName + ".WebFormsValue);" + Environment.NewLine + Environment.NewLine;
             }
 
             ReturnValue += "/*{CaseCodeTemplateValueForControllerName}*/" + Environment.NewLine;
