@@ -144,10 +144,10 @@ namespace CodeBehind
             string SavedPath = context.Request.Path;
             string QueryString = "";
 
-            if (Path.Contains('?'))
+            if (Path.Contains("?"))
             {
-                context.Request.Path = Path.GetTextBeforeValue('?');
-                QueryString = Path.GetTextAfterValue('?');
+                context.Request.Path = Path.GetTextBeforeValue("?");
+                QueryString = Path.GetTextAfterValue("?");
             }
             else
                 context.Request.Path = Path;
@@ -183,11 +183,11 @@ namespace CodeBehind
         /// This Overload Method Does Not Support Query String
         /// This Overload Method Does Not Support Web-Forms Control
         /// </summary>
-        private string PrivateRun(string path, string MethodName)
+        private string RunByPath(string path, string MethodName)
         {
             string extension = Path.GetExtension(path);
             path = System.Net.WebUtility.UrlDecode(path);
-            path = path.GetTextBeforeValue('?');
+            path = path.GetTextBeforeValue("?");
 
             if (StaticObject.PreventAccessDefaultAspx && MethodName == "SetPageLoadByPath")
                 if (path.EndsWith("/Default.aspx") || path.Contains("/Default.aspx/"))
@@ -236,7 +236,7 @@ namespace CodeBehind
         /// </summary>
         public string Run(string path)
         {
-            return PrivateRun(path, "SetPageLoadByPath");
+            return RunByPath(path, "SetPageLoadByPath");
         }
 
         // Overload
@@ -246,7 +246,7 @@ namespace CodeBehind
         /// </summary>
         public string RunFullPath(string path)
         {
-            return PrivateRun(path, "SetPageLoadByFullPath");
+            return RunByPath(path, "SetPageLoadByFullPath");
         }
 
         public string RunErrorPage(int ErrorValue)
