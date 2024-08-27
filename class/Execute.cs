@@ -10,20 +10,20 @@ namespace CodeBehind
         public bool FoundPage { get; private set; } = true;
         public bool FoundController { get; private set; } = true;
 
-        private string PrivateRun(HttpContext context, string MethodName)
+        private string RunByContext(HttpContext context, string MethodName, string QueryString = "")
         {
             string path = context.Request.Path.ToString();
             path = System.Net.WebUtility.UrlDecode(path);
-            string extension = Path.GetExtension(path.GetTextBeforeValue("?"));
+            string extension = Path.GetExtension(path);
 
             if (StaticObject.PreventAccessDefaultAspx && MethodName == "SetPageLoadByPath")
-                if (path.GetTextBeforeValue("?").EndsWith("/Default.aspx") || path.GetTextBeforeValue("?").Contains("/Default.aspx/"))
+                if (path.EndsWith("/Default.aspx") || path.Contains("/Default.aspx/"))
                 {
                     FoundPage = false;
                     return "";
                 }
 
-            bool HasSection = path.GetTextBeforeValue("?").Contains(".aspx/");
+            bool HasSection = path.Contains(".aspx/");
 
             if (string.IsNullOrEmpty(extension) && !HasSection)
             {
@@ -32,8 +32,8 @@ namespace CodeBehind
                 if (path.Length > 0)
                     AddSlash = (path[path.Length - 1] != '/');
 
-                if (path.Contains('?'))
-                    path = path.GetTextBeforeValue("?") + (AddSlash ? "/" : "") + "Default.aspx?" + path.GetTextAfterValue("?");
+                if (!string.IsNullOrEmpty(QueryString))
+                    path = path + (AddSlash ? "/" : "") + "Default.aspx?" + QueryString;
                 else
                     path = path + (AddSlash ? "/" : "") + "Default.aspx";
 
@@ -43,55 +43,48 @@ namespace CodeBehind
             if (extension == ".aspx" || HasSection)
             {
                 // Add QueryString Value
-                if (path.Contains('?'))
+                if (!string.IsNullOrEmpty(QueryString))
                 {
-                    string QueryString = path.GetTextAfterValue("?");
-
-                    if (!string.IsNullOrEmpty(QueryString))
+                    NameCollection QueryValues = new NameCollection();
+                    QueryString TmpQueryString = new QueryString();
+                    string[] QueryElements = QueryString.Split('&');
+                    foreach (string element in QueryElements)
                     {
-                        NameCollection QueryValues = new NameCollection();
-                        QueryString TmpQueryString = new QueryString();
-                        string[] QueryElements = QueryString.Split('&');
-                        foreach (string element in QueryElements)
+                        string[] NameValue = element.Split('=');
+
+                        if (NameValue.Length > 1)
+                            TmpQueryString = TmpQueryString.Add(NameValue[0], NameValue[1]);
+                        else
+                            TmpQueryString = TmpQueryString.Add(NameValue[0], "");
+
+                        QueryValues.Add(NameValue[0]);
+                    }
+
+                    string RequestQueryString = context.Request.QueryString.Value;
+
+                    if (!string.IsNullOrEmpty(RequestQueryString))
+                    {
+                        RequestQueryString = RequestQueryString.GetTextAfterValue("?");
+                        string[] TmpQueryElements = RequestQueryString.Split('&');
+                        foreach (string element in TmpQueryElements)
                         {
                             string[] NameValue = element.Split('=');
 
-                            if (NameValue.Length > 1)
-                                TmpQueryString = TmpQueryString.Add(NameValue[0], NameValue[1]);
-                            else
-                                TmpQueryString = TmpQueryString.Add(NameValue[0], "");
-
-                            QueryValues.Add(NameValue[0]);
+                            if (!QueryValues.Exist(NameValue[0]))
+                                if (NameValue.Length > 1)
+                                    TmpQueryString = TmpQueryString.Add(NameValue[0], NameValue[1]);
+                                else
+                                    TmpQueryString = TmpQueryString.Add(NameValue[0], "");
                         }
-
-                        string RequestQueryString = context.Request.QueryString.Value;
-
-                        if (!string.IsNullOrEmpty(RequestQueryString))
-                        {
-                            RequestQueryString = RequestQueryString.GetTextAfterValue("?");
-                            string[] TmpQueryElements = RequestQueryString.Split('&');
-                            foreach (string element in TmpQueryElements)
-                            {
-                                string[] NameValue = element.Split('=');
-
-                                if (!QueryValues.Exist(NameValue[0]))
-                                    if (NameValue.Length > 1)
-                                        TmpQueryString = TmpQueryString.Add(NameValue[0], NameValue[1]);
-                                    else
-                                        TmpQueryString = TmpQueryString.Add(NameValue[0], "");
-                            }
-                        }
-
-                        context.Request.QueryString = TmpQueryString;
-                        path = path.GetTextBeforeValue("?");
                     }
+
+                    context.Request.QueryString = TmpQueryString;
                 }
 
                 if (context.Request.ContentType == null)
                     context.Request.ContentType = "application/x-www-form-urlencoded; charset=utf-8";
 
-                Assembly assembly = CodeBehindCompiler.CompileAspx();
-                Type type = assembly.GetType("CodeBehindViews.CodeBehindViewsList");
+                Type type = CodeBehindCompiler.CompileAspxAndReturnType();
                 object obj = Activator.CreateInstance(type);
                 MethodInfo method = type.GetMethod(MethodName);
                 object[] Arguments = (MethodName == "SetPageLoadByFullPath") ? new object[] { path, context, "" } : new object[] { path, context };
@@ -134,7 +127,7 @@ namespace CodeBehind
         /// </summary>
         public string Run(HttpContext context)
         {
-            return PrivateRun(context, "SetPageLoadByPath");
+            return RunByContext(context, "SetPageLoadByPath");
         }
 
         /// <summary>
@@ -142,17 +135,24 @@ namespace CodeBehind
         /// </summary>
         public string RunFullPath(HttpContext context)
         {
-            return PrivateRun(context, "SetPageLoadByFullPath");
+            return RunByContext(context, "SetPageLoadByFullPath");
         }
 
         // Overload
         private string PrivateRun(HttpContext context, string Path, string MethodName)
         {
             string SavedPath = context.Request.Path;
+            string QueryString = "";
 
-            context.Request.Path = Path;
+            if (Path.Contains('?'))
+            {
+                context.Request.Path = Path.GetTextBeforeValue('?');
+                QueryString = Path.GetTextAfterValue('?');
+            }
+            else
+                context.Request.Path = Path;
 
-            string ReturnValue = PrivateRun(context, MethodName);
+            string ReturnValue = RunByContext(context, MethodName, QueryString);
 
             context.Request.Path = SavedPath;
 
@@ -187,15 +187,16 @@ namespace CodeBehind
         {
             string extension = Path.GetExtension(path);
             path = System.Net.WebUtility.UrlDecode(path);
+            path = path.GetTextBeforeValue('?');
 
             if (StaticObject.PreventAccessDefaultAspx && MethodName == "SetPageLoadByPath")
-                if (path.GetTextBeforeValue("?").EndsWith("/Default.aspx") || path.GetTextBeforeValue("?").Contains("/Default.aspx/"))
+                if (path.EndsWith("/Default.aspx") || path.Contains("/Default.aspx/"))
                 {
                     FoundPage = false;
                     return "";
                 }
 
-            bool HasSection = path.GetTextBeforeValue("?").Contains(".aspx/");
+            bool HasSection = path.Contains(".aspx/");
 
             if (string.IsNullOrEmpty(extension) && !HasSection)
             {
@@ -204,18 +205,14 @@ namespace CodeBehind
                 if (path.Length > 0)
                     AddSlash = (path[path.Length - 1] != '/');
 
-                if (path.Contains('?'))
-                    path = path.GetTextBeforeValue("?") + (AddSlash ? "/" : "") + "Default.aspx?" + path.GetTextAfterValue("?");
-                else
-                    path = path + (AddSlash ? "/" : "") + "Default.aspx";
+                path = path + (AddSlash ? "/" : "") + "Default.aspx";
 
                 extension = ".aspx";
             }
 
             if (extension == ".aspx" || HasSection)
             {
-                Assembly assembly = CodeBehindCompiler.CompileAspx();
-                Type type = assembly.GetType("CodeBehindViews.CodeBehindViewsList");
+                Type type = CodeBehindCompiler.CompileAspxAndReturnType();
                 object obj = Activator.CreateInstance(type);
                 MethodInfo method = type.GetMethod(MethodName);
                 object[] Arguments = (MethodName == "SetPageLoadByFullPath") ? new object[] { path, null, "" } : new object[] { path, null };
@@ -282,7 +279,7 @@ namespace CodeBehind
             path = System.Net.WebUtility.UrlDecode(path);
 
             if (StaticObject.PreventAccessDefaultAspx)
-                if (path.GetTextBeforeValue("?").EndsWith("/Default.aspx") || path.GetTextBeforeValue("?").Contains("/Default.aspx/"))
+                if (path.EndsWith("/Default.aspx") || path.Contains("/Default.aspx/"))
                 {
                     FoundPage = false;
                     return "";
@@ -291,8 +288,7 @@ namespace CodeBehind
             if (context.Request.ContentType == null)
                 context.Request.ContentType = "application/x-www-form-urlencoded; charset=utf-8";
 
-            Assembly assembly = CodeBehindCompiler.CompileAspx();
-            Type type = assembly.GetType("CodeBehindViews.CodeBehindViewsList");
+            Type type = CodeBehindCompiler.CompileAspxAndReturnType();
             object obj = Activator.CreateInstance(type);
             MethodInfo method = type.GetMethod("RunController");
             object[] Arguments = new object[] { context, ViewPath, CodeBehindModel, ViewData, DownloadFilePath, IgnoreLayout, WebFormsValue };
@@ -355,8 +351,7 @@ namespace CodeBehind
         // Overload
         public string RunController(string ControllerClass, HttpContext context, bool IsDefaultController = false)
         {
-            Assembly assembly = CodeBehindCompiler.CompileAspx();
-            Type type = assembly.GetType("CodeBehindViews.CodeBehindViewsList");
+            Type type = CodeBehindCompiler.CompileAspxAndReturnType();
             object obj = Activator.CreateInstance(type);
             MethodInfo method = type.GetMethod("RunControllerName");
             string ReturnResult = (string)method.Invoke(obj, new object[] { ControllerClass, context, IsDefaultController, false });
@@ -410,7 +405,7 @@ namespace CodeBehind
 
             ValueCollectionLock Section = new ValueCollectionLock();
 
-            string[] ValueList = RequestPath.GetTextBeforeValue("?").Split('/');
+            string[] ValueList = RequestPath.Split('/');
             Section.AddList(ValueList);
 
             if (Section.Count() <= ControllerSection)
