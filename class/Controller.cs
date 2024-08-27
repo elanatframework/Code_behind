@@ -125,8 +125,6 @@ namespace CodeBehind
                 if (RequestPath.StartsWith(FillAfter))
                     RequestPath = RequestPath.Remove(0, FillAfter.Length);
 
-            RequestPath = RequestPath.GetTextBeforeValue("?");
-
             if (string.IsNullOrEmpty(RequestPath))
                 return;
 
