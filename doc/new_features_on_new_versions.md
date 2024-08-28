@@ -313,3 +313,4 @@ The first version of CodeBehind is based on .NET Core version 7.0; if the versio
 **New features:**
 - New options for accessing controllers, in lower case
 - Ability to support conditional expressions and loops without needing brackets in Razor syntax
+- And a series of minor changes and improvements
