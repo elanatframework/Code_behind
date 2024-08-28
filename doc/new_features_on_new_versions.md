@@ -284,7 +284,6 @@ The first version of CodeBehind is based on .NET Core version 7.0; if the versio
 - Resolving the problem of detecting `else` after `else if` in Razor syntax
 - Adaptation of WebForms class with delay and period
 
-
 ## Version 3.3
 
 **New features:**
@@ -308,3 +307,8 @@ The first version of CodeBehind is based on .NET Core version 7.0; if the versio
 
 **Problems that were solved:**
 - The problem of program break in calling View was solved
+
+## Version 3.5
+
+**New features:**
+- New options for accessing controllers, in lower case
