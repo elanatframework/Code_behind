@@ -25,7 +25,9 @@ namespace CodeBehind
         internal string DefaultController { private set; get; }
         internal bool UseSectionInDefaultController { private set; get; }
         internal bool SetBreakForDefaultController { private set; get; }
-
+        internal bool AccessControllerByLowerCase { private set; get; }
+        internal bool JustAccessControllerByLowerCase { private set; get; }
+        internal bool SetDefaultPages { private set; get; }
 
         internal CodeBehindOptions()
         {
@@ -66,36 +68,43 @@ namespace CodeBehind
                 DefaultController = (reader.ReadLine().GetTextAfterValue("=").Trim());
                 UseSectionInDefaultController = (reader.ReadLine().GetTextAfterValue("=").Trim() == "true");
                 SetBreakForDefaultController = (reader.ReadLine().GetTextAfterValue("=").Trim() == "true");
+                AccessControllerByLowerCase = (reader.ReadLine().GetTextAfterValue("=").Trim() == "true");
+                JustAccessControllerByLowerCase = (reader.ReadLine().GetTextAfterValue("=").Trim() == "true");
+                SetDefaultPages = (reader.ReadLine().GetTextAfterValue("=").Trim() == "true");
             }
         }
 
         private void SetFirstValue()
         {
-            List<string> OptionsList = new List<string>();
-
-            OptionsList.Add("[CodeBehind options]; do not change order");
-            OptionsList.Add("view_path=wwwroot");
-            OptionsList.Add("move_view_from_wwwroot=true");
-            OptionsList.Add("rewrite_aspx_file_to_directory=false");
-            OptionsList.Add("access_aspx_file_after_rewrite=false");
-            OptionsList.Add("ignore_default_after_rewrite=true");
-            OptionsList.Add("start_trim_in_aspx_file=true");
-            OptionsList.Add("inner_trim_in_aspx_file=true");
-            OptionsList.Add("end_trim_in_aspx_file=true");
-            OptionsList.Add("set_break_for_layout_page=true");
-            OptionsList.Add("convert_cshtml_to_aspx=false");
-            OptionsList.Add("show_minor_errors=false");
-            OptionsList.Add("error_page_path=/error.aspx/{value}");
-            OptionsList.Add("prevent_access_default_aspx=false");
-            OptionsList.Add("default_role=guest");
-            OptionsList.Add("web_forms_script_path=/script");
-            OptionsList.Add("auto_create_web_forms_script=true");
-            OptionsList.Add("recreate_web_forms_script_after_recompile=false");
-            OptionsList.Add("web_forms_view_place=<body>");
-            OptionsList.Add("use_default_controller=true");
-            OptionsList.Add("default_controller=DefaultController");
-            OptionsList.Add("use_section_in_default_controller=true");
-            OptionsList.Add("set_break_for_default_controller=true");
+            List<string> OptionsList = new List<string>
+            {
+                "[CodeBehind options]; do not change order",
+                "view_path=wwwroot",
+                "move_view_from_wwwroot=true",
+                "rewrite_aspx_file_to_directory=false",
+                "access_aspx_file_after_rewrite=false",
+                "ignore_default_after_rewrite=true",
+                "start_trim_in_aspx_file=true",
+                "inner_trim_in_aspx_file=true",
+                "end_trim_in_aspx_file=true",
+                "set_break_for_layout_page=true",
+                "convert_cshtml_to_aspx=false",
+                "show_minor_errors=false",
+                "error_page_path=/error.aspx/{value}",
+                "prevent_access_default_aspx=false",
+                "default_role=guest",
+                "web_forms_script_path=/script",
+                "auto_create_web_forms_script=true",
+                "recreate_web_forms_script_after_recompile=false",
+                "web_forms_view_place=<body>",
+                "use_default_controller=true",
+                "default_controller=DefaultController",
+                "use_section_in_default_controller=true",
+                "set_break_for_default_controller=true",
+                "access_controller_by_lower_case=true",
+                "just_access_controller_by_lower_case=true",
+                "set_default_pages=true"
+            };
 
             bool HasMoreOption = false;
 
