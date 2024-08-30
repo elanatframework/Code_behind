@@ -24,7 +24,7 @@ namespace CodeBehind
             DefaultRole = options.DefaultRole;
             ViewPlace = options.WebFormsViewPlace;
             UseDefaultController = options.UseDefaultController;
-            DefaultController = options.DefaultController;
+            DefaultController = (options.AccessControllerByLowerCase || options.JustAccessControllerByLowerCase) ? options.DefaultController.ToLower() : options.DefaultController;
             UseSectionInDefaultController = options.UseSectionInDefaultController;
             SetBreakForDefaultController = options.SetBreakForDefaultController;
 
