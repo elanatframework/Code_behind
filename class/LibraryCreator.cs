@@ -109,7 +109,7 @@ namespace SetCodeBehind
             CodeBehindOptions options = new CodeBehindOptions();
 
             // Create wwwroot Directory And Set Default Pages
-            if (options.ViewPath == "wwwroot" && !Directory.Exists("wwwroot"))
+            if (options.SetDefaultPages && options.ViewPath == "wwwroot" && !Directory.Exists("wwwroot"))
                 new DefaultPages().Set();
 
             // Create Web-Forms Script
@@ -474,6 +474,8 @@ namespace SetCodeBehind
             Type ControllerType = typeof(CodeBehindController);
             var AssemblyClasses = assembly.GetTypes().Where(type => ControllerType.IsAssignableFrom(type) && !type.IsAbstract);
 
+            CodeBehindOptions options = new CodeBehindOptions();
+
             string ReturnValue = "";
 
             foreach (var TmpClass in AssemblyClasses)
@@ -481,9 +483,18 @@ namespace SetCodeBehind
                 string NameSpace = (string.IsNullOrEmpty(TmpClass.Namespace) || (TmpClass.Namespace == EntryAssemblyName)) ? "" : TmpClass.Namespace + ".";
                 string ClassName = "Tmp" + TmpClass.Namespace + "_" + TmpClass.Name;
 
-                ReturnValue += "                case \"" + TmpClass.Name + "\":" + Environment.NewLine;
+                if ((TmpClass.Name.ToLower() != TmpClass.Name))
+                {
+                    if (!options.JustAccessControllerByLowerCase)
+                        ReturnValue += "                case \"" + TmpClass.Name + "\":" + Environment.NewLine;
 
-                if ((TmpClass.Name == StaticObject.DefaultController) && StaticObject.SetBreakForDefaultController)
+                    if (options.AccessControllerByLowerCase || options.JustAccessControllerByLowerCase)
+                        ReturnValue += "                case \"" + TmpClass.Name.ToLower() + "\":" + Environment.NewLine;
+                }
+                else
+                    ReturnValue += "                case \"" + TmpClass.Name + "\":" + Environment.NewLine;
+
+                if (StaticObject.SetBreakForDefaultController && (TmpClass.Name == StaticObject.DefaultController))
                 {
                     ReturnValue += "                if (!IsDefaultController)" + Environment.NewLine;
                     ReturnValue += "                {" + Environment.NewLine;
