@@ -532,6 +532,7 @@ namespace CodeBehind
         private HtmlData.NameValueCollection FetchExpressionsInLine(string LineText)
         {
             HtmlData.NameValueCollection NameValues = new HtmlData.NameValueCollection();
+            string MyTextCode = "";
             string WriteText = "";
 
             for (int i = 0; i < LineText.Length; i++)
@@ -541,26 +542,46 @@ namespace CodeBehind
                     if (i + 1 < LineText.Length)
                         if (LineText[i + 1] == '@')
                         {
-                            WriteText += "@@";
+                            WriteText += "@";
                             i++;
                             continue;
                         }
 
+                    if (!string.IsNullOrEmpty(MyTextCode))
+                        MyTextCode += " + " + GetWriteText(WriteText);
+                    else
+                        MyTextCode += GetWriteText(WriteText);
 
-                    NameValues.Add("write_text", WriteText);
                     WriteText = "";
 
                     if (LineText[i + 1] == '(')
                     {
                         CodeBehindFetchRazorSyntex TmpSyntex = new CodeBehindFetchRazorSyntex();
-                        NameValues.Add("write_code", TmpSyntex.FetchSyntexWithEndedCharacter(LineText.Substring(i)));
+                        string WriteCode = TmpSyntex.FetchSyntexWithEndedCharacter(LineText.Substring(i));
+
+                        if (!string.IsNullOrEmpty(WriteCode))
+                        {
+                            if (!string.IsNullOrEmpty(MyTextCode))
+                                MyTextCode += " + " + WriteCode;
+                            else
+                                MyTextCode += WriteCode;
+                        }
 
                         i += TmpSyntex.RazorIndexLength - 1;
                         continue;
                     }
                     else
                     {
-                        NameValues.Add("write_code", FetchExpressions(LineText.Substring(i)));
+                        string WriteCode = FetchExpressions(LineText.Substring(i));
+
+                        if (!string.IsNullOrEmpty(WriteCode))
+                        {
+                            if (!string.IsNullOrEmpty(MyTextCode))
+                                MyTextCode += " + " + WriteCode;
+                            else
+                                MyTextCode += WriteCode;
+                        }
+
                         i += ExpressionsIndexLength - 1;
                     }
                 }
@@ -569,9 +590,32 @@ namespace CodeBehind
             }
 
             if (!string.IsNullOrEmpty(WriteText))
-                NameValues.Add("write_text", WriteText);
+            {
+                if (!string.IsNullOrEmpty(MyTextCode))
+                    MyTextCode += " + " + GetWriteText(WriteText);
+                else
+                    MyTextCode += GetWriteText(WriteText);
+            }
+            if (!string.IsNullOrEmpty(MyTextCode))
+                NameValues.Add("write_code", MyTextCode);
 
             return NameValues;
+        }
+
+        private string GetWriteText(string Text)
+        {
+            if (Text.Length > 0)
+            {
+                Text = Text.Replace("\\", "\\\\");
+
+                Text = Text.Replace("\"", @"\" + "\"");
+
+                Text = Text.Replace('\n'.ToString(), "\\" + "n");
+
+                return  "\"" + Text + "\"";
+            }
+            else
+                return "";
         }
 
         private bool ExistDoubleQuotes(string Text)
