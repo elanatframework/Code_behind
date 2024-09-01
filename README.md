@@ -32,7 +32,7 @@ In every scenario, CodeBehind performs better than the default structure in ASP.
 ### Only view example
 
 View section: aspx page (razor syntax)
-```cshtml
+```html
 @page
 @{
     Random rand = new Random();
@@ -44,7 +44,7 @@ View section: aspx page (razor syntax)
 ```
 
 View section: aspx page (standard syntax)
-```cshtml
+```html
 <%@ Page %>
 <%
     Random rand = new Random();
@@ -58,7 +58,7 @@ View section: aspx page (standard syntax)
 ### MVC example
 
 View File: Default.aspx (razor syntax)
-```aspx
+```html
 @page
 @controller MyController
 @model MyModel
@@ -75,7 +75,7 @@ View File: Default.aspx (razor syntax)
 ```
 
 View File: Default.aspx (standard syntax)
-```aspx
+```html
 <%@ Page Controller="MyController" Model="MyModel" %>
 <!DOCTYPE html>
 <html>
