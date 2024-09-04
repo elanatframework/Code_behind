@@ -19,12 +19,26 @@ namespace CodeBehind
                 return;
 
             CodeBehindOptions options = new CodeBehindOptions();
+
+            if (options.UseDefaultController)
+            {
+                DefaultController = options.DefaultController;
+
+                if (options.PutTwoUnderlinesEqualToDashForController)
+                    DefaultController = DefaultController.Replace("__", "-");
+                if (DefaultController.StartsWith(options.IgnorePrefixController))
+                    DefaultController = DefaultController.Remove(0, options.IgnorePrefixController.Length);
+                if (DefaultController.EndsWith(options.IgnoreSuffixController))
+                    DefaultController = DefaultController.GetTextBeforeLastValue(options.IgnoreSuffixController);
+
+                DefaultController = (options.AccessControllerByLowerCase || options.JustAccessControllerByLowerCase) ? DefaultController.ToLower() : DefaultController;
+            }
+
             PreventAccessDefaultAspx = options.PreventAccessDefaultAspx;
             ViewPath = options.ViewPath;
             DefaultRole = options.DefaultRole;
             ViewPlace = options.WebFormsViewPlace;
-            UseDefaultController = options.UseDefaultController;
-            DefaultController = (options.AccessControllerByLowerCase || options.JustAccessControllerByLowerCase) ? options.DefaultController.ToLower() : options.DefaultController;
+            UseDefaultController = options.UseDefaultController;          
             UseSectionInDefaultController = options.UseSectionInDefaultController;
             SetBreakForDefaultController = options.SetBreakForDefaultController;
 
