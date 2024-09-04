@@ -483,18 +483,27 @@ namespace SetCodeBehind
                 string NameSpace = (string.IsNullOrEmpty(TmpClass.Namespace) || (TmpClass.Namespace == EntryAssemblyName)) ? "" : TmpClass.Namespace + ".";
                 string ClassName = "Tmp" + TmpClass.Namespace + "_" + TmpClass.Name;
 
-                if ((TmpClass.Name.ToLower() != TmpClass.Name))
+                string ClassNameForCall = TmpClass.Name;
+                if (options.PutTwoUnderlinesEqualToDashForController)
+                    ClassNameForCall = ClassNameForCall.Replace("__", '-'.ToString());
+                if (ClassNameForCall.StartsWith(options.IgnorePrefixController))
+                    ClassNameForCall = ClassNameForCall.Remove(0, options.IgnorePrefixController.Length);
+                if (ClassNameForCall.EndsWith(options.IgnoreSuffixController))
+                    ClassNameForCall = ClassNameForCall.GetTextBeforeLastValue(options.IgnoreSuffixController);
+
+
+                if (ClassNameForCall.ToLower() != ClassNameForCall)
                 {
                     if (!options.JustAccessControllerByLowerCase)
-                        ReturnValue += "                case \"" + TmpClass.Name + "\":" + Environment.NewLine;
+                        ReturnValue += "                case \"" + ClassNameForCall + "\":" + Environment.NewLine;
 
                     if (options.AccessControllerByLowerCase || options.JustAccessControllerByLowerCase)
-                        ReturnValue += "                case \"" + TmpClass.Name.ToLower() + "\":" + Environment.NewLine;
+                        ReturnValue += "                case \"" + ClassNameForCall.ToLower() + "\":" + Environment.NewLine;
                 }
                 else
-                    ReturnValue += "                case \"" + TmpClass.Name + "\":" + Environment.NewLine;
+                    ReturnValue += "                case \"" + ClassNameForCall + "\":" + Environment.NewLine;
 
-                if (StaticObject.SetBreakForDefaultController && (TmpClass.Name == StaticObject.DefaultController))
+                if (StaticObject.SetBreakForDefaultController && (TmpClass.Name == options.DefaultController))
                 {
                     ReturnValue += "                if (!IsDefaultController)" + Environment.NewLine;
                     ReturnValue += "                {" + Environment.NewLine;
@@ -521,7 +530,7 @@ namespace SetCodeBehind
                 }
 
                 ReturnValue += "                " + NameSpace + TmpClass.Name + " " + ClassName + " = new " + NameSpace + TmpClass.Name + "();" + Environment.NewLine;
-                ReturnValue += "                " + ClassName + ".FillSection(context, \"/" + TmpClass.Name + "\");" + Environment.NewLine;
+                ReturnValue += "                " + ClassName + ".FillSection(context, \"/\" + ControllerClass);" + Environment.NewLine;
                 ReturnValue += "                " + ClassName + ".PageLoad(context);" + Environment.NewLine;
                 ReturnValue += "                this.WebFormsValue += " + ClassName + ".WebFormsValue;" + Environment.NewLine;
 
