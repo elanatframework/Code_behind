@@ -427,12 +427,6 @@ namespace CodeBehind
 
             string ControllerClass = Section.GetValue(ControllerSection);
 
-            if (!ControllerClass.ClassPathIsFine())
-            {
-                FoundController = false;
-                return "";
-            }
-
             return RunController(ControllerClass, context);
         }
 
