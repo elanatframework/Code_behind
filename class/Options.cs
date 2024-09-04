@@ -27,6 +27,9 @@ namespace CodeBehind
         internal bool SetBreakForDefaultController { private set; get; }
         internal bool AccessControllerByLowerCase { private set; get; }
         internal bool JustAccessControllerByLowerCase { private set; get; }
+        internal string IgnorePrefixController { private set; get; }
+        internal string IgnoreSuffixController { private set; get; }
+        internal bool PutTwoUnderlinesEqualToDashForController { private set; get; }
         internal bool SetDefaultPages { private set; get; }
 
         internal CodeBehindOptions()
@@ -70,6 +73,9 @@ namespace CodeBehind
                 SetBreakForDefaultController = (reader.ReadLine().GetTextAfterValue("=").Trim() == "true");
                 AccessControllerByLowerCase = (reader.ReadLine().GetTextAfterValue("=").Trim() == "true");
                 JustAccessControllerByLowerCase = (reader.ReadLine().GetTextAfterValue("=").Trim() == "true");
+                IgnorePrefixController = (reader.ReadLine().GetTextAfterValue("=").Trim());
+                IgnoreSuffixController = (reader.ReadLine().GetTextAfterValue("=").Trim());
+                PutTwoUnderlinesEqualToDashForController = (reader.ReadLine().GetTextAfterValue("=").Trim() == "true");
                 SetDefaultPages = (reader.ReadLine().GetTextAfterValue("=").Trim() == "true");
             }
         }
@@ -103,6 +109,9 @@ namespace CodeBehind
                 "set_break_for_default_controller=true",
                 "access_controller_by_lower_case=true",
                 "just_access_controller_by_lower_case=true",
+                "ignore_prefix_controller=.",
+                "ignore_suffix_controller=.",
+                "put_two_underlines_equal_to_dash_for_controller=false",
                 "set_default_pages=true"
             };
 
