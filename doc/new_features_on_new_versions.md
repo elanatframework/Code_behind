@@ -314,7 +314,15 @@ The first version of CodeBehind is based on .NET Core version 7.0; if the versio
 - Ability to support conditional expressions and loops without needing brackets in Razor syntax
 - New options for accessing controllers, in lower case
 - Adding an option to create or not create default pages in the options file
+- Adding option to ignore the controller name prefix and suffix
+- Adding option to convert two underlines into a single dash to call the controller name
 - And a series of minor changes and improvements
 
 **Problems that were solved:**
 - Fixed location tag detection issue when calling back in WebFormsJS
+
+
+### Version 3.5.1
+
+**New features:**
+- Improved performance for making final View classes
