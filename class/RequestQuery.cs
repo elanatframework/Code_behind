@@ -5,7 +5,7 @@ namespace CodeBehind
 {
     internal class RequestQuery
     {
-        public void AddQueryString(HttpContext context, string QueryString)
+        internal void AddQueryString(HttpContext context, string QueryString)
         {
             if (string.IsNullOrEmpty(QueryString))
                 return;
