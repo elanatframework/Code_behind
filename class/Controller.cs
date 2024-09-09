@@ -91,6 +91,26 @@ namespace CodeBehind
             IgnoreLayout = true;
         }
 
+        public void SetViewPath(HttpContext context, string Path)
+        {
+            if (Path.Contains("?"))
+            {
+                ViewPath = ">" + Path.GetTextBeforeValue("?");
+
+                string QueryString = Path.GetTextAfterValue("?");
+                new RequestQuery().AddQueryString(context, QueryString);
+            }
+            else
+                ViewPath = ">" + Path;
+        }
+
+        public void SetErrorPage(HttpContext context, int ErrorValue)
+        {
+            SetViewPath(context, StaticObject.ErrorPagePathBeforeValue + ErrorValue + StaticObject.ErrorPagePathAfterValue);
+
+            context.Response.StatusCode = ErrorValue;
+        }
+
         public void Download(string FilePath)
         {
             DownloadFilePath = FilePath;
