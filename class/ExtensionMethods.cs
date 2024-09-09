@@ -198,5 +198,13 @@ namespace CodeBehind
 
             return Text.Remove(Start, lengthToRemove);
         }
+
+        public static List<string> AddList(this List<string> CurrentList, List<string> NewList)
+        {
+            foreach (string s in NewList)
+                CurrentList.Add(s);
+
+            return CurrentList;
+        }
     }
 }
