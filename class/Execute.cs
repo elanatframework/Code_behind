@@ -43,43 +43,7 @@ namespace CodeBehind
             if (extension == ".aspx" || HasSection)
             {
                 // Add QueryString Value
-                if (!string.IsNullOrEmpty(QueryString))
-                {
-                    NameCollection QueryValues = new NameCollection();
-                    QueryString TmpQueryString = new QueryString();
-                    string[] QueryElements = QueryString.Split('&');
-                    foreach (string element in QueryElements)
-                    {
-                        string[] NameValue = element.Split('=');
-
-                        if (NameValue.Length > 1)
-                            TmpQueryString = TmpQueryString.Add(NameValue[0], NameValue[1]);
-                        else
-                            TmpQueryString = TmpQueryString.Add(NameValue[0], "");
-
-                        QueryValues.Add(NameValue[0]);
-                    }
-
-                    string RequestQueryString = context.Request.QueryString.Value;
-
-                    if (!string.IsNullOrEmpty(RequestQueryString))
-                    {
-                        RequestQueryString = RequestQueryString.GetTextAfterValue("?");
-                        string[] TmpQueryElements = RequestQueryString.Split('&');
-                        foreach (string element in TmpQueryElements)
-                        {
-                            string[] NameValue = element.Split('=');
-
-                            if (!QueryValues.Exist(NameValue[0]))
-                                if (NameValue.Length > 1)
-                                    TmpQueryString = TmpQueryString.Add(NameValue[0], NameValue[1]);
-                                else
-                                    TmpQueryString = TmpQueryString.Add(NameValue[0], "");
-                        }
-                    }
-
-                    context.Request.QueryString = TmpQueryString;
-                }
+                new RequestQuery().AddQueryString(context, QueryString);
 
                 if (context.Request.ContentType == null)
                     context.Request.ContentType = "application/x-www-form-urlencoded; charset=utf-8";
@@ -251,16 +215,14 @@ namespace CodeBehind
 
         public string RunErrorPage(int ErrorValue)
         {
-            CodeBehindOptions option = new CodeBehindOptions();
-            string path = option.ErrorPagePath.Replace("{value}", ErrorValue.ToString());
+            string path = StaticObject.ErrorPagePathBeforeValue + ErrorValue + StaticObject.ErrorPagePathAfterValue;
 
             return Run(path);
         }
 
         public string RunErrorPage(int ErrorValue, HttpContext context)
         {
-            CodeBehindOptions option = new CodeBehindOptions();
-            string path = option.ErrorPagePath.Replace("{value}", ErrorValue.ToString());
+            string path = StaticObject.ErrorPagePathBeforeValue + ErrorValue + StaticObject.ErrorPagePathAfterValue;
 
             context.Response.StatusCode = ErrorValue;
 
@@ -368,8 +330,7 @@ namespace CodeBehind
                 bool HasPostBack = false;
 
                 if (context.Request.Headers.TryGetValue("Post-Back", out var value))
-                    if (value == "true")
-                        HasPostBack = true;
+                    HasPostBack = (value == "true");
 
                 if (HasPostBack)
                 {
@@ -414,7 +375,9 @@ namespace CodeBehind
                 return "";
             }
 
-            if (string.IsNullOrEmpty(Section.GetValue(ControllerSection)))
+            string ControllerClass = Section.GetValue(ControllerSection);
+
+            if (string.IsNullOrEmpty(ControllerClass))
             {
                 if (StaticObject.UseDefaultController)
                     return RunController(StaticObject.DefaultController, context, true);
@@ -424,8 +387,6 @@ namespace CodeBehind
                     return "";
                 }
             }
-
-            string ControllerClass = Section.GetValue(ControllerSection);
 
             return RunController(ControllerClass, context);
         }
