@@ -20,6 +20,8 @@ namespace SetCodeBehind
         internal string CaseCodeTemplateValueForFullPathWithModel = "";
         internal string MethodCodeTemplateValue = "";
         internal string GlobalTemplate = "";
+        private readonly Regex _ClassPathIsFineRegex = new Regex("[^a-zA-Z0-9_.]", RegexOptions.Compiled);
+        private readonly Regex _ToMethodNameCleanRegex = new Regex("[^a-zA-Z0-9_]", RegexOptions.Compiled);
 
         internal void Set(string FilePath, string RootDirectoryPath, int MethodIndexer)
         {
@@ -126,7 +128,7 @@ namespace SetCodeBehind
                     Controller = Controller.GetTextBeforeValue("(");
                 }
 
-                if (!Controller.ClassPathIsFine())
+                if (_ClassPathIsFineRegex.IsMatch(Controller))
                 {
                     ErrorList.Add("Error: Controller class path is not fine in " + AspxFilePath + " file");
                     return;
@@ -170,7 +172,7 @@ namespace SetCodeBehind
                     Model = Model.GetTextBeforeValue("(");
                 }
 
-                if (!Model.ClassPathIsFine())
+                if (_ClassPathIsFineRegex.IsMatch(Model))
                 {
                     ErrorList.Add("Error: Model class path is not fine in " + AspxFilePath + " file");
                     return;
@@ -572,7 +574,7 @@ namespace SetCodeBehind
                     Controller = Controller.GetTextBeforeValue("(");
                 }
 
-                if (!Controller.ClassPathIsFine())
+                if (_ClassPathIsFineRegex.IsMatch(Controller))
                 {
                     ErrorList.Add("Error: Controller class path is not fine in " + AspxFilePath + " file");
                     return;
@@ -603,7 +605,7 @@ namespace SetCodeBehind
                     Model = Model.GetTextBeforeValue("(");
                 }
 
-                if (!Model.ClassPathIsFine())
+                if (_ClassPathIsFineRegex.IsMatch(Model))
                 {
                     ErrorList.Add("Error: Model class path is not fine in " + AspxFilePath + " file");
                     return;
@@ -926,7 +928,7 @@ namespace SetCodeBehind
 
                 if (!TmpAspxText.Contains("*@"))
                 {
-                    // ErrorList.Add("Error: Index @* not closed @* for code combination in " + AspxFilePath + " file");
+                    ErrorList.Add("Error: Index @* not closed @* for code combination in " + AspxFilePath + " file");
                     break;
                 }
 
@@ -1519,7 +1521,7 @@ namespace SetCodeBehind
                 AspxFilePath = AspxFilePath.GetTextBeforeLastValue(".cshtml") + ".aspx";
 
 
-            string FilePathToMethodName = AspxFilePath.ToMethodNameClean();
+            string FilePathToMethodName = _ToMethodNameCleanRegex.Replace(AspxFilePath, "_");
             bool PageIsOnlyView = !ControllerIsSet;
 
             if (!IsBreak)
@@ -1608,6 +1610,11 @@ namespace SetCodeBehind
                 TmpMethodCodeTemplateValue += "            ViewData.AddList(controller.ViewData.GetList());" + Environment.NewLine;
                 TmpMethodCodeTemplateValue += "            if (!string.IsNullOrEmpty(controller.ViewPath))" + Environment.NewLine;
                 TmpMethodCodeTemplateValue += "            {" + Environment.NewLine;
+                TmpMethodCodeTemplateValue += "                if (controller.ViewPath[0] == '>')" + Environment.NewLine;
+                TmpMethodCodeTemplateValue += "                {" + Environment.NewLine;
+                TmpMethodCodeTemplateValue += "                    string TmpViewPath = controller.ViewPath;" + Environment.NewLine;
+                TmpMethodCodeTemplateValue += "                    return SetPageLoadByPath(TmpViewPath.Remove(0, 1), context);" + Environment.NewLine;
+                TmpMethodCodeTemplateValue += "                }" + Environment.NewLine + Environment.NewLine;
                 TmpMethodCodeTemplateValue += "                if (controller.ViewPath != CallerViewPath)" + Environment.NewLine;
                 TmpMethodCodeTemplateValue += "                {" + Environment.NewLine;
                 TmpMethodCodeTemplateValue += "                    if (controller.CodeBehindModel == null)" + Environment.NewLine;
@@ -1793,6 +1800,11 @@ namespace SetCodeBehind
                     TmpMethodCodeTemplateValue += "            ViewData.AddList(controller.ViewData.GetList());" + Environment.NewLine;
                     TmpMethodCodeTemplateValue += "            if (!string.IsNullOrEmpty(controller.ViewPath))" + Environment.NewLine;
                     TmpMethodCodeTemplateValue += "            {" + Environment.NewLine;
+                    TmpMethodCodeTemplateValue += "                if (controller.ViewPath[0] == '>')" + Environment.NewLine;
+                    TmpMethodCodeTemplateValue += "                {" + Environment.NewLine;
+                    TmpMethodCodeTemplateValue += "                    string TmpViewPath = controller.ViewPath;" + Environment.NewLine;
+                    TmpMethodCodeTemplateValue += "                    return SetPageLoadByPath(TmpViewPath.Remove(0, 1), context);" + Environment.NewLine;
+                    TmpMethodCodeTemplateValue += "                }" + Environment.NewLine + Environment.NewLine;
                     TmpMethodCodeTemplateValue += "                if (controller.ViewPath != CallerViewPath)" + Environment.NewLine;
                     TmpMethodCodeTemplateValue += "                {" + Environment.NewLine;
                     TmpMethodCodeTemplateValue += "                    if (controller.CodeBehindModel == null)" + Environment.NewLine;
