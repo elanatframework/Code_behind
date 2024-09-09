@@ -322,7 +322,13 @@ The first version of CodeBehind is based on .NET Core version 7.0; if the versio
 - Fixed location tag detection issue when calling back in WebFormsJS
 
 
-### Version 3.5.1
+## Version 3.6
 
 **New features:**
 - Improved performance for making final View classes
+- Added `SetViewPath` method in Controller class
+- Added `SetErrorPage` method in Controller class
+- And a series of minor changes and improvements
+
+**Problems that were solved:**
+- Fixing the problem of not adding the log file to display errors in View files
