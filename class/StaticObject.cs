@@ -12,6 +12,9 @@ namespace CodeBehind
         internal static bool UseSectionInDefaultController { get; private set; } = false;
         internal static bool SetBreakForDefaultController { get; private set; } = false;
         internal static char OsDirectorySplitter = OperatingSystem.IsWindows() ? '\\' : '/';
+        internal static string ErrorPagePathBeforeValue { get; private set; }
+        internal static string ErrorPagePathAfterValue { get; private set; }
+
 
         internal static void SetValue()
         {
@@ -41,6 +44,9 @@ namespace CodeBehind
             UseDefaultController = options.UseDefaultController;          
             UseSectionInDefaultController = options.UseSectionInDefaultController;
             SetBreakForDefaultController = options.SetBreakForDefaultController;
+
+            ErrorPagePathBeforeValue = options.ErrorPagePath.GetTextBeforeValue("{value}");
+            ErrorPagePathAfterValue = options.ErrorPagePath.GetTextAfterValue("{value}");
 
             StaticObjectHasInitialization = true;
         }
