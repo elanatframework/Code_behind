@@ -158,6 +158,7 @@ namespace SetCodeBehind
                     CaseCodeTemplateValueForFullPath += combination.CaseCodeTemplateValueForFullPath;
                     CaseCodeTemplateValueForFullPathWithModel += combination.CaseCodeTemplateValueForFullPathWithModel;
                     MethodCodeTemplateValue += combination.MethodCodeTemplateValue;
+                    ErrorList = ErrorList.AddList(combination.ErrorList);
                 }
             });
 
@@ -183,6 +184,7 @@ namespace SetCodeBehind
                         CaseCodeTemplateValueForFullPath += combination.CaseCodeTemplateValueForFullPath;
                         CaseCodeTemplateValueForFullPathWithModel += combination.CaseCodeTemplateValueForFullPathWithModel;
                         MethodCodeTemplateValue += combination.MethodCodeTemplateValue;
+                        ErrorList = ErrorList.AddList(combination.ErrorList);
                     }
                 });
 
@@ -262,6 +264,13 @@ namespace SetCodeBehind
             CodeBehindViews += "            this.WebFormsValue += WebFormsValue;" + Environment.NewLine + Environment.NewLine;
             CodeBehindViews += "            if (string.IsNullOrEmpty(ViewPath))" + Environment.NewLine;
             CodeBehindViews += "                return \"\";" + Environment.NewLine + Environment.NewLine;
+
+            CodeBehindViews += "            if (ViewPath[0] == '>')" + Environment.NewLine;
+            CodeBehindViews += "            {" + Environment.NewLine;
+            CodeBehindViews += "                string TmpViewPath = ViewPath;" + Environment.NewLine;
+            CodeBehindViews += "                return SetPageLoadByPath(TmpViewPath.Remove(0, 1), context);" + Environment.NewLine;
+            CodeBehindViews += "            }" + Environment.NewLine + Environment.NewLine;
+
             CodeBehindViews += "            if (ModelClass != null)" + Environment.NewLine;
             CodeBehindViews += "                return LoadPage(ViewPath, ModelClass, context);" + Environment.NewLine;
             CodeBehindViews += "            else" + Environment.NewLine;
