@@ -269,6 +269,7 @@ namespace SetCodeBehind
             }
         }
 
+        /// <param name="BreakExist">After The Project Is Complete, Set The BreakExist Value To true.</param>
         public static void Initialization(bool BreakExist = false)
         {
             StaticObject.SetValue();
