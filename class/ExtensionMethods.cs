@@ -89,6 +89,19 @@ namespace CodeBehind
             return ToNumber(Text.ToString());
         }
 
+        public static bool Has(this string Text)
+        {
+            if (!string.IsNullOrEmpty(Text))
+                return true;
+
+            return false;
+        }
+
+        public static bool Has(this object Text)
+        {
+            return Has(Text.ToString());
+        }
+
         public static bool IsNumber(this string Text)
         {
             for (int i = 0; i < Text.Length; i++)
