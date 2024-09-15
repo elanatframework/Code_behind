@@ -91,7 +91,10 @@ namespace CodeBehind
             IgnoreLayout = true;
         }
 
-        public void SetViewPath(HttpContext context, string Path)
+        /// <summary>
+        /// This Method Supports Query String
+        /// </summary>
+        public void SetViewPath(HttpContext context, string Path, bool UpdateRequestPath = false)
         {
             if (Path.Contains("?"))
             {
@@ -102,6 +105,17 @@ namespace CodeBehind
             }
             else
                 ViewPath = ">" + Path;
+
+            if (UpdateRequestPath)
+                context.Request.Path = Path;
+        }
+
+        /// <summary>
+        /// This Method Not Supports Query String
+        /// </summary>
+        public void SetViewPath(string Path)
+        {
+            ViewPath = ">" + Path;
         }
 
         public void SetErrorPage(HttpContext context, int ErrorValue)
@@ -117,7 +131,7 @@ namespace CodeBehind
         }
 
         /// <summary>
-        /// Never Call This Method In Controller
+        /// Never Call This Method In Controller. Before Call This Method You Should Call PageLoad Method
         /// </summary>
         public string Run(HttpContext context)
         {
