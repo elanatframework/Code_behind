@@ -97,7 +97,8 @@ namespace CodeBehind
         public void DescreaseHeight(string InputPlace, int Value) => WebFormsData.Add("-h" + InputPlace, Value.ToString());
         public void DescreaseValue(string InputPlace, int Value) => WebFormsData.Add("-v" + InputPlace, Value.ToString());
 
-        public void SetDelay(float Second, int Index = -1)
+        // Pre Runner
+        public void AssignDelay(float Second, int Index = -1)
         {
             string CurrentName = WebFormsData.GetNameByIndex(Index);
 
@@ -109,7 +110,7 @@ namespace CodeBehind
             WebFormsData.ChangeNameByIndex(Index, ":" + Second + ")" + CurrentName);
         }
 
-        public void SetInterval(float Second, int Index = -1)
+        public void AssignInterval(float Second, int Index = -1)
         {
             string CurrentName = WebFormsData.GetNameByIndex(Index);
 
@@ -121,6 +122,7 @@ namespace CodeBehind
             WebFormsData.ChangeNameByIndex(Index, "(" + Second + ")" + CurrentName);
         }
 
+        // Get
         public string GetFormsActionData()
         {
             string ReturnValue = "";
@@ -144,6 +146,7 @@ namespace CodeBehind
             return ReturnValue;
         }
 
+        // Export
         public string ExportToWebFormsTag(string src = null)
         {
             return "<web-forms ac=\"" + GetFormsActionDataLineBreak() + "\"" + (!string.IsNullOrEmpty(src) ? " src=\"" + src + "\"" : "") + "></web-forms>";
