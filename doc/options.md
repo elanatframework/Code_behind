@@ -28,6 +28,12 @@ use_default_controller=true
 default_controller=DefaultController
 use_section_in_default_controller=true
 set_break_for_default_controller=true
+access_controller_by_lower_case=true
+just_access_controller_by_lower_case=true
+ignore_prefix_controller=.
+ignore_suffix_controller=.
+put_two_underlines_equal_to_dash_for_controller=false
+set_default_pages=true
 ```
 
 **The possibility to load aspx page names as directory names**
@@ -262,3 +268,55 @@ If this option is enabled, there will be access to Sections in the Controller cl
 (`set_break_for_default_controller=true`)
 
 If this option is enabled, the route configuration will not add the default Controller to the list of Controllers, and only the root path request will execute the default Controller.
+
+**Access Controller class in lower case**
+
+(`access_controller_by_lower_case=true`)
+
+If this setting is enabled, it will be possible to access Controller class names in lower case.
+
+**Access the Controller class in lowercase only**
+
+(`just_access_controller_by_lower_case=true`)
+
+If this setting is enabled, Controller class names will only be accessible in lowercase letters.
+
+**Ignoring prefix for Controller class**
+
+(`ignore_prefix_controller=.`)
+
+Specifying a string in this setting causes the name of this string to be ignored from accessing the Controller class if the name of this string is present in the prefix of the name of the Controller class.
+
+Example:
+
+If we specify the `Route` string in this setting, it is possible to access the `RouteContent` Controller class with the following path.
+
+`example.com/Content`
+
+**Ignoring suffix for Controller class**
+
+(`ignore_suffix_controller=.`)
+
+Specifying a string in this setting causes the name of this string to be ignored from accessing the Controller class if the name of this string is present in the suffix of the name of the Controller class.
+
+Example:
+
+If we specify the `Controller` string in this setting, it is possible to access the `ContentController` Controller class with the following path.
+
+`example.com/Content`
+
+**Ability to set two underlines to one dash dash to access the controller class**
+
+(`put_two_underlines_equal_to_dash_for_controller=false`)
+
+Activating this setting causes the access to the Controller class to be considered a dash when there are two consecutive underline in the name of the Controller classes.
+
+Example:
+
+If we have a controller class whose name is `active__page`, the route `example.com/active-page` will execute this controller (if you have configured Route).
+
+**Ability to add default template**
+
+(`set_default_pages=true`)
+
+Enabling this setting causes the default CodeBehind template to be created automatically.
