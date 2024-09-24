@@ -35,7 +35,6 @@ namespace CodeBehind
         public void SetWidth(string InputPlace, int Width) => SetWidth(InputPlace, Width.ToString() + "px");
         public void SetHeight(string InputPlace, string Height) => WebFormsData.Add("sh" + InputPlace, Height);
         public void SetHeight(string InputPlace, int Height) => SetHeight(InputPlace, Height.ToString() + "px");
-        public void LoadUrl(string InputPlace, string Url) => WebFormsData.Add("lu" + InputPlace, Url);
 
         // Insert
         public void InsertId(string InputPlace, string Id) => WebFormsData.Add("ii" + InputPlace, Id);
@@ -80,6 +79,8 @@ namespace CodeBehind
         public void SetCheckedValue(string InputPlace, string Value, bool Selected) => WebFormsData.Add("ks" + InputPlace, Value + "|" + (Selected ? "1" : "0"));
         public void SetCheckedIndex(string InputPlace, int Index, bool Selected) => WebFormsData.Add("ki" + InputPlace, Index.ToString() + "|" + (Selected ? "1" : "0"));
         public void CallScript(string ScriptText) => WebFormsData.Add("_" , ScriptText.Replace('\n'.ToString(), "$[ln];"));
+        public void LoadUrl(string InputPlace, string Url) => WebFormsData.Add("lu" + InputPlace, Url);
+
 
         // Increase
         public void IncreaseMinLength(string InputPlace, int Value) => WebFormsData.Add("+n" + InputPlace, Value.ToString());
@@ -105,12 +106,32 @@ namespace CodeBehind
             if (string.IsNullOrEmpty(CurrentName))
                 return;
 
+            WebFormsData.ChangeNameByIndex(Index, ":" + Second + ")" + CurrentName);
+        }
+
+        public void AssignDelayChange(float Second, int Index = -1)
+        {
+            string CurrentName = WebFormsData.GetNameByIndex(Index);
+
+            if (string.IsNullOrEmpty(CurrentName))
+                return;
+
             CurrentName = CurrentName.RemoveOuter(":", ")");
 
             WebFormsData.ChangeNameByIndex(Index, ":" + Second + ")" + CurrentName);
         }
 
         public void AssignInterval(float Second, int Index = -1)
+        {
+            string CurrentName = WebFormsData.GetNameByIndex(Index);
+
+            if (string.IsNullOrEmpty(CurrentName))
+                return;
+
+            WebFormsData.ChangeNameByIndex(Index, "(" + Second + ")" + CurrentName);
+        }
+
+        public void AssignIntervalChange(float Second, int Index = -1)
         {
             string CurrentName = WebFormsData.GetNameByIndex(Index);
 
@@ -131,6 +152,11 @@ namespace CodeBehind
                 ReturnValue += Environment.NewLine + nv.Name + "=" + nv.Value;
 
             return ReturnValue;
+        }
+
+        public string Response()
+        {
+            return "[web-forms]" + GetFormsActionData();
         }
 
         public string GetFormsActionDataLineBreak()
@@ -176,5 +202,53 @@ namespace CodeBehind
         public static string Class(string Class, int Index) => '{' + Class + '}' + Index;
         public static string Query(string Query) => "*" + Query.Replace("=", "$[eq];");
         public static string QueryAll(string Query) => "[" + Query.Replace("=", "$[eq];");
+    }
+
+    public static class ExtensionWebFormsMethods
+    {
+        /// <summary>
+        /// This Method Does Not Support QueryAll
+        /// </summary>
+        public static string AppendPlace(this string Text, string Value)
+        {
+            if (Text.Length < 1)
+                return Value;
+
+            if (Text[0] != '>')
+                Text = '>' + Text;
+
+            return Text + "|" + Value;
+        }
+
+        public static string ExportToWebFormsTag(this string src)
+        {
+            return "<web-forms src=\"" + src + "\"></web-forms>";
+        }
+
+        // Overload
+        public static string ExportToWebFormsTag(this string src, int Width, int Height)
+        {
+            return "<web-forms src=\"" + src + "\" width=\"" + Width + "\" height=\"" + Height + "\"></web-forms>";
+        }
+
+        public static string ExportActionControlsToWebFormsTag(this string ActionControls)
+        {
+            return "<web-forms ac=\"" + ActionControls + "\"></web-forms>";
+        }
+
+        public static string RemoveOuter(this string Text, string StartString, string EndString)
+        {
+            int Start = Text.IndexOf(StartString);
+            if (Start == -1)
+                return Text;
+
+            int End = Text.IndexOf(EndString, Start);
+            if (End == -1)
+                return Text;
+
+            int lengthToRemove = (End - Start) + EndString.Length;
+
+            return Text.Remove(Start, lengthToRemove);
+        }
     }
 }
