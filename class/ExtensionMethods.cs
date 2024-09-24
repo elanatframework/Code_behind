@@ -167,51 +167,6 @@ namespace CodeBehind
             return HasMatching(Text.ToString(), MatchingType, Matching);
         }
 
-        /// <summary>
-        /// This Method Does Not Support QueryAll
-        /// </summary>
-        public static string AppendPlace(this string Text, string Value)
-        {
-            if (Text.Length < 1)
-                return Value;
-
-            if (Text[0] != '>')
-                Text = '>' + Text;
-
-            return Text + "|" + Value;
-        }
-
-        public static string ExportToWebFormsTag(this string src)
-        {
-            return "<web-forms src=\"" + src + "\"></web-forms>";
-        }
-
-        // Overload
-        public static string ExportToWebFormsTag(this string src, int Width, int Height)
-        {
-            return "<web-forms src=\"" + src + "\" width=\"" + Width + "\" height=\"" + Height + "\"></web-forms>";
-        }
-
-        public static string ExportActionControlsToWebFormsTag(this string ActionControls)
-        {
-            return "<web-forms ac=\"" + ActionControls + "\"></web-forms>";
-        }
-
-        public static string RemoveOuter(this string Text, string StartString, string EndString)
-        {
-            int Start = Text.IndexOf(StartString);
-            if (Start == -1) 
-                return Text;
-
-            int End = Text.IndexOf(EndString, Start);
-            if (End == -1)
-                return Text;
-
-            int lengthToRemove = (End - Start) + EndString.Length;
-
-            return Text.Remove(Start, lengthToRemove);
-        }
-
         public static List<string> AddList(this List<string> CurrentList, List<string> NewList)
         {
             foreach (string s in NewList)
