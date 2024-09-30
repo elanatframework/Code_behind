@@ -1605,7 +1605,8 @@ namespace SetCodeBehind
 
                 TmpMethodCodeTemplateValue += "            controller.PageLoad(context);" + Environment.NewLine;
                 TmpMethodCodeTemplateValue += "            this.WebFormsValue += controller.WebFormsValue;" + Environment.NewLine;
-                TmpMethodCodeTemplateValue += "            IgnoreLayout = controller.IgnoreLayout;" + Environment.NewLine + Environment.NewLine;
+                TmpMethodCodeTemplateValue += "            if (controller.IgnoreLayout != null)" + Environment.NewLine;
+                TmpMethodCodeTemplateValue += "                IgnoreLayout = controller.IgnoreLayout;" + Environment.NewLine + Environment.NewLine;
 
                 TmpMethodCodeTemplateValue += "            ViewData.AddList(controller.ViewData.GetList());" + Environment.NewLine;
                 TmpMethodCodeTemplateValue += "            if (!string.IsNullOrEmpty(controller.ViewPath))" + Environment.NewLine;
@@ -1670,7 +1671,7 @@ namespace SetCodeBehind
                 TmpMethodCodeTemplateValue += "            RequestPath = PreviousRequestPath;" + Environment.NewLine;
                 TmpMethodCodeTemplateValue += "            CallerViewPath = PreviousCallerViewPath;" + Environment.NewLine;
                 TmpMethodCodeTemplateValue += "            CallerViewDirectoryPath = PreviousCallerViewDirectoryPath;" + Environment.NewLine + Environment.NewLine;
-                TmpMethodCodeTemplateValue += "            return " + (!string.IsNullOrEmpty(Layout) ? "(!IgnoreLayout ? SetPageLoadByFullPath(\"" + Layout + "\", context, controller.ResponseText) : controller.ResponseText)" : "controller.ResponseText") + ";" + Environment.NewLine;
+                TmpMethodCodeTemplateValue += "            return " + (!string.IsNullOrEmpty(Layout) ? "(IgnoreLayout.IsNullOrFalse() ? SetPageLoadByFullPath(\"" + Layout + "\", context, controller.ResponseText) : controller.ResponseText)" : "controller.ResponseText") + ";" + Environment.NewLine;
             }
             else
             {
@@ -1721,9 +1722,9 @@ namespace SetCodeBehind
                 TmpMethodCodeTemplateValue += "            CallerViewDirectoryPath = PreviousCallerViewDirectoryPath;" + Environment.NewLine + Environment.NewLine;
 
                 if (!string.IsNullOrEmpty(Model) && ModelUseAbstract)
-                    TmpMethodCodeTemplateValue += "            return " + (!string.IsNullOrEmpty(Layout) ? "((!model.IgnoreLayout && !IgnoreLayout) ? SetPageLoadByFullPath(\"" + Layout + "\", context, ReturnValue) : ReturnValue)" : "ReturnValue") + ";" + Environment.NewLine;
+                    TmpMethodCodeTemplateValue += "            return " + (!string.IsNullOrEmpty(Layout) ? "((model.IgnoreLayout.IsNullOrFalse() && IgnoreLayout.IsNullOrFalse()) ? SetPageLoadByFullPath(\"" + Layout + "\", context, ReturnValue) : ReturnValue)" : "ReturnValue") + ";" + Environment.NewLine;
                 else
-                    TmpMethodCodeTemplateValue += "            return " + (!string.IsNullOrEmpty(Layout) ? "(!IgnoreLayout ? SetPageLoadByFullPath(\"" + Layout + "\", context, ReturnValue) : ReturnValue)" : "ReturnValue") + ";" + Environment.NewLine;
+                    TmpMethodCodeTemplateValue += "            return " + (!string.IsNullOrEmpty(Layout) ? "(IgnoreLayout.IsNullOrFalse() ? SetPageLoadByFullPath(\"" + Layout + "\", context, ReturnValue) : ReturnValue)" : "ReturnValue") + ";" + Environment.NewLine;
             }
 
             TmpMethodCodeTemplateValue += "        }" + Environment.NewLine;
@@ -1795,7 +1796,8 @@ namespace SetCodeBehind
 
                     TmpMethodCodeTemplateValue += "            controller.PageLoad(context);" + Environment.NewLine;
                     TmpMethodCodeTemplateValue += "            this.WebFormsValue += controller.WebFormsValue;" + Environment.NewLine;
-                    TmpMethodCodeTemplateValue += "            IgnoreLayout = controller.IgnoreLayout;" + Environment.NewLine + Environment.NewLine;
+                    TmpMethodCodeTemplateValue += "            if (controller.IgnoreLayout != null)" + Environment.NewLine;
+                    TmpMethodCodeTemplateValue += "                IgnoreLayout = controller.IgnoreLayout;" + Environment.NewLine + Environment.NewLine;
 
                     TmpMethodCodeTemplateValue += "            ViewData.AddList(controller.ViewData.GetList());" + Environment.NewLine;
                     TmpMethodCodeTemplateValue += "            if (!string.IsNullOrEmpty(controller.ViewPath))" + Environment.NewLine;
@@ -1855,7 +1857,7 @@ namespace SetCodeBehind
                     TmpMethodCodeTemplateValue += "            RequestPath = PreviousRequestPath;" + Environment.NewLine;
                     TmpMethodCodeTemplateValue += "            CallerViewPath = PreviousCallerViewPath;" + Environment.NewLine;
                     TmpMethodCodeTemplateValue += "            CallerViewDirectoryPath = PreviousCallerViewDirectoryPath;" + Environment.NewLine + Environment.NewLine;
-                    TmpMethodCodeTemplateValue += "            return " + (!string.IsNullOrEmpty(Layout) ? "(!IgnoreLayout ? SetPageLoadByFullPath(\"" + Layout + "\", context, controller.ResponseText) : controller.ResponseText)" : "controller.ResponseText") + ";" + Environment.NewLine;
+                    TmpMethodCodeTemplateValue += "            return " + (!string.IsNullOrEmpty(Layout) ? "(IgnoreLayout.IsNullOrFalse() ? SetPageLoadByFullPath(\"" + Layout + "\", context, controller.ResponseText) : controller.ResponseText)" : "controller.ResponseText") + ";" + Environment.NewLine;
                 }
                 else
                 {
@@ -1899,9 +1901,9 @@ namespace SetCodeBehind
                     TmpMethodCodeTemplateValue += "            CallerViewDirectoryPath = PreviousCallerViewDirectoryPath;" + Environment.NewLine + Environment.NewLine;
 
                     if (!string.IsNullOrEmpty(Model) && ModelUseAbstract)
-                        TmpMethodCodeTemplateValue += "            return " + (!string.IsNullOrEmpty(Layout) ? "((!model.IgnoreLayout && !IgnoreLayout) ? SetPageLoadByFullPath(\"" + Layout + "\", context, ReturnValue) : ReturnValue)" : "ReturnValue") + ";" + Environment.NewLine;
+                        TmpMethodCodeTemplateValue += "            return " + (!string.IsNullOrEmpty(Layout) ? "((model.IgnoreLayout.IsNullOrFalse() && IgnoreLayout.IsNullOrFalse()) ? SetPageLoadByFullPath(\"" + Layout + "\", context, ReturnValue) : ReturnValue)" : "ReturnValue") + ";" + Environment.NewLine;
                     else
-                        TmpMethodCodeTemplateValue += "            return " + (!string.IsNullOrEmpty(Layout) ? "(!IgnoreLayout ? SetPageLoadByFullPath(\"" + Layout + "\", context, ReturnValue) : ReturnValue)" : "ReturnValue") + ";" + Environment.NewLine;
+                        TmpMethodCodeTemplateValue += "            return " + (!string.IsNullOrEmpty(Layout) ? "(IgnoreLayout.IsNullOrFalse() ? SetPageLoadByFullPath(\"" + Layout + "\", context, ReturnValue) : ReturnValue)" : "ReturnValue") + ";" + Environment.NewLine;
                 }
 
                 TmpMethodCodeTemplateValue += "        }" + Environment.NewLine;
