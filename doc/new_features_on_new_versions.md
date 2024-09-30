@@ -338,3 +338,4 @@ The first version of CodeBehind is based on .NET Core version 7.0; if the versio
 
 **New features:**
 - Adding extension method named `Has` to be used instead of `string.IsNullOrEmpty`
+- Creating a null state for Layout to set the global Layout value
