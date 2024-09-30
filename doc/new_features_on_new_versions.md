@@ -321,7 +321,6 @@ The first version of CodeBehind is based on .NET Core version 7.0; if the versio
 **Problems that were solved:**
 - Fixed location tag detection issue when calling back in WebFormsJS
 
-
 ## Version 3.6
 
 **New features:**
@@ -333,8 +332,7 @@ The first version of CodeBehind is based on .NET Core version 7.0; if the versio
 **Problems that were solved:**
 - Fixing the problem of not adding the log file to display errors in View files
 
-
-## Version 3.7
+### Version 3.6.1
 
 **New features:**
 - Adding extension method named `Has` to be used instead of `string.IsNullOrEmpty`
