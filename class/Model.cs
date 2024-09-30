@@ -5,7 +5,7 @@ namespace CodeBehind
         public string ResponseText = "";
         public string WebFormsValue = "";
         public bool IgnoreView = false;
-        public bool IgnoreLayout = false;
+        public bool? IgnoreLayout = null;
         public HtmlData.NameValueCollection ViewData = new HtmlData.NameValueCollection();
         public ValueCollectionLock Section = new ValueCollectionLock();
         public string DownloadFilePath { get; private set; } = "";
