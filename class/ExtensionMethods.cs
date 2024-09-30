@@ -174,5 +174,27 @@ namespace CodeBehind
 
             return CurrentList;
         }
+
+        public static bool IsNullOrTrue(this bool? Value)
+        {
+            if (Value == null)
+                return true;
+
+            if (Value == true)
+                return true;
+
+            return false;
+        }
+
+        public static bool IsNullOrFalse(this bool? Value)
+        {
+            if (Value == null)
+                return true;
+
+            if (Value == false)
+                return true;
+
+            return false;
+        }
     }
 }
