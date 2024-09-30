@@ -104,7 +104,7 @@ namespace SetCodeBehind
             CodeBehindViews += "        private string CallerViewDirectoryPath { get; set; } = \"\";" + Environment.NewLine;
             CodeBehindViews += "        private bool FoundPage { get; set; } = true;" + Environment.NewLine;
             CodeBehindViews += "        private bool FoundController { get; set; } = true;" + Environment.NewLine;
-            CodeBehindViews += "        private bool IgnoreLayout { get; set; } = false;" + Environment.NewLine + Environment.NewLine;
+            CodeBehindViews += "        private bool? IgnoreLayout { get; set; } = false;" + Environment.NewLine + Environment.NewLine;
 
             CodeBehindOptions options = new CodeBehindOptions();
 
@@ -252,7 +252,7 @@ namespace SetCodeBehind
             CodeBehindViews += "            return SetPageLoadByFullPath(path, null, \"\");" + Environment.NewLine;
             CodeBehindViews += "        }" + Environment.NewLine + Environment.NewLine;
 
-            CodeBehindViews += "        public string RunController(HttpContext context, string ViewPath, object ModelClass, CodeBehind.HtmlData.NameValueCollection ViewData, string DownloadFilePath, bool IgnoreLayout, string WebFormsValue)" + Environment.NewLine;
+            CodeBehindViews += "        public string RunController(HttpContext context, string ViewPath, object ModelClass, CodeBehind.HtmlData.NameValueCollection ViewData, string DownloadFilePath, bool? IgnoreLayout, string WebFormsValue)" + Environment.NewLine;
             CodeBehindViews += "        {" + Environment.NewLine;
             CodeBehindViews += "            if (!string.IsNullOrEmpty(DownloadFilePath))" + Environment.NewLine;
             CodeBehindViews += "            {" + Environment.NewLine;
@@ -260,7 +260,8 @@ namespace SetCodeBehind
             CodeBehindViews += "                return \"\";" + Environment.NewLine;
             CodeBehindViews += "            }" + Environment.NewLine + Environment.NewLine;
             CodeBehindViews += "            ViewData.AddList(ViewData.GetList());" + Environment.NewLine;
-            CodeBehindViews += "            this.IgnoreLayout = IgnoreLayout;" + Environment.NewLine;
+            CodeBehindViews += "            if (IgnoreLayout != null)" + Environment.NewLine;
+            CodeBehindViews += "                this.IgnoreLayout = IgnoreLayout;" + Environment.NewLine;
             CodeBehindViews += "            this.WebFormsValue += WebFormsValue;" + Environment.NewLine + Environment.NewLine;
             CodeBehindViews += "            if (string.IsNullOrEmpty(ViewPath))" + Environment.NewLine;
             CodeBehindViews += "                return \"\";" + Environment.NewLine + Environment.NewLine;
