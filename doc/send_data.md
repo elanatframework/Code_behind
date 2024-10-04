@@ -83,7 +83,7 @@ namespace YourProjectName
     {
         public void PageLoad(HttpContext context)
         {
-            if (!string.IsNullOrEmpty(context.Request.Form["btn_Button"]))
+            if (context.Request.Form["btn_Button"].has())
                 btn_Button_Click(context);
         }
 
@@ -129,7 +129,7 @@ We added a Controller class and in the `PageLoad` method we check the presence o
 
 Checking the existence of data with the name `btn_Button`
 ```csharp
-if (!string.IsNullOrEmpty(context.Request.Form["btn_Button"]))
+if (context.Request.Form["btn_Button"].has())
     btn_Button_Click(context);
 ```
 
