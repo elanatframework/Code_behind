@@ -85,6 +85,14 @@ namespace CodeBehind
             WebFormsValue = Forms.GetFormsActionData();
         }
 
+        public void Control(WebForms Forms, bool IgnoreAll)
+        {
+            Control(Forms);
+
+            if (IgnoreAll)
+               this.IgnoreAll();
+        }
+
         public void IgnoreAll()
         {
             IgnoreViewAndModel = true;
