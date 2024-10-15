@@ -1797,7 +1797,7 @@ function cb_SaveValue(ActionOperation, ActionFeature, ActionValue)
                 case 'e': cb_SetSession(Name, CurrentElement.value.length); break;
                 case 'c': cb_SetSession(Name, CurrentElement.className); break;
                 case 's': cb_SetSession(Name, CurrentElement.style); break;
-                case 'l': cb_SetSession(Name, CurrentElement.id); break;
+                case 'l':
                     if (!CurrentElement.tagName.IsInput())
                     {
                         if (CurrentElement.hasAttribute(""title""))
