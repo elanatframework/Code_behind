@@ -337,3 +337,29 @@ The first version of CodeBehind is based on .NET Core version 7.0; if the versio
 **New features:**
 - Adding extension method named `Has` to be used instead of `string.IsNullOrEmpty`
 - Creating a null state for Layout to set the global Layout value
+
+## Version 3.7
+
+**New features:**
+- The possibility of IgnoreAll in the Control method in the Controller class
+- The possibility of appending the instance created from the WebForms class to another created instance
+- Ability to add new text and tags at the beginning of the tag
+- Ability to cache action control
+- The possibility of adding text at the beginning of the single
+- The possibility of creating a tag at the beginning of the single
+- Ability to delete all option tags
+- Ability to delete all checkbox tags
+- Added the ability to focus on tags
+- Ability to change the URL in the user's browser
+- Added new cache and session features with the ability to insert and delete and delete all and cache duration
+- Ability to temporarily store values ​​in the browser cache session
+- The possibility of assigning random numbers to the attributes of tags
+- Ability to assign time and date
+- Ability to assign session and cache
+- Ability to assign scripts
+- Other features and improvements
+
+### Version 3.7.1
+
+**Problems that were solved:**
+- Fixing the problem of saving title tags
