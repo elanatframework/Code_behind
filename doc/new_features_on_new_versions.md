@@ -345,8 +345,8 @@ The first version of CodeBehind is based on .NET Core version 7.0; if the versio
 - The possibility of appending the instance created from the WebForms class to another created instance
 - Ability to add new text and tags at the beginning of the tag
 - Ability to cache action control
-- The possibility of adding text at the beginning of the single
-- The possibility of creating a tag at the beginning of the single
+- The possibility of adding text at the beginning of the tag
+- The possibility of creating a tag at the beginning of the tag
 - Ability to delete all option tags
 - Ability to delete all checkbox tags
 - Added the ability to focus on tags
