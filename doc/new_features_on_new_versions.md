@@ -363,3 +363,8 @@ The first version of CodeBehind is based on .NET Core version 7.0; if the versio
 
 **Problems that were solved:**
 - Fixing the problem of saving title tags
+
+### Version 3.7.2
+
+**Problems that were solved:**
+- Add trim to better detect Action Controls responses
