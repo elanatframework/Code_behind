@@ -328,13 +328,13 @@ namespace CodeBehind
     {
         public static string Random(int MaxValue) => "@mr" + MaxValue;
         public static string Random(int MinValue, int MaxValue) => "@mr" + MaxValue + "," + MinValue;
-        public static string DateYear = "@dy";
-        public static string DateMonth = "@dm";
-        public static string DateDay = "@dd";
-        public static string DateHours = "@dh";
-        public static string Dateinutes = "@di";
-        public static string DateSeconds = "@ds";
-        public static string DateMilliseconds = "@dl";
+        public const string DateYear = "@dy";
+        public const string DateMonth = "@dm";
+        public const string DateDay = "@dd";
+        public const string DateHours = "@dh";
+        public const string Dateinutes = "@di";
+        public const string DateSeconds = "@ds";
+        public const string DateMilliseconds = "@dl";
         public static string Cookie(string Key) => "@co" + Key;
         public static string Session(string Key) => "@cs" + Key;
         public static string Session(string Key, string ReplaceValue) => "@cs" + Key + "," + ReplaceValue;
