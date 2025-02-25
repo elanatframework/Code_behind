@@ -156,7 +156,7 @@ public class UseRoleAccessMiddleware
 
     public async Task Invoke(HttpContext context)
     {
-        CodeBehind.RoleAccess access = new CodeBehind.RoleAccess(context.Session);
+        RoleAccess access = new RoleAccess(context.Session);
 
         if (!access.HasAccess(context.Request))
             return;
@@ -176,7 +176,7 @@ public class UseRoleAccessMiddlewareWithErrorHandling
 
     public async Task Invoke(HttpContext context)
     {
-        CodeBehind.RoleAccess access = new CodeBehind.RoleAccess(context.Session);
+        RoleAccess access = new RoleAccess(context.Session);
 
         if (!access.HasAccess(context.Request))
         {
@@ -189,59 +189,6 @@ public class UseRoleAccessMiddlewareWithErrorHandling
         await _next(context);
     }
 }
-
-//public class UseCodeBehindWebSocketsMiddleware
-//{
-//    private readonly RequestDelegate _next;
-
-//    public UseCodeBehindWebSocketsMiddleware(RequestDelegate next)
-//    {
-//        _next = next;
-//    }
-
-//    public async Task Invoke(HttpContext context)
-//    {
-//        if (context.WebSockets.IsWebSocketRequest)
-//        {
-//            using var webSocket = await context.WebSockets.AcceptWebSocketAsync();
-
-//            var buffer = new byte[1024 * 4];
-//            WebSocketReceiveResult receiveData;
-
-//            while (true)
-//            {
-//                receiveData = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
-//                string formData = Encoding.UTF8.GetString(buffer, 0, receiveData.Count);
-
-//                if (formData.Has())
-//                {
-//                    var formDictionary = new Dictionary<string, StringValues>();
-//                    var parsedQuery = HttpUtility.ParseQueryString(formData);
-
-//                    foreach (string key in parsedQuery)
-//                        if (!formDictionary.ContainsKey(key))
-//                            formDictionary[key] = new StringValues(parsedQuery.GetValues(key));
-
-//                    context.Request.Form = new FormCollection(formDictionary);
-//                }
-
-//                if (receiveData.CloseStatus.HasValue)
-//                    break;
-
-//                CodeBehindExecute execute = new CodeBehindExecute();
-//                string responseData = execute.Run(context);
-
-//                buffer = Encoding.UTF8.GetBytes(responseData);
-
-//                await webSocket.SendAsync(new ArraySegment<byte>(buffer, 0, buffer.Length), receiveData.MessageType, receiveData.EndOfMessage, CancellationToken.None);
-//            }
-
-//            await webSocket.CloseAsync(receiveData.CloseStatus.Value, receiveData.CloseStatusDescription, CancellationToken.None);
-//        }
-
-//        await _next(context);
-//    }
-//}
 
 public class UseCodeBehindWebSocketsMiddleware
 {
@@ -453,6 +400,25 @@ public class WebSocketHandler
 
             await webSocket.CloseAsync(receiveData.CloseStatus.Value, receiveData.CloseStatusDescription, CancellationToken.None);
         }
+    }
+}
+
+public static class WebSocketMiddlewareExtensions
+{
+    public static IApplicationBuilder UseWebSocketsIf(this IApplicationBuilder app, WebSocketOptions options, string matchingType, string matching)
+    {
+        return app.Use(async (context, next) =>
+        {
+            if (context.Request.Path.HasMatching(matchingType, matching))
+            {
+                app.UseWebSockets(options);
+                await next();
+            }
+            else
+            {
+                await next();
+            }
+        });
     }
 }
 
