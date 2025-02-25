@@ -264,4 +264,13 @@ namespace CodeBehind
             return false;
         }
     }
+
+    public static class MatchingType
+    {
+        public const string StartWith = "start_with";
+        public const string EndWith = "end_with";
+        public const string Exist = "exist";
+        public const string FullMatch = "full_match";
+        public const string Regex = "regex";
+    }
 }
