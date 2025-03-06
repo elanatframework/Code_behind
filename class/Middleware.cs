@@ -2,6 +2,7 @@ using CodeBehind;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
+using System.Collections.Concurrent;
 using System.Net.WebSockets;
 using System.Text;
 using System.Web;
@@ -190,229 +191,76 @@ public class UseRoleAccessMiddlewareWithErrorHandling
     }
 }
 
-public class UseCodeBehindWebSocketsMiddleware
+public static class CodeBehindMiddlewareExtensions
 {
-    private readonly RequestDelegate _next;
-    private readonly WebSocketHandler _webSocketHandler;
-
-    public UseCodeBehindWebSocketsMiddleware(RequestDelegate next)
+    public static IApplicationBuilder UseCodeBehind(this IApplicationBuilder app)
     {
-        _next = next;
-        _webSocketHandler = new WebSocketHandler(_next);
+        return app.UseMiddleware<UseCodeBehindMiddleware>();
     }
 
-    public async Task Invoke(HttpContext context)
+    public static IApplicationBuilder UseCodeBehind(this IApplicationBuilder app, bool ErrorHandling)
     {
-        await _webSocketHandler.HandleWebSocketRequest(context, "UseCodeBehind");
-        await _next(context);
-    }
-}
-
-public class UseCodeBehindWebSocketsMiddlewareWithErrorHandling
-{
-    private readonly RequestDelegate _next;
-    private readonly WebSocketHandler _webSocketHandler;
-
-    public UseCodeBehindWebSocketsMiddlewareWithErrorHandling(RequestDelegate next)
-    {
-        _next = next;
-        _webSocketHandler = new WebSocketHandler(_next);
+        if (ErrorHandling)
+            return app.UseMiddleware<UseCodeBehindMiddlewareWithErrorHandling>();
+        else
+            return app.UseMiddleware<UseCodeBehindMiddleware>();
     }
 
-    public async Task Invoke(HttpContext context)
+    public static IApplicationBuilder UseCodeBehindNextNotFound(this IApplicationBuilder app)
     {
-        await _webSocketHandler.HandleWebSocketRequest(context, "UseCodeBehindWithErrorHandling");
-        await _next(context);
-    }
-}
-
-public class UseCodeBehindWebSocketsNextNotFoundMiddleware
-{
-    private readonly RequestDelegate _next;
-    private readonly WebSocketHandler _webSocketHandler;
-
-    public UseCodeBehindWebSocketsNextNotFoundMiddleware(RequestDelegate next)
-    {
-        _next = next;
-        _webSocketHandler = new WebSocketHandler(_next);
+        return app.UseMiddleware<UseCodeBehindNextNotFoundMiddleware>();
     }
 
-    public async Task Invoke(HttpContext context)
+    public static IApplicationBuilder UseCodeBehindRoute(this IApplicationBuilder app)
     {
-        await _webSocketHandler.HandleWebSocketRequest(context, "UseCodeBehindNextNotFound");
-        await _next(context);
-    }
-}
-
-public class UseCodeBehindWebSocketsRouteMiddleware
-{
-    private readonly RequestDelegate _next;
-    private readonly WebSocketHandler _webSocketHandler;
-
-    public UseCodeBehindWebSocketsRouteMiddleware(RequestDelegate next)
-    {
-        _next = next;
-        _webSocketHandler = new WebSocketHandler(_next);
+        return app.UseMiddleware<UseCodeBehindRouteMiddleware>();
     }
 
-    public async Task Invoke(HttpContext context)
+    public static IApplicationBuilder UseCodeBehindRoute(this IApplicationBuilder app, bool ErrorHandling)
     {
-        await _webSocketHandler.HandleWebSocketRequest(context, "UseCodeBehindRoute");
-        await _next(context);
-    }
-}
-
-public class UseCodeBehindWebSocketsRouteMiddlewareWithErrorHandling
-{
-    private readonly RequestDelegate _next;
-    private readonly WebSocketHandler _webSocketHandler;
-
-    public UseCodeBehindWebSocketsRouteMiddlewareWithErrorHandling(RequestDelegate next)
-    {
-        _next = next;
-        _webSocketHandler = new WebSocketHandler(_next);
+        if (ErrorHandling)
+            return app.UseMiddleware<UseCodeBehindRouteMiddlewareWithErrorHandling>();
+        else
+            return app.UseMiddleware<UseCodeBehindRouteMiddleware>();
     }
 
-    public async Task Invoke(HttpContext context)
+    public static IApplicationBuilder UseCodeBehindRouteNextNotFound(this IApplicationBuilder app)
     {
-        await _webSocketHandler.HandleWebSocketRequest(context, "UseCodeBehindRouteWithErrorHandling");
-        await _next(context);
-    }
-}
-
-public class UseCodeBehindWebSocketsRouteNextNotFoundMiddleware
-{
-    private readonly RequestDelegate _next;
-    private readonly WebSocketHandler _webSocketHandler;
-
-    public UseCodeBehindWebSocketsRouteNextNotFoundMiddleware(RequestDelegate next)
-    {
-        _next = next;
-        _webSocketHandler = new WebSocketHandler(_next);
+        return app.UseMiddleware<UseCodeBehindRouteNextNotFoundMiddleware>();
     }
 
-    public async Task Invoke(HttpContext context)
+    /// <summary>
+    /// Session Must Be Activated
+    /// </summary>
+    public static IApplicationBuilder UseRoleAccess(this IApplicationBuilder app)
     {
-        await _webSocketHandler.HandleWebSocketRequest(context, "UseCodeBehindRouteNextNotFound");
-        await _next(context);
-    }
-}
-
-public class WebSocketHandler
-{
-    private readonly RequestDelegate _next;
-
-    public WebSocketHandler(RequestDelegate next)
-    {
-        _next = next;
+        return app.UseMiddleware<UseRoleAccessMiddleware>();
     }
 
-    public async Task HandleWebSocketRequest(HttpContext context, string Middleware)
+    /// <summary>
+    /// Session Must Be Activated
+    /// </summary>
+    public static IApplicationBuilder UseRoleAccess(this IApplicationBuilder app, bool ErrorHandling)
     {
-        if (context.WebSockets.IsWebSocketRequest)
-        {
-            using var webSocket = await context.WebSockets.AcceptWebSocketAsync();
-            var buffer = new byte[1024 * 4];
-            WebSocketReceiveResult receiveData;
-
-            while (true)
-            {
-                receiveData = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
-                string formData = Encoding.UTF8.GetString(buffer, 0, receiveData.Count);
-
-                if (formData.Has())
-                {
-                    var formDictionary = new Dictionary<string, StringValues>();
-                    var parsedQuery = HttpUtility.ParseQueryString(formData);
-
-                    foreach (string key in parsedQuery)
-                        if (!formDictionary.ContainsKey(key))
-                            formDictionary[key] = new StringValues(parsedQuery.GetValues(key));
-
-                    context.Request.Form = new FormCollection(formDictionary);
-                }
-
-                if (receiveData.CloseStatus.HasValue)
-                    break;
-
-                string responseData = "";
-                bool useNext = false;
-                CodeBehindExecute execute = new CodeBehindExecute();
-                switch (Middleware)
-                {
-                    case "UseCodeBehind":
-                        responseData = execute.Run(context);
-                        break;
-
-                    case "UseCodeBehindWithErrorHandling":
-                        string pageResult1 = execute.Run(context);
-
-                        if (execute.FoundPage)
-                            responseData = pageResult1;
-                        else
-                            responseData = execute.RunErrorPage(404, context);
-                        break;
-
-                    case "UseCodeBehindNextNotFound":
-                        responseData = execute.Run(context);
-
-                        if (!execute.FoundPage)
-                        {
-                            if (execute.IsAspxExtension)
-                                return;
-                            else
-                                await _next(context);
-                        }
-                        break;
-
-                    case "UseCodeBehindRoute":
-                        responseData = execute.RunRoute(context, 0);
-                        break;
-
-                    case "UseCodeBehindRouteWithErrorHandling":
-                        responseData = execute.RunRoute(context, 0);
-
-                        if (!execute.FoundController)
-                            responseData = execute.RunErrorPage(404, context);
-                        break;
-
-                    case "UseCodeBehindRouteNextNotFound":
-                        responseData = execute.RunRoute(context, 0);
-
-                        if (!execute.FoundController)
-                        {
-                            string path = context.Request.Path.ToString();
-                            path = System.Net.WebUtility.UrlDecode(path);
-                            string extension = Path.GetExtension(path);
-
-                            if (extension == ".aspx")
-                                return;
-                            else
-                                await _next(context);
-                        }
-                        break;
-                }
-
-                buffer = Encoding.UTF8.GetBytes(responseData);
-
-                await webSocket.SendAsync(new ArraySegment<byte>(buffer, 0, buffer.Length), receiveData.MessageType, receiveData.EndOfMessage, CancellationToken.None);
-            }
-
-            await webSocket.CloseAsync(receiveData.CloseStatus.Value, receiveData.CloseStatusDescription, CancellationToken.None);
-        }
+        if (ErrorHandling)
+            return app.UseMiddleware<UseRoleAccessMiddlewareWithErrorHandling>();
+        else
+            return app.UseMiddleware<UseRoleAccessMiddleware>();
     }
-}
 
-public static class WebSocketMiddlewareExtensions
-{
-    public static IApplicationBuilder UseWebSocketsIf(this IApplicationBuilder app, WebSocketOptions options, string matchingType, string matching)
+    public static WebSocketsBroadcastCollection WebSocketsBroadcastQueue = new WebSocketsBroadcastCollection();
+
+    public static IApplicationBuilder UseCodeBehindWebSockets(this IApplicationBuilder app, int bufferSize = 4096)
     {
+        app.UseWebSockets();
+
         return app.Use(async (context, next) =>
         {
-            if (context.Request.Path.HasMatching(matchingType, matching))
+            if (context.WebSockets.IsWebSocketRequest)
             {
-                app.UseWebSockets(options);
-                await next();
+                var webSocket = await context.WebSockets.AcceptWebSocketAsync();
+                WebSocketManager.AddWebSocket(webSocket);
+                await HandleWebSocketConnection(context, webSocket, "UseCodeBehind", bufferSize);
             }
             else
             {
@@ -420,98 +268,675 @@ public static class WebSocketMiddlewareExtensions
             }
         });
     }
-}
 
-public static class CodeBehindMiddlewareExtensions
-{
-    public static IApplicationBuilder UseCodeBehind(this IApplicationBuilder builder)
+    public static IApplicationBuilder UseCodeBehindWebSocketsByRole(this IApplicationBuilder app, int bufferSize = 4096)
     {
-        return builder.UseMiddleware<UseCodeBehindMiddleware>();
+        app.UseWebSockets();
+
+        return app.Use(async (context, next) =>
+        {
+            if (context.WebSockets.IsWebSocketRequest)
+            {
+                RoleAccess role = new RoleAccess(context.Session);
+
+                var webSocket = await context.WebSockets.AcceptWebSocketAsync();
+                WebSocketManager.AddWebSocket(webSocket, role.GetUserRole());
+                await HandleWebSocketConnection(context, webSocket, "UseCodeBehind", bufferSize);
+            }
+            else
+            {
+                await next();
+            }
+        });
     }
 
-    public static IApplicationBuilder UseCodeBehind(this IApplicationBuilder builder, bool ErrorHandling)
+    public static IApplicationBuilder UseCodeBehindWebSockets(this IApplicationBuilder app, WebSocketOptions options, int bufferSize = 4096)
     {
-        if (ErrorHandling)
-            return builder.UseMiddleware<UseCodeBehindMiddlewareWithErrorHandling>();
-        else
-            return builder.UseMiddleware<UseCodeBehindMiddleware>();
-    }
+        app.UseWebSockets(options);
 
-    public static IApplicationBuilder UseCodeBehindNextNotFound(this IApplicationBuilder builder)
-    {
-        return builder.UseMiddleware<UseCodeBehindNextNotFoundMiddleware>();
-    }
-
-    public static IApplicationBuilder UseCodeBehindRoute(this IApplicationBuilder builder)
-    {
-        return builder.UseMiddleware<UseCodeBehindRouteMiddleware>();
-    }
-
-    public static IApplicationBuilder UseCodeBehindRoute(this IApplicationBuilder builder, bool ErrorHandling)
-    {
-        if (ErrorHandling)
-            return builder.UseMiddleware<UseCodeBehindRouteMiddlewareWithErrorHandling>();
-        else
-            return builder.UseMiddleware<UseCodeBehindRouteMiddleware>();
-    }
-
-    public static IApplicationBuilder UseCodeBehindRouteNextNotFound(this IApplicationBuilder builder)
-    {
-        return builder.UseMiddleware<UseCodeBehindRouteNextNotFoundMiddleware>();
-    }
-
-    /// <summary>
-    /// Session Must Be Activated
-    /// </summary>
-    public static IApplicationBuilder UseRoleAccess(this IApplicationBuilder builder)
-    {
-        return builder.UseMiddleware<UseRoleAccessMiddleware>();
+        return app.Use(async (context, next) =>
+        {
+            if (context.WebSockets.IsWebSocketRequest)
+            {
+                var webSocket = await context.WebSockets.AcceptWebSocketAsync();
+                WebSocketManager.AddWebSocket(webSocket);
+                await HandleWebSocketConnection(context, webSocket, "UseCodeBehind", bufferSize);
+            }
+            else
+            {
+                await next();
+            }
+        });
     }
 
     /// <summary>
     /// Session Must Be Activated
     /// </summary>
-    public static IApplicationBuilder UseRoleAccess(this IApplicationBuilder builder, bool ErrorHandling)
+    public static IApplicationBuilder UseCodeBehindWebSocketsByRole(this IApplicationBuilder app, WebSocketOptions options, int bufferSize = 4096)
     {
-        if (ErrorHandling)
-            return builder.UseMiddleware<UseRoleAccessMiddlewareWithErrorHandling>();
-        else
-            return builder.UseMiddleware<UseRoleAccessMiddleware>();
+        app.UseWebSockets(options);
+
+        return app.Use(async (context, next) =>
+        {
+            if (context.WebSockets.IsWebSocketRequest)
+            {
+                RoleAccess role = new RoleAccess(context.Session);
+
+                var webSocket = await context.WebSockets.AcceptWebSocketAsync();
+                WebSocketManager.AddWebSocket(webSocket, role.GetUserRole());
+                await HandleWebSocketConnection(context, webSocket, "UseCodeBehind", bufferSize);
+            }
+            else
+            {
+                await next();
+            }
+        });
     }
 
-    public static IApplicationBuilder UseCodeBehindWebSockets(this IApplicationBuilder builder)
+    public static IApplicationBuilder UseCodeBehindWebSocketsWithErrorHandling(this IApplicationBuilder app, int bufferSize = 4096)
     {
-        return builder.UseMiddleware<UseCodeBehindWebSocketsMiddleware>();
+        app.UseWebSockets();
+
+        return app.Use(async (context, next) =>
+        {
+            if (context.WebSockets.IsWebSocketRequest)
+            {
+                var webSocket = await context.WebSockets.AcceptWebSocketAsync();
+                WebSocketManager.AddWebSocket(webSocket);
+                await HandleWebSocketConnection(context, webSocket, "UseCodeBehindWithErrorHandling", bufferSize);
+            }
+            else
+            {
+                await next();
+            }
+        });
     }
 
-    public static IApplicationBuilder UseCodeBehindWebSockets(this IApplicationBuilder builder, bool ErrorHandling)
+    public static IApplicationBuilder UseCodeBehindWebSocketsWithErrorHandlingByRole(this IApplicationBuilder app, int bufferSize = 4096)
     {
-        if (ErrorHandling)
-            return builder.UseMiddleware<UseCodeBehindWebSocketsMiddlewareWithErrorHandling>();
-        else
-            return builder.UseMiddleware<UseCodeBehindWebSocketsMiddleware>();
+        app.UseWebSockets();
+
+        return app.Use(async (context, next) =>
+        {
+            if (context.WebSockets.IsWebSocketRequest)
+            {
+                RoleAccess role = new RoleAccess(context.Session);
+
+                var webSocket = await context.WebSockets.AcceptWebSocketAsync();
+                WebSocketManager.AddWebSocket(webSocket, role.GetUserRole());
+                await HandleWebSocketConnection(context, webSocket, "UseCodeBehindWithErrorHandling", bufferSize);
+            }
+            else
+            {
+                await next();
+            }
+        });
     }
 
-    public static IApplicationBuilder UseCodeBehindWebSocketsNextNotFound(this IApplicationBuilder builder)
+    public static IApplicationBuilder UseCodeBehindWebSocketsWithErrorHandling(this IApplicationBuilder app, WebSocketOptions options, int bufferSize = 4096)
     {
-        return builder.UseMiddleware<UseCodeBehindWebSocketsNextNotFoundMiddleware>();
+        app.UseWebSockets(options);
+
+        return app.Use(async (context, next) =>
+        {
+            if (context.WebSockets.IsWebSocketRequest)
+            {
+                var webSocket = await context.WebSockets.AcceptWebSocketAsync();
+                WebSocketManager.AddWebSocket(webSocket);
+                await HandleWebSocketConnection(context, webSocket, "UseCodeBehindWithErrorHandling", bufferSize);
+            }
+            else
+            {
+                await next();
+            }
+        });
     }
 
-    public static IApplicationBuilder UseCodeBehindWebSocketsRoute(this IApplicationBuilder builder)
+    public static IApplicationBuilder UseCodeBehindWebSocketsWithErrorHandlingByRole(this IApplicationBuilder app, WebSocketOptions options, int bufferSize = 4096)
     {
-        return builder.UseMiddleware<UseCodeBehindWebSocketsRouteMiddleware>();
+        app.UseWebSockets(options);
+
+        return app.Use(async (context, next) =>
+        {
+            if (context.WebSockets.IsWebSocketRequest)
+            {
+                RoleAccess role = new RoleAccess(context.Session);
+
+                var webSocket = await context.WebSockets.AcceptWebSocketAsync();
+                WebSocketManager.AddWebSocket(webSocket, role.GetUserRole());
+                await HandleWebSocketConnection(context, webSocket, "UseCodeBehindWithErrorHandling", bufferSize);
+            }
+            else
+            {
+                await next();
+            }
+        });
     }
 
-    public static IApplicationBuilder UseCodeBehindWebSocketsRoute(this IApplicationBuilder builder, bool ErrorHandling)
+    public static IApplicationBuilder UseCodeBehindWebSocketsNextNotFound(this IApplicationBuilder app, int bufferSize = 4096)
     {
-        if (ErrorHandling)
-            return builder.UseMiddleware<UseCodeBehindWebSocketsRouteMiddlewareWithErrorHandling>();
-        else
-            return builder.UseMiddleware<UseCodeBehindWebSocketsRouteMiddleware>();
+        app.UseWebSockets();
+
+        return app.Use(async (context, next) =>
+        {
+            if (context.WebSockets.IsWebSocketRequest)
+            {
+                var webSocket = await context.WebSockets.AcceptWebSocketAsync();
+                WebSocketManager.AddWebSocket(webSocket);
+                await HandleWebSocketConnection(context, webSocket, "UseCodeBehindNextNotFound", bufferSize);
+            }
+            else
+            {
+                await next();
+            }
+        });
     }
 
-    public static IApplicationBuilder UseCodeBehindWebSocketsRouteNextNotFound(this IApplicationBuilder builder)
+    public static IApplicationBuilder UseCodeBehindWebSocketsNextNotFoundByRole(this IApplicationBuilder app, int bufferSize = 4096)
     {
-        return builder.UseMiddleware<UseCodeBehindWebSocketsRouteNextNotFoundMiddleware>();
+        app.UseWebSockets();
+
+        return app.Use(async (context, next) =>
+        {
+            if (context.WebSockets.IsWebSocketRequest)
+            {
+                RoleAccess role = new RoleAccess(context.Session);
+
+                var webSocket = await context.WebSockets.AcceptWebSocketAsync();
+                WebSocketManager.AddWebSocket(webSocket, role.GetUserRole());
+                await HandleWebSocketConnection(context, webSocket, "UseCodeBehindNextNotFound", bufferSize);
+            }
+            else
+            {
+                await next();
+            }
+        });
+    }
+
+    public static IApplicationBuilder UseCodeBehindWebSocketsNextNotFound(this IApplicationBuilder app, WebSocketOptions options, int bufferSize = 4096)
+    {
+        app.UseWebSockets(options);
+
+        return app.Use(async (context, next) =>
+        {
+            if (context.WebSockets.IsWebSocketRequest)
+            {
+                var webSocket = await context.WebSockets.AcceptWebSocketAsync();
+                WebSocketManager.AddWebSocket(webSocket);
+                await HandleWebSocketConnection(context, webSocket, "UseCodeBehindNextNotFound", bufferSize);
+            }
+            else
+            {
+                await next();
+            }
+        });
+    }
+
+    public static IApplicationBuilder UseCodeBehindWebSocketsNextNotFoundByRole(this IApplicationBuilder app, WebSocketOptions options, int bufferSize = 4096)
+    {
+        app.UseWebSockets(options);
+
+        return app.Use(async (context, next) =>
+        {
+            if (context.WebSockets.IsWebSocketRequest)
+            {
+                RoleAccess role = new RoleAccess(context.Session);
+
+                var webSocket = await context.WebSockets.AcceptWebSocketAsync();
+                WebSocketManager.AddWebSocket(webSocket, role.GetUserRole());
+                await HandleWebSocketConnection(context, webSocket, "UseCodeBehindNextNotFound", bufferSize);
+            }
+            else
+            {
+                await next();
+            }
+        });
+    }
+
+    public static IApplicationBuilder UseCodeBehindRouteWebSockets(this IApplicationBuilder app, int bufferSize = 4096)
+    {
+        app.UseWebSockets();
+
+        return app.Use(async (context, next) =>
+        {
+            if (context.WebSockets.IsWebSocketRequest)
+            {
+                var webSocket = await context.WebSockets.AcceptWebSocketAsync();
+                WebSocketManager.AddWebSocket(webSocket);
+                await HandleWebSocketConnection(context, webSocket, "UseCodeBehindRoute", bufferSize);
+            }
+            else
+            {
+                await next();
+            }
+        });
+    }
+
+    public static IApplicationBuilder UseCodeBehindRouteWebSocketsByRole(this IApplicationBuilder app, int bufferSize = 4096)
+    {
+        app.UseWebSockets();
+
+        return app.Use(async (context, next) =>
+        {
+            if (context.WebSockets.IsWebSocketRequest)
+            {
+                RoleAccess role = new RoleAccess(context.Session);
+
+                var webSocket = await context.WebSockets.AcceptWebSocketAsync();
+                WebSocketManager.AddWebSocket(webSocket, role.GetUserRole());
+                await HandleWebSocketConnection(context, webSocket, "UseCodeBehindRoute", bufferSize);
+            }
+            else
+            {
+                await next();
+            }
+        });
+    }
+
+    public static IApplicationBuilder UseCodeBehindRouteWebSockets(this IApplicationBuilder app, WebSocketOptions options, int bufferSize = 4096)
+    {
+        app.UseWebSockets(options);
+
+        return app.Use(async (context, next) =>
+        {
+            if (context.WebSockets.IsWebSocketRequest)
+            {
+                var webSocket = await context.WebSockets.AcceptWebSocketAsync();
+                WebSocketManager.AddWebSocket(webSocket);
+                await HandleWebSocketConnection(context, webSocket, "UseCodeBehindRoute", bufferSize);
+            }
+            else
+            {
+                await next();
+            }
+        });
+    }
+
+    public static IApplicationBuilder UseCodeBehindRouteWebSocketsByRole(this IApplicationBuilder app, WebSocketOptions options, int bufferSize = 4096)
+    {
+        app.UseWebSockets(options);
+
+        return app.Use(async (context, next) =>
+        {
+            if (context.WebSockets.IsWebSocketRequest)
+            {
+                RoleAccess role = new RoleAccess(context.Session);
+
+                var webSocket = await context.WebSockets.AcceptWebSocketAsync();
+                WebSocketManager.AddWebSocket(webSocket, role.GetUserRole());
+                await HandleWebSocketConnection(context, webSocket, "UseCodeBehindRoute", bufferSize);
+            }
+            else
+            {
+                await next();
+            }
+        });
+    }
+
+    public static IApplicationBuilder UseCodeBehindRouteWebSocketsWithErrorHandling(this IApplicationBuilder app, int bufferSize = 4096)
+    {
+        app.UseWebSockets();
+
+        return app.Use(async (context, next) =>
+        {
+            if (context.WebSockets.IsWebSocketRequest)
+            {
+                var webSocket = await context.WebSockets.AcceptWebSocketAsync();
+                WebSocketManager.AddWebSocket(webSocket);
+                await HandleWebSocketConnection(context, webSocket, "UseCodeBehindRouteWithErrorHandling", bufferSize);
+            }
+            else
+            {
+                await next();
+            }
+        });
+    }
+
+    public static IApplicationBuilder UseCodeBehindRouteWebSocketsWithErrorHandlingByRole(this IApplicationBuilder app, int bufferSize = 4096)
+    {
+        app.UseWebSockets();
+
+        return app.Use(async (context, next) =>
+        {
+            if (context.WebSockets.IsWebSocketRequest)
+            {
+                RoleAccess role = new RoleAccess(context.Session);
+
+                var webSocket = await context.WebSockets.AcceptWebSocketAsync();
+                WebSocketManager.AddWebSocket(webSocket, role.GetUserRole());
+                await HandleWebSocketConnection(context, webSocket, "UseCodeBehindRouteWithErrorHandling", bufferSize);
+            }
+            else
+            {
+                await next();
+            }
+        });
+    }
+
+    public static IApplicationBuilder UseCodeBehindRouteWebSocketsWithErrorHandling(this IApplicationBuilder app, WebSocketOptions options, int bufferSize = 4096)
+    {
+        app.UseWebSockets(options);
+
+        return app.Use(async (context, next) =>
+        {
+            if (context.WebSockets.IsWebSocketRequest)
+            {
+                var webSocket = await context.WebSockets.AcceptWebSocketAsync();
+                WebSocketManager.AddWebSocket(webSocket);
+                await HandleWebSocketConnection(context, webSocket, "UseCodeBehindRouteWithErrorHandling", bufferSize);
+            }
+            else
+            {
+                await next();
+            }
+        });
+    }
+
+    public static IApplicationBuilder UseCodeBehindRouteWebSocketsWithErrorHandlingByRole(this IApplicationBuilder app, WebSocketOptions options, int bufferSize = 4096)
+    {
+        app.UseWebSockets(options);
+
+        return app.Use(async (context, next) =>
+        {
+            if (context.WebSockets.IsWebSocketRequest)
+            {
+                RoleAccess role = new RoleAccess(context.Session);
+
+                var webSocket = await context.WebSockets.AcceptWebSocketAsync();
+                WebSocketManager.AddWebSocket(webSocket, role.GetUserRole());
+                await HandleWebSocketConnection(context, webSocket, "UseCodeBehindRouteWithErrorHandling", bufferSize);
+            }
+            else
+            {
+                await next();
+            }
+        });
+    }
+
+    public static IApplicationBuilder UseCodeBehindRouteWebSocketsNextNotFound(this IApplicationBuilder app, int bufferSize = 4096)
+    {
+        app.UseWebSockets();
+
+        return app.Use(async (context, next) =>
+        {
+            if (context.WebSockets.IsWebSocketRequest)
+            {
+                var webSocket = await context.WebSockets.AcceptWebSocketAsync();
+                WebSocketManager.AddWebSocket(webSocket);
+                await HandleWebSocketConnection(context, webSocket, "UseCodeBehindRouteNextNotFound", bufferSize);
+            }
+            else
+            {
+                await next();
+            }
+        });
+    }
+
+    public static IApplicationBuilder UseCodeBehindRouteWebSocketsNextNotFoundByRole(this IApplicationBuilder app, int bufferSize = 4096)
+    {
+        app.UseWebSockets();
+
+        return app.Use(async (context, next) =>
+        {
+            if (context.WebSockets.IsWebSocketRequest)
+            {
+                RoleAccess role = new RoleAccess(context.Session);
+
+                var webSocket = await context.WebSockets.AcceptWebSocketAsync();
+                WebSocketManager.AddWebSocket(webSocket, role.GetUserRole());
+                await HandleWebSocketConnection(context, webSocket, "UseCodeBehindRouteNextNotFound", bufferSize);
+            }
+            else
+            {
+                await next();
+            }
+        });
+    }
+
+    public static IApplicationBuilder UseCodeBehindRouteWebSocketsNextNotFound(this IApplicationBuilder app, WebSocketOptions options, int bufferSize = 4096)
+    {
+        app.UseWebSockets(options);
+
+        return app.Use(async (context, next) =>
+        {
+            if (context.WebSockets.IsWebSocketRequest)
+            {
+                var webSocket = await context.WebSockets.AcceptWebSocketAsync();
+                WebSocketManager.AddWebSocket(webSocket);
+                await HandleWebSocketConnection(context, webSocket, "UseCodeBehindRouteNextNotFound", bufferSize);
+            }
+            else
+            {
+                await next();
+            }
+        });
+    }
+
+    public static IApplicationBuilder UseCodeBehindRouteWebSocketsNextNotFoundByRole(this IApplicationBuilder app, WebSocketOptions options, int bufferSize = 4096)
+    {
+        app.UseWebSockets(options);
+
+        return app.Use(async (context, next) =>
+        {
+            if (context.WebSockets.IsWebSocketRequest)
+            {
+                RoleAccess role = new RoleAccess(context.Session);
+
+                var webSocket = await context.WebSockets.AcceptWebSocketAsync();
+                WebSocketManager.AddWebSocket(webSocket, role.GetUserRole());
+                await HandleWebSocketConnection(context, webSocket, "UseCodeBehindRouteNextNotFound", bufferSize);
+            }
+            else
+            {
+                await next();
+            }
+        });
+    }
+
+    private static async Task HandleWebSocketConnection(HttpContext context, WebSocket webSocket, string middleware, int bufferSize, int broadcastDelay = 1000)
+    {
+        var buffer = new byte[bufferSize];
+        var cancellationTokenSource = new CancellationTokenSource();
+        var cancellationToken = cancellationTokenSource.Token;
+
+        var broadcastTask = Task.Run(async () =>
+        {
+            while (!cancellationToken.IsCancellationRequested)
+            {
+                if (WebSocketsBroadcastQueue.Count() > 0)
+                {
+                    string message = WebSocketsBroadcastQueue.GetMessageByIndex(0);
+                    string roleName = WebSocketsBroadcastQueue.GetRoleNameByIndex(0);
+                    string webSocketId = WebSocketsBroadcastQueue.GetWebSocketIdByIndex(0);
+                    WebSocketsBroadcastQueue.DeleteByIndex(0);
+                    buffer = Encoding.UTF8.GetBytes(message);
+
+                    foreach (var client in WebSocketManager.GetAllWebSockets())
+                        if (client.Key.State == WebSocketState.Open)
+                        {
+                            if (roleName.Has() && webSocketId.Has())
+                            {
+                                if ((roleName == client.Value.Item1) && (webSocketId == client.Value.Item2))
+                                    await client.Key.SendAsync(new ArraySegment<byte>(buffer, 0, buffer.Length), WebSocketMessageType.Text, true, CancellationToken.None);
+                            }
+                            else if (roleName.Has())
+                            {
+                                if (roleName == client.Value.Item1)
+                                    await client.Key.SendAsync(new ArraySegment<byte>(buffer, 0, buffer.Length), WebSocketMessageType.Text, true, CancellationToken.None);
+                            }
+                            else if (webSocketId.Has())
+                            {
+                                if (webSocketId == client.Value.Item2)
+                                    await client.Key.SendAsync(new ArraySegment<byte>(buffer, 0, buffer.Length), WebSocketMessageType.Text, true, CancellationToken.None);
+                            }
+                            else
+                                await client.Key.SendAsync(new ArraySegment<byte>(buffer, 0, buffer.Length), WebSocketMessageType.Text, true, CancellationToken.None);
+                        }
+                }
+
+                // Prevent Loop
+                await Task.Delay(broadcastDelay);
+            }
+        }, cancellationToken);
+
+        try
+        {
+            WebSocketReceiveResult receiveData;
+            while (webSocket.State == WebSocketState.Open)
+            {
+                receiveData = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
+
+                if (receiveData.MessageType == WebSocketMessageType.Close)
+                {
+                    await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closing", CancellationToken.None);
+                }
+                else
+                {
+                    string formData = Encoding.UTF8.GetString(buffer, 0, receiveData.Count);
+
+                    if (!string.IsNullOrEmpty(formData))
+                    {
+                        try
+                        {
+                            var formDictionary = new Dictionary<string, StringValues>();
+                            var parsedQuery = HttpUtility.ParseQueryString(formData);
+
+                            foreach (string key in parsedQuery)
+                                if (!formDictionary.ContainsKey(key))
+                                    formDictionary[key] = new StringValues(parsedQuery.GetValues(key));
+
+                            context.Request.Form = new FormCollection(formDictionary);
+                        }
+                        catch (Exception ex) { }
+                    }
+
+                    string responseData = "";
+                    CodeBehindExecute execute = new CodeBehindExecute();
+                    switch (middleware)
+                    {
+                        case "UseCodeBehind":
+                            responseData = execute.Run(context);
+                            if (execute.WebSocketId != null)
+                                WebSocketManager.UpdateWebSocketInfoByWebSocketId(webSocket, execute.WebSocketId);
+                            break;
+
+                        case "UseCodeBehindWithErrorHandling":
+                            string pageResult1 = execute.Run(context);
+
+                            if (execute.FoundPage)
+                                responseData = pageResult1;
+                            else
+                                responseData = execute.RunErrorPage(404, context);
+
+                            if (execute.WebSocketId != null)
+                                WebSocketManager.UpdateWebSocketInfoByWebSocketId(webSocket, execute.WebSocketId);
+                            break;
+
+                        case "UseCodeBehindNextNotFound":
+                            responseData = execute.Run(context);
+
+                            if (!execute.FoundPage)
+                            {
+                                if (execute.IsAspxExtension)
+                                    return;
+                            }
+
+                            if (execute.WebSocketId != null)
+                                WebSocketManager.UpdateWebSocketInfoByWebSocketId(webSocket, execute.WebSocketId);
+                            break;
+
+                        case "UseCodeBehindRoute":
+                            responseData = execute.RunRoute(context, 0);
+
+                            if (execute.WebSocketId != null)
+                                WebSocketManager.UpdateWebSocketInfoByWebSocketId(webSocket, execute.WebSocketId);
+                            break;
+
+                        case "UseCodeBehindRouteWithErrorHandling":
+                            responseData = execute.RunRoute(context, 0);
+
+                            if (!execute.FoundController)
+                                responseData = execute.RunErrorPage(404, context);
+
+                            if (execute.WebSocketId != null)
+                                WebSocketManager.UpdateWebSocketInfoByWebSocketId(webSocket, execute.WebSocketId);
+                            break;
+
+                        case "UseCodeBehindRouteNextNotFound":
+                            responseData = execute.RunRoute(context, 0);
+
+                            if (!execute.FoundController)
+                            {
+                                string path = context.Request.Path.ToString();
+                                path = System.Net.WebUtility.UrlDecode(path);
+                                string extension = Path.GetExtension(path);
+
+                                if (extension == ".aspx")
+                                    return;
+                            }
+
+                            if (execute.WebSocketId != null)
+                                WebSocketManager.UpdateWebSocketInfoByWebSocketId(webSocket, execute.WebSocketId);
+                            break;
+                    }
+
+                    buffer = Encoding.UTF8.GetBytes(responseData);
+                    await webSocket.SendAsync(new ArraySegment<byte>(buffer, 0, buffer.Length), WebSocketMessageType.Text, true, CancellationToken.None);
+                }
+            }
+        }
+        finally
+        {
+            WebSocketManager.RemoveWebSocket(webSocket);
+            cancellationTokenSource.Cancel();
+            await broadcastTask;
+        }
+    }
+
+    public static class WebSocketManager
+    {
+        // Item1 Used For Role Name And Item2 Used For WebSocket Id
+        private static readonly ConcurrentDictionary<WebSocket, Tuple<string, string>> WebSockets = new ConcurrentDictionary<WebSocket, Tuple<string, string>>();
+
+        public static void AddWebSocket(WebSocket webSocket, string roleName = "", string additionalInfo = "")
+        {
+            WebSockets.TryAdd(webSocket, new Tuple<string, string>(roleName, additionalInfo));
+        }
+
+        public static void RemoveWebSocket(WebSocket webSocket)
+        {
+            WebSockets.TryRemove(webSocket, out _);
+        }
+
+        public static IEnumerable<KeyValuePair<WebSocket, Tuple<string, string>>> GetAllWebSockets()
+        {
+            return WebSockets;
+        }
+
+        public static void UpdateWebSocketInfo(WebSocket webSocket, string newRoleName, string newId)
+        {
+            if (WebSockets.ContainsKey(webSocket))
+            {
+                WebSockets[webSocket] = new Tuple<string, string>(newRoleName, newId);
+            }
+        }
+
+        public static void UpdateWebSocketInfoByRoleName(WebSocket webSocket, string newRoleName)
+        {
+            if (WebSockets.TryGetValue(webSocket, out var currentInfo))
+            {
+                var updatedInfo = new Tuple<string, string>(newRoleName, currentInfo.Item1);
+                WebSockets[webSocket] = updatedInfo;
+            }
+        }
+
+        public static void UpdateWebSocketInfoByWebSocketId(WebSocket webSocket, string newId)
+        {
+            if (WebSockets.TryGetValue(webSocket, out var currentInfo))
+            {
+                var updatedInfo = new Tuple<string, string>(currentInfo.Item2, newId);
+                WebSockets[webSocket] = updatedInfo;
+            }
+        }
     }
 }
