@@ -413,4 +413,9 @@ The first version of CodeBehind is based on .NET Core version 7.0; if the versio
 
 **New features:**
 - WebSocket protocol support in WebForms Core technology
+
+## Version 4.2
+
+**New features:**
+- Ability to compress data for sending data to the server via WebFormsJS
 - New SendBack feature for sending all types of data
