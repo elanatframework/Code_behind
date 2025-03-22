@@ -3,7 +3,7 @@
 
 ![ ](https://github.com/elanatframework/Code_behind/assets/111444759/35fbac60-55fa-44bc-97f4-0d0be04e3cc5)
 
-**CodeBehind** is a modern back-end framework under ASP.NET Core. CodeBehind was developed by [Elanat](https://elanat.net) in 2023 and competes with Microsoft's default web frameworks (**ASP.NET Core MVC** and **Razor Pages** and **Blazor**). CodeBehind is an engineering masterpiece that simultaneously provides the possibility of development based on MVC, Model-View, Controller-View, only View and Web-Forms. The type of structure and naming in CodeBehind is a nostalgia that reminds of former Microsoft Web-Forms.
+**CodeBehind** is a modern full-stack web framework under ASP.NET Core. CodeBehind was developed by [Elanat](https://elanat.net) in 2023 and competes with Microsoft's default web frameworks (**ASP.NET Core MVC** and **Razor Pages** and **Blazor**). CodeBehind is an engineering masterpiece that simultaneously provides the possibility of development based on MVC, Model-View, Controller-View, only View and Web-Forms. The type of structure and naming in CodeBehind is a nostalgia that reminds of former Microsoft Web-Forms.
 
 The aspx extension is the files of the view section in the CodeBehind framework and they supports standard syntax (`<%=Standard%>`) and Razor syntax (`@Razor`). This framework guarantees the separation of server-side codes from the design part (html) and there is no need to write server-side codes in the view.
 
