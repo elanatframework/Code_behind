@@ -104,7 +104,8 @@ namespace SetCodeBehind
             CodeBehindViews += "        private string CallerViewDirectoryPath { get; set; } = \"\";" + Environment.NewLine;
             CodeBehindViews += "        private bool FoundPage { get; set; } = true;" + Environment.NewLine;
             CodeBehindViews += "        private bool FoundController { get; set; } = true;" + Environment.NewLine;
-            CodeBehindViews += "        private bool? IgnoreLayout { get; set; } = false;" + Environment.NewLine + Environment.NewLine;
+            CodeBehindViews += "        private bool? IgnoreLayout { get; set; } = false;" + Environment.NewLine;
+            CodeBehindViews += "        private string WebSocketId { get; set; } = \"\";" + Environment.NewLine + Environment.NewLine;
 
             CodeBehindOptions options = new CodeBehindOptions();
 
@@ -252,7 +253,7 @@ namespace SetCodeBehind
             CodeBehindViews += "            return SetPageLoadByFullPath(path, null, \"\");" + Environment.NewLine;
             CodeBehindViews += "        }" + Environment.NewLine + Environment.NewLine;
 
-            CodeBehindViews += "        public string RunController(HttpContext context, string ViewPath, object ModelClass, CodeBehind.HtmlData.NameValueCollection ViewData, string DownloadFilePath, bool? IgnoreLayout, string WebFormsValue)" + Environment.NewLine;
+            CodeBehindViews += "        public string RunController(HttpContext context, string ViewPath, object ModelClass, CodeBehind.HtmlData.NameValueCollection ViewData, string DownloadFilePath, bool? IgnoreLayout, string WebFormsValue, string? WebSocketId)" + Environment.NewLine;
             CodeBehindViews += "        {" + Environment.NewLine;
             CodeBehindViews += "            if (!string.IsNullOrEmpty(DownloadFilePath))" + Environment.NewLine;
             CodeBehindViews += "            {" + Environment.NewLine;
@@ -265,6 +266,9 @@ namespace SetCodeBehind
             CodeBehindViews += "            this.WebFormsValue += WebFormsValue;" + Environment.NewLine + Environment.NewLine;
             CodeBehindViews += "            if (string.IsNullOrEmpty(ViewPath))" + Environment.NewLine;
             CodeBehindViews += "                return \"\";" + Environment.NewLine + Environment.NewLine;
+
+            CodeBehindViews += "            if (WebSocketId != null)" + Environment.NewLine;
+            CodeBehindViews += "                this.WebSocketId = WebSocketId;" + Environment.NewLine + Environment.NewLine;
 
             CodeBehindViews += "            if (ViewPath[0] == '>')" + Environment.NewLine;
             CodeBehindViews += "            {" + Environment.NewLine;
@@ -295,6 +299,16 @@ namespace SetCodeBehind
             CodeBehindViews += "            return FoundPage;" + Environment.NewLine;
             CodeBehindViews += "        }" + Environment.NewLine + Environment.NewLine;
 
+            CodeBehindViews += "        public void SetWebSocketId(string Id)" + Environment.NewLine;
+            CodeBehindViews += "        {" + Environment.NewLine;
+            CodeBehindViews += "            WebSocketId = Id;" + Environment.NewLine;
+            CodeBehindViews += "        }" + Environment.NewLine + Environment.NewLine;
+
+            CodeBehindViews += "        public string GetWebSocketId()" + Environment.NewLine;
+            CodeBehindViews += "        {" + Environment.NewLine;
+            CodeBehindViews += "            return WebSocketId;" + Environment.NewLine;
+            CodeBehindViews += "        }" + Environment.NewLine + Environment.NewLine;
+
             CodeBehindViews += "        public bool ControllerHasFound()" + Environment.NewLine;
             CodeBehindViews += "        {" + Environment.NewLine;
             CodeBehindViews += "            return FoundController;" + Environment.NewLine;
@@ -308,6 +322,57 @@ namespace SetCodeBehind
             CodeBehindViews += "        public void Control(WebForms Forms)" + Environment.NewLine;
             CodeBehindViews += "        {" + Environment.NewLine;
             CodeBehindViews += "            WebFormsValue += Forms.GetFormsActionData();" + Environment.NewLine;
+            CodeBehindViews += "        }" + Environment.NewLine + Environment.NewLine;
+
+            CodeBehindViews += "        // WebSockets Broadcast" + Environment.NewLine;
+            CodeBehindViews += "        public void Broadcast(HttpContext context, string Message, bool IgnoreThis = false)" + Environment.NewLine;
+            CodeBehindViews += "        {" + Environment.NewLine;
+            CodeBehindViews += "            CodeBehindMiddlewareExtensions.WebSocketsBroadcast(context, Message, \"\", \"\", \"\", IgnoreThis);" + Environment.NewLine;
+            CodeBehindViews += "        }" + Environment.NewLine + Environment.NewLine;
+            
+            CodeBehindViews += "        public async void BroadcastAsync(HttpContext context, string Message, bool IgnoreThis = false)" + Environment.NewLine;
+            CodeBehindViews += "        {" + Environment.NewLine;
+            CodeBehindViews += "            await CodeBehindMiddlewareExtensions.WebSocketsBroadcastAsync(context, Message, \"\", \"\", \"\", IgnoreThis);" + Environment.NewLine;
+            CodeBehindViews += "        }" + Environment.NewLine + Environment.NewLine;
+            
+            CodeBehindViews += "        public void Broadcast(HttpContext context, string Message, string RoleName, string Id, string ClientId, bool IgnoreThis = false)" + Environment.NewLine;
+            CodeBehindViews += "        {" + Environment.NewLine;
+            CodeBehindViews += "            CodeBehindMiddlewareExtensions.WebSocketsBroadcast(context, Message, RoleName, Id, ClientId, IgnoreThis);" + Environment.NewLine;
+            CodeBehindViews += "        }" + Environment.NewLine + Environment.NewLine;
+
+            CodeBehindViews += "        public async void BroadcastAsync(HttpContext context, string Message, string RoleName, string Id, string ClientId, bool IgnoreThis = false)" + Environment.NewLine;
+            CodeBehindViews += "        {" + Environment.NewLine;
+            CodeBehindViews += "            await CodeBehindMiddlewareExtensions.WebSocketsBroadcastAsync(context, Message, RoleName, Id, ClientId, IgnoreThis);" + Environment.NewLine;
+            CodeBehindViews += "        }" + Environment.NewLine + Environment.NewLine;
+
+            CodeBehindViews += "        public void BroadcastForRole(HttpContext context, string Message, string RoleName, bool IgnoreThis = false)" + Environment.NewLine;
+            CodeBehindViews += "        {" + Environment.NewLine;
+            CodeBehindViews += "            CodeBehindMiddlewareExtensions.WebSocketsBroadcast(context, Message, RoleName, \"\", \"\", IgnoreThis);" + Environment.NewLine;
+            CodeBehindViews += "        }" + Environment.NewLine + Environment.NewLine;
+
+            CodeBehindViews += "        public async void BroadcastForRoleAsync(HttpContext context, string Message, string RoleName, bool IgnoreThis = false)" + Environment.NewLine;
+            CodeBehindViews += "        {" + Environment.NewLine;
+            CodeBehindViews += "            await CodeBehindMiddlewareExtensions.WebSocketsBroadcastAsync(context, Message, RoleName, \"\", \"\", IgnoreThis);" + Environment.NewLine;
+            CodeBehindViews += "        }" + Environment.NewLine + Environment.NewLine;
+
+            CodeBehindViews += "        public void BroadcastForWebSocketId(HttpContext context, string Message, string Id, bool IgnoreThis = false)" + Environment.NewLine;
+            CodeBehindViews += "        {" + Environment.NewLine;
+            CodeBehindViews += "            CodeBehindMiddlewareExtensions.WebSocketsBroadcast(context, Message, \"\", Id, \"\", IgnoreThis);" + Environment.NewLine;
+            CodeBehindViews += "        }" + Environment.NewLine + Environment.NewLine;
+
+            CodeBehindViews += "        public async void BroadcastForWebSocketIdAsync(HttpContext context, string Message, string Id, bool IgnoreThis = false)" + Environment.NewLine;
+            CodeBehindViews += "        {" + Environment.NewLine;
+            CodeBehindViews += "            await CodeBehindMiddlewareExtensions.WebSocketsBroadcastAsync(context, Message, \"\", Id, \"\", IgnoreThis);" + Environment.NewLine;
+            CodeBehindViews += "        }" + Environment.NewLine + Environment.NewLine;
+
+            CodeBehindViews += "        public void BroadcastForClientId(HttpContext context, string Message, string ClientId, bool IgnoreThis = false)" + Environment.NewLine;
+            CodeBehindViews += "        {" + Environment.NewLine;
+            CodeBehindViews += "            CodeBehindMiddlewareExtensions.WebSocketsBroadcast(context, Message, \"\", \"\", ClientId, IgnoreThis);" + Environment.NewLine;
+            CodeBehindViews += "        }" + Environment.NewLine + Environment.NewLine;
+
+            CodeBehindViews += "        public async void BroadcastForClientIdAsync(HttpContext context, string Message, string ClientId, bool IgnoreThis = false)" + Environment.NewLine;
+            CodeBehindViews += "        {" + Environment.NewLine;
+            CodeBehindViews += "            await CodeBehindMiddlewareExtensions.WebSocketsBroadcastAsync(context, Message, \"\", \"\", ClientId, IgnoreThis);" + Environment.NewLine;
             CodeBehindViews += "        }" + Environment.NewLine + Environment.NewLine;
 
             CodeBehindViews += "        private void Download(HttpContext context, string FilePath)" + Environment.NewLine;
@@ -542,7 +607,10 @@ namespace SetCodeBehind
                 ReturnValue += "                " + NameSpace + TmpClass.Name + " " + ClassName + " = new " + NameSpace + TmpClass.Name + "();" + Environment.NewLine;
                 ReturnValue += "                " + ClassName + ".FillSection(context, \"/\" + ControllerClass);" + Environment.NewLine;
                 ReturnValue += "                " + ClassName + ".PageLoad(context);" + Environment.NewLine;
-                ReturnValue += "                this.WebFormsValue += " + ClassName + ".WebFormsValue;" + Environment.NewLine;
+                ReturnValue += "                this.WebFormsValue += " + ClassName + ".WebFormsValue;" + Environment.NewLine + Environment.NewLine;
+
+                ReturnValue += "                if (" + ClassName + ".WebSocketId != null)" + Environment.NewLine;
+                ReturnValue += "                    this.WebSocketId = " + ClassName + ".WebSocketId;" + Environment.NewLine;
 
                 ReturnValue += Environment.NewLine;
 
@@ -559,7 +627,7 @@ namespace SetCodeBehind
                     ReturnValue += "                    }" + Environment.NewLine;
                     ReturnValue += "                    else" + Environment.NewLine;
                     ReturnValue += "                    {" + Environment.NewLine;
-                    ReturnValue += "                        string ControllerReturnValue = " + ClassName + ".ResponseText + RunController(context, " + ClassName + ".ViewPath, " + ClassName + ".CodeBehindModel, " + ClassName + ".ViewData, " + ClassName + ".DownloadFilePath, " + ClassName + ".IgnoreLayout, " + ClassName + ".WebFormsValue);" + Environment.NewLine;
+                    ReturnValue += "                        string ControllerReturnValue = " + ClassName + ".ResponseText + RunController(context, " + ClassName + ".ViewPath, " + ClassName + ".CodeBehindModel, " + ClassName + ".ViewData, " + ClassName + ".DownloadFilePath, " + ClassName + ".IgnoreLayout, " + ClassName + ".WebFormsValue, " + ClassName + ".WebSocketId);" + Environment.NewLine;
                     ReturnValue += "                        cache.SetControllerCache(\"" + TmpClass.Name + "\" + cbcc.CacheFilter, ControllerReturnValue, " + ControllerCache.Duration + ");" + Environment.NewLine;
                     ReturnValue += "                        return ControllerReturnValue;" + Environment.NewLine;
                     ReturnValue += "                    }" + Environment.NewLine;
@@ -570,7 +638,7 @@ namespace SetCodeBehind
                 ReturnValue += "                if (" + ClassName + ".IgnoreViewAndModel)" + Environment.NewLine;
                 ReturnValue += "                    TmpViewPath = \"\";" + Environment.NewLine + Environment.NewLine;
 
-                ReturnValue += "                return " + ClassName + ".ResponseText + RunController(context, TmpViewPath, " + ClassName + ".CodeBehindModel, " + ClassName + ".ViewData, " + ClassName + ".DownloadFilePath, " + ClassName + ".IgnoreLayout, " + ClassName + ".WebFormsValue);" + Environment.NewLine + Environment.NewLine;
+                ReturnValue += "                return " + ClassName + ".ResponseText + RunController(context, TmpViewPath, " + ClassName + ".CodeBehindModel, " + ClassName + ".ViewData, " + ClassName + ".DownloadFilePath, " + ClassName + ".IgnoreLayout, " + ClassName + ".WebFormsValue, " + ClassName + ".WebSocketId);" + Environment.NewLine + Environment.NewLine;
             }
 
             ReturnValue += "/*{CaseCodeTemplateValueForControllerName}*/" + Environment.NewLine;
