@@ -31,6 +31,8 @@ namespace CodeBehind
         internal string IgnoreSuffixController { private set; get; }
         internal bool PutTwoUnderlinesEqualToDashForController { private set; get; }
         internal bool SetDefaultPages { private set; get; }
+        internal int MaxWebSocketConnectionsPerClient { private set; get; }
+        internal int WebSocketBufferSize { private set; get; }
 
         internal CodeBehindOptions()
         {
@@ -76,6 +78,8 @@ namespace CodeBehind
                 IgnoreSuffixController = (reader.ReadLine().GetTextAfterValue("=").Trim());
                 PutTwoUnderlinesEqualToDashForController = (reader.ReadLine().GetTextAfterValue("=").Trim() == "true");
                 SetDefaultPages = (reader.ReadLine().GetTextAfterValue("=").Trim() == "true");
+                MaxWebSocketConnectionsPerClient = reader.ReadLine().GetTextAfterValue("=").Trim().ToNumber();
+                WebSocketBufferSize = reader.ReadLine().GetTextAfterValue("=").Trim().ToNumber();
             }
         }
 
@@ -111,7 +115,9 @@ namespace CodeBehind
                 "ignore_prefix_controller=.",
                 "ignore_suffix_controller=.",
                 "put_two_underlines_equal_to_dash_for_controller=false",
-                "set_default_pages=true"
+                "set_default_pages=true",
+                "max_web_socket_connections_per_client=3",
+                "web_socket_buffer_size=4096"
             };
 
             bool HasMoreOption = false;
