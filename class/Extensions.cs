@@ -209,7 +209,7 @@ namespace CodeBehind
             return count;
         }
 
-        /// <param name="MatchingType">start_with, end_with, exist, full_match, regex</param>
+        /// <param name="MatchingType">start, end, exist, full_match, regex</param>
         public static bool HasMatching(this string Text, string MatchingType, string Matching)
         {
             switch (MatchingType)
@@ -228,7 +228,7 @@ namespace CodeBehind
             return false;
         }
 
-        /// <param name="MatchingType">start_with, end_with, exist, full_match, regex</param>
+        /// <param name="MatchingType">start, end, exist, full_match, regex</param>
         public static bool HasMatching(this object Text, string MatchingType, string Matching)
         {
             return HasMatching(Text.ToString(), MatchingType, Matching);
@@ -267,8 +267,8 @@ namespace CodeBehind
 
     public static class MatchingType
     {
-        public const string StartWith = "start_with";
-        public const string EndWith = "end_with";
+        public const string StartWith = "start";
+        public const string EndWith = "end";
         public const string Exist = "exist";
         public const string FullMatch = "full_match";
         public const string Regex = "regex";
