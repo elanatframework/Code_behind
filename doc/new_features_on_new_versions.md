@@ -420,7 +420,7 @@ The first version of CodeBehind is based on .NET Core version 7.0; if the versio
   - Added new middleware to support WebSocket
   - Ability to submit form data via WebSocket protocol
 - New mechanism for efficiently adding and removing events
-- Improving GetBack and PostBack methods in WebFormsJS library
+- Improving `GetBack` and `PostBack` methods in WebFormsJS library
 - And a series of minor changes and improvements
 
 ## Version 4.2
