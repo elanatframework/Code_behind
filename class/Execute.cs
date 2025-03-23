@@ -10,6 +10,7 @@ namespace CodeBehind
         public bool FoundPage { get; private set; } = true;
         public bool FoundController { get; private set; } = true;
         public bool IsAspxExtension { get; private set; } = false;
+        public string? WebSocketId { get; private set; }
 
         private string RunByContext(HttpContext context, string MethodName, string QueryString = "")
         {
@@ -60,6 +61,9 @@ namespace CodeBehind
                 method = type.GetMethod("PageHasFound");
                 FoundPage = (bool)method.Invoke(obj, null);
 
+                method = type.GetMethod("GetWebSocketId");
+                WebSocketId = (string)method.Invoke(obj, null);
+
                 // Set Web-Forms Control
                 method = type.GetMethod("GetWebFormsValue");
                 string WebFormsValue = (string)method.Invoke(obj, null);
@@ -69,14 +73,21 @@ namespace CodeBehind
                     bool HasPostBack = false;
 
                     if (context.Request.Headers.TryGetValue("Post-Back", out var value))
+                    {
                         if (value == "true")
+                        {
                             HasPostBack = true;
+                            context.Response.Headers.Add("Content-Type", "text/plain");
+                        }
+                    }
+                    else if (context.Request.Headers.TryGetValue("Upgrade", out var value2))
+                    {
+                        if (value2 == "websocket")
+                            HasPostBack = true;
+                    }
 
                     if (HasPostBack)
-                    {
                         ReturnResult = SetWebFormsCombinate(ReturnResult, WebFormsValue);
-                        context.Response.Headers.Add("Content-Type", "text/plain");
-                    }
                     else
                         ReturnResult = SetWebFormsCombinateFirstResponse(ReturnResult, WebFormsValue);
                 }
@@ -190,6 +201,9 @@ namespace CodeBehind
                 method = type.GetMethod("PageHasFound");
                 FoundPage = (bool)method.Invoke(obj, null);
 
+                method = type.GetMethod("GetWebSocketId");
+                WebSocketId = (string)method.Invoke(obj, null);
+
                 return ReturnResult;
             }
 
@@ -234,7 +248,7 @@ namespace CodeBehind
             return Run(context, path);
         }
 
-        internal string RunControllerValue(HttpContext context, string ViewPath, object CodeBehindModel, NameValueCollection ViewData, string DownloadFilePath, bool? IgnoreLayout, string WebFormsValue)
+        internal string RunControllerValue(HttpContext context, string ViewPath, object CodeBehindModel, NameValueCollection ViewData, string DownloadFilePath, bool? IgnoreLayout, string WebFormsValue, string? WebSocketId)
         {
             if (string.IsNullOrEmpty(ViewPath) && string.IsNullOrEmpty(DownloadFilePath))
             {
@@ -258,11 +272,14 @@ namespace CodeBehind
             Type type = CodeBehindCompiler.CompileAspxAndReturnType();
             object obj = Activator.CreateInstance(type);
             MethodInfo method = type.GetMethod("RunController");
-            object[] Arguments = new object[] { context, ViewPath, CodeBehindModel, ViewData, DownloadFilePath, IgnoreLayout, WebFormsValue };
+            object[] Arguments = new object[] { context, ViewPath, CodeBehindModel, ViewData, DownloadFilePath, IgnoreLayout, WebFormsValue, WebSocketId };
             string ReturnResult = (string)method.Invoke(obj, Arguments);
 
             method = type.GetMethod("PageHasFound");
             FoundPage = (bool)method.Invoke(obj, null);
+
+            method = type.GetMethod("GetWebSocketId");
+            WebSocketId = (string)method.Invoke(obj, null);
 
             // Set Web-Forms Control
             method = type.GetMethod("GetWebFormsValue");
@@ -273,8 +290,18 @@ namespace CodeBehind
                 bool HasPostBack = false;
 
                 if (context.Request.Headers.TryGetValue("Post-Back", out var value))
+                {
                     if (value == "true")
+                    {
                         HasPostBack = true;
+                        context.Response.Headers.Add("Content-Type", "text/plain");
+                    }
+                }
+                else if (context.Request.Headers.TryGetValue("Upgrade", out var value2))
+                {
+                    if (value2 == "websocket")
+                        HasPostBack = true;
+                }
 
                 if (HasPostBack)
                 {
@@ -326,6 +353,9 @@ namespace CodeBehind
             method = type.GetMethod("ControllerHasFound");
             FoundController = (bool)method.Invoke(obj, null);
 
+            method = type.GetMethod("GetWebSocketId");
+            WebSocketId = (string)method.Invoke(obj, null);
+
             // Set Web-Forms Control
             method = type.GetMethod("GetWebFormsValue");
             string TmpWebFormsValue = (string)method.Invoke(obj, null);
@@ -335,7 +365,13 @@ namespace CodeBehind
                 bool HasPostBack = false;
 
                 if (context.Request.Headers.TryGetValue("Post-Back", out var value))
-                    HasPostBack = (value == "true");
+                    if (value == "true")
+                    {
+                        HasPostBack = true;
+                        context.Response.Headers.Add("Content-Type", "text/plain");
+                    }
+                    else if (context.Request.Headers.TryGetValue("Upgrade", out var value2))
+                        HasPostBack = (value2 == "websocket");
 
                 if (HasPostBack)
                 {
