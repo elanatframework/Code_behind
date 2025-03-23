@@ -235,7 +235,7 @@ namespace SetCodeBehind
 
             var file = File.CreateText(FilePath);
 
-            file.Write(@"/* WebFormsJS 1.6 - Providing Infrastructure For Web Controls In CodeBehind Framework Owned By Elanat (elanat.net) */
+            file.Write(@"/* WebFormsJS 1.7 - Providing Infrastructure For Web Controls In CodeBehind Framework Owned By Elanat (elanat.net) */
 
 /* Start Options */
 
@@ -250,6 +250,7 @@ PostBackOptions.SetResponseInsideDivTag = true;
 PostBackOptions.ProgressBarStyle = ""width:100%;min-width:300px;max-width:600px;background-color:#eee;margin:2px 0px"";
 PostBackOptions.ProgressBarPercentLoadedStyle = ""position:absolute;padding:0px 4px;line-height:22px"";
 PostBackOptions.ProgressBarValueStyle = ""height:20px;background-color:#4D93DD;width:0%"";
+PostBackOptions.AddLogForWebSockets = true;
 
 function cb_GetResponseLocation()
 {
@@ -257,6 +258,85 @@ function cb_GetResponseLocation()
 }
 
 /* End Options */
+
+/* Start WebSocket */
+
+var cb_UseWebSocketPath = [];
+var cb_UseWebSocket = false;
+var cb_WebSockets = {};
+
+function cb_AddWebSocketPath(path)
+{
+    if (cb_UseWebSocketPath.indexOf(path) === -1)
+        cb_UseWebSocketPath.push(path);
+}
+
+function cb_WebSocketInitialization(Url, formAction)
+{
+    var ws = new WebSocket(Url);
+
+    ws.onclose = function (evt) { cb_WebSocketOnClose(evt, formAction); };
+    ws.onerror = function (evt) { cb_WebSocketOnError(evt, formAction); };
+
+    cb_WebSockets[formAction] = ws;
+}
+
+function cb_WebSocketOnOpen(evt, formAction)
+{
+    if (PostBackOptions.AddLogForWebSockets)
+        console.log(""WebSocket connected, FormAction: "" + formAction);
+}
+
+function cb_WebSocketOnClose(evt, formAction)
+{
+    if (PostBackOptions.AddLogForWebSockets)
+        console.log(""WebSocket disconnected, FormAction: "" + formAction);
+
+    delete cb_WebSockets[formAction];
+}
+
+function cb_WebSocketOnError(evt, formAction)
+{
+    if (PostBackOptions.AddLogForWebSockets)
+        console.log(""WebSocket error, FormAction: "" + formAction + ""\n"" + evt.data);
+}
+
+function cb_WebSocketDoSend(Message)
+{
+    if (PostBackOptions.AddLogForWebSockets)
+        console.log(""WebSocket sent:\n"" + Message);
+
+    for (var formAction in cb_WebSockets)
+        if (cb_WebSockets[formAction].readyState === WebSocket.OPEN)
+            cb_WebSockets[formAction].send(Message);
+}
+
+function cb_WebSocketSet(formAction)
+{
+    Url = cb_ConvertToWebSocketUrl(formAction)
+
+    if (PostBackOptions.AddLogForWebSockets)
+        console.log(""WebSocket request FormAction: "" + formAction);
+
+    var active = false;
+    if (cb_WebSockets[formAction] && (cb_WebSockets[formAction].readyState === WebSocket.OPEN || cb_WebSockets[formAction].readyState === WebSocket.CONNECTING))
+        active = true;
+
+    if (!active)
+    {
+        if (PostBackOptions.AddLogForWebSockets)
+            console.log(""No active WebSocket for this FormAction, initializing new one..."");
+
+        cb_WebSocketInitialization(Url, formAction);
+    }
+    else
+    {
+        if (PostBackOptions.AddLogForWebSockets)
+            console.log(""WebSocket already connected or connecting for this FormAction"");
+    }
+}
+
+/* End WebSocket */
 
 /* Start Event */
 
@@ -306,6 +386,78 @@ function cb_Initialization(obj)
     {
         cb_SetPostBackFunctionToSubmit();
         cb_SetWebFormsTagsValue();
+    }
+}
+
+function cb_AddEvent(obj, event, functionWithArgs)
+{
+    if (obj.hasAttribute(event))
+        if (obj.getAttribute(event))
+        {
+            currentAttribute = obj.getAttribute(event);
+
+            obj.setAttribute(event, currentAttribute + "";"" + functionWithArgs);
+            return;
+        }
+
+    obj.setAttribute(event, functionWithArgs);
+}
+
+function cb_RemoveEvent(obj, event, functionName)
+{
+    var currentEvent = obj.getAttribute(event);
+
+    if (currentEvent)
+    {
+        var regex = new RegExp(functionName + '\\(.*?\\);?', 'g');
+
+        var updatedEvent = currentEvent.replace(regex, '');
+
+        obj.setAttribute(event, updatedEvent.trim());
+    }
+}
+
+var cb_EventRegistry = {};
+
+function cb_AddEventListener(obj, event, functionName, args = [])
+{
+    var callback = function ()
+    {
+        functionName.apply(this, args);
+    };
+
+    obj.addEventListener(event, callback);
+
+    var objId = obj.id || obj;
+
+    if (!cb_EventRegistry[objId])
+        cb_EventRegistry[objId] = {};
+
+    if (!cb_EventRegistry[objId][event])
+        cb_EventRegistry[objId][event] = [];
+
+    cb_EventRegistry[objId][event].push({ callback, functionName });
+}
+
+function cb_RemoveEventListener(obj, event, functionName)
+{
+    var objId = obj.id || obj;
+    var listeners = cb_EventRegistry[objId]?.[event];
+    if (listeners)
+    {
+        const listener = listeners.find((entry) => entry.functionName === functionName);
+        if (listener)
+        {
+            obj.removeEventListener(event, listener.callback);
+
+            cb_EventRegistry[objId][event] = listeners.filter((entry) => entry !== listener);
+
+            if (cb_EventRegistry[objId][event].length === 0)
+                delete cb_EventRegistry[objId][event];
+
+            if (Object.keys(cb_EventRegistry[objId]).length === 0)
+                delete cb_EventRegistry[objId];
+        }
     }
 }
 
@@ -381,64 +533,59 @@ function PostBack(obj, ViewState)
         return;
     }
 
+    // Using WebSocket Protocol
+    if (window.WebSocket && (cb_UseWebSocket || Form.hasAttribute(""usewebsocket"") || (cb_UseWebSocketPath.indexOf(FormAction) >= 0)))
+    {
+        if (cb_UseWebSocket == '@')
+            cb_UseWebSocket = false;
 
+        cb_WebSocketSet(FormAction);
+
+        if (cb_WebSockets[FormAction])
+        {
+            var formDataSerialize = cb_FormDataSerialize(Form, obj.getAttribute(""name""), TagSubmitValue, OldObjectType, false);
+
+            if (cb_WebSockets[FormAction].readyState === WebSocket.OPEN)
+                cb_WebSocketDoSend(formDataSerialize);
+            else
+            {
+                cb_WebSockets[FormAction].onopen = function ()
+                {
+                    cb_WebSocketDoSend(formDataSerialize);
+                };
+            }
+
+            cb_WebSockets[FormAction].onmessage = function (event)
+            {
+                var WebSocketResult = event.data;
+                cb_SetResponse(WebSocketResult, ViewState, RequestName);
+
+                Form.focus();
+
+                // Reset Input Type
+                setTimeout(function () { (OldObjectType == ""submit"") ? obj.type = ""submit"" : obj.type; }, 1);
+
+                if (PostBackOptions.AddLogForWebSockets)
+                    console.log(""WebSocket server response:\n"" + event.data);
+            };
+        }
+
+        // Reset Input Type
+        setTimeout(function () { (OldObjectType == ""submit"") ? obj.type = ""submit"" : obj.type; }, 1);
+
+        return;
+    }
+
+    // Using Http Protocol
     var XMLHttp = new XMLHttpRequest();
     XMLHttp.onreadystatechange = function ()
     {
         if (XMLHttp.readyState == 4 && XMLHttp.status == 200)
         {
             var HttpResult = XMLHttp.responseText;
-            var IsWebForms = false;
+            cb_SetResponse(HttpResult, ViewState, RequestName);
 
-            // Check Exist WebForms Values
-            if (HttpResult.TrimStart().length >= 11)
-                if (HttpResult.TrimStart().substring(0, 11) == ""[web-forms]"")
-                {
-                    HttpResult = HttpResult.TrimStart();
-                    IsWebForms = true;
-                }
-
-            if (IsWebForms)
-                cb_SetWebFormsValues(RequestName, HttpResult, true);
-            else
-            {
-                var TmpDiv = document.createElement(""div"");
-                TmpDiv.innerHTML = HttpResult.toDOM();
-                cb_AppendJavaScriptTag(HttpResult);
-
-                if (ViewState)
-                {
-                    if (typeof ViewState === ""string"")
-                    {
-                        var ViewStateObject = cb_GetElementByElementPlace(ViewState);
-                        ViewStateObject.innerHTML = TmpDiv.outerHTML;
-                        cb_Initialization(ViewStateObject.getElementsByTagName(""div"")[0]);
-                        if (!PostBackOptions.SetResponseInsideDivTag)
-                            ViewStateObject.getElementsByTagName(""div"")[0].outerHTML = ViewStateObject.getElementsByTagName(""div"")[0].innerHTML;
-                    }
-                    else if (typeof ViewState === ""object"")
-                    {
-                        ViewState.innerHTML = TmpDiv.outerHTML;
-                        cb_Initialization(ViewState.getElementsByTagName(""div"")[0]);
-                        if (!PostBackOptions.SetResponseInsideDivTag)
-                            ViewState.getElementsByTagName(""div"")[0].outerHTML = ViewState.getElementsByTagName(""div"")[0].innerHTML;
-                    }
-                    else
-                    {
-                        cb_GetResponseLocation().prepend(TmpDiv);
-                        cb_Initialization(cb_GetResponseLocation().getElementsByTagName(""div"")[0]);
-                        if (!PostBackOptions.SetResponseInsideDivTag)
-                            cb_GetResponseLocation().getElementsByTagName(""div"")[0].outerHTML = cb_GetResponseLocation().getElementsByTagName(""div"")[0].innerHTML;
-                    }
-                }
-                else
-                {
-                    cb_GetResponseLocation().innerHTML = (PostBackOptions.SetResponseInsideDivTag) ? TmpDiv.outerHTML : TmpDiv.innerHTML;
-                    cb_Initialization(cb_GetResponseLocation());
-                }
-
-                Form.focus();
-            }
+            Form.focus();
 
             // Reset Input Type
             setTimeout(function () { (OldObjectType == ""submit"") ? obj.type = ""submit"" : obj.type; }, 1);
@@ -465,6 +612,13 @@ function PostBack(obj, ViewState)
         setTimeout(function () { (OldObjectType == ""submit"") ? obj.type = ""submit"" : obj.type; }, 1);
     }
 
+    var formDataSerialize = cb_FormDataSerialize(Form, obj.getAttribute(""name""), TagSubmitValue, OldObjectType, FormIsMultiPart);
+    if (FormMethod.toLowerCase() != ""post"")
+    {
+        FormAction = cb_AddQueryToUrl(FormAction, formDataSerialize);
+        formDataSerialize = """";
+    }
+        
     XMLHttp.open(FormMethod, FormAction, true);
 
     if (PostBackOptions.UseProgressBar && cb_HasFileInput(Form))
@@ -475,7 +629,7 @@ function PostBack(obj, ViewState)
 
     XMLHttp.setRequestHeader(""Post-Back"", ""true"");
 
-    XMLHttp.send(cb_FormDataSerialize(Form, obj.getAttribute(""name""), TagSubmitValue, OldObjectType, FormIsMultiPart));
+    formDataSerialize ? XMLHttp.send(formDataSerialize) : XMLHttp.send();
 }
 
 /* End Post-Back */
@@ -486,12 +640,15 @@ function GetBack(FormAction, ViewState)
 {
     var FormMethod = (PostBackOptions.SendDataOnlyByPostMethod) ? ""POST"" : ""GET"";
 
+    // Set Form Value
+    var Form = FormAction;
+
+    var OldFormAction = FormAction;
+
     if (FormAction)
     {
         if (typeof FormAction === ""object"")
         {
-            // Set Form Value
-            var Form = FormAction;
             do
             {
                 if (!Form.parentNode)
@@ -512,6 +669,23 @@ function GetBack(FormAction, ViewState)
     else
         FormAction = """";
 
+    // Set Input Value
+    var TagSubmitValue = null;
+    if (typeof OldFormAction === ""object"")
+        switch (OldFormAction.nodeName.toLowerCase())
+        {
+            case ""input"": TagSubmitValue = (OldFormAction.getAttribute(""value"")) ? OldFormAction.getAttribute(""value"") : """"; break;
+            case ""select"": TagSubmitValue = (OldFormAction.options[OldFormAction.selectedIndex].value) ? OldFormAction.options[OldFormAction.selectedIndex].value : """";
+        }
+
+    var OldObjectType;
+    if (typeof OldFormAction === ""object"")
+        if (OldFormAction.getAttribute(""type""))
+            if (OldFormAction.getAttribute(""type"") == ""submit"")
+            {
+                OldObjectType = OldFormAction.type;
+                OldFormAction.setAttribute(""type"", ""button"");
+            }
 
     // Create Request Name
     var RequestNameForCache = ""<"";
@@ -529,61 +703,71 @@ function GetBack(FormAction, ViewState)
     if (cb_UsedCache(RequestName, RequestNameForCache))
         return;
 
+    var formHasWebSocketAttribute = false;
+    if (typeof OldFormAction === ""object"")
+        if (Form.hasAttribute(""usewebsocket""))
+            formHasWebSocketAttribute = true;
 
+    // Using WebSocket Protocol
+    if (window.WebSocket && (cb_UseWebSocket || formHasWebSocketAttribute || (cb_UseWebSocketPath.indexOf(FormAction) >= 0)))
+    {
+        if (cb_UseWebSocket == '@')
+            cb_UseWebSocket = false;
+
+        cb_WebSocketSet(FormAction);
+
+        if (cb_WebSockets[FormAction])
+        {
+            var formDataSerialize = cb_FormDataSerialize(Form, OldFormAction.getAttribute(""name""), TagSubmitValue, OldObjectType, false);
+
+            if (cb_WebSockets[FormAction].readyState === WebSocket.OPEN)
+                cb_WebSocketDoSend(formDataSerialize);
+            else
+            {
+                cb_WebSockets[FormAction].onopen = function ()
+                {
+                    cb_WebSocketDoSend(formDataSerialize);
+                };
+            }
+
+            cb_WebSockets[FormAction].onmessage = function (event)
+            {
+                var WebSocketResult = event.data;
+                cb_SetResponse(WebSocketResult, ViewState, RequestName);
+
+                if (typeof OldFormAction === ""object"")
+                {
+                    // Reset Input Type
+                    setTimeout(function () { (OldObjectType == ""submit"") ? OldFormAction.type = ""submit"" : OldFormAction.type; }, 1);
+                }
+
+                if (PostBackOptions.AddLogForWebSockets)
+                    console.log(""WebSocket server response:\n"" + event.data);
+            };
+        }
+
+        if (typeof OldFormAction === ""object"")
+        {
+            // Reset Input Type
+            setTimeout(function () { (OldObjectType == ""submit"") ? OldFormAction.type = ""submit"" : OldFormAction.type; }, 1);
+        }
+
+        return;
+    }
+
+    // Using Http Protocol
     var XMLHttp = new XMLHttpRequest();
     XMLHttp.onreadystatechange = function ()
     {
         if (XMLHttp.readyState == 4 && XMLHttp.status == 200)
         {
             var HttpResult = XMLHttp.responseText;
-            var IsWebForms = false;
+            cb_SetResponse(HttpResult, ViewState, RequestName);
 
-            // Check Exist WebForms Values
-            if (HttpResult.TrimStart().length >= 11)
-                if (HttpResult.TrimStart().substring(0, 11) == ""[web-forms]"")
-                {
-                    HttpResult = HttpResult.TrimStart();
-                    IsWebForms = true;
-                }
-
-            if (IsWebForms)
-                cb_SetWebFormsValues(RequestName, HttpResult, true);
-            else
+            if (typeof OldFormAction === ""object"")
             {
-                var TmpDiv = document.createElement(""div"");
-                TmpDiv.innerHTML = HttpResult.toDOM();
-                cb_AppendJavaScriptTag(HttpResult);
-
-                if (ViewState)
-                {
-                    if (typeof ViewState === ""string"")
-                    {
-                        var ViewStateObject = cb_GetElementByElementPlace(ViewState);
-                        ViewStateObject.innerHTML = TmpDiv.outerHTML;
-                        cb_Initialization(ViewStateObject.getElementsByTagName(""div"")[0]);
-                        if (!PostBackOptions.SetResponseInsideDivTag)
-                            ViewStateObject.getElementsByTagName(""div"")[0].outerHTML = ViewStateObject.getElementsByTagName(""div"")[0].innerHTML;
-                    }
-                    else if (typeof ViewState === ""object"")
-                    {
-                        ViewState.innerHTML = TmpDiv.outerHTML;
-                        cb_Initialization(ViewState.getElementsByTagName(""div"")[0]);
-                        if (!PostBackOptions.SetResponseInsideDivTag)
-                            ViewState.getElementsByTagName(""div"")[0].outerHTML = ViewState.getElementsByTagName(""div"")[0].innerHTML;
-                    }
-                    else
-                    {
-                        cb_GetResponseLocation().prepend(TmpDiv);
-                        cb_Initialization(cb_GetResponseLocation().getElementsByTagName(""div"")[0]);
-                        if (!PostBackOptions.SetResponseInsideDivTag)
-                            cb_GetResponseLocation().getElementsByTagName(""div"")[0].outerHTML = cb_GetResponseLocation().getElementsByTagName(""div"")[0].innerHTML;
-                    }
-                }
-                else
-                {
-                    cb_GetResponseLocation().innerHTML = (PostBackOptions.SetResponseInsideDivTag) ? TmpDiv.outerHTML : TmpDiv.innerHTML;
-                    cb_Initialization(cb_GetResponseLocation());
-                }
+                // Reset Input Type
+                setTimeout(function () { (OldObjectType == ""submit"") ? OldFormAction.type = ""submit"" : OldFormAction.type; }, 1);
             }
         }
     }
@@ -599,6 +783,12 @@ function GetBack(FormAction, ViewState)
                 document.body.prepend(BErrorTag);
             }
         }
+
+        if (typeof OldFormAction === ""object"")
+        {
+            // Reset Input Type
+            setTimeout(function () { (OldObjectType == ""submit"") ? OldFormAction.type = ""submit"" : OldFormAction.type; }, 1);
+        }
     }
 
     XMLHttp.open(FormMethod, FormAction, true);
@@ -612,6 +802,63 @@ function GetBack(FormAction, ViewState)
 
 /* End Get-Back */
 
+/* Start Set Response Value */
+
+function cb_SetResponse(ResponseResult, ViewState, RequestName)
+{
+	var IsWebForms = false;
+
+	// Check Exist WebForms Values
+    if (ResponseResult.TrimStart().length >= 11)
+        if (ResponseResult.TrimStart().substring(0, 11) == ""[web-forms]"")
+		{
+            ResponseResult = ResponseResult.TrimStart();
+			IsWebForms = true;
+		}
+
+	if (IsWebForms)
+        cb_SetWebFormsValues(RequestName, ResponseResult, true);
+	else
+	{
+		var TmpDiv = document.createElement(""div"");
+        TmpDiv.innerHTML = ResponseResult.toDOM();
+        cb_AppendJavaScriptTag(ResponseResult);
+
+		if (ViewState)
+		{
+			if (typeof ViewState === ""string"")
+			{
+				var ViewStateObject = cb_GetElementByElementPlace(ViewState);
+				ViewStateObject.innerHTML = TmpDiv.outerHTML;
+				cb_Initialization(ViewStateObject.getElementsByTagName(""div"")[0]);
+				if (!PostBackOptions.SetResponseInsideDivTag)
+					ViewStateObject.getElementsByTagName(""div"")[0].outerHTML = ViewStateObject.getElementsByTagName(""div"")[0].innerHTML;
+			}
+			else if (typeof ViewState === ""object"")
+			{
+				ViewState.innerHTML = TmpDiv.outerHTML;
+				cb_Initialization(ViewState.getElementsByTagName(""div"")[0]);
+				if (!PostBackOptions.SetResponseInsideDivTag)
+					ViewState.getElementsByTagName(""div"")[0].outerHTML = ViewState.getElementsByTagName(""div"")[0].innerHTML;
+			}
+			else
+			{
+				cb_GetResponseLocation().prepend(TmpDiv);
+				cb_Initialization(cb_GetResponseLocation().getElementsByTagName(""div"")[0]);
+				if (!PostBackOptions.SetResponseInsideDivTag)
+					cb_GetResponseLocation().getElementsByTagName(""div"")[0].outerHTML = cb_GetResponseLocation().getElementsByTagName(""div"")[0].innerHTML;
+			}
+		}
+		else
+		{
+			cb_GetResponseLocation().innerHTML = (PostBackOptions.SetResponseInsideDivTag) ? TmpDiv.outerHTML : TmpDiv.innerHTML;
+			cb_Initialization(cb_GetResponseLocation());
+		}
+	}
+}
+
+/* End Set Response Value */
+
 /* Start Tag-Back */
 
 function TagBack(OutputPlace)
@@ -622,6 +869,18 @@ function TagBack(OutputPlace)
 }
 
 /* End Tag-Back */
+
+/* Start WebSocket-Back */
+
+function WebSocketBack(Path)
+{
+    cb_AddWebSocketPath(Path);
+    GetBack(Path);
+}
+
+/* End WebSocket-Back */
+
+/* Start Form Data Serialize */
 
 function cb_FormDataSerialize(form, TagSubmitName, TagSubmitValue, TagSubmitType, FormIsMultiPart)
 {   
@@ -758,6 +1017,8 @@ function cb_FormDataSerialize(form, TagSubmitName, TagSubmitValue, TagSubmitType
 
     return (FormIsMultiPart) ? TmpFormData : FormString;
 }
+
+/* End Form Data Serialize */
 
 /* Start Append Java Script */
 
@@ -1021,6 +1282,25 @@ function cb_SetWebFormsValues(RequestName, WebFormsValues, UsePostBack, WithoutW
                         continue;
                     case 'u':
                         window.history.replaceState({}, null, WebFormsList[i].GetTextAfter(""=""));
+                        continue;
+                }
+
+            case 'e':
+                switch (SecondChar)
+                {
+                    case 'w':
+                        if (WebFormsList[i].GetTextAfter(""="") == ""@"")
+                            cb_UseWebSocket = ""@"";
+                        else
+                            cb_UseWebSocket = (WebFormsList[i].GetTextAfter(""="") == ""1"");
+                        continue;
+                }
+
+            case 'u':
+                switch (SecondChar)
+                {
+                    case 'w':
+                        cb_AddWebSocketPath(WebFormsList[i].GetTextAfter(""=""));
                         continue;
                 }
         }
@@ -1593,12 +1873,12 @@ function cb_SetValueToInput(ActionOperation, ActionFeature, ActionValue)
                             var HtmlEvent = Value.GetTextBefore(""|"");
                             
                             if (Value.GetTextAfter(""|"") == '+')
-                                CurrentElement.setAttribute(HtmlEvent, ""PostBack(this, true)"");
+                                cb_AddEvent(CurrentElement, HtmlEvent, ""PostBack(this, true)"");
                             else
-                                CurrentElement.setAttribute(HtmlEvent, ""PostBack(this, '"" + Value.GetTextAfter(""|"") + ""')"");
+                                cb_AddEvent(CurrentElement, HtmlEvent, ""PostBack(this, '"" + Value.GetTextAfter(""|"") + ""')"");
                         }
                         else
-                            CurrentElement.setAttribute(Value, ""PostBack(this)"");
+                            cb_AddEvent(CurrentElement, Value, ""PostBack(this)"");
                         break;
                     case ""P"":
                         if (Value.Contains(""|""))
@@ -1606,13 +1886,13 @@ function cb_SetValueToInput(ActionOperation, ActionFeature, ActionValue)
                             var HtmlEvent = Value.GetTextBefore(""|"");
                             
                             if (Value.GetTextAfter(""|"") == '+')
-                                CurrentElement.addEventListener(HtmlEvent, () => { PostBack(this, true); });
+                                cb_AddEventListener(CurrentElement, HtmlEvent, PostBack, [this, true]);
                             else
-                                CurrentElement.addEventListener(HtmlEvent, () => { PostBack(this, Value.GetTextAfter(""|"")); });
+                                cb_AddEventListener(CurrentElement, HtmlEvent, PostBack, [this, Value.GetTextAfter(""|"")]);
                             break;
                         }
                         else
-                            CurrentElement.addEventListener(Value, () => { PostBack(this); });
+                            cb_AddEventListener(CurrentElement, Value, PostBack, [this]);
                         break;
                     case ""g"":
                         if (Value.Contains(""|""))
@@ -1623,20 +1903,20 @@ function cb_SetValueToInput(ActionOperation, ActionFeature, ActionValue)
                             if (Path.Contains(""|""))
                             {
                                 if (Path.GetTextBefore(""|"") == '#')
-                                    CurrentElement.setAttribute(HtmlEvent, ""GetBack('', '"" + Path.GetTextAfter(""|"") + ""')"");
+                                    cb_AddEvent(CurrentElement, HtmlEvent, ""GetBack('', '"" + Path.GetTextAfter(""|"") + ""')"");
                                 else
-                                    CurrentElement.setAttribute(HtmlEvent, ""GetBack('"" + Path.GetTextBefore(""|"") + ""', '"" + Path.GetTextAfter(""|"") + ""')"");
+                                    cb_AddEvent(CurrentElement, HtmlEvent, ""GetBack('"" + Path.GetTextBefore(""|"") + ""', '"" + Path.GetTextAfter(""|"") + ""')"");
                             }
                             else
                             {
                                 if (Path == '#')
-                                    CurrentElement.setAttribute(HtmlEvent, ""GetBack()"");
+                                    cb_AddEvent(CurrentElement, HtmlEvent, ""GetBack()"");
                                 else
-                                    CurrentElement.setAttribute(HtmlEvent, ""GetBack('"" + Path + ""')"");
+                                    cb_AddEvent(CurrentElement, HtmlEvent, ""GetBack('"" + Path + ""')"");
                             }
                         }
                         else
-                            CurrentElement.setAttribute(Value, ""GetBack(this)"");
+                            cb_AddEvent(CurrentElement, Value, ""GetBack(this)"");
                         break;
                     case ""G"":
                         if (Value.Contains(""|""))
@@ -1647,47 +1927,39 @@ function cb_SetValueToInput(ActionOperation, ActionFeature, ActionValue)
                             if (Path.Contains(""|""))
                             {
                                 if (Path.GetTextBefore(""|"") == '#')
-                                    CurrentElement.addEventListener(HtmlEvent, () => { GetBack("""", Path.GetTextAfter(""|"")); });
+                                    cb_AddEventListener(CurrentElement, HtmlEvent, GetBack, ["""", Path.GetTextAfter(""|"")]);
                                 else
-                                    CurrentElement.addEventListener(HtmlEvent, () => { GetBack(Path.GetTextBefore(""|""), Path.GetTextAfter(""|"")); });
+                                    cb_AddEventListener(CurrentElement, HtmlEvent, GetBack, [Path.GetTextBefore(""|""), Path.GetTextAfter(""|"")]);
                             }
                             else
                             {
                                 if (Path == '#')
-                                    CurrentElement.addEventListener(HtmlEvent, GetBack);
+                                    cb_AddEventListener(CurrentElement, HtmlEvent, GetBack);
                                 else
-                                    CurrentElement.addEventListener(HtmlEvent, () => { GetBack(Path); });
+                                    cb_AddEventListener(CurrentElement, HtmlEvent, GetBack, [Path]);
                             }
                         }
                         else
-                            CurrentElement.addEventListener(Value, () => { GetBack(this); });
+                            cb_AddEventListener(CurrentElement, Value, GetBack, [this]);
                         break;
-                    case ""t"":                           
-                        CurrentElement.setAttribute(Value.GetTextBefore(""|""), ""TagBack('"" + Value.GetTextAfter(""|"") + ""')"");
-                        break;
-                    case ""T"":                           
-                        CurrentElement.addEventListener(Value.GetTextBefore(""|""), () => { TagBack(Value.GetTextAfter(""|"")); });
-                        break;
+                    case ""t"": cb_AddEvent(CurrentElement, Value.GetTextBefore(""|""), ""TagBack('"" + Value.GetTextAfter(""|"") + ""')""); break;
+                    case ""T"": cb_AddEventListener(CurrentElement, Value.GetTextBefore(""|""), TagBack, [Value.GetTextAfter(""|"")]); break;
+                    case ""w"": cb_AddEvent(CurrentElement, Value.GetTextBefore(""|""), ""WebSocketBack('"" + Value.GetTextAfter(""|"") + ""')""); break;
+                    case ""W"": cb_AddEventListener(CurrentElement, Value.GetTextBefore(""|""), WebSocketBack, [Value.GetTextAfter(""|"")]); break;
                 }
                 break;
 
             case 'R':
                 switch (ActionFeature)
                 {
-                    case ""p"":
-                    case ""g"":
-                    case ""t"":
-                        CurrentElement.removeAttribute(Value);
-                        break;
-                    case ""P"":
-                        CurrentElement.removeEventListener(Value, () => { PostBack(this); });
-                        break;
-                    case ""G"":
-                        CurrentElement.removeEventListener(Value, () => { GetBack(this); });
-                        break;
-                    case ""T"":
-                        CurrentElement.removeEventListener(Value, () => { TagBack(this); });
-                        break;
+                    case ""p"": cb_RemoveEvent(CurrentElement, Value, ""PostBack""); break;
+                    case ""g"": cb_RemoveEvent(CurrentElement, Value, ""GetBack""); break;
+                    case ""t"": cb_RemoveEvent(CurrentElement, Value, ""TagBack""); break;
+                    case ""w"": cb_RemoveEvent(CurrentElement, Value, ""WebSocketBack""); break;
+                    case ""P"": cb_RemoveEventListener(CurrentElement, Value, PostBack); break;
+                    case ""G"": cb_RemoveEventListener(CurrentElement, Value, GetBack); break;
+                    case ""T"": cb_RemoveEventListener(CurrentElement, Value, TagBack); break;
+                    case ""W"": cb_RemoveEventListener(CurrentElement, Value, WebSocketBack); break;
                 }
                 break;
         }
@@ -2071,6 +2343,43 @@ function cb_GetCookie(Key)
     }
 
     return """";
+}
+
+function cb_ConvertToWebSocketUrl(url)
+{
+    const currentUrl = window.location.href;
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const host = window.location.host;
+
+    if (url.startsWith('?'))
+        return `${protocol}//${host}${currentUrl.split(host)[1]}${url}`;
+
+    if (url.startsWith('http://') || url.startsWith('https://'))
+        return url.replace(/^http/, 'ws');
+
+    if (url.startsWith('ws://') || url.startsWith('wss://'))
+        return url;
+
+    if (!url.includes('://'))
+    {
+        const currentPath = currentUrl.split(host)[1];
+        const basePath = currentPath.endsWith('/') ? currentPath : currentPath.substring(0, currentPath.lastIndexOf('/') + 1);
+
+        const sanitizedUrl = url.startsWith('/') ? url.substring(1) : url;
+        return `${protocol}//${host}${basePath}${sanitizedUrl}`;
+    }
+
+    return url;
+}
+
+function cb_AddQueryToUrl(formAction, formDataSerialize)
+{
+    var url = formAction;
+    var separator = url.includes('?') ? '&' : '?';
+    if (formDataSerialize)
+        url += separator + formDataSerialize;
+
+    return url;
 }
 
 /* End Other Methods */
