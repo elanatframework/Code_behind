@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Http;
+
 namespace CodeBehind
 {
     public abstract class CodeBehindModel
@@ -6,6 +8,7 @@ namespace CodeBehind
         public string WebFormsValue = "";
         public bool IgnoreView = false;
         public bool? IgnoreLayout = null;
+        public string? WebSocketId = null;
         public HtmlData.NameValueCollection ViewData = new HtmlData.NameValueCollection();
         public ValueCollectionLock Section = new ValueCollectionLock();
         public string DownloadFilePath { get; private set; } = "";
@@ -66,6 +69,62 @@ namespace CodeBehind
         public void Download(string FilePath)
         {
             DownloadFilePath = FilePath;
+        }
+
+        public void SetWebSocketId(string Id)
+        {
+            WebSocketId = Id;
+        }
+
+        // WebSockets Broadcast
+        public void Broadcast(HttpContext context, string Message, bool IgnoreThis = false)
+        {
+            CodeBehindMiddlewareExtensions.WebSocketsBroadcast(context, Message, "", "", "", IgnoreThis);
+        }
+
+        public async void BroadcastAsync(HttpContext context, string Message, bool IgnoreThis = false)
+        {
+            await CodeBehindMiddlewareExtensions.WebSocketsBroadcastAsync(context, Message, "", "", "", IgnoreThis);
+        }
+
+        public void Broadcast(HttpContext context, string Message, string RoleName, string Id, string ClientId, bool IgnoreThis = false)
+        {
+            CodeBehindMiddlewareExtensions.WebSocketsBroadcast(context, Message, RoleName, Id, ClientId, IgnoreThis);
+        }
+
+        public async void BroadcastAsync(HttpContext context, string Message, string RoleName, string Id, string ClientId, bool IgnoreThis = false)
+        {
+            await CodeBehindMiddlewareExtensions.WebSocketsBroadcastAsync(context, Message, RoleName, Id, ClientId, IgnoreThis);
+        }
+
+        public void BroadcastForRole(HttpContext context, string Message, string RoleName, bool IgnoreThis = false)
+        {
+            CodeBehindMiddlewareExtensions.WebSocketsBroadcast(context, Message, RoleName, "", "", IgnoreThis);
+        }
+
+        public async void BroadcastForRoleAsync(HttpContext context, string Message, string RoleName, bool IgnoreThis = false)
+        {
+            await CodeBehindMiddlewareExtensions.WebSocketsBroadcastAsync(context, Message, RoleName, "", "", IgnoreThis);
+        }
+
+        public void BroadcastForWebSocketId(HttpContext context, string Message, string Id, bool IgnoreThis = false)
+        {
+            CodeBehindMiddlewareExtensions.WebSocketsBroadcast(context, Message, "", Id, "", IgnoreThis);
+        }
+
+        public async void BroadcastForWebSocketIdAsync(HttpContext context, string Message, string Id, bool IgnoreThis = false)
+        {
+            await CodeBehindMiddlewareExtensions.WebSocketsBroadcastAsync(context, Message, "", Id, "", IgnoreThis);
+        }
+
+        public void BroadcastForClientId(HttpContext context, string Message, string ClientId, bool IgnoreThis = false)
+        {
+            CodeBehindMiddlewareExtensions.WebSocketsBroadcast(context, Message, "", "", ClientId, IgnoreThis);
+        }
+
+        public async void BroadcastForClientIdAsync(HttpContext context, string Message, string ClientId, bool IgnoreThis = false)
+        {
+            await CodeBehindMiddlewareExtensions.WebSocketsBroadcastAsync(context, Message, "", "", ClientId, IgnoreThis);
         }
     }
 }
