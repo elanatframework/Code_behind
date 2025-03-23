@@ -413,6 +413,15 @@ The first version of CodeBehind is based on .NET Core version 7.0; if the versio
 
 **New features:**
 - WebSocket protocol support in WebForms Core technology
+  - Ability to specify IDs for WebSockets in the controller, model and view
+  - Ability to broadcast data for WebSockets with filtering in controller, model and view
+  - Ability to set the maximum number of WebSocket connections for the client
+  - Ability to add WebSocket events in WebForms Core technology
+  - Added new middleware to support WebSocket
+  - Ability to submit form data via WebSocket protocol
+- New mechanism for efficiently adding and removing events
+- Improving GetBack and PostBack methods in WebFormsJS library
+- And a series of minor changes and improvements
 
 ## Version 4.2
 
