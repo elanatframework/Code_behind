@@ -269,6 +269,11 @@ namespace CodeBehind.HtmlData
             return NameValueList[TmpIndex].Value; ;
         }
 
+        public int Count()
+        {
+            return NameValueList.Count;
+        }
+
         public List<NameValue> GetList()
         {
             return NameValueList;
