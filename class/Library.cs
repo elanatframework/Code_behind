@@ -119,4 +119,86 @@ namespace CodeBehind
             return ValueList;
         }
     }
+
+    public class WebSocketsBroadcas
+    {
+        public string Message { get; set; }
+        public string RoleName { get; set; }
+        public string WebSocketId { get; set; }
+        public string ClientId { get; set; }
+
+        public WebSocketsBroadcas()
+        {
+
+        }
+
+        public WebSocketsBroadcas(string Message, string RoleName, string WebSocketId, string ClientId)
+        {
+            this.Message = Message;
+            this.RoleName = RoleName;
+            this.WebSocketId = WebSocketId;
+            this.ClientId = ClientId;
+        }
+    }
+
+    public class WebSocketsBroadcastCollection
+    {
+        private List<WebSocketsBroadcas> WebSocketsBroadcasList = new List<WebSocketsBroadcas>();
+
+        public void Add(string Message, string RoleName, string WebSocketId, string ClientId)
+        {
+            WebSocketsBroadcasList.Add(new WebSocketsBroadcas(Message, RoleName, WebSocketId, ClientId));
+        }
+
+        public void DeleteByIndex(int Index)
+        {
+            int TmpIndex = (Index >= 0) ? Index : WebSocketsBroadcasList.Count + Index;
+            WebSocketsBroadcasList.RemoveAt(TmpIndex);
+        }
+
+        public void Empty()
+        {
+            WebSocketsBroadcasList = new List<WebSocketsBroadcas>();
+        }
+
+        public void AddList(List<WebSocketsBroadcas> WebSocketsBroadcasList)
+        {
+            foreach (WebSocketsBroadcas wsb in WebSocketsBroadcasList)
+                this.WebSocketsBroadcasList.Add(wsb);
+        }
+
+        public string GetMessageByIndex(int Index)
+        {
+            int TmpIndex = (Index >= 0) ? Index : WebSocketsBroadcasList.Count + Index;
+            return WebSocketsBroadcasList[TmpIndex].Message;
+        }
+
+        public string GetRoleNameByIndex(int Index)
+        {
+            int TmpIndex = (Index >= 0) ? Index : WebSocketsBroadcasList.Count + Index;
+            return WebSocketsBroadcasList[TmpIndex].RoleName;
+        }
+
+        public string GetWebSocketIdByIndex(int Index)
+        {
+            int TmpIndex = (Index >= 0) ? Index : WebSocketsBroadcasList.Count + Index;
+            return WebSocketsBroadcasList[TmpIndex].WebSocketId;
+        }
+
+        public string GetClientIdByIndex(int Index)
+        {
+            int TmpIndex = (Index >= 0) ? Index : WebSocketsBroadcasList.Count + Index;
+            return WebSocketsBroadcasList[TmpIndex].ClientId;
+        }
+
+        public int Count()
+        {
+            return WebSocketsBroadcasList.Count;
+        }
+
+        public List<WebSocketsBroadcas> GetList()
+        {
+            return WebSocketsBroadcasList;
+        }
+    }
 }
