@@ -14,7 +14,8 @@ namespace CodeBehind
         internal static char OsDirectorySplitter = OperatingSystem.IsWindows() ? '\\' : '/';
         internal static string ErrorPagePathBeforeValue { get; private set; }
         internal static string ErrorPagePathAfterValue { get; private set; }
-
+        internal static int MaxWebSocketConnectionsPerClient { get; private set; }
+        internal static int WebSocketBufferSize { get; private set; }
 
         internal static void SetValue()
         {
@@ -47,6 +48,9 @@ namespace CodeBehind
 
             ErrorPagePathBeforeValue = options.ErrorPagePath.GetTextBeforeValue("{value}");
             ErrorPagePathAfterValue = options.ErrorPagePath.GetTextAfterValue("{value}");
+
+            MaxWebSocketConnectionsPerClient = options.MaxWebSocketConnectionsPerClient;
+            WebSocketBufferSize = options.WebSocketBufferSize;
 
             StaticObjectHasInitialization = true;
         }
