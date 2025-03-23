@@ -34,6 +34,8 @@ ignore_prefix_controller=.
 ignore_suffix_controller=.
 put_two_underlines_equal_to_dash_for_controller=false
 set_default_pages=true
+max_web_socket_connections_per_client=3
+web_socket_buffer_size=4096
 ```
 
 **The possibility to load aspx page names as directory names**
@@ -320,3 +322,15 @@ If we have a controller class whose name is `active__page`, the route `example.c
 (`set_default_pages=true`)
 
 Enabling this setting causes the default CodeBehind template to be created automatically.
+
+**Maximum web socket connections per client**
+
+(`max_web_socket_connections_per_client=3`)
+
+This setting determines the maximum number of times that users can connect to WebSockets. If the number of connection requests exceeds this value, the WebSocket that has been around for a long time will expire and a new connection will be created.
+
+**WebSocket buffer size**
+
+(`web_socket_buffer_size=4096`)
+
+This setting determines the size of the WebSocket buffer. The buffer size should not be too large as it will take up too much memory, nor should it be so small that we will face capacity issues.
