@@ -4,7 +4,7 @@ namespace CodeBehind
 {
     public class WebForms
     {
-        private NameValueCollection WebFormsData = new NameValueCollection();
+        private NameAndValueCollection WebFormsData = new NameAndValueCollection();
 
         // For Extension
         public void AddLine(string Name, string Value) => WebFormsData.Add(Name, Value);
@@ -21,7 +21,7 @@ namespace CodeBehind
         public void AddTitle(string InputPlace, string Title) => WebFormsData.Add("al" + InputPlace, Title);
         public void AddText(string InputPlace, string Text) => WebFormsData.Add("at" + InputPlace, Text.Replace('\n'.ToString(), "$[ln];"));
         public void AddTextToUp(string InputPlace, string Text) => WebFormsData.Add("pt" + InputPlace, Text.Replace('\n'.ToString(), "$[ln];"));
-        public void AddAttribute(string InputPlace, string Attribute, string Value = "") => WebFormsData.Add("aa" + InputPlace, Attribute + '|' + Value);
+        public void AddAttribute(string InputPlace, string Attribute, string Value = "") => WebFormsData.Add("aa" + InputPlace, Attribute + (!string.IsNullOrEmpty(Value) ? '|' + Value : ""));
         public void AddTag(string InputPlace, string TagName, string Id = "") => WebFormsData.Add("nt" + InputPlace, TagName + (!string.IsNullOrEmpty(Id) ? '|' + Id : ""));
         public void AddTagToUp(string InputPlace, string TagName, string Id = "") => WebFormsData.Add("ut" + InputPlace, TagName + (!string.IsNullOrEmpty(Id) ? '|' + Id : ""));
         public void AddTagBefore(string InputPlace, string TagName, string Id = "") => WebFormsData.Add("bt" + InputPlace, TagName + (!string.IsNullOrEmpty(Id) ? '|' + Id : ""));
@@ -73,7 +73,6 @@ namespace CodeBehind
         public void DeleteAttribute(string InputPlace, string Attribute) => WebFormsData.Add("da" + InputPlace, Attribute);
         public void Delete(string InputPlace) => WebFormsData.Add("de" + InputPlace, "1");
         public void DeleteParent(string InputPlace) => WebFormsData.Add("dp" + InputPlace, "1");
-
 
         // Other
         public void SetBackgroundColor(string InputPlace, string Color) => WebFormsData.Add("bc" + InputPlace, Color);
@@ -137,12 +136,16 @@ namespace CodeBehind
         public void SetGetEventInFormListener(string InputPlace, string HtmlEventListener, string OutputPlace) => WebFormsData.Add("EG" + InputPlace, HtmlEventListener + "|" + OutputPlace);
         public void SetTagEvent(string InputPlace, string HtmlEvent, string OutputPlace) => WebFormsData.Add("Et" + InputPlace, HtmlEvent + "|" + OutputPlace);
         public void SetTagEventListener(string InputPlace, string HtmlEvent, string OutputPlace) => WebFormsData.Add("ET" + InputPlace, HtmlEvent + "|" + OutputPlace);
+        public void SetWebSocketEvent(string InputPlace, string HtmlEvent, string Path) => WebFormsData.Add("Ew" + InputPlace, HtmlEvent + "|" + Path);
+        public void SetWebSocketEventListener(string InputPlace, string HtmlEvent, string Path) => WebFormsData.Add("EW" + InputPlace, HtmlEvent + "|" + Path);
         public void RemovePostEvent(string InputPlace, string HtmlEvent) => WebFormsData.Add("Rp" + InputPlace, HtmlEvent);
         public void RemoveGetEvent(string InputPlace, string HtmlEvent) => WebFormsData.Add("Rg" + InputPlace, HtmlEvent);
         public void RemoveTagEvent(string InputPlace, string HtmlEvent) => WebFormsData.Add("Rt" + InputPlace, HtmlEvent);
+        public void RemoveWebSocketEvent(string InputPlace, string HtmlEvent) => WebFormsData.Add("Rw" + InputPlace, HtmlEvent);
         public void RemovePostEventListener(string InputPlace, string HtmlEventListener) => WebFormsData.Add("RP" + InputPlace, HtmlEventListener);
         public void RemoveGetEventListener(string InputPlace, string HtmlEventListener) => WebFormsData.Add("RG" + InputPlace, HtmlEventListener);
         public void RemoveTagEventListener(string InputPlace, string HtmlEventListener) => WebFormsData.Add("RT" + InputPlace, HtmlEventListener);
+        public void RemoveWebSocketEventListener(string InputPlace, string HtmlEventListener) => WebFormsData.Add("RW" + InputPlace, HtmlEventListener);
 
         // Save
         public void SaveId(string InputPlace, string Key = ".") => WebFormsData.Add("@gi" + InputPlace, Key);
@@ -212,12 +215,19 @@ namespace CodeBehind
         public void StartIndex(string Name) => WebFormsData.Add("#", Name);
         public void StartIndex() => StartIndex("");
 
+        // Enable
+        public void EnableWebSocket(bool Enable = true) => WebFormsData.Add("ew", Enable ? "1" : "0");
+        public void EnableWebSocketOnce(bool Enable = true) => WebFormsData.Add("ew", "@");
+
+        // Use
+        public void UseWebSocket(string Path) => WebFormsData.Add("uw", Path);
+
         // Get
         public string GetFormsActionData()
         {
             string ReturnValue = "";
 
-            foreach (NameValue nv in WebFormsData.GetList())
+            foreach (NameAndValue nv in WebFormsData.GetList())
             {
                 ReturnValue += Environment.NewLine + nv.Name;
 
@@ -244,10 +254,10 @@ namespace CodeBehind
         {
             string ReturnValue = "";
 
-            List<NameValue> WebFormsDataList = WebFormsData.GetList();
+            List<NameAndValue> WebFormsDataList = WebFormsData.GetList();
 
             int i = WebFormsDataList.Count;
-            foreach (NameValue nv in WebFormsData.GetList())
+            foreach (NameAndValue nv in WebFormsData.GetList())
             {
                 ReturnValue += nv.Name;
 
@@ -285,7 +295,7 @@ namespace CodeBehind
             return "<web-forms ac=\"" + GetFormsActionDataLineBreak() + "\"" + (!string.IsNullOrEmpty(Id) ? " id=\"" + Id + "\" done=\"true\"" : "") + "></web-forms>";
         }
 
-        public NameValueCollection ExportToNameValue()
+        public NameAndValueCollection ExportToNameValue()
         {
             return WebFormsData;
         }
@@ -302,7 +312,7 @@ namespace CodeBehind
 
         public void Clean()
         {
-            WebFormsData = new NameValueCollection();
+            WebFormsData = new NameAndValueCollection();
         }
     }
 
@@ -559,29 +569,29 @@ namespace CodeBehind
         }
     }
 
-    public class NameValue
+    public class NameAndValue
     {
         public string Name { get; set; }
         public string Value { get; set; }
 
-        public NameValue()
+        public NameAndValue()
         {
 
         }
 
-        public NameValue(string Name, string Value)
+        public NameAndValue(string Name, string Value)
         {
             this.Name = Name;
             this.Value = Value;
         }
     }
-    public class NameValueCollection
+    public class NameAndValueCollection
     {
-        private List<NameValue> NameValueList = new List<NameValue>();
+        private List<NameAndValue> NameValueList = new List<NameAndValue>();
 
         public void Add(string Name, string Value)
         {
-            NameValueList.Add(new NameValue(Name, Value));
+            NameValueList.Add(new NameAndValue(Name, Value));
         }
 
         public void Set(string Name, string Value)
@@ -594,9 +604,9 @@ namespace CodeBehind
 
         public void Delete(string Name)
         {
-            List<NameValue> TmpNameValueList = new List<NameValue>();
+            List<NameAndValue> TmpNameValueList = new List<NameAndValue>();
 
-            foreach (NameValue nv in NameValueList)
+            foreach (NameAndValue nv in NameValueList)
             {
                 if (nv.Name != Name)
                     TmpNameValueList.Add(nv);
@@ -613,12 +623,12 @@ namespace CodeBehind
 
         public void Empty()
         {
-            NameValueList = new List<NameValue>();
+            NameValueList = new List<NameAndValue>();
         }
 
         public bool Exist(string Name)
         {
-            foreach (NameValue nv in NameValueList)
+            foreach (NameAndValue nv in NameValueList)
             {
                 if (nv.Name == Name)
                     return true;
@@ -629,7 +639,7 @@ namespace CodeBehind
 
         public void ChangeValue(string Name, string Value)
         {
-            foreach (NameValue nv in NameValueList)
+            foreach (NameAndValue nv in NameValueList)
             {
                 if (nv.Name == Name)
                 {
@@ -641,7 +651,7 @@ namespace CodeBehind
 
         public void ChangeName(string Name, string NewName)
         {
-            foreach (NameValue nv in NameValueList)
+            foreach (NameAndValue nv in NameValueList)
             {
                 if (nv.Name == Name)
                 {
@@ -654,7 +664,7 @@ namespace CodeBehind
         // Overload
         public void ChangeValue(string Name, string NewName, string Value)
         {
-            foreach (NameValue nv in NameValueList)
+            foreach (NameAndValue nv in NameValueList)
             {
                 if (nv.Name == Name)
                 {
@@ -695,15 +705,15 @@ namespace CodeBehind
             }
         }
 
-        public void AddList(List<NameValue> NameValueList)
+        public void AddList(List<NameAndValue> NameValueList)
         {
-            foreach (NameValue nv in NameValueList)
+            foreach (NameAndValue nv in NameValueList)
                 this.NameValueList.Add(nv);
         }
 
         public string GetValue(string Name)
         {
-            foreach (NameValue nv in NameValueList)
+            foreach (NameAndValue nv in NameValueList)
             {
                 if (nv.Name == Name)
                     return nv.Value;
@@ -724,7 +734,7 @@ namespace CodeBehind
             return NameValueList[TmpIndex].Value; ;
         }
 
-        public List<NameValue> GetList()
+        public List<NameAndValue> GetList()
         {
             return NameValueList;
         }
