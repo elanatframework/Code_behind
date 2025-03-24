@@ -256,7 +256,10 @@ public static class CodeBehindMiddlewareExtensions
             if (context.WebSockets.IsWebSocketRequest)
             {
                 var webSocket = await context.WebSockets.AcceptWebSocketAsync();
-                var clientId = context.Connection.RemoteIpAddress.ToString();
+
+                string clientId = "";
+                if (context.Request.Cookies.ContainsKey("SessionId"))
+                    clientId = context.Request.Cookies["SessionId"];
 
                 if (WebSocketManager.AddWebSocket(webSocket, clientId))
                     await HandleWebSocketConnection(context, webSocket, "UseCodeBehind");
@@ -282,7 +285,10 @@ public static class CodeBehindMiddlewareExtensions
                 RoleAccess role = new RoleAccess(context.Session);
 
                 var webSocket = await context.WebSockets.AcceptWebSocketAsync();
-                var clientId = context.Connection.RemoteIpAddress.ToString();
+
+                string clientId = "";
+                if (context.Request.Cookies.ContainsKey("SessionId"))
+                    clientId = context.Request.Cookies["SessionId"];
 
                 if (WebSocketManager.AddWebSocket(webSocket, clientId, role.GetUserRole()))
                     await HandleWebSocketConnection(context, webSocket, "UseCodeBehind");
@@ -305,7 +311,10 @@ public static class CodeBehindMiddlewareExtensions
             if (context.WebSockets.IsWebSocketRequest)
             {
                 var webSocket = await context.WebSockets.AcceptWebSocketAsync();
-                var clientId = context.Connection.RemoteIpAddress.ToString();
+
+                string clientId = "";
+                if (context.Request.Cookies.ContainsKey("SessionId"))
+                    clientId = context.Request.Cookies["SessionId"];
 
                 if (WebSocketManager.AddWebSocket(webSocket, clientId))
                     await HandleWebSocketConnection(context, webSocket, "UseCodeBehind");
@@ -333,7 +342,10 @@ public static class CodeBehindMiddlewareExtensions
                 RoleAccess role = new RoleAccess(context.Session);
 
                 var webSocket = await context.WebSockets.AcceptWebSocketAsync();
-                var clientId = context.Connection.RemoteIpAddress.ToString();
+
+                string clientId = "";
+                if (context.Request.Cookies.ContainsKey("SessionId"))
+                    clientId = context.Request.Cookies["SessionId"];
 
                 if (WebSocketManager.AddWebSocket(webSocket, clientId, role.GetUserRole()))
                     await HandleWebSocketConnection(context, webSocket, "UseCodeBehind");
@@ -356,7 +368,10 @@ public static class CodeBehindMiddlewareExtensions
             if (context.WebSockets.IsWebSocketRequest)
             {
                 var webSocket = await context.WebSockets.AcceptWebSocketAsync();
-                var clientId = context.Connection.RemoteIpAddress.ToString();
+
+                string clientId = "";
+                if (context.Request.Cookies.ContainsKey("SessionId"))
+                    clientId = context.Request.Cookies["SessionId"];
 
                 if (WebSocketManager.AddWebSocket(webSocket, clientId))
                     await HandleWebSocketConnection(context, webSocket, "UseCodeBehindWithErrorHandling");
@@ -381,7 +396,10 @@ public static class CodeBehindMiddlewareExtensions
                 RoleAccess role = new RoleAccess(context.Session);
 
                 var webSocket = await context.WebSockets.AcceptWebSocketAsync();
-                var clientId = context.Connection.RemoteIpAddress.ToString();
+
+                string clientId = "";
+                if (context.Request.Cookies.ContainsKey("SessionId"))
+                    clientId = context.Request.Cookies["SessionId"];
 
                 if (WebSocketManager.AddWebSocket(webSocket, clientId, role.GetUserRole()))
                     await HandleWebSocketConnection(context, webSocket, "UseCodeBehindWithErrorHandling");
@@ -404,7 +422,10 @@ public static class CodeBehindMiddlewareExtensions
             if (context.WebSockets.IsWebSocketRequest)
             {
                 var webSocket = await context.WebSockets.AcceptWebSocketAsync();
-                var clientId = context.Connection.RemoteIpAddress.ToString();
+
+                string clientId = "";
+                if (context.Request.Cookies.ContainsKey("SessionId"))
+                    clientId = context.Request.Cookies["SessionId"];
 
                 if (WebSocketManager.AddWebSocket(webSocket, clientId))
                     await HandleWebSocketConnection(context, webSocket, "UseCodeBehindWithErrorHandling");
@@ -429,7 +450,10 @@ public static class CodeBehindMiddlewareExtensions
                 RoleAccess role = new RoleAccess(context.Session);
 
                 var webSocket = await context.WebSockets.AcceptWebSocketAsync();
-                var clientId = context.Connection.RemoteIpAddress.ToString();
+
+                string clientId = "";
+                if (context.Request.Cookies.ContainsKey("SessionId"))
+                    clientId = context.Request.Cookies["SessionId"];
 
                 if (WebSocketManager.AddWebSocket(webSocket, clientId, role.GetUserRole()))
                     await HandleWebSocketConnection(context, webSocket, "UseCodeBehindWithErrorHandling");
@@ -452,7 +476,10 @@ public static class CodeBehindMiddlewareExtensions
             if (context.WebSockets.IsWebSocketRequest)
             {
                 var webSocket = await context.WebSockets.AcceptWebSocketAsync();
-                var clientId = context.Connection.RemoteIpAddress.ToString();
+
+                string clientId = "";
+                if (context.Request.Cookies.ContainsKey("SessionId"))
+                    clientId = context.Request.Cookies["SessionId"];
 
                 if (WebSocketManager.AddWebSocket(webSocket, clientId))
                     await HandleWebSocketConnection(context, webSocket, "UseCodeBehindNextNotFound");
@@ -477,7 +504,10 @@ public static class CodeBehindMiddlewareExtensions
                 RoleAccess role = new RoleAccess(context.Session);
 
                 var webSocket = await context.WebSockets.AcceptWebSocketAsync();
-                var clientId = context.Connection.RemoteIpAddress.ToString();
+
+                string clientId = "";
+                if (context.Request.Cookies.ContainsKey("SessionId"))
+                    clientId = context.Request.Cookies["SessionId"];
 
                 if (WebSocketManager.AddWebSocket(webSocket, clientId, role.GetUserRole()))
                     await HandleWebSocketConnection(context, webSocket, "UseCodeBehindNextNotFound");
@@ -500,7 +530,10 @@ public static class CodeBehindMiddlewareExtensions
             if (context.WebSockets.IsWebSocketRequest)
             {
                 var webSocket = await context.WebSockets.AcceptWebSocketAsync();
-                var clientId = context.Connection.RemoteIpAddress.ToString();
+
+                string clientId = "";
+                if (context.Request.Cookies.ContainsKey("SessionId"))
+                    clientId = context.Request.Cookies["SessionId"];
 
                 if (WebSocketManager.AddWebSocket(webSocket, clientId))
                     await HandleWebSocketConnection(context, webSocket, "UseCodeBehindNextNotFound");
@@ -525,7 +558,10 @@ public static class CodeBehindMiddlewareExtensions
                 RoleAccess role = new RoleAccess(context.Session);
 
                 var webSocket = await context.WebSockets.AcceptWebSocketAsync();
-                var clientId = context.Connection.RemoteIpAddress.ToString();
+
+                string clientId = "";
+                if (context.Request.Cookies.ContainsKey("SessionId"))
+                    clientId = context.Request.Cookies["SessionId"];
 
                 if (WebSocketManager.AddWebSocket(webSocket, clientId, role.GetUserRole()))
                     await HandleWebSocketConnection(context, webSocket, "UseCodeBehindNextNotFound");
@@ -548,7 +584,10 @@ public static class CodeBehindMiddlewareExtensions
             if (context.WebSockets.IsWebSocketRequest)
             {
                 var webSocket = await context.WebSockets.AcceptWebSocketAsync();
-                var clientId = context.Connection.RemoteIpAddress.ToString();
+
+                string clientId = "";
+                if (context.Request.Cookies.ContainsKey("SessionId"))
+                    clientId = context.Request.Cookies["SessionId"];
 
                 if (WebSocketManager.AddWebSocket(webSocket, clientId))
                     await HandleWebSocketConnection(context, webSocket, "UseCodeBehindRoute");
@@ -573,7 +612,10 @@ public static class CodeBehindMiddlewareExtensions
                 RoleAccess role = new RoleAccess(context.Session);
 
                 var webSocket = await context.WebSockets.AcceptWebSocketAsync();
-                var clientId = context.Connection.RemoteIpAddress.ToString();
+
+                string clientId = "";
+                if (context.Request.Cookies.ContainsKey("SessionId"))
+                    clientId = context.Request.Cookies["SessionId"];
 
                 if (WebSocketManager.AddWebSocket(webSocket, clientId, role.GetUserRole()))
                     await HandleWebSocketConnection(context, webSocket, "UseCodeBehindRoute");
@@ -596,7 +638,10 @@ public static class CodeBehindMiddlewareExtensions
             if (context.WebSockets.IsWebSocketRequest)
             {
                 var webSocket = await context.WebSockets.AcceptWebSocketAsync();
-                var clientId = context.Connection.RemoteIpAddress.ToString();
+
+                string clientId = "";
+                if (context.Request.Cookies.ContainsKey("SessionId"))
+                    clientId = context.Request.Cookies["SessionId"];
 
                 if (WebSocketManager.AddWebSocket(webSocket, clientId))
                     await HandleWebSocketConnection(context, webSocket, "UseCodeBehindRoute");
@@ -621,7 +666,10 @@ public static class CodeBehindMiddlewareExtensions
                 RoleAccess role = new RoleAccess(context.Session);
 
                 var webSocket = await context.WebSockets.AcceptWebSocketAsync();
-                var clientId = context.Connection.RemoteIpAddress.ToString();
+
+                string clientId = "";
+                if (context.Request.Cookies.ContainsKey("SessionId"))
+                    clientId = context.Request.Cookies["SessionId"];
 
                 if (WebSocketManager.AddWebSocket(webSocket, clientId, role.GetUserRole()))
                     await HandleWebSocketConnection(context, webSocket, "UseCodeBehindRoute");
@@ -644,7 +692,10 @@ public static class CodeBehindMiddlewareExtensions
             if (context.WebSockets.IsWebSocketRequest)
             {
                 var webSocket = await context.WebSockets.AcceptWebSocketAsync();
-                var clientId = context.Connection.RemoteIpAddress.ToString();
+
+                string clientId = "";
+                if (context.Request.Cookies.ContainsKey("SessionId"))
+                    clientId = context.Request.Cookies["SessionId"];
 
                 if (WebSocketManager.AddWebSocket(webSocket, clientId))
                     await HandleWebSocketConnection(context, webSocket, "UseCodeBehindRouteWithErrorHandling");
@@ -669,7 +720,10 @@ public static class CodeBehindMiddlewareExtensions
                 RoleAccess role = new RoleAccess(context.Session);
 
                 var webSocket = await context.WebSockets.AcceptWebSocketAsync();
-                var clientId = context.Connection.RemoteIpAddress.ToString();
+
+                string clientId = "";
+                if (context.Request.Cookies.ContainsKey("SessionId"))
+                    clientId = context.Request.Cookies["SessionId"];
 
                 if (WebSocketManager.AddWebSocket(webSocket, clientId, role.GetUserRole()))
                     await HandleWebSocketConnection(context, webSocket, "UseCodeBehindRouteWithErrorHandling");
@@ -692,7 +746,10 @@ public static class CodeBehindMiddlewareExtensions
             if (context.WebSockets.IsWebSocketRequest)
             {
                 var webSocket = await context.WebSockets.AcceptWebSocketAsync();
-                var clientId = context.Connection.RemoteIpAddress.ToString();
+
+                string clientId = "";
+                if (context.Request.Cookies.ContainsKey("SessionId"))
+                    clientId = context.Request.Cookies["SessionId"];
 
                 if (WebSocketManager.AddWebSocket(webSocket, clientId))
                     await HandleWebSocketConnection(context, webSocket, "UseCodeBehindRouteWithErrorHandling");
@@ -717,7 +774,10 @@ public static class CodeBehindMiddlewareExtensions
                 RoleAccess role = new RoleAccess(context.Session);
 
                 var webSocket = await context.WebSockets.AcceptWebSocketAsync();
-                var clientId = context.Connection.RemoteIpAddress.ToString();
+
+                string clientId = "";
+                if (context.Request.Cookies.ContainsKey("SessionId"))
+                    clientId = context.Request.Cookies["SessionId"];
 
                 if (WebSocketManager.AddWebSocket(webSocket, clientId, role.GetUserRole()))
                     await HandleWebSocketConnection(context, webSocket, "UseCodeBehindRouteWithErrorHandling");
@@ -740,7 +800,10 @@ public static class CodeBehindMiddlewareExtensions
             if (context.WebSockets.IsWebSocketRequest)
             {
                 var webSocket = await context.WebSockets.AcceptWebSocketAsync();
-                var clientId = context.Connection.RemoteIpAddress.ToString();
+
+                string clientId = "";
+                if (context.Request.Cookies.ContainsKey("SessionId"))
+                    clientId = context.Request.Cookies["SessionId"];
 
                 if (WebSocketManager.AddWebSocket(webSocket, clientId))
                     await HandleWebSocketConnection(context, webSocket, "UseCodeBehindRouteNextNotFound");
@@ -765,7 +828,10 @@ public static class CodeBehindMiddlewareExtensions
                 RoleAccess role = new RoleAccess(context.Session);
 
                 var webSocket = await context.WebSockets.AcceptWebSocketAsync();
-                var clientId = context.Connection.RemoteIpAddress.ToString();
+
+                string clientId = "";
+                if (context.Request.Cookies.ContainsKey("SessionId"))
+                    clientId = context.Request.Cookies["SessionId"];
 
                 if (WebSocketManager.AddWebSocket(webSocket, clientId, role.GetUserRole()))
                     await HandleWebSocketConnection(context, webSocket, "UseCodeBehindRouteNextNotFound");
@@ -788,7 +854,10 @@ public static class CodeBehindMiddlewareExtensions
             if (context.WebSockets.IsWebSocketRequest)
             {
                 var webSocket = await context.WebSockets.AcceptWebSocketAsync();
-                var clientId = context.Connection.RemoteIpAddress.ToString();
+
+                string clientId = "";
+                if (context.Request.Cookies.ContainsKey("SessionId"))
+                    clientId = context.Request.Cookies["SessionId"];
 
                 if (WebSocketManager.AddWebSocket(webSocket, clientId))
                     await HandleWebSocketConnection(context, webSocket, "UseCodeBehindRouteNextNotFound");
@@ -813,7 +882,10 @@ public static class CodeBehindMiddlewareExtensions
                 RoleAccess role = new RoleAccess(context.Session);
 
                 var webSocket = await context.WebSockets.AcceptWebSocketAsync();
-                var clientId = context.Connection.RemoteIpAddress.ToString();
+
+                string clientId = "";
+                if (context.Request.Cookies.ContainsKey("SessionId"))
+                    clientId = context.Request.Cookies["SessionId"];
 
                 if (WebSocketManager.AddWebSocket(webSocket, clientId, role.GetUserRole()))
                     await HandleWebSocketConnection(context, webSocket, "UseCodeBehindRouteNextNotFound");
@@ -951,12 +1023,16 @@ public static class CodeBehindMiddlewareExtensions
         var buffer = new byte[StaticObject.WebSocketBufferSize];
         buffer = Encoding.UTF8.GetBytes(broadcastMessage);
 
+        string userSessionId = "";
+        if (context.Request.Cookies.ContainsKey("SessionId"))
+            userSessionId = context.Request.Cookies["SessionId"];
+
         foreach (var client in WebSocketManager.GetAllWebSockets())
         {
             bool sendIt = false;
             if (client.WebSocket.State == WebSocketState.Open)
             {
-                if (IgnoreThis && (context.Connection.RemoteIpAddress.ToString() == client.ClientId))
+                if (IgnoreThis && userSessionId.Has() && (userSessionId == client.ClientId))
                     continue;
 
                 if (broadcastRoleName.Has() && broadcastWebSocketId.Has() && broadcastClientId.Has())
@@ -1014,6 +1090,9 @@ public static class CodeBehindMiddlewareExtensions
 
         public static bool AddWebSocket(WebSocket webSocket, string clientId, string roleName = "", string webSocketId = "")
         {
+            if (clientId.Has())
+                CheckMaxWebSocketConnections(clientId);
+
             WebSockets.Add(new WebSocketInfo(webSocket, webSocketId, roleName, clientId));
             return true;
         }
@@ -1025,6 +1104,23 @@ public static class CodeBehindMiddlewareExtensions
                 {
                     WebSockets.RemoveAt(i);
                     return;
+                }
+        }
+
+        public static void CheckMaxWebSocketConnections(string clientId)
+        {
+            int numberOfConnections = 0;
+
+            for (int i = WebSockets.Count - 1; i >= 0; i--)
+                if (WebSockets[i].ClientId == clientId)
+                {
+                    numberOfConnections++;
+
+                    if (numberOfConnections >= StaticObject.MaxWebSocketConnectionsPerClient)
+                    {
+                        WebSockets.RemoveAt(i);
+                        return;
+                    }
                 }
         }
 
