@@ -423,8 +423,13 @@ The first version of CodeBehind is based on .NET Core version 7.0; if the versio
 - Improving `GetBack` and `PostBack` methods in WebFormsJS library
 - And a series of minor changes and improvements
 
+### Version 4.1.1
+
+**Problems that were solved:**
+- Fixing the problem of determining client ID in WebSocket
+
 ## Version 4.2
 
 **New features:**
 - Ability to compress data for sending data to the server via WebFormsJS
-- New SendBack feature for sending all types of data
+- New `SendBack` feature for sending all types of data
