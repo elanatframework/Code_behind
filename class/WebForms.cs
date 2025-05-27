@@ -21,7 +21,7 @@ namespace CodeBehind
         public void AddTitle(string InputPlace, string Title) => WebFormsData.Add("al" + InputPlace, Title);
         public void AddText(string InputPlace, string Text) => WebFormsData.Add("at" + InputPlace, Text.Replace('\n'.ToString(), "$[ln];"));
         public void AddTextToUp(string InputPlace, string Text) => WebFormsData.Add("pt" + InputPlace, Text.Replace('\n'.ToString(), "$[ln];"));
-        public void AddAttribute(string InputPlace, string Attribute, string Value = "") => WebFormsData.Add("aa" + InputPlace, Attribute + (!string.IsNullOrEmpty(Value) ? '|' + Value : ""));
+        public void AddAttribute(string InputPlace, string Attribute, string Value = "", char Splitter = '\0') => WebFormsData.Add("aa" + InputPlace, Attribute + '|' + ((Splitter != '\0') ? Splitter : "") + (!string.IsNullOrEmpty(Value) ? '|' + Value : ""));
         public void AddTag(string InputPlace, string TagName, string Id = "") => WebFormsData.Add("nt" + InputPlace, TagName + (!string.IsNullOrEmpty(Id) ? '|' + Id : ""));
         public void AddTagToUp(string InputPlace, string TagName, string Id = "") => WebFormsData.Add("ut" + InputPlace, TagName + (!string.IsNullOrEmpty(Id) ? '|' + Id : ""));
         public void AddTagBefore(string InputPlace, string TagName, string Id = "") => WebFormsData.Add("bt" + InputPlace, TagName + (!string.IsNullOrEmpty(Id) ? '|' + Id : ""));
@@ -39,7 +39,7 @@ namespace CodeBehind
         public void SetCheckBoxTagToList(string InputPlace, string Text, string Value, bool Checked = false) => WebFormsData.Add("sk" + InputPlace, Value + '|' + Text + (Checked ? "|1" : ""));
         public void SetTitle(string InputPlace, string Title) => WebFormsData.Add("sl" + InputPlace, Title);
         public void SetText(string InputPlace, string Text) => WebFormsData.Add("st" + InputPlace, Text.Replace('\n'.ToString(), "$[ln];"));
-        public void SetAttribute(string InputPlace, string Attribute, string Value = "") => WebFormsData.Add("sa" + InputPlace, Attribute + (!string.IsNullOrEmpty(Value) ? '|' + Value : ""));
+        public void SetAttribute(string InputPlace, string Attribute, string Value = "") => WebFormsData.Add("sa" + InputPlace, Attribute + '|' + (!string.IsNullOrEmpty(Value) ? '|' + Value : ""));
         public void SetWidth(string InputPlace, string Width) => WebFormsData.Add("sw" + InputPlace, Width);
         public void SetWidth(string InputPlace, int Width) => SetWidth(InputPlace, Width.ToString() + "px");
         public void SetHeight(string InputPlace, string Height) => WebFormsData.Add("sh" + InputPlace, Height);
@@ -56,7 +56,7 @@ namespace CodeBehind
         public void InsertCheckBoxTag(string InputPlace, string Text, string Value, bool Checked = false) => WebFormsData.Add("ik" + InputPlace, Value + '|' + Text + (Checked ? "|1" : ""));
         public void InsertTitle(string InputPlace, string Title) => WebFormsData.Add("il" + InputPlace, Title);
         public void InsertText(string InputPlace, string Text) => WebFormsData.Add("it" + InputPlace, Text.Replace('\n'.ToString(), "$[ln];"));
-        public void InsertAttribute(string InputPlace, string Attribute, string Value = "") => WebFormsData.Add("ia" + InputPlace, Attribute + (!string.IsNullOrEmpty(Value) ? '|' + Value : ""));
+        public void InsertAttribute(string InputPlace, string Attribute, string Value = "", char Splitter = '\0') => WebFormsData.Add("ia" + InputPlace, Attribute + '|' + ((Splitter != '\0') ? Splitter : "") + (!string.IsNullOrEmpty(Value) ? '|' + Value : ""));
 
         // Delete
         public void DeleteId(string InputPlace) => WebFormsData.Add("di" + InputPlace, "1");
@@ -111,13 +111,13 @@ namespace CodeBehind
         public void IncreaseHeight(string InputPlace, int Value) => WebFormsData.Add("+h" + InputPlace, Value.ToString());
         public void IncreaseValue(string InputPlace, int Value) => WebFormsData.Add("+v" + InputPlace, Value.ToString());
 
-        // Descrease
-        public void DescreaseMinLength(string InputPlace, int Value) => WebFormsData.Add("-n" + InputPlace, Value.ToString());
-        public void DescreaseMaxLength(string InputPlace, int Value) => WebFormsData.Add("-x" + InputPlace, Value.ToString());
-        public void DescreaseFontSize(string InputPlace, int Value) => WebFormsData.Add("-f" + InputPlace, Value.ToString());
-        public void DescreaseWidth(string InputPlace, int Value) => WebFormsData.Add("-w" + InputPlace, Value.ToString());
-        public void DescreaseHeight(string InputPlace, int Value) => WebFormsData.Add("-h" + InputPlace, Value.ToString());
-        public void DescreaseValue(string InputPlace, int Value) => WebFormsData.Add("-v" + InputPlace, Value.ToString());
+        // Decrease
+        public void DecreaseMinLength(string InputPlace, int Value) => WebFormsData.Add("-n" + InputPlace, Value.ToString());
+        public void DecreaseMaxLength(string InputPlace, int Value) => WebFormsData.Add("-x" + InputPlace, Value.ToString());
+        public void DecreaseFontSize(string InputPlace, int Value) => WebFormsData.Add("-f" + InputPlace, Value.ToString());
+        public void DecreaseWidth(string InputPlace, int Value) => WebFormsData.Add("-w" + InputPlace, Value.ToString());
+        public void DecreaseHeight(string InputPlace, int Value) => WebFormsData.Add("-h" + InputPlace, Value.ToString());
+        public void DecreaseValue(string InputPlace, int Value) => WebFormsData.Add("-v" + InputPlace, Value.ToString());
 
         // Event
         public void SetPostEvent(string InputPlace, string HtmlEvent) => WebFormsData.Add("Ep" + InputPlace, HtmlEvent);
@@ -156,6 +156,7 @@ namespace CodeBehind
         public void SaveStyle(string InputPlace, string Key = ".") => WebFormsData.Add("@gs" + InputPlace, Key);
         public void SaveTitle(string InputPlace, string Key = ".") => WebFormsData.Add("@gl" + InputPlace, Key);
         public void SaveText(string InputPlace, string Key = ".") => WebFormsData.Add("@gt" + InputPlace, Key);
+        public void SaveOuterText(string InputPlace, string Key = ".") => WebFormsData.Add("@go" + InputPlace, Key);
         public void SaveTextLength(string InputPlace, string Key = ".") => WebFormsData.Add("@gg" + InputPlace, Key);
         public void SaveAttribute(string InputPlace, string Attribute, string Key = ".") => WebFormsData.Add("@ga" + InputPlace, Key + '|' + Attribute);
         public void SaveWidth(string InputPlace, string Key = ".") => WebFormsData.Add("@gw" + InputPlace, Key);
@@ -165,6 +166,28 @@ namespace CodeBehind
         public void SaveTextAlign(string InputPlace, string Key = ".") => WebFormsData.Add("@ta" + InputPlace, Key);
         public void SaveNodeLength(string InputPlace, string Key = ".") => WebFormsData.Add("@nl" + InputPlace, Key);
         public void SaveVisible(string InputPlace, string Key = ".") => WebFormsData.Add("@vi" + InputPlace, Key);
+        public void SaveUrl(string Url, string Key = ".") => WebFormsData.Add("@gu", Key + "|" + Url);
+
+        // Cache
+        public void CacheId(string InputPlace, string Key = ".") => WebFormsData.Add("@ci" + InputPlace, Key);
+        public void CacheName(string InputPlace, string Key = ".") => WebFormsData.Add("@cn" + InputPlace, Key);
+        public void CacheValue(string InputPlace, string Key = ".") => WebFormsData.Add("@cv" + InputPlace, Key);
+        public void CacheValueLength(string InputPlace, string Key = ".") => WebFormsData.Add("@ce" + InputPlace, Key);
+        public void CacheClass(string InputPlace, string Key = ".") => WebFormsData.Add("@cc" + InputPlace, Key);
+        public void CacheStyle(string InputPlace, string Key = ".") => WebFormsData.Add("@cs" + InputPlace, Key);
+        public void CacheTitle(string InputPlace, string Key = ".") => WebFormsData.Add("@cl" + InputPlace, Key);
+        public void CacheText(string InputPlace, string Key = ".") => WebFormsData.Add("@ct" + InputPlace, Key);
+        public void CacheOuterText(string InputPlace, string Key = ".") => WebFormsData.Add("@co" + InputPlace, Key);
+        public void CacheTextLength(string InputPlace, string Key = ".") => WebFormsData.Add("@cg" + InputPlace, Key);
+        public void CacheAttribute(string InputPlace, string Attribute, string Key = ".") => WebFormsData.Add("@ca" + InputPlace, Key + '|' + Attribute);
+        public void CacheWidth(string InputPlace, string Key = ".") => WebFormsData.Add("@cw" + InputPlace, Key);
+        public void CacheHeight(string InputPlace, string Key = ".") => WebFormsData.Add("@ch" + InputPlace, Key);
+        public void CacheReadOnly(string InputPlace, string Key = ".") => WebFormsData.Add("@cr" + InputPlace, Key);
+        public void CacheSelectedIndex(string InputPlace, string Key = ".") => WebFormsData.Add("@cx" + InputPlace, Key);
+        public void CacheTextAlign(string InputPlace, string Key = ".") => WebFormsData.Add("@Ta" + InputPlace, Key);
+        public void CacheNodeLength(string InputPlace, string Key = ".") => WebFormsData.Add("@Nl" + InputPlace, Key);
+        public void CacheVisible(string InputPlace, string Key = ".") => WebFormsData.Add("@Vi" + InputPlace, Key);
+        public void CacheUrl(string Url, string Key = ".") => WebFormsData.Add("@cu", Key + "|" + Url);
 
         // Pre Runner
         public void AssignDelay(float Second, int Index = -1)
@@ -211,13 +234,35 @@ namespace CodeBehind
             WebFormsData.ChangeNameByIndex(Index, "(" + Second + ")" + CurrentName);
         }
 
+        public void AssignRepeat(int Second, int Index = -1)
+        {
+            string CurrentName = WebFormsData.GetNameByIndex(Index);
+
+            if (string.IsNullOrEmpty(CurrentName))
+                return;
+
+            WebFormsData.ChangeNameByIndex(Index, "," + Second + ")" + CurrentName);
+        }
+
+        public void AssignRepeatChange(int Second, int Index = -1)
+        {
+            string CurrentName = WebFormsData.GetNameByIndex(Index);
+
+            if (string.IsNullOrEmpty(CurrentName))
+                return;
+
+            CurrentName = CurrentName.RemoveOuter(",", ")");
+
+            WebFormsData.ChangeNameByIndex(Index, "," + Second + ")" + CurrentName);
+        }
+
         // Index
         public void StartIndex(string Name) => WebFormsData.Add("#", Name);
         public void StartIndex() => StartIndex("");
 
         // Enable
         public void EnableWebSocket(bool Enable = true) => WebFormsData.Add("ew", Enable ? "1" : "0");
-        public void EnableWebSocketOnce(bool Enable = true) => WebFormsData.Add("ew", "@");
+        public void EnableWebSocketOnce() => WebFormsData.Add("ew", "@");
 
         // Use
         public void UseWebSocket(string Path) => WebFormsData.Add("uw", Path);
@@ -327,6 +372,7 @@ namespace CodeBehind
         public static string Class(string Class, int Index) => '{' + Class + '}' + Index;
         public static string Query(string Query) => "*" + Query.Replace("=", "$[eq];");
         public static string QueryAll(string Query) => "[" + Query.Replace("=", "$[eq];");
+        public static string Current() => "$";
     }
 
     public class OutputPlace : InputPlace { }
@@ -356,6 +402,11 @@ namespace CodeBehind
         public static string CacheAndRemove(string Key) => "@ct" + Key;
         public static string CacheAndRemove(string Key, string ReplaceValue) => "@ct" + Key + "," + ReplaceValue;
         public static string Script(string ScriptText) => "@_" + ScriptText.Replace('\n'.ToString(), "$[ln];");
+        public static string LoadUrl(string Url) => "@lu" + Url;
+        public static string SavedLine(string Key = ".", int Line = 0) => "@lL" + Key + "|" + Line;
+        public static string SavedINI(string Key = ".", int INIKey = 0) => "@lI" + Key + "|" + INIKey;
+        public static string CacheLine(string Key = ".", int Line = 0) => "@dL" + Key + "|" + Line;
+        public static string CacheINI(string Key = ".", int INIKey = 0) => "@dI" + Key + "|" + INIKey;
     }
 
     public class HtmlEvent
