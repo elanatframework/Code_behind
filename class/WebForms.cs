@@ -26,6 +26,7 @@ namespace CodeBehind
         public void AddTagToUp(string InputPlace, string TagName, string Id = "") => WebFormsData.Add("ut" + InputPlace, TagName + (!string.IsNullOrEmpty(Id) ? '|' + Id : ""));
         public void AddTagBefore(string InputPlace, string TagName, string Id = "") => WebFormsData.Add("bt" + InputPlace, TagName + (!string.IsNullOrEmpty(Id) ? '|' + Id : ""));
         public void AddTagAfter(string InputPlace, string TagName, string Id = "") => WebFormsData.Add("ft" + InputPlace, TagName + (!string.IsNullOrEmpty(Id) ? '|' + Id : ""));
+        public void AddHidden(string InputPlace, string Value, string Id = "") => WebFormsData.Add("ah" + InputPlace, Value + (!string.IsNullOrEmpty(Id) ? '|' + Id : ""));
 
         // Set
         public void SetId(string InputPlace, string Id) => WebFormsData.Add("si" + InputPlace, Id);
@@ -138,14 +139,22 @@ namespace CodeBehind
         public void SetTagEventListener(string InputPlace, string HtmlEvent, string OutputPlace) => WebFormsData.Add("ET" + InputPlace, HtmlEvent + "|" + OutputPlace);
         public void SetWebSocketEvent(string InputPlace, string HtmlEvent, string Path) => WebFormsData.Add("Ew" + InputPlace, HtmlEvent + "|" + Path);
         public void SetWebSocketEventListener(string InputPlace, string HtmlEvent, string Path) => WebFormsData.Add("EW" + InputPlace, HtmlEvent + "|" + Path);
+        public void SetPreventDefaultEvent(string InputPlace, string HtmlEvent) => WebFormsData.Add("Ed" + InputPlace, HtmlEvent);
+        public void SetPreventDefaultEventListener(string InputPlace, string HtmlEventListener) => WebFormsData.Add("ED" + InputPlace, HtmlEventListener);
+        public void SetStopPropagationEvent(string InputPlace, string HtmlEvent) => WebFormsData.Add("Es" + InputPlace, HtmlEvent);
+        public void SetStopPropagationEventListener(string InputPlace, string HtmlEventListener) => WebFormsData.Add("ES" + InputPlace, HtmlEventListener);
         public void RemovePostEvent(string InputPlace, string HtmlEvent) => WebFormsData.Add("Rp" + InputPlace, HtmlEvent);
-        public void RemoveGetEvent(string InputPlace, string HtmlEvent) => WebFormsData.Add("Rg" + InputPlace, HtmlEvent);
-        public void RemoveTagEvent(string InputPlace, string HtmlEvent) => WebFormsData.Add("Rt" + InputPlace, HtmlEvent);
-        public void RemoveWebSocketEvent(string InputPlace, string HtmlEvent) => WebFormsData.Add("Rw" + InputPlace, HtmlEvent);
         public void RemovePostEventListener(string InputPlace, string HtmlEventListener) => WebFormsData.Add("RP" + InputPlace, HtmlEventListener);
+        public void RemoveGetEvent(string InputPlace, string HtmlEvent) => WebFormsData.Add("Rg" + InputPlace, HtmlEvent);
         public void RemoveGetEventListener(string InputPlace, string HtmlEventListener) => WebFormsData.Add("RG" + InputPlace, HtmlEventListener);
+        public void RemoveTagEvent(string InputPlace, string HtmlEvent) => WebFormsData.Add("Rt" + InputPlace, HtmlEvent);
         public void RemoveTagEventListener(string InputPlace, string HtmlEventListener) => WebFormsData.Add("RT" + InputPlace, HtmlEventListener);
+        public void RemoveWebSocketEvent(string InputPlace, string HtmlEvent) => WebFormsData.Add("Rw" + InputPlace, HtmlEvent);
         public void RemoveWebSocketEventListener(string InputPlace, string HtmlEventListener) => WebFormsData.Add("RW" + InputPlace, HtmlEventListener);
+        public void RemovePreventDefaultEvent(string InputPlace, string HtmlEvent) => WebFormsData.Add("Rd" + InputPlace, HtmlEvent);
+        public void RemovePreventDefaultEventListener(string InputPlace, string HtmlEventListener) => WebFormsData.Add("RD" + InputPlace, HtmlEventListener);
+        public void RemoveStopPropagationEvent(string InputPlace, string HtmlEvent) => WebFormsData.Add("Rs" + InputPlace, HtmlEvent);
+        public void RemoveStopPropagationEventListener(string InputPlace, string HtmlEventListener) => WebFormsData.Add("RS" + InputPlace, HtmlEventListener);
 
         // Save
         public void SaveId(string InputPlace, string Key = ".") => WebFormsData.Add("@gi" + InputPlace, Key);
@@ -167,6 +176,8 @@ namespace CodeBehind
         public void SaveNodeLength(string InputPlace, string Key = ".") => WebFormsData.Add("@nl" + InputPlace, Key);
         public void SaveVisible(string InputPlace, string Key = ".") => WebFormsData.Add("@vi" + InputPlace, Key);
         public void SaveUrl(string Url, string Key = ".") => WebFormsData.Add("@gu", Key + "|" + Url);
+        public void SaveIndex(string InputPlace, string Key = ".") => WebFormsData.Add("@gI" + InputPlace, Key);
+
 
         // Cache
         public void CacheId(string InputPlace, string Key = ".") => WebFormsData.Add("@ci" + InputPlace, Key);
@@ -188,6 +199,7 @@ namespace CodeBehind
         public void CacheNodeLength(string InputPlace, string Key = ".") => WebFormsData.Add("@Nl" + InputPlace, Key);
         public void CacheVisible(string InputPlace, string Key = ".") => WebFormsData.Add("@Vi" + InputPlace, Key);
         public void CacheUrl(string Url, string Key = ".") => WebFormsData.Add("@cu", Key + "|" + Url);
+        public void CacheIndex(string InputPlace, string Key = ".") => WebFormsData.Add("@cI" + InputPlace, Key);
 
         // Pre Runner
         public void AssignDelay(float Second, int Index = -1)
@@ -259,6 +271,8 @@ namespace CodeBehind
         // Index
         public void StartIndex(string Name) => WebFormsData.Add("#", Name);
         public void StartIndex() => StartIndex("");
+        public void GoTo(int Line, int Repeat = 1) => WebFormsData.Add("&", Line + "|" + Repeat.ToString());
+        public void GoTo(string Index, int Repeat = 1) => WebFormsData.Add("&", "#" + Index + "|" + Repeat.ToString());
 
         // Enable
         public void EnableWebSocket(bool Enable = true) => WebFormsData.Add("ew", Enable ? "1" : "0");
@@ -363,6 +377,9 @@ namespace CodeBehind
 
     public class InputPlace
     {
+        public const string Current = "$";
+        public const string Target = "!";
+
         public static string Id(string Id) => Id;
         public static string Name(string Name) => '(' + Name + ')';
         public static string Name(string Name, int Index) => '(' + Name + ')' + Index;
@@ -372,7 +389,6 @@ namespace CodeBehind
         public static string Class(string Class, int Index) => '{' + Class + '}' + Index;
         public static string Query(string Query) => "*" + Query.Replace("=", "$[eq];");
         public static string QueryAll(string Query) => "[" + Query.Replace("=", "$[eq];");
-        public static string Current() => "$";
     }
 
     public class OutputPlace : InputPlace { }
@@ -403,10 +419,20 @@ namespace CodeBehind
         public static string CacheAndRemove(string Key, string ReplaceValue) => "@ct" + Key + "," + ReplaceValue;
         public static string Script(string ScriptText) => "@_" + ScriptText.Replace('\n'.ToString(), "$[ln];");
         public static string LoadUrl(string Url) => "@lu" + Url;
-        public static string SavedLine(string Key = ".", int Line = 0) => "@lL" + Key + "|" + Line;
-        public static string SavedINI(string Key = ".", int INIKey = 0) => "@lI" + Key + "|" + INIKey;
-        public static string CacheLine(string Key = ".", int Line = 0) => "@dL" + Key + "|" + Line;
-        public static string CacheINI(string Key = ".", int INIKey = 0) => "@dI" + Key + "|" + INIKey;
+        public static string SavedLine(string Key = ".", int Line = 0) => "@lL" + Key + "[" + Line;
+        public static string SavedLineConsume(string Key = ".") => "@lL" + Key;
+        public static string SavedINI(string Key = ".", int INIKey = 0) => "@lI" + Key + "[" + INIKey;
+        public static string CacheLine(string Key = ".", int Line = 0) => "@dL" + Key + "[" + Line;
+        public static string CacheLineConsume(string Key = ".") => "@dL" + Key;
+        public static string CacheINI(string Key = ".", int INIKey = 0) => "@dI" + Key + "[" + INIKey;
+        public const string EventKey = "@ek";
+        public const string EventWhich = "@ew";
+        public const string EventClientX = "@ex";
+        public const string EventClientY = "@ey";
+        public const string EventPageX = "@eX";
+        public const string EventPageY = "@eY";
+        public const string EventOffsetX = "@Ex";
+        public const string EventOffsetY = "@Ey";
     }
 
     public class HtmlEvent
