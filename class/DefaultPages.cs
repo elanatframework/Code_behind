@@ -235,7 +235,7 @@ namespace SetCodeBehind
 
             var file = File.CreateText(FilePath);
 
-            file.Write(@"/* WebFormsJS 1.7 - Providing Infrastructure For Web Controls In CodeBehind Framework Owned By Elanat (elanat.net) */
+            file.Write(@"/* WebFormsJS 1.8 - The Front-End Part of WebForms Core Technology, Owned by Elanat (elanat.net) */
 
 /* Start Options */
 
@@ -250,6 +250,7 @@ PostBackOptions.SetResponseInsideDivTag = true;
 PostBackOptions.ProgressBarStyle = ""width:100%;min-width:300px;max-width:600px;background-color:#eee;margin:2px 0px"";
 PostBackOptions.ProgressBarPercentLoadedStyle = ""position:absolute;padding:0px 4px;line-height:22px"";
 PostBackOptions.ProgressBarValueStyle = ""height:20px;background-color:#4D93DD;width:0%"";
+PostBackOptions.AddLog = true;
 PostBackOptions.AddLogForWebSockets = true;
 
 function cb_GetResponseLocation()
@@ -258,6 +259,14 @@ function cb_GetResponseLocation()
 }
 
 /* End Options */
+
+/* Start Check Browser Support */
+
+if (PostBackOptions.AddLog)
+    if (!FormData || !('replaceChildren' in document.createElement('div')))
+        console.warn(""Your browser is out of date and does not support WebForms Core technology"");
+
+/* End Check Browser Support */
 
 /* Start WebSocket */
 
@@ -355,18 +364,18 @@ function cb_SetPostBackFunctionToSubmit(obj)
 
             if (!OnClickAttr)
             {
-                InputElement.setAttribute(""onclick"", ""PostBack(this)"");
+                InputElement.setAttribute(""onclick"", ""PostBack(event)"");
                 return;
             }
 
             if (!OnClickAttr.ContainsNameWithSpliter(""PostBack"", ';', '('))
                 if (OnClickAttr.charAt(OnClickAttr.length - 1) == ';')
-                    InputElement.setAttribute(""onclick"", OnClickAttr + ""PostBack(this)"");
+                    InputElement.setAttribute(""onclick"", OnClickAttr + ""PostBack(event)"");
                 else
-                    InputElement.setAttribute(""onclick"", OnClickAttr + "";PostBack(this)"");
+                    InputElement.setAttribute(""onclick"", OnClickAttr + "";PostBack(event)"");
         }
         else
-            InputElement.setAttribute(""onclick"", ""PostBack(this)"");
+            InputElement.setAttribute(""onclick"", ""PostBack(event)"");
     });
 }
 
@@ -379,14 +388,16 @@ function cb_Initialization(obj)
 {
     if (obj)
     {
-        cb_SetPostBackFunctionToSubmit(obj);
         cb_SetWebFormsTagsValue(obj);
+        cb_SetPostBackFunctionToSubmit(obj);
     }
     else
     {
-        cb_SetPostBackFunctionToSubmit();
         cb_SetWebFormsTagsValue();
+        cb_SetPostBackFunctionToSubmit();
     }
+
+    cb_CleanExpiredCache();
 }
 
 function cb_AddEvent(obj, event, functionWithArgs)
@@ -396,11 +407,25 @@ function cb_AddEvent(obj, event, functionWithArgs)
         {
             currentAttribute = obj.getAttribute(event);
 
+            if (event == ""onload"")
+            {
+                obj.setAttribute(event, functionWithArgs);
+                obj.onload();
+
+                if (!obj)
+                    return;
+
+                if (obj.getAttribute(event).length > functionWithArgs.length)
+                    currentAttribute += "";"" + obj.getAttribute(event).Replace(functionWithArgs, """");
+            }
+
             obj.setAttribute(event, currentAttribute + "";"" + functionWithArgs);
             return;
         }
 
     obj.setAttribute(event, functionWithArgs);
+    if (event == ""onload"")
+        obj.onload();
 }
 
 function cb_RemoveEvent(obj, event, functionName)
@@ -421,9 +446,10 @@ var cb_EventRegistry = {};
 
 function cb_AddEventListener(obj, event, functionName, args = [])
 {
-    var callback = function ()
+    var callback = function (evt)
     {
-        functionName.apply(this, args);
+        // The Three Dot Character (...) Is Spread Operator For Expands Args Array
+        functionName.apply(this, [evt, ...args]);
     };
 
     obj.addEventListener(event, callback);
@@ -461,12 +487,72 @@ function cb_RemoveEventListener(obj, event, functionName)
     }
 }
 
+function cb_PreServedEevent(evt)
+{
+    var captured = {};
+
+    if (evt)
+    {
+        captured.currentTarget = evt.currentTarget;
+        captured.target = evt.target;
+        captured.type = evt.type;
+        captured.bubbles = evt.bubbles;
+        captured.cancelable = evt.cancelable;
+        captured.clientX = evt.clientX;
+        captured.clientY = evt.clientY;
+        captured.pageX = evt.pageX;
+        captured.pageY = evt.pageY;
+        captured.offsetX = evt.offsetX;
+        captured.offsetY = evt.offsetY;
+        captured.keyCode = evt.keyCode;
+        captured.key = evt.key;
+        captured.button = evt.button;
+        captured.which = evt.which;
+        captured.altKey = evt.altKey;
+        captured.ctrlKey = evt.ctrlKey;
+        captured.metaKey = evt.metaKey;
+        captured.shiftKey = evt.shiftKey;
+        // ... Has More Event Properties
+
+        if (typeof evt.preventDefault === 'function')
+        {
+            captured.preventDefault = function () {
+                evt.preventDefault();
+            };
+        }
+        if (typeof evt.stopPropagation === 'function')
+        {
+            captured.stopPropagation = function () {
+                evt.stopPropagation();
+            };
+        }
+        // ... Has More Event Methods
+    }
+
+    return captured;
+}
+
+function PreventDefault(evt)
+{
+    evt.preventDefault();
+}
+
+function StopPropagation(evt)
+{
+    evt.stopPropagation();
+}
+
 /* End Event */
 
 /* Start Post-Back */
 
-function PostBack(obj, ViewState)
+function PostBack(evt, ViewState)
 {
+    evt = evt || window.event;
+    evt = cb_PreServedEevent(evt);
+
+    var obj = evt.currentTarget;
+
     // Set Form Value
     var Form = obj;
     do
@@ -527,7 +613,7 @@ function PostBack(obj, ViewState)
         RequestName = obj.getAttribute(""name"") + ""|"" + TagSubmitValue + ""|"" + RequestName;
 
     // Check Cache
-    if (cb_UsedCache(RequestName, RequestNameForCache))
+    if (cb_UsedCache(evt, RequestName, RequestNameForCache))
     {        // Reset Input Type
         setTimeout(function () { (OldObjectType == ""submit"") ? obj.type = ""submit"" : obj.type; }, 1);
         return;
@@ -558,7 +644,7 @@ function PostBack(obj, ViewState)
             cb_WebSockets[FormAction].onmessage = function (event)
             {
                 var WebSocketResult = event.data;
-                cb_SetResponse(WebSocketResult, ViewState, RequestName);
+                cb_SetResponse(evt, WebSocketResult, ViewState, RequestName);
 
                 Form.focus();
 
@@ -583,7 +669,7 @@ function PostBack(obj, ViewState)
         if (XMLHttp.readyState == 4 && XMLHttp.status == 200)
         {
             var HttpResult = XMLHttp.responseText;
-            cb_SetResponse(HttpResult, ViewState, RequestName);
+            cb_SetResponse(evt, HttpResult, ViewState, RequestName);
 
             Form.focus();
 
@@ -636,8 +722,11 @@ function PostBack(obj, ViewState)
 
 /* Start Get-Back */
 
-function GetBack(FormAction, ViewState)
+function GetBack(evt, FormAction, ViewState)
 {
+    evt = evt || window.event;
+    evt = cb_PreServedEevent(evt);
+
     var FormMethod = (PostBackOptions.SendDataOnlyByPostMethod) ? ""POST"" : ""GET"";
 
     // Set Form Value
@@ -700,7 +789,7 @@ function GetBack(FormAction, ViewState)
     }
 
     // Check Cache
-    if (cb_UsedCache(RequestName, RequestNameForCache))
+    if (cb_UsedCache(evt, RequestName, RequestNameForCache))
         return;
 
     var formHasWebSocketAttribute = false;
@@ -733,7 +822,7 @@ function GetBack(FormAction, ViewState)
             cb_WebSockets[FormAction].onmessage = function (event)
             {
                 var WebSocketResult = event.data;
-                cb_SetResponse(WebSocketResult, ViewState, RequestName);
+                cb_SetResponse(evt, WebSocketResult, ViewState, RequestName);
 
                 if (typeof OldFormAction === ""object"")
                 {
@@ -762,7 +851,7 @@ function GetBack(FormAction, ViewState)
         if (XMLHttp.readyState == 4 && XMLHttp.status == 200)
         {
             var HttpResult = XMLHttp.responseText;
-            cb_SetResponse(HttpResult, ViewState, RequestName);
+            cb_SetResponse(evt, HttpResult, ViewState, RequestName);
 
             if (typeof OldFormAction === ""object"")
             {
@@ -804,7 +893,7 @@ function GetBack(FormAction, ViewState)
 
 /* Start Set Response Value */
 
-function cb_SetResponse(ResponseResult, ViewState, RequestName)
+function cb_SetResponse(evt, ResponseResult, ViewState, RequestName)
 {
 	var IsWebForms = false;
 
@@ -817,10 +906,10 @@ function cb_SetResponse(ResponseResult, ViewState, RequestName)
 		}
 
 	if (IsWebForms)
-        cb_SetWebFormsValues(RequestName, ResponseResult, true);
+        cb_SetWebFormsValues(evt, RequestName, ResponseResult, true);
 	else
-	{
-		var TmpDiv = document.createElement(""div"");
+    {
+        var TmpDiv = document.createElement(""div"");
         TmpDiv.innerHTML = ResponseResult.toDOM();
         cb_AppendJavaScriptTag(ResponseResult);
 
@@ -829,31 +918,40 @@ function cb_SetResponse(ResponseResult, ViewState, RequestName)
 			if (typeof ViewState === ""string"")
 			{
 				var ViewStateObject = cb_GetElementByElementPlace(ViewState);
-				ViewStateObject.innerHTML = TmpDiv.outerHTML;
+                ViewStateObject.replaceChildren(TmpDiv);
 				cb_Initialization(ViewStateObject.getElementsByTagName(""div"")[0]);
-				if (!PostBackOptions.SetResponseInsideDivTag)
-					ViewStateObject.getElementsByTagName(""div"")[0].outerHTML = ViewStateObject.getElementsByTagName(""div"")[0].innerHTML;
+                if (!PostBackOptions.SetResponseInsideDivTag)
+                {
+                    var DivElement = ViewStateObject.getElementsByTagName(""div"")[0];
+                    DivElement.replaceChildren(...DivElement.childNodes);
+                }
 			}
 			else if (typeof ViewState === ""object"")
 			{
-				ViewState.innerHTML = TmpDiv.outerHTML;
+                ViewState.replaceChildren(TmpDiv);
 				cb_Initialization(ViewState.getElementsByTagName(""div"")[0]);
-				if (!PostBackOptions.SetResponseInsideDivTag)
-					ViewState.getElementsByTagName(""div"")[0].outerHTML = ViewState.getElementsByTagName(""div"")[0].innerHTML;
+                if (!PostBackOptions.SetResponseInsideDivTag)
+                {
+                    var DivElement = ViewState.getElementsByTagName(""div"")[0];
+                    DivElement.replaceChildren(...DivElement.childNodes);
+                }
 			}
 			else
 			{
 				cb_GetResponseLocation().prepend(TmpDiv);
 				cb_Initialization(cb_GetResponseLocation().getElementsByTagName(""div"")[0]);
-				if (!PostBackOptions.SetResponseInsideDivTag)
-					cb_GetResponseLocation().getElementsByTagName(""div"")[0].outerHTML = cb_GetResponseLocation().getElementsByTagName(""div"")[0].innerHTML;
+                if (!PostBackOptions.SetResponseInsideDivTag)
+                {
+                    var DivElement = cb_GetResponseLocation().getElementsByTagName(""div"")[0];
+                    DivElement.replaceChildren(...DivElement.childNodes);
+                }
 			}
 		}
 		else
-		{
-			cb_GetResponseLocation().innerHTML = (PostBackOptions.SetResponseInsideDivTag) ? TmpDiv.outerHTML : TmpDiv.innerHTML;
+        {
+            cb_GetResponseLocation().replaceChildren(...(PostBackOptions.SetResponseInsideDivTag ? [TmpDiv] : TmpDiv.childNodes));
 			cb_Initialization(cb_GetResponseLocation());
-		}
+        }
 	}
 }
 
@@ -861,21 +959,23 @@ function cb_SetResponse(ResponseResult, ViewState, RequestName)
 
 /* Start Tag-Back */
 
-function TagBack(OutputPlace)
+function TagBack(evt, OutputPlace)
 {
+    evt = evt || window.event;
+
     var ElementPlace = cb_GetElementByElementPlace(OutputPlace);
     var ActionControls = ElementPlace.getAttribute(""ac"");
-    cb_SetWebFormsValues("""", ActionControls, false, true);
+    cb_SetWebFormsValues(evt, """", ActionControls, false, true);
 }
 
 /* End Tag-Back */
 
 /* Start WebSocket-Back */
 
-function WebSocketBack(Path)
+function WebSocketBack(evt, Path)
 {
     cb_AddWebSocketPath(Path);
-    GetBack(Path);
+    GetBack(evt, Path);
 }
 
 /* End WebSocket-Back */
@@ -1069,9 +1169,9 @@ function cb_ProgressHandler(event)
     var Percent = (event.loaded / event.total) * 100;
 
     if (event.total >= 1048576)
-        document.getElementById(""div_ProgressPercentLoaded"").innerHTML = (event.loaded / 1048576).toFixed(1) + ""("" + Math.round(Percent) + ""%)"" + "" / "" + (event.total / 1048576).toFixed(1) + "" MB"";
+        document.getElementById(""div_ProgressPercentLoaded"").textContent = (event.loaded / 1048576).toFixed(1) + ""("" + Math.round(Percent) + ""%)"" + "" / "" + (event.total / 1048576).toFixed(1) + "" MB"";
     else
-        document.getElementById(""div_ProgressPercentLoaded"").innerHTML = (event.loaded / 1024).toFixed(1) + ""("" + Math.round(Percent) + ""%)"" + "" / "" + (event.total / 1024).toFixed(1) + "" KB"";
+        document.getElementById(""div_ProgressPercentLoaded"").textContent = (event.loaded / 1024).toFixed(1) + ""("" + Math.round(Percent) + ""%)"" + "" / "" + (event.total / 1024).toFixed(1) + "" KB"";
 
     document.getElementById(""div_ProgressUploadValue"").style.width = Math.round(Percent) + ""%"";
 }
@@ -1108,7 +1208,7 @@ function cb_SetProgressTag(obj, form)
 function cb_CleanProgressValue()
 {
     if (document.getElementById(""div_ProgressUploadValue""))
-        document.getElementById(""div_ProgressUpload"").outerHTML = """";
+        document.getElementById(""div_ProgressUpload"").remove();
 }
 
 function cb_HasFileInput(Form)
@@ -1151,7 +1251,7 @@ function cb_SetWebFormsTagsValue(obj)
 
             var Src = WebForms.getAttribute(""src"");
             if (Src)
-                GetBack(Src, WebForms);
+                GetBack(document, Src, WebForms);
 
             WebForms.style.backgroundColor = ""unset"";
         }
@@ -1160,7 +1260,7 @@ function cb_SetWebFormsTagsValue(obj)
         {
             var ActionControl = WebForms.getAttribute(""ac"");
             if (ActionControl)
-                cb_SetWebFormsValues("""", ActionControl.Replace(""$[dq];"",""\""""), false, true);
+                cb_SetWebFormsValues(document, """", ActionControl.Replace(""$[dq];"", ""\""""), false, true);
         }
     });
 }
@@ -1169,12 +1269,12 @@ function cb_SetWebFormsTagsValue(obj)
 
 /* Start Fetch Web-Forms */
 
-function cb_SetWebFormsValues(RequestName, WebFormsValues, UsePostBack, WithoutWebFormsSection)
+function cb_SetWebFormsValues(evt, RequestName, WebFormsValues, UsePostBack, WithoutWebFormsSection)
 {
     // Initialization to Index
     var StartIndex = RequestName.Contains(""#"") ? RequestName.GetTextAfter(""#"") : """";
     var IndexHasStarted = ((StartIndex == """") || (StartIndex == ""0""));
-    var StartIndexIsNumber = (!isNaN(StartIndex) && !isNaN(parseInt(StartIndex)));
+    var StartIndexIsNumber = StartIndex.IsNumber();
     var StartIndexIndex = StartIndexIsNumber ? parseInt(StartIndex) : 0;
     var IndexForStartIndex = 1;
 
@@ -1221,7 +1321,7 @@ function cb_SetWebFormsValues(RequestName, WebFormsValues, UsePostBack, WithoutW
         var PreRunner = new Array();
         var FirstChar = WebFormsList[i].substring(0, 1);
         var PreRunnerIndexer = 0;
-        while ((FirstChar == ':') || (FirstChar == '('))
+        while ((FirstChar == ':') || (FirstChar == '(') || (FirstChar == ','))
         {
             PreRunner[PreRunnerIndexer++] = WebFormsList[i].GetTextBefore("")"");
             WebFormsList[i] = WebFormsList[i].GetTextAfter("")"");
@@ -1237,7 +1337,49 @@ function cb_SetWebFormsValues(RequestName, WebFormsValues, UsePostBack, WithoutW
                 continue;
 
             case `@`:
-                cb_SaveValue(WebFormsList[i].substring(1, 2), WebFormsList[i].substring(2, 3), WebFormsList[i].substring(3));
+                cb_SaveValue(evt, WebFormsList[i].substring(1, 2), WebFormsList[i].substring(2, 3), WebFormsList[i].substring(3));
+                continue;
+
+            case '&':
+                var GoToValue = WebFormsList[i].GetTextAfter(""="");
+                var LineIndex = GoToValue.GetTextBefore(""|"");
+                var Repeat = GoToValue.GetTextAfter(""|"");
+                var InitialRepeat = Repeat;
+
+                if (Repeat.Contains(""|""))
+                {
+                    InitialRepeat = Repeat.GetTextAfter(""|"");
+                    Repeat = GoToValue.GetTextBefore(""|"");
+                }
+
+                if (parseInt(Repeat, 10) == 0)
+                {
+                    WebFormsList[i] = ""&="" + LineIndex + ""|"" + InitialRepeat;
+                    continue;
+                }
+                Repeat = parseInt(Repeat, 10) - 1;
+
+                WebFormsList[i] = ""&="" + LineIndex + ""|"" + Repeat + ""|"" + InitialRepeat;
+
+                if (LineIndex.substring(0,1) == '#')
+                {
+                    i = 0;
+                    IndexHasStarted = false;
+                    StartIndex = LineIndex.GetTextAfter(""#"");
+                    StartIndexIsNumber = StartIndex.IsNumber();
+                    StartIndexIndex = StartIndexIsNumber ? parseInt(StartIndex) : 0;
+                    IndexForStartIndex = 1;
+                }
+                else
+                {
+                    WebFormsList[i] = ""&="" + LineIndex + ""|"" + Repeat;
+                    var LineIndexInt = parseInt(LineIndex, 10);
+                    if (LineIndexInt >= 0)
+                        i = LineIndexInt;
+                    else
+                        i = i + LineIndexInt;
+                }
+
                 continue;
 
             case 'r':
@@ -1311,11 +1453,11 @@ function cb_SetWebFormsValues(RequestName, WebFormsValues, UsePostBack, WithoutW
         var ActionOperation = ActionName.substring(0, 1);
         var ActionFeature = ActionName.substring(1, 2);
 
-        cb_SetPreRunnerQueueForSetValueToInput(PreRunner, ActionOperation, ActionFeature, ActionValue);
+        cb_SetPreRunnerQueueForSetValueToInput(evt, PreRunner, ActionOperation, ActionFeature, ActionValue);
     }
 }
 
-function cb_SetValueToInput(ActionOperation, ActionFeature, ActionValue)
+function cb_SetValueToInput(evt, ActionOperation, ActionFeature, ActionValue)
 {
     var ElementPlace = ActionValue.GetTextBefore(""="");
     var Value = ActionValue.GetTextAfter(""="").FullTrim();
@@ -1325,22 +1467,53 @@ function cb_SetValueToInput(ActionOperation, ActionFeature, ActionValue)
     for (var ValueArrayIndex = 0; ValueArrayIndex < ValueArray.length; ValueArrayIndex++)
         if (ValueArray[ValueArrayIndex].length > 0)
             if (ValueArray[ValueArrayIndex].substring(0,1) == '@')
-                ValueArray[ValueArrayIndex] = cb_FetchValue(ValueArray[ValueArrayIndex]);
+                ValueArray[ValueArrayIndex] = cb_FetchValue(evt, ValueArray[ValueArrayIndex]);
 
     Value = ValueArray.join(""|"");
 
     var LabelForIndexer = 0;
     var ElementPlaceList;
 
-    if (ElementPlace.substring(0, 1) == '[')
+    var HasRequester = false;
+    var Requester;
+    if (ElementPlace.substring(0, 1) == '$')
     {
-        var QueryAll = ElementPlace.substring(1);
-        ElementPlaceList = document.querySelectorAll(QueryAll.Replace(""$[eq];"", ""=""));
+        HasRequester = true;
+        ElementPlace = ElementPlace.substring(1);
+        Requester = evt.currentTarget;
+    }
+    if (ElementPlace.substring(0, 1) == '!')
+    {
+        HasRequester = true;
+        ElementPlace = ElementPlace.substring(1);
+        Requester = evt.target;
+    }
+
+    if (ElementPlace.length > 0)
+    {
+        if (ElementPlace.substring(0, 1) == '[')
+        {
+            var QueryAll = ElementPlace.substring(1);
+
+            if (HasRequester)
+                ElementPlaceList = Requester.querySelectorAll(QueryAll.Replace(""$[eq];"", ""=""));
+            else
+                ElementPlaceList = document.querySelectorAll(QueryAll.Replace(""$[eq];"", ""=""));
+        }
+        else
+        {
+            ElementPlaceList = new Array();
+
+            if (HasRequester)
+                ElementPlaceList[0] = cb_GetElementByElementPlace(ElementPlace, Requester);
+            else
+                ElementPlaceList[0] = cb_GetElementByElementPlace(ElementPlace);
+        }
     }
     else
     {
         ElementPlaceList = new Array();
-        ElementPlaceList[0] = cb_GetElementByElementPlace(ElementPlace);
+        ElementPlaceList[0] = Requester;
     }
 
     for (var i = 0; i < ElementPlaceList.length; i++)
@@ -1477,31 +1650,51 @@ function cb_SetValueToInput(ActionOperation, ActionFeature, ActionValue)
                             LabelTag = document.createElement(""label"");
                             LabelTag.setAttribute(""for"", CurrentElement.id);
                             LabelTag.innerText = Value;
-                            CurrentElement.outerHTML = CurrentElement.outerHTML + LabelTag.outerHTML;
+                            CurrentElement.insertAdjacentElement(""afterend"", LabelTag);
                         }
                         break;
                     case 't':
-                        CurrentElement.innerHTML = CurrentElement.innerHTML + Value.Replace(""$[ln];"", ""\n"").toDOM();
-                        cb_Initialization(CurrentElement);
+                        if (Value.HasTag())
+                        {
+                            CurrentElement.insertAdjacentHTML(""beforeend"", Value.Replace(""$[ln];"", ""\n"").toDOM());
+                            cb_Initialization(CurrentElement);
+                        }
+                        else
+                            CurrentElement.insertAdjacentHTML(""beforeend"", Value.Replace(""$[ln];"", ""\n""));
                         break;
                     case 'a':
-                        var AttrName = Value;
+                        var AttrName = Value.GetTextBefore(""|"");
+                        var Splitter = Value.GetTextAfter(""|"");
                         var AttrValue = """";
-                        if (Value.Contains(""|""))
+                        if (Splitter.Contains(""|""))
                         {
-                            AttrName = Value.GetTextBefore(""|"");
-                            AttrValue = Value.GetTextAfter(""|"");
+                            AttrValue = Splitter.GetTextAfter(""|"");
+                            Splitter = Splitter.GetTextBefore(""|"");
                         }
                         if (CurrentElement.hasAttribute(AttrName))
                         {
                             var CurrentAttr = CurrentElement.getAttribute(AttrName);
-                            if (CurrentAttr.charAt(CurrentAttr.length - 1) == ';')
+                            if (CurrentAttr.charAt(CurrentAttr.length - 1) == Splitter)
                                 CurrentElement.setAttribute(AttrName, CurrentAttr + AttrValue);
                             else
-                                CurrentElement.setAttribute(AttrName, CurrentAttr + ';' + AttrValue);
+                                CurrentElement.setAttribute(AttrName, CurrentAttr + Splitter + AttrValue);
                         }
                         else
                             CurrentElement.setAttribute(AttrName, AttrValue);
+                        break;
+                    case 'h':
+                        var TmpTag = document.createElement(""input"");
+                        TmpTag.setAttribute(""type"", ""hidden"");
+                        TmpTag.value = Value;
+                        if (Value.Contains(""|""))
+                        {
+                            var TagValue = Value.GetTextBefore(""|"");
+                            var TagId = Value.GetTextAfter(""|"");
+                            TmpTag.value = TagValue;
+                            TmpTag.setAttribute(""id"", TagId);
+                        }
+                        else
+                            CurrentElement.append(TmpTag);
                 }
                 break;
 
@@ -1671,35 +1864,42 @@ function cb_SetValueToInput(ActionOperation, ActionFeature, ActionValue)
                             LabelTag = document.createElement(""label"");
                             LabelTag.setAttribute(""for"", CurrentElement.id);
                             LabelTag.innerText = Value;
-                            CurrentElement.outerHTML = CurrentElement.outerHTML + LabelTag.outerHTML;
+                            CurrentElement.insertAdjacentElement(""afterend"", LabelTag);
                         }
                         break;
                     case 't':
                         if ((ActionOperation == 'i') && (CurrentElement.innerHTML || CurrentElement.innerText))
                             break;
 
-                        CurrentElement.innerHTML = Value.Replace(""$[ln];"", ""\n"").toDOM();
-                        cb_Initialization(CurrentElement);
+                        if (Value.HasTag())
+                        {
+                            CurrentElement.replaceChildren();
+                            CurrentElement.insertAdjacentHTML(""beforeend"", Value.Replace(""$[ln];"", ""\n"").toDOM());
+                            cb_Initialization(CurrentElement);
+                        }
+                        else
+                            CurrentElement.textContent = Value.Replace(""$[ln];"", ""\n"");
                         break;
                     case 'a':
-                        var AttrName = Value;
+                        var AttrName = Value.GetTextBefore(""|"");
+                        var Splitter = Value.GetTextAfter(""|"");
                         var AttrValue = """";
-                        if (Value.Contains(""|""))
+                        if (Splitter.Contains(""|""))
                         {
-                            AttrName = Value.GetTextBefore(""|"");
-                            AttrValue = Value.GetTextAfter(""|"");
+                            AttrValue = Splitter.GetTextAfter(""|"");
+                            Splitter = Splitter.GetTextBefore(""|"");
                         }
                         if (CurrentElement.hasAttribute(AttrName))
                         {
                             var CurrentAttr = CurrentElement.getAttribute(AttrName);
 
-                            if ((ActionOperation == 'i') && (CurrentAttr.ContainsWithSpliter(AttrValue, "";"")))
+                            if ((ActionOperation == 'i') && (CurrentAttr.ContainsWithSpliter(AttrValue, Splitter)))
                                 break;
 
-                            if (CurrentAttr.charAt(CurrentAttr.length - 1) == ';')
+                            if (CurrentAttr.charAt(CurrentAttr.length - 1) == Splitter)
                                 CurrentElement.setAttribute(AttrName, CurrentAttr + AttrValue);
                             else
-                                CurrentElement.setAttribute(AttrName, CurrentAttr + ';' + AttrValue);
+                                CurrentElement.setAttribute(AttrName, CurrentAttr + Splitter + AttrValue);
                         }
                         else
                             CurrentElement.setAttribute(AttrName, AttrValue);
@@ -1737,18 +1937,18 @@ function cb_SetValueToInput(ActionOperation, ActionFeature, ActionValue)
                         {
                             var OptionList = CurrentElement.querySelectorAll('option');
                             for (var OptionIndex = 0; OptionIndex < OptionList.length; OptionIndex++)
-                                OptionList[OptionIndex].outerHTML = """";
+                                OptionList[OptionIndex].remove();
                             break;
                         }
                         if (CurrentElement.querySelectorAll('option[value=""' + Value + '""]').length > 0)
-                            CurrentElement.querySelectorAll('option[value=""' + Value + '""]')[0].outerHTML = """";
+                            CurrentElement.querySelectorAll('option[value=""' + Value + '""]')[0].remove();
                         break;
                     case 'k':
                         if (Value == '*')
                         {
                             var CheckBoxList = CurrentElement.querySelectorAll('input[type=""checkbox""]');
                             for (var CheckBoxTagIndex = 0; CheckBoxTagIndex < CheckBoxList.length; CheckBoxTagIndex++)
-                                CheckBoxList[CheckBoxTagIndex].outerHTML = """";
+                                CheckBoxList[CheckBoxTagIndex].remove();
                             break;
                         }
                         var CheckBoxTagLength = CurrentElement.querySelectorAll('input[type=""checkbox""][value=""' + Value + '""]').length;
@@ -1757,9 +1957,9 @@ function cb_SetValueToInput(ActionOperation, ActionFeature, ActionValue)
                             var CheckBoxTag = CurrentElement.querySelectorAll('input[type=""checkbox""][value=""' + Value + '""]')[0];
                             if (CheckBoxTag.id)
                                 if (CurrentElement.querySelectorAll('label[for=""' + CheckBoxTag.id + '""]').length > 0)
-                                    CurrentElement.querySelectorAll('label[for=""' + CheckBoxTag.id + '""]')[0].outerHTML = """";
+                                    CurrentElement.querySelectorAll('label[for=""' + CheckBoxTag.id + '""]')[0].remove();
 
-                            CheckBoxTag.outerHTML = """";
+                            CheckBoxTag.remove();
                         }
                         break;
                     case 'l':
@@ -1774,12 +1974,12 @@ function cb_SetValueToInput(ActionOperation, ActionFeature, ActionValue)
                         {
                             var LabelTag = document.querySelector('label[for=""' + CurrentElement.id + '""]');
                             if (LabelTag)
-                                LabelTag.outerHTML = """";
+                                LabelTag.remove();
                         }
                         break;
                     case 't':
                         if (Value == ""1"")
-                            CurrentElement.innerHTML = """";
+                            CurrentElement.replaceChildren();
                         break;
                     case 'a':
                         if (CurrentElement.hasAttribute(Value))
@@ -1787,11 +1987,11 @@ function cb_SetValueToInput(ActionOperation, ActionFeature, ActionValue)
                         break;
                     case 'e':
                         if (Value == ""1"")
-                            CurrentElement.outerHTML = """";
+                            CurrentElement.remove();
                         break;
                     case 'p':
                         if (Value == ""1"")
-                            CurrentElement.parentElement.outerHTML = """";
+                            CurrentElement.parentElement.remove();
                 }
                 break;
 
@@ -1873,12 +2073,12 @@ function cb_SetValueToInput(ActionOperation, ActionFeature, ActionValue)
                             var HtmlEvent = Value.GetTextBefore(""|"");
                             
                             if (Value.GetTextAfter(""|"") == '+')
-                                cb_AddEvent(CurrentElement, HtmlEvent, ""PostBack(this, true)"");
+                                cb_AddEvent(CurrentElement, HtmlEvent, ""PostBack(event, true)"");
                             else
-                                cb_AddEvent(CurrentElement, HtmlEvent, ""PostBack(this, '"" + Value.GetTextAfter(""|"") + ""')"");
+                                cb_AddEvent(CurrentElement, HtmlEvent, ""PostBack(event, '"" + Value.GetTextAfter(""|"") + ""')"");
                         }
                         else
-                            cb_AddEvent(CurrentElement, Value, ""PostBack(this)"");
+                            cb_AddEvent(CurrentElement, Value, ""PostBack(event)"");
                         break;
                     case ""P"":
                         if (Value.Contains(""|""))
@@ -1886,13 +2086,13 @@ function cb_SetValueToInput(ActionOperation, ActionFeature, ActionValue)
                             var HtmlEvent = Value.GetTextBefore(""|"");
                             
                             if (Value.GetTextAfter(""|"") == '+')
-                                cb_AddEventListener(CurrentElement, HtmlEvent, PostBack, [this, true]);
+                                cb_AddEventListener(CurrentElement, HtmlEvent, PostBack, [true]);
                             else
-                                cb_AddEventListener(CurrentElement, HtmlEvent, PostBack, [this, Value.GetTextAfter(""|"")]);
+                                cb_AddEventListener(CurrentElement, HtmlEvent, PostBack, [Value.GetTextAfter(""|"")]);
                             break;
                         }
                         else
-                            cb_AddEventListener(CurrentElement, Value, PostBack, [this]);
+                            cb_AddEventListener(CurrentElement, Value, PostBack, []);
                         break;
                     case ""g"":
                         if (Value.Contains(""|""))
@@ -1903,20 +2103,20 @@ function cb_SetValueToInput(ActionOperation, ActionFeature, ActionValue)
                             if (Path.Contains(""|""))
                             {
                                 if (Path.GetTextBefore(""|"") == '#')
-                                    cb_AddEvent(CurrentElement, HtmlEvent, ""GetBack('', '"" + Path.GetTextAfter(""|"") + ""')"");
+                                    cb_AddEvent(CurrentElement, HtmlEvent, ""GetBack(event, '', '"" + Path.GetTextAfter(""|"") + ""')"");
                                 else
-                                    cb_AddEvent(CurrentElement, HtmlEvent, ""GetBack('"" + Path.GetTextBefore(""|"") + ""', '"" + Path.GetTextAfter(""|"") + ""')"");
+                                    cb_AddEvent(CurrentElement, HtmlEvent, ""GetBack(event, '"" + Path.GetTextBefore(""|"") + ""', '"" + Path.GetTextAfter(""|"") + ""')"");
                             }
                             else
                             {
                                 if (Path == '#')
-                                    cb_AddEvent(CurrentElement, HtmlEvent, ""GetBack()"");
+                                    cb_AddEvent(CurrentElement, HtmlEvent, ""GetBack(event)"");
                                 else
-                                    cb_AddEvent(CurrentElement, HtmlEvent, ""GetBack('"" + Path + ""')"");
+                                    cb_AddEvent(CurrentElement, HtmlEvent, ""GetBack(event, '"" + Path + ""')"");
                             }
                         }
                         else
-                            cb_AddEvent(CurrentElement, Value, ""GetBack(this)"");
+                            cb_AddEvent(CurrentElement, Value, ""GetBack(event, this)"");
                         break;
                     case ""G"":
                         if (Value.Contains(""|""))
@@ -1934,7 +2134,7 @@ function cb_SetValueToInput(ActionOperation, ActionFeature, ActionValue)
                             else
                             {
                                 if (Path == '#')
-                                    cb_AddEventListener(CurrentElement, HtmlEvent, GetBack);
+                                    cb_AddEventListener(CurrentElement, HtmlEvent, GetBack, []);
                                 else
                                     cb_AddEventListener(CurrentElement, HtmlEvent, GetBack, [Path]);
                             }
@@ -1942,10 +2142,14 @@ function cb_SetValueToInput(ActionOperation, ActionFeature, ActionValue)
                         else
                             cb_AddEventListener(CurrentElement, Value, GetBack, [this]);
                         break;
-                    case ""t"": cb_AddEvent(CurrentElement, Value.GetTextBefore(""|""), ""TagBack('"" + Value.GetTextAfter(""|"") + ""')""); break;
+                    case ""t"": cb_AddEvent(CurrentElement, Value.GetTextBefore(""|""), ""TagBack(event, '"" + Value.GetTextAfter(""|"") + ""')""); break;
                     case ""T"": cb_AddEventListener(CurrentElement, Value.GetTextBefore(""|""), TagBack, [Value.GetTextAfter(""|"")]); break;
-                    case ""w"": cb_AddEvent(CurrentElement, Value.GetTextBefore(""|""), ""WebSocketBack('"" + Value.GetTextAfter(""|"") + ""')""); break;
+                    case ""w"": cb_AddEvent(CurrentElement, Value.GetTextBefore(""|""), ""WebSocketBack(event, '"" + Value.GetTextAfter(""|"") + ""')""); break;
                     case ""W"": cb_AddEventListener(CurrentElement, Value.GetTextBefore(""|""), WebSocketBack, [Value.GetTextAfter(""|"")]); break;
+                    case ""d"": cb_AddEvent(CurrentElement, Value, ""PreventDefault(event)""); break;
+                    case ""D"": CurrentElement.addEventListener(Value, PreventDefault); break;
+                    case ""s"": cb_AddEvent(CurrentElement, Value, ""StopPropagation(event)""); break;
+                    case ""S"": CurrentElement.addEventListener(Value, StopPropagation); break;
                 }
                 break;
 
@@ -1956,10 +2160,14 @@ function cb_SetValueToInput(ActionOperation, ActionFeature, ActionValue)
                     case ""g"": cb_RemoveEvent(CurrentElement, Value, ""GetBack""); break;
                     case ""t"": cb_RemoveEvent(CurrentElement, Value, ""TagBack""); break;
                     case ""w"": cb_RemoveEvent(CurrentElement, Value, ""WebSocketBack""); break;
+                    case ""d"": cb_RemoveEvent(CurrentElement, Value, ""PreventDefault""); break;
+                    case ""s"": cb_RemoveEvent(CurrentElement, Value, ""StopPropagation""); break;
                     case ""P"": cb_RemoveEventListener(CurrentElement, Value, PostBack); break;
                     case ""G"": cb_RemoveEventListener(CurrentElement, Value, GetBack); break;
                     case ""T"": cb_RemoveEventListener(CurrentElement, Value, TagBack); break;
                     case ""W"": cb_RemoveEventListener(CurrentElement, Value, WebSocketBack); break;
+                    case ""D"": cb_RemoveEventListener(CurrentElement, Value, PreventDefault); break;
+                    case ""S"": cb_RemoveEventListener(CurrentElement, Value, StopPropagation); break;
                 }
                 break;
         }
@@ -2034,10 +2242,10 @@ function cb_SetValueToInput(ActionOperation, ActionFeature, ActionValue)
                     var TagId = Value.GetTextAfter(""|"");
                     var TmpTag = document.createElement(TagName);
                     TmpTag.id = TagId;
-                    CurrentElement.outerHTML = TmpTag.outerHTML + CurrentElement.outerHTML;
+                    CurrentElement.insertAdjacentElement(""beforebegin"", TmpTag);
                 }
                 else
-                    CurrentElement.outerHTML = document.createElement(Value).outerHTML + CurrentElement.outerHTML;
+                    CurrentElement.insertAdjacentElement(""beforebegin"", document.createElement(Value));
                 break;
             case ""ft"":
                 if (Value.Contains(""|""))
@@ -2046,16 +2254,21 @@ function cb_SetValueToInput(ActionOperation, ActionFeature, ActionValue)
                     var TagId = Value.GetTextAfter(""|"");
                     var TmpTag = document.createElement(TagName);
                     TmpTag.id = TagId;
-                    CurrentElement.outerHTML = CurrentElement.outerHTML + TmpTag.outerHTMLL;
+                    CurrentElement.insertAdjacentElement(""afterend"", TmpTag);
                 }
                 else
-                    CurrentElement.outerHTML = CurrentElement.outerHTML + document.createElement(Value).outerHTML;
+                    CurrentElement.insertAdjacentElement(""afterend"", document.createElement(Value));
                 break;
             case 'pt':
-                CurrentElement.innerHTML = Value.Replace(""$[ln];"", ""\n"").toDOM() + CurrentElement.innerHTML;
-                cb_Initialization(CurrentElement);
+                if (Value.HasTag())
+                {
+                    CurrentElement.insertAdjacentHTML(""afterbegin"", Value.Replace(""$[ln];"", ""\n"").toDOM());
+                    cb_Initialization(CurrentElement);
+                }
+                else
+                    CurrentElement.insertAdjacentHTML(""afterbegin"", Value.Replace(""$[ln];"", ""\n""));
                 break;
-            case ""lu"": GetBack(Value, ElementPlace);
+            case ""lu"": GetBack(evt, Value, ElementPlace);
         }
     }
 }
@@ -2124,7 +2337,7 @@ function cb_GetElementByElementPlace(ElementPlace, obj)
                 ElementPlace = ElementPlace.substring(1);
             }
 
-            var TmpElementPlace = cb_GetElementByElementPlace(ElementPlace);
+            var TmpElementPlace = (obj) ? obj : cb_GetElementByElementPlace(ElementPlace);
 
             while (i > 0)
             {
@@ -2132,13 +2345,16 @@ function cb_GetElementByElementPlace(ElementPlace, obj)
                 i--;
             }
 
+            if ((ElementPlace.length > 0) && obj)
+                return cb_GetElementByElementPlace(ElementPlace, TmpElementPlace);
+
             return TmpElementPlace;
 
         default: return FromPlace.getElementById(ElementPlace);
     }
 }
 
-function cb_FetchValue(Value)
+function cb_FetchValue(evt, Value)
 {
     Value = Value.substring(1);
       
@@ -2176,6 +2392,27 @@ function cb_FetchValue(Value)
                 case 'i': return CurrentDate.getMinutes();
                 case 's': return CurrentDate.getSeconds();
                 case 'l': return CurrentDate.getMilliseconds();
+                case 'L':
+                    if (Value.Contains('['))
+                    {
+                        var lines = localStorage.getItem(Value.GetTextBefore('[')).split(""\n"");
+                        return lines[Value.GetTextAfter('[')];
+                    }
+                    else
+                    {
+                        var lines = localStorage.getItem(Value).split(""\n"");
+                        var FirtsLine = lines[0];
+                        lines.shift();
+                        localStorage.setItem(Value, lines.join('\n'));
+
+                        return FirtsLine;
+                    }
+                case 'I':
+                    var lines = localStorage.getItem(Value.GetTextBefore('[')).split(""\n"");
+
+                    for (var i = 0; i < lines.length; i++)
+                        if (lines[i].GetTextBefore('=') == Value.GetTextAfter('['))
+                            return lines[i];
             }
 
         case 'c':
@@ -2229,72 +2466,138 @@ function cb_FetchValue(Value)
                         return TmpValue;
                     }
             }
+
+        case 'l':
+            switch (ActionFeature)
+            {
+                case 'u': return cb_GetUrl(Value);
+                case 'L':
+                    if (Value.Contains('['))
+                    {
+                        var lines = sessionStorage.getItem(Value.GetTextBefore('[')).split(""\n"");
+                        return lines[Value.GetTextAfter('[')];
+                    }
+                    else
+                    {
+                        var lines = sessionStorage.getItem(Value).split(""\n"");
+                        var FirtsLine = lines[0];
+                        lines.shift();
+                        sessionStorage.setItem(Value, lines.join('\n'));
+
+                        return FirtsLine;
+                    }
+                case 'I':
+                    var lines = sessionStorage.getItem(Value.GetTextBefore('[')).split(""\n"");
+
+                    for (var i = 0; i < lines.length; i++)
+                        if (lines[i].GetTextBefore('=') == Value.GetTextAfter('['))
+                            return lines[i];
+            }
+
+        case 'e':
+            switch (ActionFeature)
+            {
+                case 'k': return evt.key;
+                case 'w': return evt.which;
+                case 'x': return evt.clientX;
+                case 'y': return evt.clientY;
+                case 'X': return evt.pageX;
+                case 'Y': return evt.pageY;
+            }
+
+        case 'E':
+            switch (ActionFeature)
+            {
+                case 'x': return evt.offsetX;
+                case 'y': return evt.offsetY;
+            }
     }
 }
 
-function cb_SaveValue(ActionOperation, ActionFeature, ActionValue)
+function cb_SaveValue(evt, ActionOperation, ActionFeature, ActionValue)
 {
-    var CurrentElement = cb_GetElementByElementPlace(ActionValue.GetTextBefore('='));
     var Name = ActionValue.GetTextAfter('=');
+    var ElementPlace = ActionValue.GetTextBefore('=');
+
+    var CurrentElement;
+
+    if (ElementPlace.substring(0, 1) == '$')
+        CurrentElement = (ElementPlace.length > 1) ? cb_GetElementByElementPlace(ElementPlace.substring(1), evt.currentTarget) : evt.currentTarget;
+    else if (ElementPlace.substring(0, 1) == '!')
+        CurrentElement = (ElementPlace.length > 1) ? cb_GetElementByElementPlace(ElementPlace.substring(1), evt.target) : evt.target;
+    else
+        CurrentElement = cb_GetElementByElementPlace(ElementPlace);
+
+    IsCache = (ActionOperation == 'c');
 
     switch (ActionOperation)
     {
         case 'g':
+        case 'c':
             switch (ActionFeature)
             {
-                case 'i': cb_SetSession(Name, CurrentElement.id); break;
-                case 'n': cb_SetSession(Name, CurrentElement.name); break;
-                case 'v': cb_SetSession(Name, CurrentElement.value); break;
-                case 'e': cb_SetSession(Name, CurrentElement.value.length); break;
-                case 'c': cb_SetSession(Name, CurrentElement.className); break;
-                case 's': cb_SetSession(Name, CurrentElement.style); break;
+                case 'i': cb_SetStorage(IsCache, Name, CurrentElement.id); break;
+                case 'n': cb_SetStorage(IsCache, Name, CurrentElement.name); break;
+                case 'v': cb_SetStorage(IsCache, Name, CurrentElement.value); break;
+                case 'e': cb_SetStorage(IsCache, Name, CurrentElement.value.length); break;
+                case 'c': cb_SetStorage(IsCache, Name, CurrentElement.className); break;
+                case 's': cb_SetStorage(IsCache, Name, CurrentElement.style); break;
                 case 'l':
                     if (!CurrentElement.tagName.IsInput())
                     {
                         if (CurrentElement.hasAttribute(""title""))
-                            cb_SetSession(Name, CurrentElement.getAttribute(""title""));
+                            cb_SetStorage(IsCache, Name, CurrentElement.getAttribute(""title""));
                         break;
                     }
                     if (CurrentElement.id)
                     {
                         var LabelTag = document.querySelector('label[for=""' + CurrentElement.id + '""]');
                         if (LabelTag)
-                            cb_SetSession(Name, CurrentElement.getAttribute(LabelTag.outerHTML));
+                            cb_SetStorage(IsCache, Name, CurrentElement.getAttribute(LabelTag.textContent));
                     }
                     break;
-                case 't': cb_SetSession(Name, CurrentElement.innerHTML); break;
-                case 'g': cb_SetSession(Name, CurrentElement.innerHTML.length); break;
-                case 'a': cb_SetSession(Name.GetTextBefore('|'), CurrentElement, getAttribute(Name.GetTextAfter('|'))); break;
-                case 'w': cb_SetSession(Name, CurrentElement.style.width); break;
-                case 'h': cb_SetSession(Name, CurrentElement.style.height); break;
-                case 'r': cb_SetSession(Name, (CurrentElemen.hasAttribute(""readonly"")? ""true"" : ""false"")); break;
-                case 'x': cb_SetSession(Name, CurrentElement.selectedIndex);
+                case 't': cb_SetStorage(IsCache, Name, CurrentElement.innerHTML); break;
+                case 'o': cb_SetStorage(IsCache, Name, CurrentElement.outerHTML); break;
+                case 'g': cb_SetStorage(IsCache, Name, CurrentElement.innerHTML.length); break;
+                case 'a': cb_SetStorage(IsCache, Name.GetTextBefore('|'), CurrentElement, getAttribute(Name.GetTextAfter('|'))); break;
+                case 'w': cb_SetStorage(IsCache, Name, CurrentElement.style.width); break;
+                case 'h': cb_SetStorage(IsCache, Name, CurrentElement.style.height); break;
+                case 'r': cb_SetStorage(IsCache, Name, (CurrentElemen.hasAttribute(""readonly"")? ""true"" : ""false"")); break;
+                case 'x': cb_SetStorage(IsCache, Name, CurrentElement.selectedIndex);
+                case 'u': cb_SetStorage(IsCache, Name.GetTextBefore('|'), cb_GetUrl(Name.GetTextAfter('|')));
+                case 'I': cb_SetStorage(IsCache, Name, Array.from(CurrentElement.parentElement.children).indexOf(CurrentElement)); break;
             }
     }
 
     switch (ActionOperation + ActionFeature)
     {
-        case ""ta"": cb_SetSession(Name, CurrentElement.style.textAlign); break;
-        case ""nl"": cb_SetSession(Name, CurrentElement.childNodes.length); break;
-        case ""vi"": cb_SetSession(Name, ((urrentElement.style.visibility == ""hidden"") ? ""true"" : ""false""));
+        case ""ta"": cb_SetStorage(false, Name, CurrentElement.style.textAlign); break;
+        case ""nl"": cb_SetStorage(false, Name, CurrentElement.childNodes.length); break;
+        case ""vi"": cb_SetStorage(false, Name, ((urrentElement.style.visibility == ""hidden"") ? ""true"" : ""false""));
+        case ""Ta"": cb_SetStorage(true, Name, CurrentElement.style.textAlign); break;
+        case ""Nl"": cb_SetStorage(true, Name, CurrentElement.childNodes.length); break;
+        case ""Vi"": cb_SetStorage(true, Name, ((urrentElement.style.visibility == ""hidden"") ? ""true"" : ""false""));
     }
 }
 
-function cb_SetSession(Name, Value)
+function cb_SetStorage(IsCache, Name, Value)
 {
-    sessionStorage.setItem(Name, Value);
+    if (IsCache)
+        localStorage.setItem(Name, Value);
+    else
+        sessionStorage.setItem(Name, Value);
 }
 
 /* End Fetch Web-Forms */
 
 /* Start Cache */
 
-function cb_UsedCache(RequestName, RequestNameForCache)
+function cb_UsedCache(evt, RequestName, RequestNameForCache)
 {
     var SessionCacheValue = sessionStorage.getItem(RequestName);
     if (SessionCacheValue)
     {
-        cb_SetWebFormsValues(RequestNameForCache, SessionCacheValue, true, true);
+        cb_SetWebFormsValues(evt, RequestNameForCache, SessionCacheValue, true, true);
         return true;
     }
 
@@ -2309,7 +2612,7 @@ function cb_UsedCache(RequestName, RequestNameForCache)
 
             if (CacheDate.getTime() > CurrentDate.getTime())
             {
-                cb_SetWebFormsValues(RequestNameForCache, LocalCacheValue, true, true);
+                cb_SetWebFormsValues(evt, RequestNameForCache, LocalCacheValue, true, true);
                 return true;
             }
             else
@@ -2320,7 +2623,7 @@ function cb_UsedCache(RequestName, RequestNameForCache)
         }
         else
         {
-            cb_SetWebFormsValues(RequestNameForCache, LocalCacheValue, true, true);
+            cb_SetWebFormsValues(evt, RequestNameForCache, LocalCacheValue, true, true);
             return true;
         }
     }
@@ -2328,21 +2631,40 @@ function cb_UsedCache(RequestName, RequestNameForCache)
     return false;
 }
 
+function cb_CleanExpiredCache()
+{
+    const now = new Date().getTime();
+
+    for (let i = 0; i < localStorage.length; i++)
+    {
+        const key = localStorage.key(i);
+
+        if (key.endsWith(""-date""))
+        {
+            const expirationDate = new Date(localStorage.getItem(key)).getTime();
+
+            if (now >= expirationDate)
+            {
+                const originalKey = key.replace(""-date"", """");
+                localStorage.removeItem(originalKey);
+                localStorage.removeItem(key);
+            }
+        }
+    }
+}
+
 /* End Cache */
 
-/* Start Other Methods */
+/* Start URL */
 
-function cb_GetCookie(Key)
+function cb_GetUrl(Url)
 {
-    const Cookies = document.cookie.split(';');
-    for (let cookie of Cookies)
-    {
-        cookie = cookie.trim();
-        if (cookie.startsWith(Key + '='))
-            return cookie.substring(Key.length + 1);
-    }
+    var XMLHttp = new XMLHttpRequest();
+    XMLHttp.open(""GET"", Url, false);
+    XMLHttp.send();
 
-    return """";
+    if (XMLHttp.status === 200)
+        return XMLHttp.responseText;
 }
 
 function cb_ConvertToWebSocketUrl(url)
@@ -2382,7 +2704,24 @@ function cb_AddQueryToUrl(formAction, formDataSerialize)
     return url;
 }
 
-/* End Other Methods */
+/* End URL */
+
+/* Start Cookie */
+
+function cb_GetCookie(Key)
+{
+    const Cookies = document.cookie.split(';');
+    for (let cookie of Cookies)
+    {
+        cookie = cookie.trim();
+        if (cookie.startsWith(Key + '='))
+            return cookie.substring(Key.length + 1);
+    }
+
+    return """";
+}
+
+/* End Cookie */
 
 /* Start Extension Methods */
 
@@ -2393,6 +2732,14 @@ String.prototype.toDOM = function ()
 
     return DivTag.innerHTML;
 };
+
+
+String.prototype.HasTag = function ()
+{
+    const tempElement = document.createElement(""div"");
+    tempElement.innerHTML = this;
+    return tempElement.childNodes.length > 0;
+}
 
 String.prototype.FullTrim = function ()
 {
@@ -2554,6 +2901,13 @@ String.prototype.GetUnit = function ()
     return """";
 };
 
+String.prototype.IsNumber = function ()
+{
+    var num = parseFloat(this);
+    return !isNaN(num) && isFinite(num);
+};
+
+
 /* End Extension Methods */
 
 /* Start Pre Runner Queue Methods */
@@ -2579,14 +2933,20 @@ function cb_SetPreRunnerQueueForEval(PreRunner, ScriptValue)
             DelayMiliSecond = parseFloat(PreRunner[0].GetTextAfter("":"")) * 1000;
             PreRunner.shift();
             setTimeout(function () { cb_SetPreRunnerQueueForEval(PreRunner, ScriptValue); }, DelayMiliSecond);
+            break;
+        case "","":
+            NumberOfRepetitions = PreRunner[0].GetTextAfter("","");
+            PreRunner.shift();
+            for (var i = 0; i < NumberOfRepetitions; i++)
+                cb_SetPreRunnerQueueForEval(PreRunner, ScriptValue);
     }
 }
 
-function cb_SetPreRunnerQueueForSetValueToInput(PreRunner, ActionOperation, ActionFeature, ActionValue)
+function cb_SetPreRunnerQueueForSetValueToInput(evt, PreRunner, ActionOperation, ActionFeature, ActionValue)
 {
     if (PreRunner.length < 1)
     {
-        cb_SetValueToInput(ActionOperation, ActionFeature, ActionValue);
+        cb_SetValueToInput(evt, ActionOperation, ActionFeature, ActionValue);
         return;
     }
 
@@ -2597,12 +2957,18 @@ function cb_SetPreRunnerQueueForSetValueToInput(PreRunner, ActionOperation, Acti
         case ""("":
             PeriodMiliSecond = parseFloat(PreRunner[0].GetTextAfter(""("")) * 1000;
             PreRunner.shift();
-            setInterval(function () { cb_SetPreRunnerQueueForSetValueToInput(PreRunner, ActionOperation, ActionFeature, ActionValue); }, PeriodMiliSecond);
+            setInterval(function () { cb_SetPreRunnerQueueForSetValueToInput(evt, PreRunner, ActionOperation, ActionFeature, ActionValue); }, PeriodMiliSecond);
             break;
         case "":"":
             DelayMiliSecond = parseFloat(PreRunner[0].GetTextAfter("":"")) * 1000;
             PreRunner.shift();
-            setTimeout(function () { cb_SetPreRunnerQueueForSetValueToInput(PreRunner, ActionOperation, ActionFeature, ActionValue); }, DelayMiliSecond);
+            setTimeout(function () { cb_SetPreRunnerQueueForSetValueToInput(evt, PreRunner, ActionOperation, ActionFeature, ActionValue); }, DelayMiliSecond);
+            break;
+        case "","":
+            NumberOfRepetitions = PreRunner[0].GetTextAfter("","");
+            PreRunner.shift();
+            for (var i = 0; i < NumberOfRepetitions; i++)
+                cb_SetPreRunnerQueueForSetValueToInput(evt, PreRunner, ActionOperation, ActionFeature, ActionValue);
     }
 }
 
