@@ -431,5 +431,28 @@ The first version of CodeBehind is based on .NET Core version 7.0; if the versio
 ## Version 4.2
 
 **New features:**
+- Checking browser support in WebFormsJS
+- Ability to permanently store values ​​in "localStorage" in WebForms Core
+- Replacing "event" instead of "this" and preserving sending with async in WebForms Core
+- Automatically clearing expired caches in WebForms Core
+- Executing the "onload" event after assignment in tags in WebForms Core
+- Using efficient methods instead of "innerHTML" and "outerHTML" in WebForms Core
+- New GoTo feature to return to previous lines of Action Controls with the ability to specify the repetition rate in WebForms Core
+- Ability to access the tag in which the event was executed (current or target) in WebForms Core
+- New method to add hidden tags more easily in WebForms Core
+- Improved support for adding attributes and the ability to specify the splitter character in WebForms Core
+- Improved the "cb_AddEvent" and "cb_AddEventListener" methods in WebForms Core
+- Adding the ability to add "PreventDefault" and "StopPropagation" methods to events in WebForms Core
+- Ability to save and restore line by line in WebForms Core
+- Ability to save and restore INI format in WebForms Core
+- Ability to save and restore URL in WebForms Core
+- Accessibility By selected key name in WebForms Core
+- Ability to access mouse position on page in WebForms Core
+- Ability to access tag index in WebForms Core
+- And a series of minor changes and improvements
+
+## Version 4.3
+
+**New features:**
 - Ability to compress data for sending data to the server via WebFormsJS
 - New `SendBack` feature for sending all types of data
