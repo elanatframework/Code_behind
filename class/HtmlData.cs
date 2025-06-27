@@ -97,6 +97,11 @@ namespace CodeBehind.HtmlData
             return NameList[TmpIndex].TheName;
         }
 
+        public int Count()
+        {
+            return NameList.Count;
+        }
+
         public List<Name> GetList()
         {
             return NameList;
@@ -462,6 +467,11 @@ namespace CodeBehind.HtmlData
             return AttributeList[TmpIndex].Value; ;
         }
 
+        public int Count()
+        {
+            return AttributeList.Count;
+        }
+
         public List<Attribute> GetList()
         {
             return AttributeList;
@@ -723,6 +733,11 @@ namespace CodeBehind.HtmlData
         {
             int TmpIndex = (Index >= 0) ? Index : OptionTagList.Count + Index;
             return OptionTagList[TmpIndex].Selected; ;
+        }
+
+        public int Count()
+        {
+            return OptionTagList.Count;
         }
 
         public List<OptionTag> GetList()
@@ -1080,6 +1095,11 @@ namespace CodeBehind.HtmlData
         {
             int TmpIndex = (Index >= 0) ? Index : CheckBoxItemList.Count + Index;
             return CheckBoxItemList[TmpIndex].Checked; ;
+        }
+
+        public int Count()
+        {
+            return CheckBoxItemList.Count;
         }
 
         public List<CheckBoxItem> GetList()
