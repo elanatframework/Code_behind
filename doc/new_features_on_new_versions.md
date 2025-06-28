@@ -446,9 +446,10 @@ The first version of CodeBehind is based on .NET Core version 7.0; if the versio
 - Ability to save and restore line by line in WebForms Core
 - Ability to save and restore INI format in WebForms Core
 - Ability to save and restore URL in WebForms Core
-- Accessibility By selected key name in WebForms Core
+- Accessibility by selected key name in WebForms Core
 - Ability to access mouse position on page in WebForms Core
 - Ability to access tag index in WebForms Core
+- Optimization to preserve event listeners after changing internal tags
 - And a series of minor changes and improvements
 
 ## Version 4.3
