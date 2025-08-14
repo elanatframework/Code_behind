@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Http;
+using System.Text;
 
 namespace CodeBehind
 {
@@ -16,8 +17,7 @@ namespace CodeBehind
         public void AddClass(string InputPlace, string Class) => WebFormsData.Add("ac" + InputPlace, Class);
         public void AddStyle(string InputPlace, string Style) => WebFormsData.Add("as" + InputPlace, Style);
         public void AddStyle(string InputPlace, string Name, string Value) => WebFormsData.Add("as" + InputPlace, Name + ':' + Value);
-        public void AddOptionTag(string InputPlace, string Text, string Value, bool Selected = false) => WebFormsData.Add("ao" + InputPlace, Value + '|' + Text + (Selected ? "|1" : ""));
-        public void AddCheckBoxTag(string InputPlace, string Text, string Value, bool Checked = false) => WebFormsData.Add("ak" + InputPlace, Value + '|' + Text + (Checked ? "|1" : ""));
+        public void AddOptionTag(string InputPlace, string Text, string Value, bool Selected = false) => WebFormsData.Add("ao" + InputPlace, Value + '|' + Text + (Selected ? "|1" : "")); public void AddCheckBoxTag(string InputPlace, string Text, string Value, bool Checked = false) => WebFormsData.Add("ak" + InputPlace, Value + '|' + Text + (Checked ? "|1" : ""));
         public void AddTitle(string InputPlace, string Title) => WebFormsData.Add("al" + InputPlace, Title);
         public void AddText(string InputPlace, string Text) => WebFormsData.Add("at" + InputPlace, Text.Replace('\n'.ToString(), "$[ln];"));
         public void AddTextToUp(string InputPlace, string Text) => WebFormsData.Add("pt" + InputPlace, Text.Replace('\n'.ToString(), "$[ln];"));
@@ -135,6 +135,62 @@ namespace CodeBehind
         public void SetGetEventListener(string InputPlace, string HtmlEventListener, string OutputPlace, string Path = null) => WebFormsData.Add("EG" + InputPlace, HtmlEventListener + "|" + (!string.IsNullOrEmpty(Path) ? Path : "#") + "|" + OutputPlace);
         public void SetGetEventInFormListener(string InputPlace, string HtmlEventListener) => WebFormsData.Add("EG" + InputPlace, HtmlEventListener);
         public void SetGetEventInFormListener(string InputPlace, string HtmlEventListener, string OutputPlace) => WebFormsData.Add("EG" + InputPlace, HtmlEventListener + "|" + OutputPlace);
+        public void SetPutEvent(string InputPlace, string HtmlEvent, string Path = null) => WebFormsData.Add("Eu" + InputPlace, HtmlEvent + "|" + (!string.IsNullOrEmpty(Path) ? Path : "#"));
+        public void SetPutEvent(string InputPlace, string HtmlEvent, string OutputPlace, string Path = null) => WebFormsData.Add("Eu" + InputPlace, HtmlEvent + "|" + (!string.IsNullOrEmpty(Path) ? Path : "#") + "|" + OutputPlace);
+        public void SetPutEventInForm(string InputPlace, string HtmlEvent) => WebFormsData.Add("Eu" + InputPlace, HtmlEvent);
+        public void SetPutEventInForm(string InputPlace, string HtmlEvent, string OutputPlace) => WebFormsData.Add("Eu" + InputPlace, HtmlEvent + "|" + OutputPlace);
+        public void SetPutEventListener(string InputPlace, string HtmlEventListener, string Path = null) => WebFormsData.Add("EU" + InputPlace, HtmlEventListener + "|" + (!string.IsNullOrEmpty(Path) ? Path : "#"));
+        public void SetPutEventListener(string InputPlace, string HtmlEventListener, string OutputPlace, string Path = null) => WebFormsData.Add("EU" + InputPlace, HtmlEventListener + "|" + (!string.IsNullOrEmpty(Path) ? Path : "#") + "|" + OutputPlace);
+        public void SetPutEventInFormListener(string InputPlace, string HtmlEventListener) => WebFormsData.Add("EU" + InputPlace, HtmlEventListener);
+        public void SetPutEventInFormListener(string InputPlace, string HtmlEventListener, string OutputPlace) => WebFormsData.Add("EU" + InputPlace, HtmlEventListener + "|" + OutputPlace);
+        public void SetPatchEvent(string InputPlace, string HtmlEvent, string Path = null) => WebFormsData.Add("Ea" + InputPlace, HtmlEvent + "|" + (!string.IsNullOrEmpty(Path) ? Path : "#"));
+        public void SetPatchEvent(string InputPlace, string HtmlEvent, string OutputPlace, string Path = null) => WebFormsData.Add("Ea" + InputPlace, HtmlEvent + "|" + (!string.IsNullOrEmpty(Path) ? Path : "#") + "|" + OutputPlace);
+        public void SetPatchEventInForm(string InputPlace, string HtmlEvent) => WebFormsData.Add("Ea" + InputPlace, HtmlEvent);
+        public void SetPatchEventInForm(string InputPlace, string HtmlEvent, string OutputPlace) => WebFormsData.Add("Ea" + InputPlace, HtmlEvent + "|" + OutputPlace);
+        public void SetPatchEventListener(string InputPlace, string HtmlEventListener, string Path = null) => WebFormsData.Add("EA" + InputPlace, HtmlEventListener + "|" + (!string.IsNullOrEmpty(Path) ? Path : "#"));
+        public void SetPatchEventListener(string InputPlace, string HtmlEventListener, string OutputPlace, string Path = null) => WebFormsData.Add("EA" + InputPlace, HtmlEventListener + "|" + (!string.IsNullOrEmpty(Path) ? Path : "#") + "|" + OutputPlace);
+        public void SetPatchEventInFormListener(string InputPlace, string HtmlEventListener) => WebFormsData.Add("EA" + InputPlace, HtmlEventListener);
+        public void SetPatchEventInFormListener(string InputPlace, string HtmlEventListener, string OutputPlace) => WebFormsData.Add("EA" + InputPlace, HtmlEventListener + "|" + OutputPlace);
+        public void SetDeleteEvent(string InputPlace, string HtmlEvent, string Path = null) => WebFormsData.Add("El" + InputPlace, HtmlEvent + "|" + (!string.IsNullOrEmpty(Path) ? Path : "#"));
+        public void SetDeleteEvent(string InputPlace, string HtmlEvent, string OutputPlace, string Path = null) => WebFormsData.Add("El" + InputPlace, HtmlEvent + "|" + (!string.IsNullOrEmpty(Path) ? Path : "#") + "|" + OutputPlace);
+        public void SetDeleteEventInForm(string InputPlace, string HtmlEvent) => WebFormsData.Add("El" + InputPlace, HtmlEvent);
+        public void SetDeleteEventInForm(string InputPlace, string HtmlEvent, string OutputPlace) => WebFormsData.Add("El" + InputPlace, HtmlEvent + "|" + OutputPlace);
+        public void SetDeleteEventListener(string InputPlace, string HtmlEventListener, string Path = null) => WebFormsData.Add("EL" + InputPlace, HtmlEventListener + "|" + (!string.IsNullOrEmpty(Path) ? Path : "#"));
+        public void SetDeleteEventListener(string InputPlace, string HtmlEventListener, string OutputPlace, string Path = null) => WebFormsData.Add("EL" + InputPlace, HtmlEventListener + "|" + (!string.IsNullOrEmpty(Path) ? Path : "#") + "|" + OutputPlace);
+        public void SetDeleteEventInFormListener(string InputPlace, string HtmlEventListener) => WebFormsData.Add("EL" + InputPlace, HtmlEventListener);
+        public void SetDeleteEventInFormListener(string InputPlace, string HtmlEventListener, string OutputPlace) => WebFormsData.Add("EL" + InputPlace, HtmlEventListener + "|" + OutputPlace);
+        public void SetHeadEvent(string InputPlace, string HtmlEvent, string Path = null) => WebFormsData.Add("Eh" + InputPlace, HtmlEvent + "|" + (!string.IsNullOrEmpty(Path) ? Path : "#"));
+        public void SetHeadEvent(string InputPlace, string HtmlEvent, string OutputPlace, string Path = null) => WebFormsData.Add("Eh" + InputPlace, HtmlEvent + "|" + (!string.IsNullOrEmpty(Path) ? Path : "#") + "|" + OutputPlace);
+        public void SetHeadEventInForm(string InputPlace, string HtmlEvent) => WebFormsData.Add("Eh" + InputPlace, HtmlEvent);
+        public void SetHeadEventInForm(string InputPlace, string HtmlEvent, string OutputPlace) => WebFormsData.Add("Eh" + InputPlace, HtmlEvent + "|" + OutputPlace);
+        public void SetHeadEventListener(string InputPlace, string HtmlEventListener, string Path = null) => WebFormsData.Add("EH" + InputPlace, HtmlEventListener + "|" + (!string.IsNullOrEmpty(Path) ? Path : "#"));
+        public void SetHeadEventListener(string InputPlace, string HtmlEventListener, string OutputPlace, string Path = null) => WebFormsData.Add("EH" + InputPlace, HtmlEventListener + "|" + (!string.IsNullOrEmpty(Path) ? Path : "#") + "|" + OutputPlace);
+        public void SetHeadEventInFormListener(string InputPlace, string HtmlEventListener) => WebFormsData.Add("EH" + InputPlace, HtmlEventListener);
+        public void SetHeadEventInFormListener(string InputPlace, string HtmlEventListener, string OutputPlace) => WebFormsData.Add("EH" + InputPlace, HtmlEventListener + "|" + OutputPlace);
+        public void SetOptionsEvent(string InputPlace, string HtmlEvent, string Path = null) => WebFormsData.Add("Eo" + InputPlace, HtmlEvent + "|" + (!string.IsNullOrEmpty(Path) ? Path : "#"));
+        public void SetOptionsEvent(string InputPlace, string HtmlEvent, string OutputPlace, string Path = null) => WebFormsData.Add("Eo" + InputPlace, HtmlEvent + "|" + (!string.IsNullOrEmpty(Path) ? Path : "#") + "|" + OutputPlace);
+        public void SetOptionsEventInForm(string InputPlace, string HtmlEvent) => WebFormsData.Add("Eo" + InputPlace, HtmlEvent);
+        public void SetOptionsEventInForm(string InputPlace, string HtmlEvent, string OutputPlace) => WebFormsData.Add("Eo" + InputPlace, HtmlEvent + "|" + OutputPlace);
+        public void SetOptionsEventListener(string InputPlace, string HtmlEventListener, string Path = null) => WebFormsData.Add("EO" + InputPlace, HtmlEventListener + "|" + (!string.IsNullOrEmpty(Path) ? Path : "#"));
+        public void SetOptionsEventListener(string InputPlace, string HtmlEventListener, string OutputPlace, string Path = null) => WebFormsData.Add("EO" + InputPlace, HtmlEventListener + "|" + (!string.IsNullOrEmpty(Path) ? Path : "#") + "|" + OutputPlace);
+        public void SetOptionsEventInFormListener(string InputPlace, string HtmlEventListener) => WebFormsData.Add("EO" + InputPlace, HtmlEventListener);
+        public void SetOptionsEventInFormListener(string InputPlace, string HtmlEventListener, string OutputPlace) => WebFormsData.Add("EO" + InputPlace, HtmlEventListener + "|" + OutputPlace);
+        public void SetTraceEvent(string InputPlace, string HtmlEvent, string Path = null) => WebFormsData.Add("Er" + InputPlace, HtmlEvent + "|" + (!string.IsNullOrEmpty(Path) ? Path : "#"));
+        public void SetTraceEvent(string InputPlace, string HtmlEvent, string OutputPlace, string Path = null) => WebFormsData.Add("Er" + InputPlace, HtmlEvent + "|" + (!string.IsNullOrEmpty(Path) ? Path : "#") + "|" + OutputPlace);
+        public void SetTraceEventInForm(string InputPlace, string HtmlEvent) => WebFormsData.Add("Er" + InputPlace, HtmlEvent);
+        public void SetTraceEventInForm(string InputPlace, string HtmlEvent, string OutputPlace) => WebFormsData.Add("Er" + InputPlace, HtmlEvent + "|" + OutputPlace);
+        public void SetTraceEventListener(string InputPlace, string HtmlEventListener, string Path = null) => WebFormsData.Add("ER" + InputPlace, HtmlEventListener + "|" + (!string.IsNullOrEmpty(Path) ? Path : "#"));
+        public void SetTraceEventListener(string InputPlace, string HtmlEventListener, string OutputPlace, string Path = null) => WebFormsData.Add("ER" + InputPlace, HtmlEventListener + "|" + (!string.IsNullOrEmpty(Path) ? Path : "#") + "|" + OutputPlace);
+        public void SetTraceEventInFormListener(string InputPlace, string HtmlEventListener) => WebFormsData.Add("ER" + InputPlace, HtmlEventListener);
+        public void SetTraceEventInFormListener(string InputPlace, string HtmlEventListener, string OutputPlace) => WebFormsData.Add("ER" + InputPlace, HtmlEventListener + "|" + OutputPlace);
+        public void SetConnectEvent(string InputPlace, string HtmlEvent, string Path = null) => WebFormsData.Add("Ec" + InputPlace, HtmlEvent + "|" + (!string.IsNullOrEmpty(Path) ? Path : "#"));
+        public void SetConnectEvent(string InputPlace, string HtmlEvent, string OutputPlace, string Path = null) => WebFormsData.Add("Ec" + InputPlace, HtmlEvent + "|" + (!string.IsNullOrEmpty(Path) ? Path : "#") + "|" + OutputPlace);
+        public void SetConnectEventInForm(string InputPlace, string HtmlEvent) => WebFormsData.Add("Ec" + InputPlace, HtmlEvent);
+        public void SetConnectEventInForm(string InputPlace, string HtmlEvent, string OutputPlace) => WebFormsData.Add("Ec" + InputPlace, HtmlEvent + "|" + OutputPlace);
+        public void SetConnectEventListener(string InputPlace, string HtmlEventListener, string Path = null) => WebFormsData.Add("EC" + InputPlace, HtmlEventListener + "|" + (!string.IsNullOrEmpty(Path) ? Path : "#"));
+        public void SetConnectEventListener(string InputPlace, string HtmlEventListener, string OutputPlace, string Path = null) => WebFormsData.Add("EC" + InputPlace, HtmlEventListener + "|" + (!string.IsNullOrEmpty(Path) ? Path : "#") + "|" + OutputPlace);
+        public void SetConnectEventInFormListener(string InputPlace, string HtmlEventListener) => WebFormsData.Add("EC" + InputPlace, HtmlEventListener);
+        public void SetConnectEventInFormListener(string InputPlace, string HtmlEventListener, string OutputPlace) => WebFormsData.Add("EC" + InputPlace, HtmlEventListener + "|" + OutputPlace);
         public void SetTagEvent(string InputPlace, string HtmlEvent, string OutputPlace) => WebFormsData.Add("Et" + InputPlace, HtmlEvent + "|" + OutputPlace);
         public void SetTagEventListener(string InputPlace, string HtmlEvent, string OutputPlace) => WebFormsData.Add("ET" + InputPlace, HtmlEvent + "|" + OutputPlace);
         public void SetWebSocketEvent(string InputPlace, string HtmlEvent, string Path) => WebFormsData.Add("Ew" + InputPlace, HtmlEvent + "|" + Path);
@@ -147,6 +203,20 @@ namespace CodeBehind
         public void RemovePostEventListener(string InputPlace, string HtmlEventListener) => WebFormsData.Add("RP" + InputPlace, HtmlEventListener);
         public void RemoveGetEvent(string InputPlace, string HtmlEvent) => WebFormsData.Add("Rg" + InputPlace, HtmlEvent);
         public void RemoveGetEventListener(string InputPlace, string HtmlEventListener) => WebFormsData.Add("RG" + InputPlace, HtmlEventListener);
+        public void RemovePutEvent(string InputPlace, string HtmlEvent) => WebFormsData.Add("Ru" + InputPlace, HtmlEvent);
+        public void RemovePutEventListener(string InputPlace, string HtmlEventListener) => WebFormsData.Add("RU" + InputPlace, HtmlEventListener);
+        public void RemovePatchEvent(string InputPlace, string HtmlEvent) => WebFormsData.Add("Ra" + InputPlace, HtmlEvent);
+        public void RemovePatchEventListener(string InputPlace, string HtmlEventListener) => WebFormsData.Add("RA" + InputPlace, HtmlEventListener);
+        public void RemoveDeleteEvent(string InputPlace, string HtmlEvent) => WebFormsData.Add("Rl" + InputPlace, HtmlEvent);
+        public void RemoveDeleteEventListener(string InputPlace, string HtmlEventListener) => WebFormsData.Add("RL" + InputPlace, HtmlEventListener);
+        public void RemoveHeadEvent(string InputPlace, string HtmlEvent) => WebFormsData.Add("Rh" + InputPlace, HtmlEvent);
+        public void RemoveHeadEventListener(string InputPlace, string HtmlEventListener) => WebFormsData.Add("RH" + InputPlace, HtmlEventListener);
+        public void RemoveOptionsEvent(string InputPlace, string HtmlEvent) => WebFormsData.Add("Ro" + InputPlace, HtmlEvent);
+        public void RemoveOptionsEventListener(string InputPlace, string HtmlEventListener) => WebFormsData.Add("RO" + InputPlace, HtmlEventListener);
+        public void RemoveTraceEvent(string InputPlace, string HtmlEvent) => WebFormsData.Add("Rr" + InputPlace, HtmlEvent);
+        public void RemoveTraceEventListener(string InputPlace, string HtmlEventListener) => WebFormsData.Add("RR" + InputPlace, HtmlEventListener);
+        public void RemoveConnectEvent(string InputPlace, string HtmlEvent) => WebFormsData.Add("Rc" + InputPlace, HtmlEvent);
+        public void RemoveConnectEventListener(string InputPlace, string HtmlEventListener) => WebFormsData.Add("RC" + InputPlace, HtmlEventListener);
         public void RemoveTagEvent(string InputPlace, string HtmlEvent) => WebFormsData.Add("Rt" + InputPlace, HtmlEvent);
         public void RemoveTagEventListener(string InputPlace, string HtmlEventListener) => WebFormsData.Add("RT" + InputPlace, HtmlEventListener);
         public void RemoveWebSocketEvent(string InputPlace, string HtmlEvent) => WebFormsData.Add("Rw" + InputPlace, HtmlEvent);
@@ -177,7 +247,6 @@ namespace CodeBehind
         public void SaveVisible(string InputPlace, string Key = ".") => WebFormsData.Add("@vi" + InputPlace, Key);
         public void SaveUrl(string Url, string Key = ".") => WebFormsData.Add("@gu", Key + "|" + Url);
         public void SaveIndex(string InputPlace, string Key = ".") => WebFormsData.Add("@gI" + InputPlace, Key);
-
 
         // Cache
         public void CacheId(string InputPlace, string Key = ".") => WebFormsData.Add("@ci" + InputPlace, Key);
@@ -281,20 +350,34 @@ namespace CodeBehind
         // Use
         public void UseWebSocket(string Path) => WebFormsData.Add("uw", Path);
 
+        // Condition
+        public void IsGreaterThan(string FirstValue, string SecondValue, float Interval = -1) => WebFormsData.Add(((Interval >= 0) ? "{(" + Interval + ")" : "{") + "gt", FirstValue + "|" + SecondValue);
+        public void IsLessThan(string FirstValue, string SecondValue, float Interval = -1) => WebFormsData.Add(((Interval >= 0) ? "{(" + Interval + ")" : "{") + "lt", FirstValue + "|" + SecondValue);
+        public void IsEqualTo(string FirstValue, string SecondValue, float Interval = -1) => WebFormsData.Add(((Interval >= 0) ? "{(" + Interval + ")" : "{") + "et", FirstValue + "|" + SecondValue);
+        public void IsTrue(string Value, float Interval = -1) => WebFormsData.Add(((Interval >= 0) ? "{(" + Interval + ")" : "{") + "tr", Value);
+        public void IsFalse(string Value, float Interval = -1) => WebFormsData.Add(((Interval >= 0) ? "{(" + Interval + ")" : "{") + "fa", Value);
+        public void Break() => WebFormsData.Add(";", "");
+        public void StartBracket() => WebFormsData.Add("{", "");
+        public void EndBracket() => WebFormsData.Add("}", "");
+
         // Get
         public string GetFormsActionData()
         {
-            string ReturnValue = "";
+            StringBuilder returnValueBuilder = new StringBuilder();
 
             foreach (NameAndValue nv in WebFormsData.GetList())
             {
-                ReturnValue += Environment.NewLine + nv.Name;
+                returnValueBuilder.Append(Environment.NewLine);
+                returnValueBuilder.Append(nv.Name);
 
                 if (!string.IsNullOrEmpty(nv.Value))
-                    ReturnValue += "=" + nv.Value;
+                {
+                    returnValueBuilder.Append("=");
+                    returnValueBuilder.Append(nv.Value);
+                }
             }
 
-            return ReturnValue;
+            return returnValueBuilder.ToString();
         }
 
         public string Response()
@@ -311,23 +394,29 @@ namespace CodeBehind
 
         public string GetFormsActionDataLineBreak()
         {
-            string ReturnValue = "";
+            StringBuilder returnValueBuilder = new StringBuilder();
 
             List<NameAndValue> WebFormsDataList = WebFormsData.GetList();
 
-            int i = WebFormsDataList.Count;
-            foreach (NameAndValue nv in WebFormsData.GetList())
+            for (int i = 0; i < WebFormsDataList.Count; i++)
             {
-                ReturnValue += nv.Name;
+                NameAndValue nv = WebFormsDataList[i];
+
+                returnValueBuilder.Append(nv.Name);
 
                 if (!string.IsNullOrEmpty(nv.Value))
-                    ReturnValue += "=" + nv.Value.Replace("\"", "$[dq];");
+                {
+                    returnValueBuilder.Append("=");
+                    returnValueBuilder.Append(nv.Value.Replace("\"", "$[dq];"));
+                }
 
-                if (i-- > 1)
-                    ReturnValue += "$[sln];";
+                if (i < WebFormsDataList.Count - 1)
+                {
+                    returnValueBuilder.Append("$[sln];");
+                }
             }
 
-            return ReturnValue;
+            return returnValueBuilder.ToString();
         }
 
         // Export
@@ -379,6 +468,7 @@ namespace CodeBehind
     {
         public const string Current = "$";
         public const string Target = "!";
+        public const string Upper = "-";
 
         public static string Id(string Id) => Id;
         public static string Name(string Name) => '(' + Name + ')';
