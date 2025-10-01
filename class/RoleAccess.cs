@@ -121,9 +121,7 @@ namespace CodeBehind
             {
                 FormData = request.Form.ToString();
             }
-            catch (Exception)
-            {
-            }
+            catch (Exception) { }
 
             foreach (Role role in RoleList.Roles)
             {
