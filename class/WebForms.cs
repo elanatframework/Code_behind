@@ -355,7 +355,7 @@ namespace CodeBehind
 
         // Message
         // Type: warning, problem, help, success, none
-        public void Alert(string Text, string Type = "none", string Title = "Alert", string OkText = "OK") => WebFormsData.Add("al", Text + "|" + (Type == "none" ? "" : Type) + "|" + (Title == "Alert" ? "" : Title) + "|" + (OkText == "OK" ? "" : OkText));
+        public void Alert(string Text, string Type = "none", string Title = "Alert", string OkText = "OK") => WebFormsData.Add("Al", Text + "|" + (Type == "none" ? "" : Type) + "|" + (Title == "Alert" ? "" : Title) + "|" + (OkText == "OK" ? "" : OkText));
         public void Message(string Text, string Type = "none", int Duration = 0) => WebFormsData.Add("me", Text + "|" + (Type == "none" ? "" : Type) + "|" + (Duration == 0 ? "" : Duration));
 
         // Enable
