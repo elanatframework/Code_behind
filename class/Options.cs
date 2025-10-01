@@ -33,6 +33,7 @@ namespace CodeBehind
         internal bool SetDefaultPages { private set; get; }
         internal int MaxWebSocketConnectionsPerClient { private set; get; }
         internal int WebSocketBufferSize { private set; get; }
+        internal bool SendViewOnlyInGetMethod { private set; get; }
 
         internal CodeBehindOptions()
         {
@@ -80,6 +81,7 @@ namespace CodeBehind
                 SetDefaultPages = (reader.ReadLine().GetTextAfterValue("=").Trim() == "true");
                 MaxWebSocketConnectionsPerClient = reader.ReadLine().GetTextAfterValue("=").Trim().ToNumber();
                 WebSocketBufferSize = reader.ReadLine().GetTextAfterValue("=").Trim().ToNumber();
+                SendViewOnlyInGetMethod = (reader.ReadLine().GetTextAfterValue("=").Trim() == "true");
             }
         }
 
@@ -117,7 +119,8 @@ namespace CodeBehind
                 "put_two_underlines_equal_to_dash_for_controller=false",
                 "set_default_pages=true",
                 "max_web_socket_connections_per_client=3",
-                "web_socket_buffer_size=4096"
+                "web_socket_buffer_size=4096",
+                "send_view_only_in_get_method=false"
             };
 
             bool HasMoreOption = false;
