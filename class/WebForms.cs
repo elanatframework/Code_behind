@@ -94,8 +94,9 @@ namespace CodeBehind
         public void SetCheckedValue(string InputPlace, string Value, bool Selected) => WebFormsData.Add("ks" + InputPlace, Value + "|" + (Selected ? "1" : "0"));
         public void SetCheckedIndex(string InputPlace, int Index, bool Selected) => WebFormsData.Add("ki" + InputPlace, Index.ToString() + "|" + (Selected ? "1" : "0"));
         public void CallScript(string ScriptText) => WebFormsData.Add("_", ScriptText.Replace('\n'.ToString(), "$[ln];"));
-        public void LoadUrl(string InputPlace, string Url) => WebFormsData.Add("lu" + InputPlace, Url);
+        public void LoadUrl(string InputPlace, string Url, bool FetchScript = false) => WebFormsData.Add("lu" + InputPlace, Url + (FetchScript? "|1" : ""));
         public void ChangeUrl(string Url) => WebFormsData.Add("cu", Url);
+        public void SetHeadTitle(string Title) => WebFormsData.Add("ht", Title);
         public void RemoveSessionCache(string CacheKey) => WebFormsData.Add("rs", CacheKey);
         public void RemoveAllSessionCache() => WebFormsData.Add("rs", "*");
         public void RemoveCache(string CacheKey) => WebFormsData.Add("rd", CacheKey);
@@ -103,6 +104,7 @@ namespace CodeBehind
         public void SetSessionCache() => WebFormsData.Add("cs", "1");
         public void SetCache(int Second) => WebFormsData.Add("cd", Second.ToString());
         public void SetCache() => WebFormsData.Add("cd", "*");
+        public void SwapTag(string InputPlace, string OutputPlace) => WebFormsData.Add("sp" + InputPlace, OutputPlace);
 
         // Increase
         public void IncreaseMinLength(string InputPlace, int Value) => WebFormsData.Add("+n" + InputPlace, Value.ToString());
@@ -199,6 +201,7 @@ namespace CodeBehind
         public void SetPreventDefaultEventListener(string InputPlace, string HtmlEventListener) => WebFormsData.Add("ED" + InputPlace, HtmlEventListener);
         public void SetStopPropagationEvent(string InputPlace, string HtmlEvent) => WebFormsData.Add("Es" + InputPlace, HtmlEvent);
         public void SetStopPropagationEventListener(string InputPlace, string HtmlEventListener) => WebFormsData.Add("ES" + InputPlace, HtmlEventListener);
+        public void AssignConfirmEvent(string InputPlace, string HtmlEvent, string Text = "Are you sure you want to proceed?", string Type = "none", string Title = "Confirm", string OkText = "OK", string CancelText = "Cancel") => WebFormsData.Add("Em" + InputPlace, HtmlEvent + "|" + (Text == "Are you sure you want to proceed?" ? "" : Text) + "|" + (Type == "none"? "" : Type) + "|" + (Title == "Confirm" ? "" : Title) + "|" + (OkText == "OK" ? "" :  OkText) + "|" + (CancelText == "Cancel" ? "" : CancelText));
         public void RemovePostEvent(string InputPlace, string HtmlEvent) => WebFormsData.Add("Rp" + InputPlace, HtmlEvent);
         public void RemovePostEventListener(string InputPlace, string HtmlEventListener) => WebFormsData.Add("RP" + InputPlace, HtmlEventListener);
         public void RemoveGetEvent(string InputPlace, string HtmlEvent) => WebFormsData.Add("Rg" + InputPlace, HtmlEvent);
@@ -225,6 +228,7 @@ namespace CodeBehind
         public void RemovePreventDefaultEventListener(string InputPlace, string HtmlEventListener) => WebFormsData.Add("RD" + InputPlace, HtmlEventListener);
         public void RemoveStopPropagationEvent(string InputPlace, string HtmlEvent) => WebFormsData.Add("Rs" + InputPlace, HtmlEvent);
         public void RemoveStopPropagationEventListener(string InputPlace, string HtmlEventListener) => WebFormsData.Add("RS" + InputPlace, HtmlEventListener);
+        public void RemoveConfirmEvent(string InputPlace, string HtmlEvent) => WebFormsData.Add("Rm" + InputPlace, HtmlEvent);
 
         // Save
         public void SaveId(string InputPlace, string Key = ".") => WebFormsData.Add("@gi" + InputPlace, Key);
@@ -245,8 +249,9 @@ namespace CodeBehind
         public void SaveTextAlign(string InputPlace, string Key = ".") => WebFormsData.Add("@ta" + InputPlace, Key);
         public void SaveNodeLength(string InputPlace, string Key = ".") => WebFormsData.Add("@nl" + InputPlace, Key);
         public void SaveVisible(string InputPlace, string Key = ".") => WebFormsData.Add("@vi" + InputPlace, Key);
-        public void SaveUrl(string Url, string Key = ".") => WebFormsData.Add("@gu", Key + "|" + Url);
+        public void SaveUrl(string Url, bool FetchScript = false, string Key = ".") => WebFormsData.Add("@gu", Key + "|" + Url + (FetchScript ? "|1" : ""));
         public void SaveIndex(string InputPlace, string Key = ".") => WebFormsData.Add("@gI" + InputPlace, Key);
+        public void SaveWasmMethodResult(string WasmLanguage, string WasmUrl, string MethodName, string[] Args, string Key = ".") => WebFormsData.Add("@gA", Key + "|" + WasmLanguage + "," + WasmUrl + "," + MethodName + ((Args.Length > 0) ? "," + string.Join(",", Args) : ""));
 
         // Cache
         public void CacheId(string InputPlace, string Key = ".") => WebFormsData.Add("@ci" + InputPlace, Key);
@@ -267,8 +272,9 @@ namespace CodeBehind
         public void CacheTextAlign(string InputPlace, string Key = ".") => WebFormsData.Add("@Ta" + InputPlace, Key);
         public void CacheNodeLength(string InputPlace, string Key = ".") => WebFormsData.Add("@Nl" + InputPlace, Key);
         public void CacheVisible(string InputPlace, string Key = ".") => WebFormsData.Add("@Vi" + InputPlace, Key);
-        public void CacheUrl(string Url, string Key = ".") => WebFormsData.Add("@cu", Key + "|" + Url);
+        public void CacheUrl(string Url, bool FetchScript = false, string Key = ".") => WebFormsData.Add("@cu", Key + "|" + Url + (FetchScript ? "|1" : ""));
         public void CacheIndex(string InputPlace, string Key = ".") => WebFormsData.Add("@cI" + InputPlace, Key);
+        public void CacheWasmMethodResult(string WasmLanguage, string WasmUrl, string MethodName, string[] Args, string Key = ".") => WebFormsData.Add("@cA", Key + "|" + WasmLanguage + "," + WasmUrl + "," + MethodName + ((Args.Length > 0) ? "," + string.Join(",", Args) : ""));
 
         // Pre Runner
         public void AssignDelay(float Second, int Index = -1)
@@ -343,6 +349,15 @@ namespace CodeBehind
         public void GoTo(int Line, int Repeat = 1) => WebFormsData.Add("&", Line + "|" + Repeat.ToString());
         public void GoTo(string Index, int Repeat = 1) => WebFormsData.Add("&", "#" + Index + "|" + Repeat.ToString());
 
+        // Start
+        public void StartTransientDOM(string InputPlace) => WebFormsData.Add("td", InputPlace);
+        public void EndTransientDOM(string InputPlace) => WebFormsData.Add("td", ";");
+
+        // Message
+        // Type: warning, problem, help, success, none
+        public void Alert(string Text, string Type = "none", string Title = "Alert", string OkText = "OK") => WebFormsData.Add("al", Text + "|" + (Type == "none" ? "" : Type) + "|" + (Title == "Alert" ? "" : Title) + "|" + (OkText == "OK" ? "" : OkText));
+        public void Message(string Text, string Type = "none", int Duration = 0) => WebFormsData.Add("me", Text + "|" + (Type == "none" ? "" : Type) + "|" + (Duration == 0 ? "" : Duration));
+
         // Enable
         public void EnableWebSocket(bool Enable = true) => WebFormsData.Add("ew", Enable ? "1" : "0");
         public void EnableWebSocketOnce() => WebFormsData.Add("ew", "@");
@@ -351,11 +366,15 @@ namespace CodeBehind
         public void UseWebSocket(string Path) => WebFormsData.Add("uw", Path);
 
         // Condition
+        // Type: warning, problem, help, success, none
+        public void ConfirmIsTrueAccept(string Text = "Are you sure you want to proceed?", string Type = "none", string Title = "Confirm", string OkText = "OK", string CancelText = "Cancel", float Interval = 100) => WebFormsData.Add(((Interval >= 0) ? "{(" + Interval + ")" : "{") + "ct", (Text == "Are you sure you want to proceed?" ? "" : Text) + "|" + (Type == "none" ? "" : Type) + "|" + (Title == "Confirm" ? "" : Title) + "|" + (OkText == "OK" ? "" : OkText) + "|" + (CancelText == "Cancel" ? "" : CancelText));
+        public void ConfirmIsFalseAccept(string Text = "Are you sure you want to proceed?", string Type = "none", string Title = "Confirm", string OkText = "OK", string CancelText = "Cancel", float Interval = 100) => WebFormsData.Add(((Interval >= 0) ? "{(" + Interval + ")" : "{") + "cf", (Text == "Are you sure you want to proceed?" ? "" : Text) + "|" + (Type == "none" ? "" : Type) + "|" + (Title == "Confirm" ? "" : Title) + "|" + (OkText == "OK" ? "" : OkText) + "|" + (CancelText == "Cancel" ? "" : CancelText));
         public void IsGreaterThan(string FirstValue, string SecondValue, float Interval = -1) => WebFormsData.Add(((Interval >= 0) ? "{(" + Interval + ")" : "{") + "gt", FirstValue + "|" + SecondValue);
         public void IsLessThan(string FirstValue, string SecondValue, float Interval = -1) => WebFormsData.Add(((Interval >= 0) ? "{(" + Interval + ")" : "{") + "lt", FirstValue + "|" + SecondValue);
         public void IsEqualTo(string FirstValue, string SecondValue, float Interval = -1) => WebFormsData.Add(((Interval >= 0) ? "{(" + Interval + ")" : "{") + "et", FirstValue + "|" + SecondValue);
         public void IsTrue(string Value, float Interval = -1) => WebFormsData.Add(((Interval >= 0) ? "{(" + Interval + ")" : "{") + "tr", Value);
         public void IsFalse(string Value, float Interval = -1) => WebFormsData.Add(((Interval >= 0) ? "{(" + Interval + ")" : "{") + "fa", Value);
+        public void IsRegexMatch(string Value, string Pattern, float Interval = -1) => WebFormsData.Add(((Interval >= 0) ? "{(" + Interval + ")" : "{") + "re", Value + "|" + Pattern);
         public void Break() => WebFormsData.Add(";", "");
         public void StartBracket() => WebFormsData.Add("{", "");
         public void EndBracket() => WebFormsData.Add("}", "");
@@ -466,9 +485,11 @@ namespace CodeBehind
 
     public class InputPlace
     {
+        public const string Root = "~";
         public const string Current = "$";
         public const string Target = "!";
         public const string Upper = "-";
+        public const string Head = "^";
 
         public static string Id(string Id) => Id;
         public static string Name(string Name) => '(' + Name + ')';
@@ -503,7 +524,7 @@ namespace CodeBehind
         public static string SessionAndRemove(string Key) => "@cl" + Key;
         public static string SessionAndRemove(string Key, string ReplaceValue) => "@cl" + Key + "," + ReplaceValue;
         public static string Saved(string Key = ".") => "@cl" + Key;
-        public static string Cache(string Key) => "@cd" + Key;
+        public static string Cache(string Key = ".") => "@cd" + Key;
         public static string Cache(string Key, string ReplaceValue) => "@cd" + Key + "," + ReplaceValue;
         public static string CacheAndRemove(string Key) => "@ct" + Key;
         public static string CacheAndRemove(string Key, string ReplaceValue) => "@ct" + Key + "," + ReplaceValue;
@@ -515,6 +536,16 @@ namespace CodeBehind
         public static string CacheLine(string Key = ".", int Line = 0) => "@dL" + Key + "[" + Line;
         public static string CacheLineConsume(string Key = ".") => "@dL" + Key;
         public static string CacheINI(string Key, string INIKey) => "@dI" + Key + "[" + INIKey;
+        public static string SpaceToChar(string Text, string Character = "-") => "@sc" + Character + "," + Text;
+        public static string CallMethod(string MethodName, string[] Args = null)
+        {
+            string ReturnValue = "@cm" + MethodName;
+
+            if (Args != null)
+                ReturnValue += (Args.Length > 0) ? "|" + string.Join(",", Args) : "";
+
+            return ReturnValue;
+        }
         public const string EventKey = "@ek";
         public const string EventWhich = "@ew";
         public const string EventClientX = "@ex";
@@ -523,6 +554,17 @@ namespace CodeBehind
         public const string EventPageY = "@eY";
         public const string EventOffsetX = "@Ex";
         public const string EventOffsetY = "@Ey";
+    }
+
+    public class WasmLanguage
+    {
+        public const string C = "c";
+        public const string CPP = "c";
+        public const string Rust = "rust";
+        public const string CSharp = "csharp";
+        public const string GO = "go";
+        public const string JAVA = "java";
+        public const string AssemblyScript = "as";
     }
 
     public class HtmlEvent
