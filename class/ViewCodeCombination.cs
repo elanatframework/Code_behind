@@ -1672,7 +1672,19 @@ namespace SetCodeBehind
                     }
                 }
 
+                TmpMethodCodeTemplateValue += "                controller.ResponseText += this.ResponseText;" + Environment.NewLine;
+
+                if (StaticObject.SendViewOnlyInGetMethod)
+                    TmpMethodCodeTemplateValue += "                string TmpControllerResponseText = controller.ResponseText;" + Environment.NewLine;
+
                 TmpMethodCodeTemplateValue += TextToCodeCombination;
+
+                if (StaticObject.SendViewOnlyInGetMethod)
+                {
+                    TmpMethodCodeTemplateValue += "                if (context.Request.Method != \"GET\")" + Environment.NewLine;
+                    TmpMethodCodeTemplateValue += "                     controller.ResponseText = TmpControllerResponseText;" + Environment.NewLine + Environment.NewLine;
+                }
+
                 TmpMethodCodeTemplateValue += "            }" + Environment.NewLine + Environment.NewLine;
 
                 TmpMethodCodeTemplateValue += "            RequestPath = PreviousRequestPath;" + Environment.NewLine;
@@ -1718,14 +1730,53 @@ namespace SetCodeBehind
 
                         TmpMethodCodeTemplateValue += "            if (!model.IgnoreView)" + Environment.NewLine;
                         TmpMethodCodeTemplateValue += "            {" + Environment.NewLine;
+
+                        TmpMethodCodeTemplateValue += "            ReturnValue = this.ResponseText + ReturnValue;" + Environment.NewLine;
+
+                        if (StaticObject.SendViewOnlyInGetMethod)
+                            TmpMethodCodeTemplateValue += "                string TmpReturnValue = ReturnValue;" + Environment.NewLine;
+
                         TmpMethodCodeTemplateValue += TextToCodeCombination + Environment.NewLine;
+
+                        if (StaticObject.SendViewOnlyInGetMethod)
+                        {
+                            TmpMethodCodeTemplateValue += "                if (context.Request.Method != \"GET\")" + Environment.NewLine;
+                            TmpMethodCodeTemplateValue += "                    ReturnValue = TmpReturnValue;" + Environment.NewLine + Environment.NewLine;
+                        }
+
                         TmpMethodCodeTemplateValue += "            }" + Environment.NewLine;
                     }
                     else
+                    {
+                        TmpMethodCodeTemplateValue += "            ReturnValue = this.ResponseText + ReturnValue;" + Environment.NewLine;
+
+                        if (StaticObject.SendViewOnlyInGetMethod)
+                            TmpMethodCodeTemplateValue += "            string TmpReturnValue = ReturnValue;" + Environment.NewLine;
+
                         TmpMethodCodeTemplateValue += TextToCodeCombination + Environment.NewLine;
+
+                        if (StaticObject.SendViewOnlyInGetMethod)
+                        {
+                            TmpMethodCodeTemplateValue += "            if (context.Request.Method != \"GET\")" + Environment.NewLine;
+                            TmpMethodCodeTemplateValue += "                ReturnValue = TmpReturnValue;" + Environment.NewLine + Environment.NewLine;
+                        }
+                    }
                 }
                 else
+                {
+                    TmpMethodCodeTemplateValue += "            ReturnValue = this.ResponseText + ReturnValue;" + Environment.NewLine;
+
+                    if (StaticObject.SendViewOnlyInGetMethod)
+                        TmpMethodCodeTemplateValue += "            string TmpReturnValue = ReturnValue;" + Environment.NewLine;
+
                     TmpMethodCodeTemplateValue += TextToCodeCombination + Environment.NewLine;
+
+                    if (StaticObject.SendViewOnlyInGetMethod)
+                    {
+                        TmpMethodCodeTemplateValue += "            if (context.Request.Method != \"GET\")" + Environment.NewLine;
+                        TmpMethodCodeTemplateValue += "                ReturnValue = TmpReturnValue;" + Environment.NewLine + Environment.NewLine;
+                    }
+                }
 
                 TmpMethodCodeTemplateValue += "            RequestPath = PreviousRequestPath;" + Environment.NewLine;
                 TmpMethodCodeTemplateValue += "            CallerViewPath = PreviousCallerViewPath;" + Environment.NewLine;
@@ -1868,7 +1919,19 @@ namespace SetCodeBehind
                         TmpMethodCodeTemplateValue += "                    WebSocketId = model.WebSocketId;" + Environment.NewLine;
                     }
 
+                    TmpMethodCodeTemplateValue += "                controller.ResponseText += this.ResponseText;" + Environment.NewLine;
+
+                    if (StaticObject.SendViewOnlyInGetMethod)
+                        TmpMethodCodeTemplateValue += "                string TmpControllerResponseText = controller.ResponseText;" + Environment.NewLine;
+
                     TmpMethodCodeTemplateValue += TextToCodeCombination;
+
+                    if (StaticObject.SendViewOnlyInGetMethod)
+                    {
+                        TmpMethodCodeTemplateValue += "                if (context.Request.Method != \"GET\")" + Environment.NewLine;
+                        TmpMethodCodeTemplateValue += "                     controller.ResponseText = TmpControllerResponseText;" + Environment.NewLine + Environment.NewLine;
+                    }
+
                     TmpMethodCodeTemplateValue += "            }" + Environment.NewLine + Environment.NewLine;
 
                     TmpMethodCodeTemplateValue += "            RequestPath = PreviousRequestPath;" + Environment.NewLine;
@@ -1910,11 +1973,37 @@ namespace SetCodeBehind
 
                         TmpMethodCodeTemplateValue += "            if (!model.IgnoreView)" + Environment.NewLine;
                         TmpMethodCodeTemplateValue += "            {" + Environment.NewLine;
+
+                        TmpMethodCodeTemplateValue += "                ReturnValue = this.ResponseText + ReturnValue;" + Environment.NewLine;
+
+                        if (StaticObject.SendViewOnlyInGetMethod)
+                            TmpMethodCodeTemplateValue += "                string TmpReturnValue = ReturnValue;" + Environment.NewLine;
+
                         TmpMethodCodeTemplateValue += TextToCodeCombination + Environment.NewLine;
+
+                        if (StaticObject.SendViewOnlyInGetMethod)
+                        {
+                            TmpMethodCodeTemplateValue += "                if (context.Request.Method != \"GET\")" + Environment.NewLine;
+                            TmpMethodCodeTemplateValue += "                     ReturnValue = TmpReturnValue;" + Environment.NewLine + Environment.NewLine;
+                        }
+
                         TmpMethodCodeTemplateValue += "            }" + Environment.NewLine;
                     }
                     else
+                    {
+                        TmpMethodCodeTemplateValue += "            ReturnValue = this.ResponseText + ReturnValue;" + Environment.NewLine;
+
+                        if (StaticObject.SendViewOnlyInGetMethod)
+                            TmpMethodCodeTemplateValue += "            string TmpReturnValue = ReturnValue;" + Environment.NewLine;
+
                         TmpMethodCodeTemplateValue += TextToCodeCombination + Environment.NewLine;
+
+                        if (StaticObject.SendViewOnlyInGetMethod)
+                        {
+                            TmpMethodCodeTemplateValue += "            if (context.Request.Method != \"GET\")" + Environment.NewLine;
+                            TmpMethodCodeTemplateValue += "                ReturnValue = TmpReturnValue;" + Environment.NewLine + Environment.NewLine;
+                        }
+                    }
 
                     TmpMethodCodeTemplateValue += "            RequestPath = PreviousRequestPath;" + Environment.NewLine;
                     TmpMethodCodeTemplateValue += "            CallerViewPath = PreviousCallerViewPath;" + Environment.NewLine;
