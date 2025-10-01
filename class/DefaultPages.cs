@@ -235,7 +235,7 @@ namespace SetCodeBehind
 
             var file = File.CreateText(FilePath);
 
-            file.Write(@"/* WebFormsJS 1.8 - The Front-End Part of WebForms Core Technology, Owned by Elanat (elanat.net) */
+            file.Write(@"/* WebFormsJS 1.9 - The Front-End Part of WebForms Core Technology, Owned by Elanat (elanat.net) */
 
 /* Start Options */
 
@@ -250,8 +250,14 @@ PostBackOptions.SetResponseInsideDivTag = true;
 PostBackOptions.ProgressBarStyle = ""width:100%;min-width:300px;max-width:600px;background-color:#eee;margin:2px 0px"";
 PostBackOptions.ProgressBarPercentLoadedStyle = ""position:absolute;padding:0px 4px;line-height:22px"";
 PostBackOptions.ProgressBarValueStyle = ""height:20px;background-color:#4D93DD;width:0%"";
+PostBackOptions.MessageNoneStyle = ""background-color: #AEAEAE"";
+PostBackOptions.MessageWarningStyle = ""background-color: #AF4C4C"";
+PostBackOptions.MessageProblemStyle = ""background-color: #AFA04C"";
+PostBackOptions.MessageHelpStyle = ""background-color: #4C81AF"";
+PostBackOptions.MessageSuccessStyle = ""background-color: #4CAF8F"";
 PostBackOptions.AddLog = true;
 PostBackOptions.AddLogForWebSockets = true;
+PostBackOptions.UseSPALink = true;
 
 function cb_GetResponseLocation()
 {
@@ -390,14 +396,17 @@ function cb_Initialization(obj)
     {
         cb_SetWebFormsTagsValue(obj);
         cb_SetPostBackFunctionToSubmit(obj);
+        cb_SetSPALink(obj);
     }
     else
     {
         cb_SetWebFormsTagsValue();
         cb_SetPostBackFunctionToSubmit();
+        cb_SetSPALink();
     }
 
     cb_CleanExpiredCache();
+    cb_AddFirstPageSPA();
 }
 
 function cb_AddEvent(obj, event, functionWithArgs)
@@ -454,7 +463,15 @@ function cb_AddEventListener(obj, event, functionName, args = [])
 
     obj.addEventListener(event, callback);
 
-    var objId = obj.id || obj;
+    // Generate A Unique ID If The Element Doesn't Have
+    var objId = obj.id;
+    if (!objId)
+    {
+        objId = 'cb_' + Math.random().toString(36).substr(2, 9);
+        obj.id = objId;
+        // Store As Data Attribute For Easier Lookup During DOM Replacement
+        obj.setAttribute('data-cb-id', objId);
+    }
 
     if (!cb_EventRegistry[objId])
         cb_EventRegistry[objId] = {};
@@ -462,21 +479,31 @@ function cb_AddEventListener(obj, event, functionName, args = [])
     if (!cb_EventRegistry[objId][event])
         cb_EventRegistry[objId][event] = [];
 
-    cb_EventRegistry[objId][event].push({ callback, functionName });
+    // Check If This Exact Listener Already Exists
+    const existingListener = cb_EventRegistry[objId][event].find(
+        entry => entry.functionName === functionName && JSON.stringify(entry.args) === JSON.stringify(args)
+    );
+
+    if (!existingListener)
+        cb_EventRegistry[objId][event].push({ callback, functionName, args });
 }
 
 function cb_RemoveEventListener(obj, event, functionName)
 {
     var objId = obj.id || obj;
     var listeners = cb_EventRegistry[objId]?.[event];
+
     if (listeners)
     {
-        const listener = listeners.find((entry) => entry.functionName === functionName);
-        if (listener)
+        const listenerIndex = listeners.findIndex((entry) => entry.functionName === functionName);
+
+        if (listenerIndex !== -1)
         {
+            const listener = listeners[listenerIndex];
             obj.removeEventListener(event, listener.callback);
 
-            cb_EventRegistry[objId][event] = listeners.filter((entry) => entry !== listener);
+            // Remove From Registry
+            cb_EventRegistry[objId][event].splice(listenerIndex, 1);
 
             if (cb_EventRegistry[objId][event].length === 0)
                 delete cb_EventRegistry[objId][event];
@@ -485,6 +512,16 @@ function cb_RemoveEventListener(obj, event, functionName)
                 delete cb_EventRegistry[objId];
         }
     }
+}
+
+function cb_CleanupEventRegistry()
+{
+    Object.keys(cb_EventRegistry).forEach(objId =>
+    {
+        const element = document.getElementById(objId) || document.querySelector(`[data-cb-id=""${objId}""]`);
+        if (!element)
+            delete cb_EventRegistry[objId];
+    });
 }
 
 function cb_PreServedEevent(evt)
@@ -515,17 +552,11 @@ function cb_PreServedEevent(evt)
         // ... Has More Event Properties
 
         if (typeof evt.preventDefault === 'function')
-        {
-            captured.preventDefault = function () {
-                evt.preventDefault();
-            };
-        }
+            captured.preventDefault = function (){evt.preventDefault();};
+
         if (typeof evt.stopPropagation === 'function')
-        {
-            captured.stopPropagation = function () {
-                evt.stopPropagation();
-            };
-        }
+            captured.stopPropagation = function () {evt.stopPropagation();};
+
         // ... Has More Event Methods
     }
 
@@ -540,6 +571,23 @@ function PreventDefault(evt)
 function StopPropagation(evt)
 {
     evt.stopPropagation();
+}
+
+function cb_SetSPALink(obj)
+{
+    if (!PostBackOptions.UseSPALink)
+        return;
+
+    const links = (obj) ? obj.querySelectorAll('a') : document.body.querySelectorAll('a');
+
+    links.forEach(link =>
+    {
+        var targetAttr = link.getAttribute('target');
+        var hrefAttr = link.getAttribute('href');
+
+        if (hrefAttr && !hrefAttr.includes('://') && !hrefAttr.startsWith('mailto:') && !hrefAttr.startsWith('tel:') && (!targetAttr || targetAttr === '_self'))
+            link.setAttribute('onclick', `PreventDefault(event);GetBack(event, '${hrefAttr}');`);
+    });
 }
 
 /* End Event */
@@ -567,12 +615,12 @@ function PostBack(evt, ViewState)
     if (Form.nodeName.toLowerCase() != ""form"")
         return;
 
-    var FormMethod = (Form.hasAttribute(""method"") && !PostBackOptions.SendDataOnlyByPostMethod) ? Form.getAttribute(""method"") : ""POST"" ;
-    var FormAction = Form.getAttribute(""action"");
+    var FormMethod = (PostBackOptions.SendDataOnlyByPostMethod) ? ""POST"" : (Form.hasAttribute(""method"") ? Form.getAttribute(""method"") : ""GET"");
+    var FormAction = Form.hasAttribute(""action"")? Form.getAttribute(""action"") : """";
 
     // Chek Form Multi Part
     var FormIsMultiPart = false;
-    if (Form.hasAttribute(""enctype"") && FormMethod.toLowerCase() == ""post"")
+    if (Form.hasAttribute(""enctype"") && (FormMethod.toLowerCase() == ""post"" || FormMethod.toLowerCase() == ""put""))
         if (Form.getAttribute(""enctype"") == ""multipart/form-data"")
             FormIsMultiPart = true;
 
@@ -592,10 +640,11 @@ function PostBack(evt, ViewState)
 
     var OldObjectType;
     if (obj.getAttribute(""type""))
-        if (obj.getAttribute(""type"") == ""submit"")
+        if (obj.getAttribute(""type"").toLowerCase() == ""submit"")
         {
-            OldObjectType = obj.type;
+            OldObjectType = obj.type.toLowerCase();
             obj.setAttribute(""type"", ""button"");
+            obj.setAttribute(""main-type"", ""submit"");
         }
 
     // Create Request Name
@@ -614,8 +663,13 @@ function PostBack(evt, ViewState)
 
     // Check Cache
     if (cb_UsedCache(evt, RequestName, RequestNameForCache))
-    {        // Reset Input Type
+    {
+        // Reset Input Type
         setTimeout(function () { (OldObjectType == ""submit"") ? obj.type = ""submit"" : obj.type; }, 1);
+
+        if (obj.hasAttribute(""main-type""))
+            obj.removeAttribute(""main-type"");
+
         return;
     }
 
@@ -651,6 +705,9 @@ function PostBack(evt, ViewState)
                 // Reset Input Type
                 setTimeout(function () { (OldObjectType == ""submit"") ? obj.type = ""submit"" : obj.type; }, 1);
 
+                if (obj.hasAttribute(""main-type""))
+                    obj.removeAttribute(""main-type"");
+
                 if (PostBackOptions.AddLogForWebSockets)
                     console.log(""WebSocket server response:\n"" + event.data);
             };
@@ -658,6 +715,9 @@ function PostBack(evt, ViewState)
 
         // Reset Input Type
         setTimeout(function () { (OldObjectType == ""submit"") ? obj.type = ""submit"" : obj.type; }, 1);
+
+        if (obj.hasAttribute(""main-type""))
+            obj.removeAttribute(""main-type"");
 
         return;
     }
@@ -675,6 +735,9 @@ function PostBack(evt, ViewState)
 
             // Reset Input Type
             setTimeout(function () { (OldObjectType == ""submit"") ? obj.type = ""submit"" : obj.type; }, 1);
+
+            if (obj.hasAttribute(""main-type""))
+                obj.removeAttribute(""main-type"");
         }
     }
 
@@ -696,10 +759,13 @@ function PostBack(evt, ViewState)
 
         // Reset Input Type
         setTimeout(function () { (OldObjectType == ""submit"") ? obj.type = ""submit"" : obj.type; }, 1);
+
+        if (obj.hasAttribute(""main-type""))
+            obj.removeAttribute(""main-type"");
     }
 
     var formDataSerialize = cb_FormDataSerialize(Form, obj.getAttribute(""name""), TagSubmitValue, OldObjectType, FormIsMultiPart);
-    if (FormMethod.toLowerCase() != ""post"")
+    if ((FormMethod.toLowerCase() != ""post"") && (FormMethod.toLowerCase() != ""put""))
     {
         FormAction = cb_AddQueryToUrl(FormAction, formDataSerialize);
         formDataSerialize = """";
@@ -720,14 +786,14 @@ function PostBack(evt, ViewState)
 
 /* End Post-Back */
 
-/* Start Get-Back */
+/* Start Request And Response */
 
-function GetBack(evt, FormAction, ViewState)
+function cb_RequestAndResponse(evt, FormAction, ViewState, Method)
 {
     evt = evt || window.event;
     evt = cb_PreServedEevent(evt);
 
-    var FormMethod = (PostBackOptions.SendDataOnlyByPostMethod) ? ""POST"" : ""GET"";
+    var FormMethod = (PostBackOptions.SendDataOnlyByPostMethod) ? ""POST"" : Method;
 
     // Set Form Value
     var Form = FormAction;
@@ -751,7 +817,7 @@ function GetBack(evt, FormAction, ViewState)
                 if (body.getElementsByTagName(""form"").length > 0)
                     Form = body.getElementsByTagName(""form"")[0];
 
-            FormMethod = (Form.hasAttribute(""method"") && !PostBackOptions.SendDataOnlyByPostMethod) ? Form.getAttribute(""method"") : ""POST"" ;
+            FormMethod = (PostBackOptions.SendDataOnlyByPostMethod) ? ""POST"" : (Form.hasAttribute(""method"") ? Form.getAttribute(""method"") : ""GET"");
             FormAction = Form.getAttribute(""action"");
         }
     }
@@ -770,10 +836,11 @@ function GetBack(evt, FormAction, ViewState)
     var OldObjectType;
     if (typeof OldFormAction === ""object"")
         if (OldFormAction.getAttribute(""type""))
-            if (OldFormAction.getAttribute(""type"") == ""submit"")
+            if (OldFormAction.getAttribute(""type"").toLowerCase() == ""submit"")
             {
-                OldObjectType = OldFormAction.type;
+                OldObjectType = OldFormAction.type.toLowerCase();
                 OldFormAction.setAttribute(""type"", ""button"");
+                OldFormAction.setAttribute(""main-type"", ""submit"");
             }
 
     // Create Request Name
@@ -828,6 +895,9 @@ function GetBack(evt, FormAction, ViewState)
                 {
                     // Reset Input Type
                     setTimeout(function () { (OldObjectType == ""submit"") ? OldFormAction.type = ""submit"" : OldFormAction.type; }, 1);
+
+                    if (OldFormAction.hasAttribute(""main-type""))
+                        OldFormAction.removeAttribute(""main-type"");
                 }
 
                 if (PostBackOptions.AddLogForWebSockets)
@@ -839,6 +909,9 @@ function GetBack(evt, FormAction, ViewState)
         {
             // Reset Input Type
             setTimeout(function () { (OldObjectType == ""submit"") ? OldFormAction.type = ""submit"" : OldFormAction.type; }, 1);
+
+            if (OldFormAction.hasAttribute(""main-type""))
+                OldFormAction.removeAttribute(""main-type"");
         }
 
         return;
@@ -853,10 +926,28 @@ function GetBack(evt, FormAction, ViewState)
             var HttpResult = XMLHttp.responseText;
             cb_SetResponse(evt, HttpResult, ViewState, RequestName);
 
+            if (evt.currentTarget.tagName)
+            {
+                var IsSPALink = evt.currentTarget.tagName.toLowerCase() == 'a';
+                if (IsSPALink)
+                {
+                    const pathname = evt.currentTarget.getAttribute(""href"");
+
+                    // Add New Page State
+                    cb_PageManager.Add(pathname, document.title, document.body.innerHTML, window.scrollX, window.scrollY);
+
+                    // Change URL
+                    window.history.pushState({ url: pathname }, null, pathname);
+                }
+            }
+
             if (typeof OldFormAction === ""object"")
             {
                 // Reset Input Type
                 setTimeout(function () { (OldObjectType == ""submit"") ? OldFormAction.type = ""submit"" : OldFormAction.type; }, 1);
+
+                if (OldFormAction.hasAttribute(""main-type""))
+                    OldFormAction.removeAttribute(""main-type"");
             }
         }
     }
@@ -877,6 +968,9 @@ function GetBack(evt, FormAction, ViewState)
         {
             // Reset Input Type
             setTimeout(function () { (OldObjectType == ""submit"") ? OldFormAction.type = ""submit"" : OldFormAction.type; }, 1);
+
+            if (OldFormAction.hasAttribute(""main-type""))
+                OldFormAction.removeAttribute(""main-type"");
         }
     }
 
@@ -888,8 +982,47 @@ function GetBack(evt, FormAction, ViewState)
 
     XMLHttp.send();
 }
+function GetBack(evt, FormAction, ViewState)
+{
+    cb_RequestAndResponse(evt, FormAction, ViewState, ""GET"");
+}
 
-/* End Get-Back */
+function PutBack(evt, FormAction, ViewState)
+{
+    cb_RequestAndResponse(evt, FormAction, ViewState, ""PUT"");
+}
+
+function PatchBack(evt, FormAction, ViewState)
+{
+    cb_RequestAndResponse(evt, FormAction, ViewState, ""PATCH"");
+}
+
+function DeleteBack(evt, FormAction, ViewState)
+{
+    cb_RequestAndResponse(evt, FormAction, ViewState, ""DELETE"");
+}
+
+function HeadBack(evt, FormAction, ViewState)
+{
+    cb_RequestAndResponse(evt, FormAction, ViewState, ""HEAD"");
+}
+
+function OptionsBack(evt, FormAction, ViewState)
+{
+    cb_RequestAndResponse(evt, FormAction, ViewState, ""OPTIONS"");
+}
+
+function TraceBack(evt, FormAction, ViewState)
+{
+    cb_RequestAndResponse(evt, FormAction, ViewState, ""TRACE"");
+}
+
+function ConnectBack(evt, FormAction, ViewState)
+{
+    cb_RequestAndResponse(evt, FormAction, ViewState, ""CONNECT"");
+}
+
+/* End Request And Response */
 
 /* Start Set Response Value */
 
@@ -998,25 +1131,25 @@ function cb_FormDataSerialize(form, TagSubmitName, TagSubmitValue, TagSubmitType
 
         switch (form.elements[i].nodeName.toLowerCase())
         {
-            case 'input':
+            case ""input"":
                 switch (form.elements[i].type.toLowerCase())
                 {
-                    case 'text':
-                    case 'number':
-                    case 'hidden':
-                    case 'password':
-                    case 'reset':
-                    case 'color':
-                    case 'date':
-                    case 'range':
-                    case 'search':
-                    case 'time':
-                    case 'datetime-local':
-                    case 'email':
-                    case 'month':
-                    case 'tel':
-                    case 'url':
-                    case 'week':
+                    case ""text"":
+                    case ""number"":
+                    case ""hidden"":
+                    case ""password"":
+                    case ""reset"":
+                    case ""color"":
+                    case ""date"":
+                    case ""range"":
+                    case ""search"":
+                    case ""time"":
+                    case ""datetime-local"":
+                    case ""email"":
+                    case ""month"":
+                    case ""tel"":
+                    case ""url"":
+                    case ""week"":
                         {
                             if (FormIsMultiPart)
                                 TmpFormData.append(form.elements[i].name, form.elements[i].value);
@@ -1024,8 +1157,8 @@ function cb_FormDataSerialize(form, TagSubmitName, TagSubmitValue, TagSubmitType
                                 FormString += form.elements[i].name + ""="" + form.elements[i].value + ""&"";
                         }
                         break;
-                    case 'checkbox':
-                    case 'radio':
+                    case ""checkbox"":
+                    case ""radio"":
                         if (form.elements[i].checked)
                         {
                             if (FormIsMultiPart)
@@ -1034,7 +1167,7 @@ function cb_FormDataSerialize(form, TagSubmitName, TagSubmitValue, TagSubmitType
                                 FormString += form.elements[i].name + ""="" + form.elements[i].value + ""&"";
                         }
                         break;
-                    case 'file':
+                    case ""file"":
                         {
                             var files = form.elements[i].files;
 
@@ -1051,9 +1184,9 @@ function cb_FormDataSerialize(form, TagSubmitName, TagSubmitValue, TagSubmitType
                         break;
                 }
                 break;
-            case 'file':
+            case ""file"":
                 break;
-            case 'textarea':
+            case ""textarea"":
                 {
                     if (FormIsMultiPart)
                         TmpFormData.append(form.elements[i].name, form.elements[i].value);
@@ -1061,10 +1194,10 @@ function cb_FormDataSerialize(form, TagSubmitName, TagSubmitValue, TagSubmitType
                         FormString += form.elements[i].name + ""="" + form.elements[i].value + ""&"";
                 }
                 break;
-            case 'select':
+            case ""select"":
                 switch (form.elements[i].type.toLowerCase())
                 {
-                    case 'select-one':
+                    case ""select-one"":
                         {
                             if (FormIsMultiPart)
                                 TmpFormData.append(form.elements[i].name, form.elements[i].value);
@@ -1072,7 +1205,7 @@ function cb_FormDataSerialize(form, TagSubmitName, TagSubmitValue, TagSubmitType
                                 FormString += form.elements[i].name + ""="" + form.elements[i].value + ""&"";
                         }
                         break;
-                    case 'select-multiple':
+                    case ""select-multiple"":
                         for (j = form.elements[i].options.length - 1; j >= 0; j = j - 1)
                         {
                             if (form.elements[i].options[j].selected)
@@ -1086,12 +1219,12 @@ function cb_FormDataSerialize(form, TagSubmitName, TagSubmitValue, TagSubmitType
                         break;
                 }
                 break;
-            case 'button':
+            case ""button"":
                 switch (form.elements[i].type.toLowerCase())
                 {
-                    case 'reset':
-                    case 'submit':
-                    case 'button':
+                    case ""reset"":
+                    case ""submit"":
+                    case ""button"":
                         {
                             if (FormIsMultiPart)
                                 TmpFormData.append(form.elements[i].name, form.elements[i].value);
@@ -1220,7 +1353,7 @@ function cb_HasFileInput(Form)
 
     for (var i = 0; i < InputCount; i++)
         if (Form.getElementsByTagName(""input"").item(i).hasAttribute(""type""))
-            if (Form.getElementsByTagName(""input"").item(i).getAttribute(""type"") == ""file"")
+            if (Form.getElementsByTagName(""input"").item(i).getAttribute(""type"").toLowerCase() == ""file"")
                 return true;
 
     return false;
@@ -1278,6 +1411,13 @@ function cb_SetWebFormsValues(evt, RequestName, WebFormsValues, UsePostBack, Wit
     var StartIndexIndex = StartIndexIsNumber ? parseInt(StartIndex) : 0;
     var IndexForStartIndex = 1;
 
+    // Condition
+    var ConditionHasStart = false;
+    var ConditionIsTrue = false;
+    var ConditionBracketHasStart = false;
+    var ConditionPeriodMiliSecond = -1;
+    var ConditionAsyncList = new Array();
+
     // Remove Request Name For Cache
     if (RequestName.length > 1)
         if (RequestName.substring(0, 1) == '<')
@@ -1288,12 +1428,102 @@ function cb_SetWebFormsValues(evt, RequestName, WebFormsValues, UsePostBack, Wit
 
     var WebFormsList = (UsePostBack) ? WebFormsValues.split('\n') : WebFormsValues.split(""$[sln];"");
 
+    var TransientDOM = null;
+    var TransientDOMPlace = null;
+    var LastElementPlaceList = null;
+
     for (var i = 0; i < WebFormsList.length; i++)
     {
         WebFormsList[i] = WebFormsList[i].FullTrim();
 
         if (!WebFormsList[i])
             continue;
+
+        // Checking Condition
+        if (ConditionPeriodMiliSecond > 0)
+        {
+            // Add Condition
+            if (ConditionAsyncList.length == 0)
+                ConditionAsyncList.push(WebFormsList[i - 1].GetTextAfter("")""));
+
+            if (WebFormsList[i] == '{')
+            {
+                ConditionAsyncList.push(WebFormsList[i]);
+                ConditionBracketHasStart = true;
+                continue;
+            }
+
+            if (ConditionBracketHasStart)
+            {
+                if (WebFormsList[i] == '}')
+                {
+                    ConditionAsyncList.push(WebFormsList[i]);
+
+                    const TmpConditionAsyncList = ConditionAsyncList;
+
+                    // Is Async
+                    cb_WaitForCondition(ConditionPeriodMiliSecond, cb_CheckCondition, evt, ConditionAsyncList[0]).then(() =>
+                    {
+                        TmpConditionAsyncList.shift();
+                        cb_SetWebFormsValues(evt, """", TmpConditionAsyncList.join('\n'), true, true);
+                    }).catch(() => { });
+
+                    ConditionBracketHasStart = false;
+                    ConditionPeriodMiliSecond = -1;
+                    ConditionAsyncList = new Array();
+                }
+                else
+                    ConditionAsyncList.push(WebFormsList[i]);
+            }
+            else
+            {
+                ConditionAsyncList.push(WebFormsList[i]);
+
+                const TmpConditionAsyncList = ConditionAsyncList;
+
+                // Is Async
+                cb_WaitForCondition(ConditionPeriodMiliSecond, cb_CheckCondition, evt, ConditionAsyncList[0]).then(() =>
+                {
+                    TmpConditionAsyncList.shift();
+                    cb_SetWebFormsValues(evt, """", TmpConditionAsyncList.join('\n'), true, true);
+                }).catch(() => { });
+
+                ConditionPeriodMiliSecond = -1;
+                ConditionAsyncList = new Array();
+            }
+            continue;
+        }
+
+        if (ConditionHasStart)
+        {
+            if (WebFormsList[i] == '{')
+            {
+                ConditionBracketHasStart = true;
+                continue;
+            }
+
+            if (ConditionBracketHasStart)
+            {
+                if (WebFormsList[i] == '}')
+                {
+                    ConditionBracketHasStart = false;
+                    ConditionHasStart = false;
+                    ConditionIsTrue = false;
+                    continue;
+                }
+            }
+
+            if (!ConditionIsTrue)
+            {
+                if (!ConditionBracketHasStart)
+                {
+                    ConditionHasStart = false;
+                    ConditionIsTrue = false;
+                    ConditionBracketHasStart = false;
+                }
+                continue;
+            }           
+        }
 
         // Checking Index Process
         if (IndexHasStarted)
@@ -1328,16 +1558,36 @@ function cb_SetWebFormsValues(evt, RequestName, WebFormsValues, UsePostBack, Wit
             FirstChar = WebFormsList[i].substring(0, 1);
         }
 
+        if (FirstChar == ';')
+            break;
+
         var SecondChar = WebFormsList[i].substring(1, 2);
         switch (FirstChar)
         {
+            case '{':
+                if (SecondChar == '(')                   
+                    ConditionPeriodMiliSecond = WebFormsList[i].GetTextAfter(""("").GetTextBefore("")"");
+                else
+                    ConditionHasStart = true;
+
+                if (ConditionPeriodMiliSecond == 0)
+                {
+                    while (!cb_CheckCondition(evt, WebFormsList[i]))
+                    { 
+                    }
+                    ConditionIsTrue = true;
+                }
+                else if (ConditionPeriodMiliSecond == -1)
+                    ConditionIsTrue = cb_CheckCondition(evt, WebFormsList[i]);
+                continue;
+
             case '_':
                 var ScriptValue = WebFormsList[i].GetTextAfter(""="").Replace(""$[ln];"", ""\n"").FullTrim();
                 cb_SetPreRunnerQueueForEval(PreRunner, ScriptValue);
                 continue;
 
             case `@`:
-                cb_SaveValue(evt, WebFormsList[i].substring(1, 2), WebFormsList[i].substring(2, 3), WebFormsList[i].substring(3));
+                cb_SaveValue(evt, WebFormsList[i].substring(1, 2), WebFormsList[i].substring(2, 3), WebFormsList[i].substring(3), LastElementPlaceList, TransientDOM);
                 continue;
 
             case '&':
@@ -1379,7 +1629,6 @@ function cb_SetWebFormsValues(evt, RequestName, WebFormsValues, UsePostBack, Wit
                     else
                         i = i + LineIndexInt;
                 }
-
                 continue;
 
             case 'r':
@@ -1399,6 +1648,7 @@ function cb_SetWebFormsValues(evt, RequestName, WebFormsValues, UsePostBack, Wit
                             localStorage.removeItem(CacheKeyValue);
                         continue;
                 }
+                break;
 
             case 'c':
                 switch (SecondChar)
@@ -1423,9 +1673,10 @@ function cb_SetWebFormsValues(evt, RequestName, WebFormsValues, UsePostBack, Wit
                         }
                         continue;
                     case 'u':
-                        window.history.replaceState({}, null, WebFormsList[i].GetTextAfter(""=""));
+                        window.history.replaceState({ url: WebFormsList[i].GetTextAfter(""="") }, null, WebFormsList[i].GetTextAfter(""=""));
                         continue;
                 }
+                break;
 
             case 'e':
                 switch (SecondChar)
@@ -1437,6 +1688,7 @@ function cb_SetWebFormsValues(evt, RequestName, WebFormsValues, UsePostBack, Wit
                             cb_UseWebSocket = (WebFormsList[i].GetTextAfter(""="") == ""1"");
                         continue;
                 }
+                break;
 
             case 'u':
                 switch (SecondChar)
@@ -1445,7 +1697,82 @@ function cb_SetWebFormsValues(evt, RequestName, WebFormsValues, UsePostBack, Wit
                         cb_AddWebSocketPath(WebFormsList[i].GetTextAfter(""=""));
                         continue;
                 }
+                break;
+
+            case 'h':
+                switch (SecondChar)
+                {
+                    case 't':
+                        document.title = WebFormsList[i].GetTextAfter(""="");
+                        continue;
+                }
+                break;
+
+            case 'a':
+                switch (SecondChar)
+                {
+                    case 'l':
+                        var [text, type, title, okText] = WebFormsList[i].GetTextAfter(""="").split(""|"");
+
+                        if (!type)
+                            type = ""none"";
+                        if (!title)
+                            title = ""Alert"";
+                        if (!okText)
+                            okText = ""OK"";
+
+                        cb_ShowAlert(text, type, title, okText);
+                        continue;
+                }
+                break;
+
+            case 'm':
+                switch (SecondChar)
+                {
+                    case 'e':
+                        var [text, type, duration] = WebFormsList[i].GetTextAfter(""="").split(""|"");
+
+                        if (!type)
+                            type = ""none"";
+                        if (!duration)
+                            duration = 0;
+
+                        cb_ShowMessage(text, type, duration);
+                        continue;
+                }
+                break;
+
+            case 't':
+                switch (SecondChar)
+                {
+                    case 'd':
+                        if (WebFormsList[i].GetTextAfter(""="") == ';')
+                        {
+                            // Reset Input Type
+                            cb_SetMainSubmitTypeToButtons(TransientDOM);
+
+                            var HtmlDOM = cb_GetElementByElementPlace(TransientDOMPlace);                                  
+                            HtmlDOM.replaceWith(TransientDOM);
+
+                            TransientDOM = null;
+                            TransientDOMPlace = null;
+                        }
+                        else
+                        {
+                            TransientDOMPlace = WebFormsList[i].GetTextAfter(""="");
+                            var HtmlDOM = cb_GetElementByElementPlace(TransientDOMPlace)
+
+                            TransientDOM = HtmlDOM.cloneNode(true);
+
+                            // State Preservation
+                            TransientDOM = cb_SetStatePreservation(HtmlDOM, TransientDOM);
+                        }
+                }
         }
+
+        // Extension
+        if (cb_SetWebFormsValuesExtension(evt, FirstChar, SecondChar, WebFormsList[i].GetTextAfter(""=""), LastElementPlaceList, TransientDOM))
+            continue;
 
         var ActionName = WebFormsList[i].substring(0, 2);
         var ActionValue = WebFormsList[i].substring(2);
@@ -1453,67 +1780,70 @@ function cb_SetWebFormsValues(evt, RequestName, WebFormsValues, UsePostBack, Wit
         var ActionOperation = ActionName.substring(0, 1);
         var ActionFeature = ActionName.substring(1, 2);
 
-        cb_SetPreRunnerQueueForSetValueToInput(evt, PreRunner, ActionOperation, ActionFeature, ActionValue);
+        LastElementPlaceList = cb_SetPreRunnerQueueForSetValueToInput(evt, PreRunner, ActionOperation, ActionFeature, ActionValue, LastElementPlaceList, TransientDOM);
     }
 }
 
-function cb_SetValueToInput(evt, ActionOperation, ActionFeature, ActionValue)
+function cb_SetValueToInput(evt, ActionOperation, ActionFeature, ActionValue, LastElementPlaceList, TransientDOM)
 {
     var ElementPlace = ActionValue.GetTextBefore(""="");
     var Value = ActionValue.GetTextAfter(""="").FullTrim();
 
     // Set Dynamic Value
-    var ValueArray = Value.split(""|"");
-    for (var ValueArrayIndex = 0; ValueArrayIndex < ValueArray.length; ValueArrayIndex++)
-        if (ValueArray[ValueArrayIndex].length > 0)
-            if (ValueArray[ValueArrayIndex].substring(0,1) == '@')
-                ValueArray[ValueArrayIndex] = cb_FetchValue(evt, ValueArray[ValueArrayIndex]);
-
-    Value = ValueArray.join(""|"");
+    Value = cb_SetDynamicValue(evt, Value, '|');
 
     var LabelForIndexer = 0;
     var ElementPlaceList;
 
-    var HasRequester = false;
-    var Requester;
-    if (ElementPlace.substring(0, 1) == '$')
-    {
-        HasRequester = true;
-        ElementPlace = ElementPlace.substring(1);
-        Requester = evt.currentTarget;
-    }
-    if (ElementPlace.substring(0, 1) == '!')
-    {
-        HasRequester = true;
-        ElementPlace = ElementPlace.substring(1);
-        Requester = evt.target;
-    }
+    const CurrentDocument = TransientDOM ?? document;
 
-    if (ElementPlace.length > 0)
+    if (ElementPlace == '-')
     {
-        if (ElementPlace.substring(0, 1) == '[')
+        ElementPlaceList = LastElementPlaceList;
+    }
+    else
+    {
+        var HasRequester = false;
+        var Requester;
+        if (ElementPlace.substring(0, 1) == '$')
         {
-            var QueryAll = ElementPlace.substring(1);
+            HasRequester = true;
+            ElementPlace = ElementPlace.substring(1);
+            Requester = evt.currentTarget;
+        }
+        if (ElementPlace.substring(0, 1) == '!')
+        {
+            HasRequester = true;
+            ElementPlace = ElementPlace.substring(1);
+            Requester = evt.target;
+        }
 
-            if (HasRequester)
-                ElementPlaceList = Requester.querySelectorAll(QueryAll.Replace(""$[eq];"", ""=""));
+        if (ElementPlace.length > 0)
+        {
+            if (ElementPlace.substring(0, 1) == '[')
+            {
+                var QueryAll = ElementPlace.substring(1);
+
+                if (HasRequester)
+                    ElementPlaceList = Requester.querySelectorAll(QueryAll.Replace(""$[eq];"", ""=""));
+                else
+                    ElementPlaceList = CurrentDocument.querySelectorAll(QueryAll.Replace(""$[eq];"", ""=""));
+            }
             else
-                ElementPlaceList = document.querySelectorAll(QueryAll.Replace(""$[eq];"", ""=""));
+            {
+                ElementPlaceList = new Array();
+
+                if (HasRequester)
+                    ElementPlaceList[0] = cb_GetElementByElementPlace(ElementPlace, Requester, TransientDOM);
+                else
+                    ElementPlaceList[0] = cb_GetElementByElementPlace(ElementPlace, null, TransientDOM);
+            }
         }
         else
         {
             ElementPlaceList = new Array();
-
-            if (HasRequester)
-                ElementPlaceList[0] = cb_GetElementByElementPlace(ElementPlace, Requester);
-            else
-                ElementPlaceList[0] = cb_GetElementByElementPlace(ElementPlace);
+            ElementPlaceList[0] = Requester;
         }
-    }
-    else
-    {
-        ElementPlaceList = new Array();
-        ElementPlaceList[0] = Requester;
     }
 
     for (var i = 0; i < ElementPlaceList.length; i++)
@@ -1641,7 +1971,7 @@ function cb_SetValueToInput(evt, ActionOperation, ActionFeature, ActionValue)
                         if (!CurrentElement.id)
                             CurrentElement.id = ""tmp_Element"" + LabelForIndexer++;
 
-                        var LabelTag = document.querySelector('label[for=""' + CurrentElement.id + '""]');
+                        var LabelTag = CurrentDocument.querySelector('label[for=""' + CurrentElement.id + '""]');
 
                         if (LabelTag)
                             LabelTag.innerText = LabelTag.innerText + Value;
@@ -1654,13 +1984,16 @@ function cb_SetValueToInput(evt, ActionOperation, ActionFeature, ActionValue)
                         }
                         break;
                     case 't':
+                        Value = Value.Replace(""$[ln];"", ""\n"");
                         if (Value.HasTag())
                         {
-                            CurrentElement.insertAdjacentHTML(""beforeend"", Value.Replace(""$[ln];"", ""\n"").toDOM());
+                            cb_AppendJavaScriptTag(Value);
+
+                            CurrentElement.insertAdjacentHTML(""beforeend"", Value.toDOM());
                             cb_Initialization(CurrentElement);
                         }
                         else
-                            CurrentElement.insertAdjacentHTML(""beforeend"", Value.Replace(""$[ln];"", ""\n""));
+                            CurrentElement.insertAdjacentHTML(""beforeend"", Value);
                         break;
                     case 'a':
                         var AttrName = Value.GetTextBefore(""|"");
@@ -1850,7 +2183,7 @@ function cb_SetValueToInput(evt, ActionOperation, ActionFeature, ActionValue)
                         if (!CurrentElement.id)
                             CurrentElement.id = ""tmp_Element"" + LabelForIndexer++;
 
-                        var LabelTag = document.querySelector('label[for=""' + CurrentElement.id + '""]');
+                        var LabelTag = CurrentDocument.querySelector('label[for=""' + CurrentElement.id + '""]');
 
                         if (LabelTag)
                         {
@@ -1871,14 +2204,17 @@ function cb_SetValueToInput(evt, ActionOperation, ActionFeature, ActionValue)
                         if ((ActionOperation == 'i') && (CurrentElement.innerHTML || CurrentElement.innerText))
                             break;
 
+                        Value = Value.Replace(""$[ln];"", ""\n"");
                         if (Value.HasTag())
                         {
+                            cb_AppendJavaScriptTag(Value);
+
                             CurrentElement.replaceChildren();
-                            CurrentElement.insertAdjacentHTML(""beforeend"", Value.Replace(""$[ln];"", ""\n"").toDOM());
+                            CurrentElement.insertAdjacentHTML(""beforeend"", Value.toDOM());
                             cb_Initialization(CurrentElement);
                         }
                         else
-                            CurrentElement.textContent = Value.Replace(""$[ln];"", ""\n"");
+                            CurrentElement.textContent = Value;
                         break;
                     case 'a':
                         var AttrName = Value.GetTextBefore(""|"");
@@ -1972,7 +2308,7 @@ function cb_SetValueToInput(evt, ActionOperation, ActionFeature, ActionValue)
                         }
                         if (CurrentElement.id)
                         {
-                            var LabelTag = document.querySelector('label[for=""' + CurrentElement.id + '""]');
+                            var LabelTag = CurrentDocument.querySelector('label[for=""' + CurrentElement.id + '""]');
                             if (LabelTag)
                                 LabelTag.remove();
                         }
@@ -1999,7 +2335,7 @@ function cb_SetValueToInput(evt, ActionOperation, ActionFeature, ActionValue)
             case '-':
                 switch (ActionFeature)
                 {
-                    case ""n"":
+                    case 'n':
                         if (CurrentElement.hasAttribute(""minlength""))
                         {
                             var ElementMinLength = (ActionOperation == '+') ? parseInt(CurrentElement.getAttribute(""minlength"")) + parseInt(Value) : parseInt(CurrentElement.getAttribute(""minlength"")) - parseInt(Value);
@@ -2009,7 +2345,7 @@ function cb_SetValueToInput(evt, ActionOperation, ActionFeature, ActionValue)
                             if ((ActionOperation == '+'))
                                 CurrentElement.setAttribute(""minlength"", Value);
                         break;
-                    case ""x"":
+                    case 'x':
                         if (CurrentElement.hasAttribute(""maxlength""))
                         {
                             var ElementMaxLength = (ActionOperation == '+') ? parseInt(CurrentElement.getAttribute(""maxlength"")) + parseInt(Value) : parseInt(CurrentElement.getAttribute(""maxlength"")) - parseInt(Value);
@@ -2019,7 +2355,7 @@ function cb_SetValueToInput(evt, ActionOperation, ActionFeature, ActionValue)
                             if ((ActionOperation == '+'))
                                 CurrentElement.setAttribute(""maxlength"", Value);
                         break;
-                    case ""f"":
+                    case 'f':
                         if (CurrentElement.style.fontSize)
                         {
                             var Unit = CurrentElement.style.fontSize.GetUnit();
@@ -2030,7 +2366,7 @@ function cb_SetValueToInput(evt, ActionOperation, ActionFeature, ActionValue)
                             if ((ActionOperation == '+'))
                                 CurrentElement.style.fontSize = Value + ""px"";
                         break;
-                    case ""w"":
+                    case 'w':
                         if (CurrentElement.style.width)
                         {
                             var Unit = CurrentElement.style.width.GetUnit();
@@ -2041,7 +2377,7 @@ function cb_SetValueToInput(evt, ActionOperation, ActionFeature, ActionValue)
                             if ((ActionOperation == '+'))
                                 CurrentElement.style.width = Value + ""px"";
                         break;
-                    case ""h"":
+                    case 'h':
                         if (CurrentElement.style.height)
                         {
                             var Unit = CurrentElement.style.height.GetUnit();
@@ -2052,7 +2388,7 @@ function cb_SetValueToInput(evt, ActionOperation, ActionFeature, ActionValue)
                             if ((ActionOperation == '+'))
                                 CurrentElement.style.height = Value + ""px"";
                         break;
-                    case ""v"":
+                    case 'v':
                         if (CurrentElement.value)
                         {
                             var ElementValue = (ActionOperation == '+') ? parseInt(CurrentElement.value) + parseInt(Value) : parseInt(CurrentElement.value) - parseInt(Value);
@@ -2067,7 +2403,7 @@ function cb_SetValueToInput(evt, ActionOperation, ActionFeature, ActionValue)
             case 'E':
                 switch (ActionFeature)
                 {
-                    case ""p"":
+                    case 'p':
                         if (Value.Contains(""|""))
                         {
                             var HtmlEvent = Value.GetTextBefore(""|"");
@@ -2080,7 +2416,7 @@ function cb_SetValueToInput(evt, ActionOperation, ActionFeature, ActionValue)
                         else
                             cb_AddEvent(CurrentElement, Value, ""PostBack(event)"");
                         break;
-                    case ""P"":
+                    case 'P':
                         if (Value.Contains(""|""))
                         {
                             var HtmlEvent = Value.GetTextBefore(""|"");
@@ -2094,7 +2430,25 @@ function cb_SetValueToInput(evt, ActionOperation, ActionFeature, ActionValue)
                         else
                             cb_AddEventListener(CurrentElement, Value, PostBack, []);
                         break;
-                    case ""g"":
+                    case 'g':
+                    case 'u':
+                    case 'a':
+                    case 'l':
+                    case 'h':
+                    case 'o':
+                    case 'r':
+                    case 'c':
+                        var FunctionName = ""GetBack"";
+                        switch (ActionFeature)
+                        {
+                            case 'u': FunctionName = ""PutBack""; break;
+                            case 'a': FunctionName = ""PatchBack""; break;
+                            case 'l': FunctionName = ""DeleteBack""; break;
+                            case 'h': FunctionName = ""HeadBack""; break;
+                            case 'o': FunctionName = ""OptionsBack""; break;
+                            case 'r': FunctionName = ""TraceBack""; break;
+                            case 'c': FunctionName = ""ConnectBack""; break;
+                        }
                         if (Value.Contains(""|""))
                         {
                             var HtmlEvent = Value.GetTextBefore(""|"");
@@ -2103,22 +2457,40 @@ function cb_SetValueToInput(evt, ActionOperation, ActionFeature, ActionValue)
                             if (Path.Contains(""|""))
                             {
                                 if (Path.GetTextBefore(""|"") == '#')
-                                    cb_AddEvent(CurrentElement, HtmlEvent, ""GetBack(event, '', '"" + Path.GetTextAfter(""|"") + ""')"");
+                                    cb_AddEvent(CurrentElement, HtmlEvent, FunctionName + ""(event, '', '"" + Path.GetTextAfter(""|"") + ""')"");
                                 else
-                                    cb_AddEvent(CurrentElement, HtmlEvent, ""GetBack(event, '"" + Path.GetTextBefore(""|"") + ""', '"" + Path.GetTextAfter(""|"") + ""')"");
+                                    cb_AddEvent(CurrentElement, HtmlEvent, FunctionName + ""(event, '"" + Path.GetTextBefore(""|"") + ""', '"" + Path.GetTextAfter(""|"") + ""')"");
                             }
                             else
                             {
                                 if (Path == '#')
-                                    cb_AddEvent(CurrentElement, HtmlEvent, ""GetBack(event)"");
+                                    cb_AddEvent(CurrentElement, HtmlEvent, FunctionName + ""(event)"");
                                 else
-                                    cb_AddEvent(CurrentElement, HtmlEvent, ""GetBack(event, '"" + Path + ""')"");
+                                    cb_AddEvent(CurrentElement, HtmlEvent, FunctionName + ""(event, '"" + Path + ""')"");
                             }
                         }
                         else
-                            cb_AddEvent(CurrentElement, Value, ""GetBack(event, this)"");
+                            cb_AddEvent(CurrentElement, Value, FunctionName + ""(event, this)"");
                         break;
-                    case ""G"":
+                    case 'G':
+                    case 'U':
+                    case 'A':
+                    case 'L':
+                    case 'H':
+                    case 'O':
+                    case 'R':
+                    case 'C':
+                        var FunctionValue = GetBack;
+                        switch (ActionFeature)
+                        {
+                            case 'U': FunctionValue = PutBack; break;
+                            case 'A': FunctionValue = PatchBack; break;
+                            case 'L': FunctionValue = DeleteBack; break;
+                            case 'H': FunctionValue = HeadBack; break;
+                            case 'O': FunctionValue = OptionsBack; break;
+                            case 'R': FunctionValue = TraceBack; break;
+                            case 'C': FunctionValue = ConnectBack; break;
+                        }
                         if (Value.Contains(""|""))
                         {
                             var HtmlEvent = Value.GetTextBefore(""|"");
@@ -2127,47 +2499,98 @@ function cb_SetValueToInput(evt, ActionOperation, ActionFeature, ActionValue)
                             if (Path.Contains(""|""))
                             {
                                 if (Path.GetTextBefore(""|"") == '#')
-                                    cb_AddEventListener(CurrentElement, HtmlEvent, GetBack, ["""", Path.GetTextAfter(""|"")]);
+                                    cb_AddEventListener(CurrentElement, HtmlEvent, FunctionValue, ["""", Path.GetTextAfter(""|"")]);
                                 else
-                                    cb_AddEventListener(CurrentElement, HtmlEvent, GetBack, [Path.GetTextBefore(""|""), Path.GetTextAfter(""|"")]);
+                                    cb_AddEventListener(CurrentElement, HtmlEvent, FunctionValue, [Path.GetTextBefore(""|""), Path.GetTextAfter(""|"")]);
                             }
                             else
                             {
                                 if (Path == '#')
-                                    cb_AddEventListener(CurrentElement, HtmlEvent, GetBack, []);
+                                    cb_AddEventListener(CurrentElement, HtmlEvent, FunctionValue, []);
                                 else
-                                    cb_AddEventListener(CurrentElement, HtmlEvent, GetBack, [Path]);
+                                    cb_AddEventListener(CurrentElement, HtmlEvent, FunctionValue, [Path]);
                             }
                         }
                         else
-                            cb_AddEventListener(CurrentElement, Value, GetBack, [this]);
+                            cb_AddEventListener(CurrentElement, Value, FunctionValue, [this]);
                         break;
-                    case ""t"": cb_AddEvent(CurrentElement, Value.GetTextBefore(""|""), ""TagBack(event, '"" + Value.GetTextAfter(""|"") + ""')""); break;
-                    case ""T"": cb_AddEventListener(CurrentElement, Value.GetTextBefore(""|""), TagBack, [Value.GetTextAfter(""|"")]); break;
-                    case ""w"": cb_AddEvent(CurrentElement, Value.GetTextBefore(""|""), ""WebSocketBack(event, '"" + Value.GetTextAfter(""|"") + ""')""); break;
-                    case ""W"": cb_AddEventListener(CurrentElement, Value.GetTextBefore(""|""), WebSocketBack, [Value.GetTextAfter(""|"")]); break;
-                    case ""d"": cb_AddEvent(CurrentElement, Value, ""PreventDefault(event)""); break;
-                    case ""D"": CurrentElement.addEventListener(Value, PreventDefault); break;
-                    case ""s"": cb_AddEvent(CurrentElement, Value, ""StopPropagation(event)""); break;
-                    case ""S"": CurrentElement.addEventListener(Value, StopPropagation); break;
+                    case 't': cb_AddEvent(CurrentElement, Value.GetTextBefore(""|""), ""TagBack(event, '"" + Value.GetTextAfter(""|"") + ""')""); break;
+                    case 'T': cb_AddEventListener(CurrentElement, Value.GetTextBefore(""|""), TagBack, [Value.GetTextAfter(""|"")]); break;
+                    case 'w': cb_AddEvent(CurrentElement, Value.GetTextBefore(""|""), ""WebSocketBack(event, '"" + Value.GetTextAfter(""|"") + ""')""); break;
+                    case 'W': cb_AddEventListener(CurrentElement, Value.GetTextBefore(""|""), WebSocketBack, [Value.GetTextAfter(""|"")]); break;
+                    case 'd': cb_AddEvent(CurrentElement, Value, ""PreventDefault(event)""); break;
+                    case 'D': CurrentElement.addEventListener(Value, PreventDefault); break;
+                    case 's': cb_AddEvent(CurrentElement, Value, ""StopPropagation(event)""); break;
+                    case 'S': CurrentElement.addEventListener(Value, StopPropagation); break;
+                    case 'm':
+                        var [text, type, title, okText, cancelText] = Value.GetTextAfter(""|"").split(""|"");
+
+                        if (!text)
+                            text = ""Are you sure you want to proceed?"";
+                        if (!type)
+                            type = ""none"";
+                        if (!title)
+                            title = ""Confirm"";
+                        if (!okText)
+                            okText = ""OK"";
+                        if (!cancelText)
+                            cancelText = ""Cancel"";
+                        
+                        var CurrentEvent = Value.GetTextBefore(""|"");
+
+                        if (!CurrentElement.hasAttribute(CurrentEvent))
+                            break;
+
+                        var CurrentAttributeValue = CurrentElement.getAttribute(CurrentEvent);
+
+                        CurrentAttributeValue = ""cb_ShowConfirm('"" + text + ""', '"" + type + ""', '"" + title + ""', '"" + okText + ""', '"" + cancelText + ""').then(() => {"" + CurrentAttributeValue + ""}).catch(() => { });"";
+
+                        CurrentElement.setAttribute(CurrentEvent, CurrentAttributeValue);
+
+                        break;
                 }
                 break;
 
             case 'R':
                 switch (ActionFeature)
                 {
-                    case ""p"": cb_RemoveEvent(CurrentElement, Value, ""PostBack""); break;
-                    case ""g"": cb_RemoveEvent(CurrentElement, Value, ""GetBack""); break;
-                    case ""t"": cb_RemoveEvent(CurrentElement, Value, ""TagBack""); break;
-                    case ""w"": cb_RemoveEvent(CurrentElement, Value, ""WebSocketBack""); break;
-                    case ""d"": cb_RemoveEvent(CurrentElement, Value, ""PreventDefault""); break;
-                    case ""s"": cb_RemoveEvent(CurrentElement, Value, ""StopPropagation""); break;
-                    case ""P"": cb_RemoveEventListener(CurrentElement, Value, PostBack); break;
-                    case ""G"": cb_RemoveEventListener(CurrentElement, Value, GetBack); break;
-                    case ""T"": cb_RemoveEventListener(CurrentElement, Value, TagBack); break;
-                    case ""W"": cb_RemoveEventListener(CurrentElement, Value, WebSocketBack); break;
-                    case ""D"": cb_RemoveEventListener(CurrentElement, Value, PreventDefault); break;
-                    case ""S"": cb_RemoveEventListener(CurrentElement, Value, StopPropagation); break;
+                    case 'p': cb_RemoveEvent(CurrentElement, Value, ""PostBack""); break;
+                    case 'g': cb_RemoveEvent(CurrentElement, Value, ""GetBack""); break;
+                    case 'u': cb_RemoveEvent(CurrentElement, Value, ""PutBack""); break;
+                    case 'a': cb_RemoveEvent(CurrentElement, Value, ""PatchBack""); break;
+                    case 'l': cb_RemoveEvent(CurrentElement, Value, ""DeleteBack""); break;
+                    case 'h': cb_RemoveEvent(CurrentElement, Value, ""HeadBack""); break;
+                    case 'o': cb_RemoveEvent(CurrentElement, Value, ""OptionsBack""); break;
+                    case 'r': cb_RemoveEvent(CurrentElement, Value, ""TraceBack""); break;
+                    case 'c': cb_RemoveEvent(CurrentElement, Value, ""ConnectBack""); break;
+                    case 't': cb_RemoveEvent(CurrentElement, Value, ""TagBack""); break;
+                    case 'w': cb_RemoveEvent(CurrentElement, Value, ""WebSocketBack""); break;
+                    case 'd': cb_RemoveEvent(CurrentElement, Value, ""PreventDefault""); break;
+                    case 's': cb_RemoveEvent(CurrentElement, Value, ""StopPropagation""); break;
+                    case 'm':
+                        var CurrentAttributeValue = CurrentElement.getAttribute(Value);
+
+                        if (CurrentAttributeValue)
+                        {
+                            CurrentAttributeValue = CurrentAttributeValue.replace(/cb_ShowConfirm\(.*?\)\.then\(\s*?\(\)\s*?=>\s*?{/, """");
+                            CurrentAttributeValue = CurrentAttributeValue.replace(/}\)\.catch\(\(\)\s*?=>\s*?{ }\);/, """");
+
+                            CurrentElement.setAttribute(Value, CurrentAttributeValue.trim());
+                        }
+                        break;
+                    case 'P': cb_RemoveEventListener(CurrentElement, Value, PostBack); break;
+                    case 'G': cb_RemoveEventListener(CurrentElement, Value, GetBack); break;
+                    case 'U': cb_RemoveEventListener(CurrentElement, Value, PutBack); break;
+                    case 'A': cb_RemoveEventListener(CurrentElement, Value, PatchBack); break;
+                    case 'L': cb_RemoveEventListener(CurrentElement, Value, DeleteBack); break;
+                    case 'H': cb_RemoveEventListener(CurrentElement, Value, HeadBack); break;
+                    case 'O': cb_RemoveEventListener(CurrentElement, Value, OptionsBack); break;
+                    case 'R': cb_RemoveEventListener(CurrentElement, Value, TraceBack); break;
+                    case 'C': cb_RemoveEventListener(CurrentElement, Value, ConnectBack); break;
+                    case 'T': cb_RemoveEventListener(CurrentElement, Value, TagBack); break;
+                    case 'W': cb_RemoveEventListener(CurrentElement, Value, WebSocketBack); break;
+                    case 'D': cb_RemoveEventListener(CurrentElement, Value, PreventDefault); break;
+                    case 'S': cb_RemoveEventListener(CurrentElement, Value, StopPropagation); break;
                 }
                 break;
         }
@@ -2259,29 +2682,55 @@ function cb_SetValueToInput(evt, ActionOperation, ActionFeature, ActionValue)
                 else
                     CurrentElement.insertAdjacentElement(""afterend"", document.createElement(Value));
                 break;
-            case 'pt':
+            case ""pt"":
+                Value = Value.Replace(""$[ln];"", ""\n"");
                 if (Value.HasTag())
                 {
-                    CurrentElement.insertAdjacentHTML(""afterbegin"", Value.Replace(""$[ln];"", ""\n"").toDOM());
+                    cb_AppendJavaScriptTag(Value);
+
+                    CurrentElement.insertAdjacentHTML(""afterbegin"", Value.toDOM());
                     cb_Initialization(CurrentElement);
                 }
                 else
-                    CurrentElement.insertAdjacentHTML(""afterbegin"", Value.Replace(""$[ln];"", ""\n""));
+                    CurrentElement.insertAdjacentHTML(""afterbegin"", Value);
                 break;
-            case ""lu"": GetBack(evt, Value, ElementPlace);
+            case ""lu"": GetBack(evt, Value, ElementPlace); break;
+            case ""sp"":
+                var OutputPlace = cb_GetElementByElementPlace(Value);
+                const placeHolder = document.createElement(""div"");
+                CurrentElement.parentNode.insertBefore(placeHolder, CurrentElement);
+                OutputPlace.replaceWith(CurrentElement);
+                placeHolder.replaceWith(OutputPlace);
         }
+
+        // Extension
+        cb_SetValueToInputExtension(evt, ActionOperation, ActionFeature, CurrentElement, Value);
     }
+
+    return ElementPlaceList;
 }
 
-function cb_GetElementByElementPlace(ElementPlace, obj)
+function cb_GetElementByElementPlace(ElementPlace, obj, TransientDOM)
 {
+    if (ElementPlace.substring(0, 1) == '^')
+        if (ElementPlace.length == 1)
+        {
+            return document.head;
+        }
+        else
+        {
+            return cb_GetElementByElementPlace(ElementPlace.substring(1), document.head);
+        }
+
     if (ElementPlace.substring(0, 1) != '>')
         if (ElementPlace.Contains(""|""))
             ElementPlace = '>' + ElementPlace
 
     var ElementPlaceFirstChar = ElementPlace.substring(0, 1);
 
-    const FromPlace = (obj) ? obj : document;
+    const CurrentDocument = TransientDOM ?? document;
+
+    const FromPlace = (obj) ? obj : CurrentDocument;
 
     switch (ElementPlaceFirstChar)
     {
@@ -2313,6 +2762,8 @@ function cb_GetElementByElementPlace(ElementPlace, obj)
             var Query = ElementPlace.substring(1);
             return FromPlace.querySelector(Query.Replace(""$[eq];"", ""=""));
 
+        case '~': return FromPlace;
+
         case '>':
             var PlaceList = ElementPlace.substring(1).split('|');
             var TmpPlace;
@@ -2320,7 +2771,7 @@ function cb_GetElementByElementPlace(ElementPlace, obj)
             for (var i = 0; i < PlaceList.length; i++)
             {
                 var TmpElementPlace = PlaceList[i];
-                TmpPlace = (i == 0) ? cb_GetElementByElementPlace(TmpElementPlace) : cb_GetElementByElementPlace(TmpElementPlace, TmpPlace);
+                TmpPlace = (i == 0) ? cb_GetElementByElementPlace(TmpElementPlace, null, TransientDOM) : cb_GetElementByElementPlace(TmpElementPlace, TmpPlace);
             }
 
             return TmpPlace;
@@ -2337,7 +2788,7 @@ function cb_GetElementByElementPlace(ElementPlace, obj)
                 ElementPlace = ElementPlace.substring(1);
             }
 
-            var TmpElementPlace = (obj) ? obj : cb_GetElementByElementPlace(ElementPlace);
+            var TmpElementPlace = (obj) ? obj : cb_GetElementByElementPlace(ElementPlace, null, TransientDOM);
 
             while (i > 0)
             {
@@ -2346,7 +2797,7 @@ function cb_GetElementByElementPlace(ElementPlace, obj)
             }
 
             if ((ElementPlace.length > 0) && obj)
-                return cb_GetElementByElementPlace(ElementPlace, TmpElementPlace);
+                return cb_GetElementByElementPlace(ElementPlace, TmpElementPlace, TransientDOM);
 
             return TmpElementPlace;
 
@@ -2375,10 +2826,14 @@ function cb_FetchValue(evt, Value)
             switch (ActionFeature)
             {
                 case 'r':
+                    var MinValue = 0;
                     if (Value.Contains(','))
-                        return Math.floor(Math.random() * Value.GetTextBefore(',')) + Value.GetTextAfter(',');
-                    else
-                        return Math.floor(Math.random() * Value.GetTextBefore(','));
+                    {
+                        MinValue = Number(Value.GetTextAfter(','));
+                        Value = Value.GetTextBefore(',');
+                    }
+                    var MaxValue = Number(Value);
+                    return Math.floor(Math.random() * (MaxValue - MinValue)) + MinValue;
             }
 
         case 'd':
@@ -2465,12 +2920,34 @@ function cb_FetchValue(evt, Value)
 
                         return TmpValue;
                     }
+                case 'm':
+                    if (Value.Contains('|'))
+                    {
+                        var funcName = Value.GetTextBefore('|');
+                        const [...args] = Value.GetTextAfter('|').split(',');
+
+                        for (let i = 0; i < args.length; i++)
+                            args[i] = args[i].Replace(""$[co];"", "","");
+
+                        return cb_RunMethod(funcName, args);
+                    }
+                    else
+                        return cb_RunMethod(Value);
             }
 
         case 'l':
             switch (ActionFeature)
             {
-                case 'u': return cb_GetUrl(Value);
+                case 'u':
+                    var fetchScript = false;
+
+                    if (Value.contains('|'))
+                    {
+                        fetchScript = Value.GetTextAfter('|') == '1';
+                        Value = Value.GetTextBefore('|');
+                    }
+
+                    return cb_GetUrl(Value, fetchScript);
                 case 'L':
                     if (Value.Contains('['))
                     {
@@ -2494,6 +2971,12 @@ function cb_FetchValue(evt, Value)
                             return lines[i];
             }
 
+        case 's':
+            switch (ActionFeature)
+            {
+                case 'c': return Value.GetTextAfter(',').Replace(' ', Value.GetTextBefore(','));
+            }
+
         case 'e':
             switch (ActionFeature)
             {
@@ -2512,21 +2995,32 @@ function cb_FetchValue(evt, Value)
                 case 'y': return evt.offsetY;
             }
     }
+
+    // Extension
+    return cb_FetchValueExtension(evt, ActionOperation, ActionFeature, Value);
 }
 
-function cb_SaveValue(evt, ActionOperation, ActionFeature, ActionValue)
+function cb_SaveValue(evt, ActionOperation, ActionFeature, ActionValue, LastElementPlaceList, TransientDOM)
 {
     var Name = ActionValue.GetTextAfter('=');
     var ElementPlace = ActionValue.GetTextBefore('=');
 
+    if (!ElementPlace)
+        ElementPlace = ""<body>"";
+
     var CurrentElement;
 
     if (ElementPlace.substring(0, 1) == '$')
-        CurrentElement = (ElementPlace.length > 1) ? cb_GetElementByElementPlace(ElementPlace.substring(1), evt.currentTarget) : evt.currentTarget;
+        CurrentElement = (ElementPlace.length > 1) ? cb_GetElementByElementPlace(ElementPlace.substring(1), evt.currentTarget, TransientDOM) : evt.currentTarget;
     else if (ElementPlace.substring(0, 1) == '!')
-        CurrentElement = (ElementPlace.length > 1) ? cb_GetElementByElementPlace(ElementPlace.substring(1), evt.target) : evt.target;
+        CurrentElement = (ElementPlace.length > 1) ? cb_GetElementByElementPlace(ElementPlace.substring(1), evt.target, TransientDOM) : evt.target;
     else
-        CurrentElement = cb_GetElementByElementPlace(ElementPlace);
+    {
+        if (ElementPlace == '-')
+            CurrentElement = LastElementPlaceList;
+        else
+            CurrentElement = cb_GetElementByElementPlace(ElementPlace, null, TransientDOM);
+    }
 
     IsCache = (ActionOperation == 'c');
 
@@ -2562,10 +3056,39 @@ function cb_SaveValue(evt, ActionOperation, ActionFeature, ActionValue)
                 case 'a': cb_SetStorage(IsCache, Name.GetTextBefore('|'), CurrentElement, getAttribute(Name.GetTextAfter('|'))); break;
                 case 'w': cb_SetStorage(IsCache, Name, CurrentElement.style.width); break;
                 case 'h': cb_SetStorage(IsCache, Name, CurrentElement.style.height); break;
-                case 'r': cb_SetStorage(IsCache, Name, (CurrentElemen.hasAttribute(""readonly"")? ""true"" : ""false"")); break;
-                case 'x': cb_SetStorage(IsCache, Name, CurrentElement.selectedIndex);
-                case 'u': cb_SetStorage(IsCache, Name.GetTextBefore('|'), cb_GetUrl(Name.GetTextAfter('|')));
+                case 'r': cb_SetStorage(IsCache, Name, (CurrentElement.hasAttribute(""readonly"")? ""true"" : ""false"")); break;
+                case 'x': cb_SetStorage(IsCache, Name, CurrentElement.selectedIndex); break;
+                case 'u':
+                    var url = Name.GetTextAfter('|');
+                    var fetchScript = false;
+
+                    if (url.contains('|'))
+                    {
+                        fetchScript = url.GetTextAfter('|') == '1';
+                        url = url.GetTextBefore('|');
+                    }
+
+                    cb_SetStorage(IsCache, Name.GetTextBefore('|'), cb_GetUrl(url, fetchScript));
+                    break;
                 case 'I': cb_SetStorage(IsCache, Name, Array.from(CurrentElement.parentElement.children).indexOf(CurrentElement)); break;
+                case 'A':
+                    // Is Only Work Async
+                    const [WasmLanguage, wasmUrl, funcName, ...args] = Name.GetTextAfter(""|"").split(',');
+
+                    for (let i = 0; i < args.length; i++)
+                        args[i] = args[i].Replace(""$[co];"", "","");
+
+                    switch (WasmLanguage)
+                    {
+                        case ""c"": cb_RunWasmMethod_C(wasmUrl, funcName, args).then(({ result }) => cb_SetStorage(IsCache, Name.GetTextBefore('|'), result)); break;
+                        case ""rust"": cb_RunWasmMethod_Rust(wasmUrl, funcName, args).then(({ result }) => cb_SetStorage(IsCache, Name.GetTextBefore('|'), result)); break;
+                        case ""csharp"": cb_RunWasmMethod_CSharp(wasmUrl, funcName, args).then(({ result }) => cb_SetStorage(IsCache, Name.GetTextBefore('|'), result)); break;
+                        case ""go"": cb_RunWasmMethod_Go(wasmUrl, funcName, args).then(({ result }) => cb_SetStorage(IsCache, Name.GetTextBefore('|'), result)); break;
+                        case ""java"": cb_RunWasmMethod_Java(wasmUrl, funcName, args).then(({ result }) => cb_SetStorage(IsCache, Name.GetTextBefore('|'), result)); break;
+                        case ""as"": cb_RunWasmMethod_AS(wasmUrl, funcName, args).then(({ result }) => cb_SetStorage(IsCache, Name.GetTextBefore('|'), result)); break;
+                    }
+                    
+                    break;
             }
     }
 
@@ -2573,11 +3096,14 @@ function cb_SaveValue(evt, ActionOperation, ActionFeature, ActionValue)
     {
         case ""ta"": cb_SetStorage(false, Name, CurrentElement.style.textAlign); break;
         case ""nl"": cb_SetStorage(false, Name, CurrentElement.childNodes.length); break;
-        case ""vi"": cb_SetStorage(false, Name, ((urrentElement.style.visibility == ""hidden"") ? ""true"" : ""false""));
+        case ""vi"": cb_SetStorage(false, Name, ((CurrentElement.style.visibility == ""hidden"") ? ""true"" : ""false""));
         case ""Ta"": cb_SetStorage(true, Name, CurrentElement.style.textAlign); break;
         case ""Nl"": cb_SetStorage(true, Name, CurrentElement.childNodes.length); break;
-        case ""Vi"": cb_SetStorage(true, Name, ((urrentElement.style.visibility == ""hidden"") ? ""true"" : ""false""));
+        case ""Vi"": cb_SetStorage(true, Name, ((CurrentElement.style.visibility == ""hidden"") ? ""true"" : ""false""));
     }
+
+    // Extension
+    cb_SaveValueExtension(evt, ActionOperation, ActionFeature, Name, CurrentElement);
 }
 
 function cb_SetStorage(IsCache, Name, Value)
@@ -2586,6 +3112,25 @@ function cb_SetStorage(IsCache, Name, Value)
         localStorage.setItem(Name, Value);
     else
         sessionStorage.setItem(Name, Value);
+}
+
+function cb_SetDynamicValue(evt, Value, Spliter)
+{
+    var ValueArray = Value.split(Spliter);
+    for (var ValueArrayIndex = 0; ValueArrayIndex < ValueArray.length; ValueArrayIndex++)
+        if (ValueArray[ValueArrayIndex].length > 0)
+            if (ValueArray[ValueArrayIndex].substring(0, 1) == '@')
+                ValueArray[ValueArrayIndex] = cb_FetchValue(evt, ValueArray[ValueArrayIndex]);
+
+    return ValueArray.join(Spliter);
+}
+
+function cb_SetDynamicForValue(evt, Value)
+{
+    if (Value.substring(0, 1) == '@')
+        Value = cb_FetchValue(evt, Value);
+
+    return Value;
 }
 
 /* End Fetch Web-Forms */
@@ -2657,14 +3202,21 @@ function cb_CleanExpiredCache()
 
 /* Start URL */
 
-function cb_GetUrl(Url)
+function cb_GetUrl(Url, FetchScript)
 {
     var XMLHttp = new XMLHttpRequest();
     XMLHttp.open(""GET"", Url, false);
     XMLHttp.send();
 
     if (XMLHttp.status === 200)
-        return XMLHttp.responseText;
+    {
+        var responseText = XMLHttp.responseText
+
+        if (FetchScript)
+            cb_AppendJavaScriptTag(responseText);
+
+        return responseText;
+    }
 }
 
 function cb_ConvertToWebSocketUrl(url)
@@ -2723,6 +3275,109 @@ function cb_GetCookie(Key)
 
 /* End Cookie */
 
+/** Start Condition **/
+
+async function cb_WaitForCondition(interval, checkFunc, ...args)
+{
+    return new Promise((resolve, reject) =>
+    {
+        const timer = setInterval(() =>
+        {
+            var Result = checkFunc(...args);
+            if (Result)
+            {
+                clearInterval(timer);
+                resolve();
+            }
+            else if (Result === null)
+            {
+                clearInterval(timer);
+                reject();
+            }
+        }, interval);
+    });
+}
+
+// A Value Of True Satisfies The Time Condition, And A Value Of Null Escapes The Time Condition
+function cb_CheckCondition(evt, ActionControl)
+{
+    var Action = ActionControl.GetTextBefore(""="");
+    var Control = ActionControl.GetTextAfter(""="");
+
+    // Set Dynamic Value
+    Control = cb_SetDynamicValue(evt, Control, '|');
+
+    switch (Action)
+    {
+        case ""gt"": return (Control.GetTextBefore(""|"") > Control.GetTextAfter(""|""));
+        case ""lt"": return (Control.GetTextBefore(""|"") < Control.GetTextAfter(""|""));
+        case ""et"": return (Control.GetTextBefore(""|"") == Control.GetTextAfter(""|""));
+        case ""tr"": return (Control == true);
+        case ""fa"": return (Control != true);
+        case ""re"":
+            {
+                var value = Control.GetTextBefore(""|"");
+                var pattern = Control.GetTextAfter(""|"");
+                try
+                {
+                    var regex = new RegExp(pattern);
+                    return regex.test(value);
+                }
+                catch (e)
+                {
+                    if (PostBackOptions.AddLog)
+                        console.error(""Invalid regex pattern:"", pattern);
+                    return null;
+                }
+            }
+        case ""ct"":
+        case ""cf"":
+            {
+                if (cb_ConfirmIsAccept === undefined) 
+                {
+                    var [text, type, title, okText, cancelText] = Control.split(""|"");
+
+                    if (!text)
+                        text = ""Are you sure you want to proceed?"";
+                    if (!type)
+                        type = ""none"";
+                    if (!title)
+                        title = ""Confirm"";
+                    if (!okText)
+                        okText = ""OK"";
+                    if (!cancelText)
+                        cancelText = ""Cancel"";
+
+                    cb_ShowConfirm(text, type, title, okText, cancelText).catch(() => { });
+                }
+
+                if (cb_ConfirmIsAccept === true)
+                {
+                    cb_ConfirmIsAccept = undefined;
+
+                    if (Action == ""ct"")
+                        return true;
+                    else
+                        return null;
+                }
+                else if (cb_ConfirmIsAccept === false)
+                {
+                    cb_ConfirmIsAccept = undefined;
+
+                    if (Action == ""ct"")
+                        return null;
+                    else
+                        return true;
+                }
+            }
+    }
+
+    // Extension
+    return cb_CheckConditionExtension(evt, Action, Control);
+}
+
+/** End Condition **/
+
 /* Start Extension Methods */
 
 String.prototype.toDOM = function ()
@@ -2732,7 +3387,6 @@ String.prototype.toDOM = function ()
 
     return DivTag.innerHTML;
 };
-
 
 String.prototype.HasTag = function ()
 {
@@ -2924,17 +3578,17 @@ function cb_SetPreRunnerQueueForEval(PreRunner, ScriptValue)
 
     switch (FirstChar)
     {
-        case ""("":
+        case '(':
             PeriodMiliSecond = parseFloat(PreRunner[0].GetTextAfter(""("")) * 1000;
             PreRunner.shift();
             setInterval(function () { cb_SetPreRunnerQueueForEval(PreRunner, ScriptValue); }, PeriodMiliSecond);
             break;
-        case "":"":
+        case ':':
             DelayMiliSecond = parseFloat(PreRunner[0].GetTextAfter("":"")) * 1000;
             PreRunner.shift();
             setTimeout(function () { cb_SetPreRunnerQueueForEval(PreRunner, ScriptValue); }, DelayMiliSecond);
             break;
-        case "","":
+        case ',':
             NumberOfRepetitions = PreRunner[0].GetTextAfter("","");
             PreRunner.shift();
             for (var i = 0; i < NumberOfRepetitions; i++)
@@ -2942,29 +3596,29 @@ function cb_SetPreRunnerQueueForEval(PreRunner, ScriptValue)
     }
 }
 
-function cb_SetPreRunnerQueueForSetValueToInput(evt, PreRunner, ActionOperation, ActionFeature, ActionValue)
+function cb_SetPreRunnerQueueForSetValueToInput(evt, PreRunner, ActionOperation, ActionFeature, ActionValue, LastElementPlaceList, TransientDOM)
 {
     if (PreRunner.length < 1)
     {
-        cb_SetValueToInput(evt, ActionOperation, ActionFeature, ActionValue);
-        return;
+        // Return Element Place. Is Array Object List For QueryAll, And Array Object List With One Item For Other
+        return cb_SetValueToInput(evt, ActionOperation, ActionFeature, ActionValue, LastElementPlaceList, TransientDOM);
     }
 
     var FirstChar = PreRunner[0].substring(0, 1);
 
     switch (FirstChar)
     {
-        case ""("":
+        case '(':
             PeriodMiliSecond = parseFloat(PreRunner[0].GetTextAfter(""("")) * 1000;
             PreRunner.shift();
             setInterval(function () { cb_SetPreRunnerQueueForSetValueToInput(evt, PreRunner, ActionOperation, ActionFeature, ActionValue); }, PeriodMiliSecond);
             break;
-        case "":"":
+        case ':':
             DelayMiliSecond = parseFloat(PreRunner[0].GetTextAfter("":"")) * 1000;
             PreRunner.shift();
             setTimeout(function () { cb_SetPreRunnerQueueForSetValueToInput(evt, PreRunner, ActionOperation, ActionFeature, ActionValue); }, DelayMiliSecond);
             break;
-        case "","":
+        case ',':
             NumberOfRepetitions = PreRunner[0].GetTextAfter("","");
             PreRunner.shift();
             for (var i = 0; i < NumberOfRepetitions; i++)
@@ -2972,7 +3626,1035 @@ function cb_SetPreRunnerQueueForSetValueToInput(evt, PreRunner, ActionOperation,
     }
 }
 
-/* End Pre Runner Queue Methods */");
+/* End Pre Runner Queue Methods */
+
+/* Start State Management */
+
+class cb_PageClass
+{
+    constructor(url, title, body, scrollX, scrollY)
+    {
+        this.url = url;
+        this.title = title;
+        this.body = body;
+        this.scrollX = scrollX;
+        this.scrollY = scrollY;
+    }
+}
+
+class cb_PageManager
+{
+    static pages = new Map();
+    static currentUrl = window.location.pathname;
+
+    static GetFirst()
+    {
+        return cb_PageManager.pages.values().next().value || null;
+    }
+
+    static Add(url, title, body, scrollX, scrollY)
+    {
+        const page = new cb_PageClass(url, title, body, scrollX, scrollY);
+        cb_PageManager.pages.set(url, page);
+        return page;
+    }
+
+    static Delete(url)
+    {
+        return cb_PageManager.pages.delete(url);
+    }
+
+    static Edit(url, newTitle, newBody, newScrollX, newScrollY)
+    {
+        if (cb_PageManager.pages.has(url))
+        {
+            const page = cb_PageManager.pages.get(url);
+            page.title = newTitle;
+            page.body = newBody;
+            page.scrollX = newScrollX;
+            page.scrollY = newScrollY;
+            return true;
+        }
+        return false;
+    }
+
+    static Get(url)
+    {
+        return cb_PageManager.pages.get(url) || null;
+    }
+
+    static List()
+    {
+        return Array.from(cb_PageManager.pages.values());
+    }
+
+    static SetState(url, push = true)
+    {
+        if (cb_PageManager.pages.has(url))
+        {
+            const page = cb_PageManager.pages.get(url);
+            document.title = page.title;
+            document.body.replaceChildren();
+            document.body.insertAdjacentHTML(""beforeend"", page.body);
+
+            window.scrollTo(page.scrollX, page.scrollY);
+
+            if (push)
+                window.history.pushState({ url: url }, page.title, url);
+
+            return true;
+        }
+        return false;
+    }
+
+    static InitPopStateHandler()
+    {
+        window.addEventListener('popstate', (event) =>
+        {
+            const url = event.state?.url;
+            if (url)
+                cb_PageManager.SetState(url, false);
+        });
+    }
+}
+
+cb_PageManager.InitPopStateHandler();
+
+function cb_AddFirstPageSPA()
+{
+    const initialUrl = window.location.pathname;
+    if (!cb_PageManager.pages.has(initialUrl))
+    {
+        cb_PageManager.Add(initialUrl, document.title, document.body.innerHTML, window.scrollX, window.scrollY);
+        window.history.replaceState({ url: initialUrl }, null, initialUrl);
+    }
+}
+
+function cb_SetMainSubmitTypeToButtons(obj)
+{
+    const buttons = obj.querySelectorAll('input[type=""button""]');
+
+    buttons.forEach(button =>
+    {
+        if (button.getAttribute('main-type') === 'submit')
+        {
+            button.setAttribute('type', 'submit');
+            button.removeAttribute('main-type');
+        }
+    });
+}
+
+function cb_SetStatePreservation(HtmlDOM, TransientDOM)
+{
+    // Save Current DOM state Including Select Values
+    const selectValues = {};
+    HtmlDOM.querySelectorAll('select').forEach((select, index) =>
+    {
+        selectValues[`select-${index}`] = select.value;
+    });
+
+    // Save And Transfer Event Listeners
+    const elementsWithEvents = Object.keys(cb_EventRegistry);
+
+    // Restore Select Values To TransientDOM
+    TransientDOM.querySelectorAll('select').forEach((select, index) =>
+    {
+        if (selectValues[`select-${index}`])
+            select.value = selectValues[`select-${index}`];
+    });
+
+    // Transfer Event Listeners From Old Elements To New Elements
+    elementsWithEvents.forEach(objId =>
+    {
+        const events = cb_EventRegistry[objId];
+
+        let originalElement = null;
+        if (objId.startsWith('cb_'))
+            originalElement = document.querySelector(`[data-cb-id=""${objId}""]`);
+        else
+            originalElement = document.getElementById(objId);
+
+        if (originalElement && HtmlDOM.contains(originalElement))
+        {
+            let newElement = null;
+            if (objId.startsWith('cb_'))
+                newElement = TransientDOM.querySelector(`[data-cb-id=""${objId}""]`);
+            else
+                newElement = TransientDOM.getElementById(objId);
+
+            if (newElement)
+            {
+                Object.keys(events).forEach(eventType =>
+                {
+                    events[eventType].forEach(listener =>
+                    {
+                        newElement.addEventListener(eventType, listener.callback);
+
+                        if (!cb_EventRegistry[objId])
+                            cb_EventRegistry[objId] = {};
+                        if (!cb_EventRegistry[objId][eventType])
+                            cb_EventRegistry[objId][eventType] = [];
+
+                        // Ensure We Don't Duplicate Listeners
+                        const exists = cb_EventRegistry[objId][eventType].some(l => l.functionName === listener.functionName);
+
+                        if (!exists)
+                            cb_EventRegistry[objId][eventType].push(listener);
+                    });
+                });
+            }
+        }
+    });
+
+    return TransientDOM;
+}
+
+/* End State Management */
+
+/* Start Message */
+
+// Common styles
+const cb_OverlayStyle = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        `;
+
+const cb_AlertBoxStyle = `
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            width: 320px;
+            max-width: 90%;
+            overflow: hidden;
+            animation: popIn 0.3s ease-out;
+            text-align: center;
+        `;
+
+const cb_HeaderStyle = `
+            color: white;
+            padding: 20px;
+            margin: 0;
+            font-weight: 600;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        `;
+
+const cb_TextStyle = `
+            padding: 25px 20px;
+            color: #333;
+            line-height: 1.5;
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        `;
+
+const cb_ButtonStyle = `
+            background-color: #AEAEAE;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin: 0 10px 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        `;
+
+const cb_CancelButtonStyle = `
+            background: #f0f0f0;
+            color: #333;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin: 0 10px 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        `;
+
+const cb_MessageStyle = `
+            color: white;
+            padding: 16px 24px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-weight: 500;
+            animation: messageSlideIn 0.3s ease-out;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            min-width: 300px;
+            max-width: 90%;
+            background-color: #AEAEAE;
+        `;
+
+const cb_MessageContainerStyle = `
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1001;
+            display: flex;
+            flex-direction: column;
+            gap: 12px; /* spacing between messages */
+            align-items: center;
+        `;
+
+const cb_MessageButtonStyle = `
+            background: transparent;
+            color: white;
+            border: none;
+            margin-left: 15px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            padding: 0;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        `;
+
+function cb_AddAnimationStyles()
+{
+    if (!document.getElementById('alertAnimations'))
+    {
+        const style = document.createElement('style');
+        style.id = 'alertAnimations';
+        style.textContent = `
+                    @keyframes popIn {
+                        0% {
+                            opacity: 0;
+                            transform: scale(0.8) translateY(-20px);
+                        }
+                        100% {
+                            opacity: 1;
+                            transform: scale(1) translateY(0);
+                        }
+                    }
+                    @keyframes messageSlideIn {
+                        0% {
+                            opacity: 0;
+                        }
+                        100% {
+                            opacity: 1;
+                        }
+                    }
+                    @keyframes messageFadeOut {
+                        0% {
+                            opacity: 1;
+                        }
+                        100% {
+                            opacity: 0;
+                        }
+                    }
+                `;
+        document.head.appendChild(style);
+    }
+}
+
+function cb_MessageTypeStyle(type)
+{
+    switch (type)
+    {
+        case ""warning"": return PostBackOptions.MessageWarningStyle;
+        case ""problem"": return PostBackOptions.MessageProblemStyle;
+        case ""help"": return PostBackOptions.MessageHelpStyle;
+        case ""success"": return PostBackOptions.MessageSuccessStyle;
+        case ""none"": return PostBackOptions.MessageNoneStyle;
+    }
+}
+
+function cb_ShowAlert(text, type = ""none"", title = ""Alert"", okText = ""OK"")
+{
+    const overlay = document.createElement('div');
+    overlay.setAttribute('style', cb_OverlayStyle);
+
+    const alertBox = document.createElement('div');
+    alertBox.setAttribute('style', cb_AlertBoxStyle);
+
+    const alertHeader = document.createElement('h2');
+    alertHeader.textContent = title;
+    alertHeader.setAttribute('style', cb_HeaderStyle + cb_MessageTypeStyle(type));
+
+    const alertText = document.createElement('p');
+    alertText.textContent = text;
+    alertText.setAttribute('style', cb_TextStyle);
+
+    const okButton = document.createElement('button');
+    okButton.textContent = okText;
+    okButton.setAttribute('style', cb_ButtonStyle);
+
+    alertBox.appendChild(alertHeader);
+    alertBox.appendChild(alertText);
+    alertBox.appendChild(okButton);
+
+    overlay.appendChild(alertBox);
+
+    document.body.appendChild(overlay);
+
+    cb_AddAnimationStyles();
+
+    okButton.addEventListener('click', function ()
+    {
+        document.body.removeChild(overlay);
+    });
+
+    // Close With Escape Key
+    document.addEventListener('keydown', function closeOnEscape(e)
+    {
+        if (e.key === 'Escape' && document.body.contains(overlay))
+        {
+            document.body.removeChild(overlay);
+            document.removeEventListener('keydown', closeOnEscape);
+        }
+    });
+}
+
+var cb_ConfirmIsAccept = undefined;
+
+function cb_ShowConfirm(text = ""Are you sure you want to proceed?"", type = ""none"", title = ""Confirm"", okText = ""OK"", cancelText = ""Cancel"")
+{
+    cb_ConfirmIsAccept = null;
+
+    return new Promise((resolve, reject) =>
+    {
+
+        const overlay = document.createElement('div');
+        overlay.setAttribute('style', cb_OverlayStyle);
+
+        const confirmBox = document.createElement('div');
+        confirmBox.setAttribute('style', cb_AlertBoxStyle);
+
+        const confirmHeader = document.createElement('h2');
+        confirmHeader.textContent = title;
+        confirmHeader.setAttribute('style', cb_HeaderStyle + cb_MessageTypeStyle(type));
+
+        const confirmText = document.createElement('p');
+        confirmText.textContent = text;
+        confirmText.setAttribute('style', cb_TextStyle);
+
+        const buttonContainer = document.createElement('div');
+
+        const cancelButton = document.createElement('button');
+        cancelButton.textContent = cancelText;
+        cancelButton.setAttribute('style', cb_CancelButtonStyle);
+
+        const okButton = document.createElement('button');
+        okButton.textContent = okText;
+        okButton.setAttribute('style', cb_ButtonStyle);
+
+        buttonContainer.appendChild(cancelButton);
+        buttonContainer.appendChild(okButton);
+
+        confirmBox.appendChild(confirmHeader);
+        confirmBox.appendChild(confirmText);
+        confirmBox.appendChild(buttonContainer);
+
+        overlay.appendChild(confirmBox);
+        document.body.appendChild(overlay);
+
+        cb_AddAnimationStyles();
+
+        // OK
+        okButton.addEventListener('click', function handleOK()
+        {
+            document.body.removeChild(overlay);
+            cb_ConfirmIsAccept = true;
+            resolve();
+        });
+
+        // Cancel
+        cancelButton.addEventListener('click', function handleCancel()
+        {
+            document.body.removeChild(overlay);
+            cb_ConfirmIsAccept = false;
+            reject();
+        });
+
+        // ESC
+        const escListener = (e) =>
+        {
+            if (e.key === 'Escape' && document.body.contains(overlay))
+            {
+                document.body.removeChild(overlay);
+                document.removeEventListener('keydown', escListener);
+                cb_ConfirmIsAccept = false;
+                reject();
+            }
+        };
+        document.addEventListener('keydown', escListener);
+    });
+}
+
+function cb_ShowMessage(text, type, duration = 0)
+{
+    const message = document.createElement('div');
+    message.setAttribute('style', cb_MessageStyle + cb_MessageTypeStyle(type));
+
+    const messageText = document.createElement('span');
+    messageText.textContent = text;
+
+    const closeButton = document.createElement('button');
+    closeButton.textContent = '×';
+    closeButton.setAttribute('style', cb_MessageButtonStyle);
+    closeButton.setAttribute('title', 'Close');
+
+    message.appendChild(messageText);
+    message.appendChild(closeButton);
+
+    var messageContainer;
+    if (document.getElementById(""cb_MessageContainer""))
+        messageContainer = document.getElementById(""cb_MessageContainer"")
+    else
+    {
+        messageContainer = document.createElement('div');
+        messageContainer.id = ""cb_MessageContainer"";
+        messageContainer.setAttribute('style', cb_MessageContainerStyle);
+    }
+
+    messageContainer.appendChild(message);
+
+    document.body.appendChild(messageContainer);
+
+    cb_AddAnimationStyles();
+
+    // Add Event Listener To Close Button
+    closeButton.addEventListener('click', function ()
+    {
+        message.style.animation = 'messageFadeOut 0.3s ease-out forwards';
+        setTimeout(() =>
+        {
+            if (messageContainer)
+                if (messageContainer.contains(message))
+                {
+                    messageContainer.removeChild(message);
+
+                    if (messageContainer.childNodes.length == 0)
+                        document.body.removeChild(messageContainer);
+                }
+        }, 300);
+    });
+
+    // Auto-Remove After Duration If Specified
+    if (duration > 0)
+    {
+        setTimeout(() =>
+        {
+            if (messageContainer)
+                if (messageContainer.contains(message))
+                {
+                    message.style.animation = 'messageFadeOut 0.3s ease-out forwards';
+                    setTimeout(() =>
+                    {
+                        if (messageContainer)
+                            if (messageContainer.contains(message))
+                            {
+                                messageContainer.removeChild(message);
+
+                                if (messageContainer.childNodes.length == 0)
+                                    document.body.removeChild(messageContainer);
+                            }
+                    }, 300);
+                }
+        }, duration);
+    }
+}
+
+/* End Message */
+
+/* Start Call Method */
+
+function cb_RunMethod(funcName, args)
+{
+    // Set Dynamic Value For Arguments
+    if (args)
+        for (let i = 0; i < args.length; i++)
+            args[i] = cb_SetDynamicForValue(evt, args[i]);
+
+    window[funcName](...args);
+}
+
+// RUST
+async function cb_RunWasmMethod_Rust(wasmUrl, funcName, args = [])
+{
+    let instance;
+    let memory;
+
+    const imports = {
+        env: {
+            memory: new WebAssembly.Memory({ initial: 256 }),
+            table: new WebAssembly.Table({ initial: 0, element: 'anyfunc' }),
+            __wbindgen_throw: (ptr, len) =>
+            {
+                const memView = new Uint8Array(memory.buffer);
+                const msg = new TextDecoder(""utf-8"").decode(memView.subarray(ptr, ptr + len));
+                throw new Error(msg);
+            }
+        }
+    };
+
+    try
+    {
+        const response = await fetch(wasmUrl);
+        const bytes = await response.arrayBuffer();
+        const { instance: inst } = await WebAssembly.instantiate(bytes, imports);
+        instance = inst;
+        memory = instance.exports.memory || imports.env.memory;
+    }
+    catch (e)
+    {
+        throw new Error(`Failed to instantiate WASM module: ${e.message}`);
+    }
+
+    const method = instance.exports[funcName];
+    if (typeof method !== ""function"")
+        throw new Error(`Function ""${funcName}"" not found. Available: ${Object.keys(instance.exports).join("", "")}`);
+
+    // Inputs
+    const processedArgs = [];
+    for (const arg of args)
+    {
+        if (typeof arg === ""string"")
+        {
+            if (!instance.exports.alloc)
+            {
+                if (PostBackOptions.AddLog)
+                    console.warn(""alloc not exported: cannot pass strings to WASM directly"");
+
+                processedArgs.push(0);
+            }
+            else
+            {
+                const encoder = new TextEncoder();
+                const encoded = encoder.encode(arg + ""\0"");
+                const ptr = instance.exports.alloc(encoded.length);
+                new Uint8Array(memory.buffer).set(encoded, ptr);
+                processedArgs.push(ptr);
+            }
+        }
+        else
+        {
+            processedArgs.push(arg);
+        }
+    }
+
+    let result = method(...processedArgs);
+
+    // Output Detection
+    if (typeof result === ""number"" && result > 0 && memory)
+    {
+        try
+        {
+            const memView = new Uint8Array(memory.buffer);
+            let end = result;
+
+            while (end < memView.length && memView[end] !== 0)
+                end++;
+
+            const text = new TextDecoder(""utf-8"").decode(memView.subarray(result, end));
+            if (text.trim().length > 0)
+                result = text;
+        }
+        catch
+        {
+        }
+    }
+
+    return { result, memory };
+}
+
+// C/C++
+async function cb_RunWasmMethod_C(wasmUrl, funcName, args = [])
+{
+    let instance;
+    let memory;
+
+    const imports = {
+        env: {
+            memory: new WebAssembly.Memory({ initial: 256 }),
+            table: new WebAssembly.Table({ initial: 0, element: ""anyfunc"" }),
+            abort: () => { throw new Error(""WASM aborted""); }
+        }
+    };
+
+    try
+    {
+        const response = await fetch(wasmUrl);
+        const bytes = await response.arrayBuffer();
+        const { instance: inst } = await WebAssembly.instantiate(bytes, imports);
+        instance = inst;
+        memory = instance.exports.memory || imports.env.memory;
+    }
+    catch (e)
+    {
+        throw new Error(`Failed to instantiate WASM module: ${e.message}`);
+    }
+
+    const method = instance.exports[funcName];
+    if (typeof method !== ""function"")
+        throw new Error(`Function ""${funcName}"" not found. Available: ${Object.keys(instance.exports).join("", "")}`);
+
+    // Inputs
+    const processedArgs = [];
+    for (const arg of args)
+    {
+        if (typeof arg === ""string"")
+        {
+            if (PostBackOptions.AddLog)
+                console.warn(""Passing strings requires custom alloc in C/C++ wasm"");
+
+            processedArgs.push(0);
+        }
+        else
+            processedArgs.push(arg);
+    }
+
+    let result = method(...processedArgs);
+
+    // Output Detection
+    if (typeof result === ""number"" && result > 0 && memory)
+    {
+        try
+        {
+            const memView = new Uint8Array(memory.buffer);
+            let end = result;
+
+            while (end < memView.length && memView[end] !== 0)
+                end++;
+
+            const text = new TextDecoder(""utf-8"").decode(memView.subarray(result, end));
+            if (text.trim().length > 0)
+                result = text;
+        }
+        catch
+        {
+        }
+    }
+
+    return { result, memory };
+}
+
+// C# (.NET)
+async function cb_RunWasmMethod_CSharp(wasmUrl, funcName, args = [])
+{
+    let instance;
+    let memory;
+
+    const imports = { env: {} };
+
+    try
+    {
+        const response = await fetch(wasmUrl);
+        const bytes = await response.arrayBuffer();
+        const { instance: inst } = await WebAssembly.instantiate(bytes, imports);
+        instance = inst;
+        memory = instance.exports.memory;
+    }
+    catch (e)
+    {
+        throw new Error(`C# WASM init failed: ${e.message}`);
+    }
+
+    const method = instance.exports[funcName];
+    if (typeof method !== ""function"")
+        throw new Error(`Function ${funcName} not found in C# WASM exports`);
+
+    // Inputs
+    const processedArgs = [];
+    for (const arg of args)
+    {
+        if (typeof arg === ""string"")
+        {
+            const encoder = new TextEncoder();
+            const encoded = encoder.encode(arg);
+            const ptr = instance.exports.malloc(encoded.length);
+            new Uint8Array(memory.buffer).set(encoded, ptr);
+            processedArgs.push(ptr, encoded.length);
+        }
+        else
+            processedArgs.push(arg);
+    }
+
+    let result = method(...processedArgs);
+
+    // Output Detection
+    if (typeof result === ""number"" && result > 0)
+    {
+        const memView = new Uint8Array(memory.buffer);
+        let end = result;
+
+        while (end < memView.length && memView[end] !== 0)
+            end++;
+
+        const text = new TextDecoder(""utf-8"").decode(memView.subarray(result, end));
+        if (text.trim().length > 0)
+            result = text;
+    }
+
+    return { result, memory };
+}
+
+// GO
+async function cb_RunWasmMethod_Go(wasmUrl, funcName, args = [])
+{
+    let instance;
+    let memory;
+
+    const imports = { env: {} };
+
+    try
+    {
+        const response = await fetch(wasmUrl);
+        const bytes = await response.arrayBuffer();
+        const { instance: inst } = await WebAssembly.instantiate(bytes, imports);
+        instance = inst;
+        memory = instance.exports.memory;
+    }
+    catch (e)
+    {
+        throw new Error(`Go WASM init failed: ${e.message}`);
+    }
+
+    const method = instance.exports[funcName];
+    if (typeof method !== ""function"")
+        throw new Error(`Function ${funcName} not found in Go WASM exports`);
+
+    // Inputs
+    const processedArgs = [];
+    for (const arg of args)
+    {
+        if (typeof arg === ""string"")
+        {
+            const encoder = new TextEncoder();
+            const encoded = encoder.encode(arg);
+            const ptr = instance.exports.malloc(encoded.length);
+            new Uint8Array(memory.buffer).set(encoded, ptr);
+            processedArgs.push(ptr, encoded.length);
+        }
+        else
+            processedArgs.push(arg);
+    }
+
+    let result = method(...processedArgs);
+
+    // Output Detection
+    if (typeof result === ""number"" && result > 0)
+    {
+        const memView = new Uint8Array(memory.buffer);
+        let end = result;
+
+        while (end < memView.length && memView[end] !== 0)
+            end++;
+
+        const text = new TextDecoder(""utf-8"").decode(memView.subarray(result, end));
+        if (text.trim().length > 0)
+            result = text;
+    }
+
+    return { result, memory };
+}
+
+// JAVA
+async function cb_RunWasmMethod_Java(wasmUrl, funcName, args = [])
+{
+    let instance;
+    let memory;
+
+    const imports = { env: {} };
+
+    try
+    {
+        const response = await fetch(wasmUrl);
+        const bytes = await response.arrayBuffer();
+        const { instance: inst } = await WebAssembly.instantiate(bytes, imports);
+        instance = inst;
+        memory = instance.exports.memory;
+    }
+    catch (e)
+    {
+        throw new Error(`Java WASM init failed: ${e.message}`);
+    }
+
+    const method = instance.exports[funcName];
+    if (typeof method !== ""function"")
+        throw new Error(`Function ${funcName} not found in Java WASM exports`);
+
+    // Inputs
+    const processedArgs = [];
+    for (const arg of args)
+    {
+        if (typeof arg === ""string"")
+        {
+            const encoder = new TextEncoder();
+            const encoded = encoder.encode(arg);
+            const ptr = instance.exports.malloc(encoded.length);
+            new Uint8Array(memory.buffer).set(encoded, ptr);
+            processedArgs.push(ptr, encoded.length);
+        }
+        else
+            processedArgs.push(arg);
+    }
+
+    let result = method(...processedArgs);
+
+    // Output Detection
+    if (typeof result === ""number"" && result > 0)
+    {
+        const memView = new Uint8Array(memory.buffer);
+        let end = result;
+
+        while (end < memView.length && memView[end] !== 0)
+            end++;
+
+        const text = new TextDecoder(""utf-8"").decode(memView.subarray(result, end));
+        if (text.trim().length > 0)
+            result = text;
+    }
+
+    return { result, memory };
+}
+
+// AssemblyScript
+async function cb_RunWasmMethod_AS(wasmUrl, funcName, args = [])
+{
+    const response = await fetch(wasmUrl);
+    const bytes = await response.arrayBuffer();
+
+    const memory = new WebAssembly.Memory({ initial: 256 });
+    const imports = {
+        env: {
+            memory,
+            table: new WebAssembly.Table({ initial: 0, element: ""anyfunc"" }),
+        }
+    };
+
+    const { instance } = await WebAssembly.instantiate(bytes, imports);
+
+    const method = instance.exports[funcName];
+    if (typeof method !== ""function"")
+        throw new Error(`Function ""${funcName}"" not found. Available: ${Object.keys(instance.exports).join("", "")}`);
+
+    const processedArgs = [];
+    const stringPointers = [];
+
+    // Inputs
+    for (const arg of args)
+    {
+        if (typeof arg === ""string"")
+        {
+            if (!instance.exports.__new) throw new Error(""__new not exported for string allocation"");
+            const encoder = new TextEncoder();
+            const encoded = encoder.encode(arg);
+            const ptr = instance.exports.__new(encoded.length, 0); // 0: String Type In AssemblyScript Runtime
+            new Uint8Array(memory.buffer).set(encoded, ptr);
+            processedArgs.push(ptr);
+            processedArgs.push(encoded.length);
+            stringPointers.push(ptr);
+        }
+        else
+            processedArgs.push(arg);
+    }
+
+    let result = method(...processedArgs);
+
+    // Output Detection
+    if (typeof result === ""number"" && result > 0)
+    {
+        try
+        {
+            const memView = new Uint8Array(memory.buffer);
+            let end = result;
+
+            while (end < memView.length && memView[end] !== 0)
+                end++;
+
+            result = new TextDecoder(""utf-8"").decode(memView.subarray(result, end));
+        }
+        catch
+        {
+        }
+    }
+
+    return { result, memory };
+}
+
+/* End Call Method */
+
+/* Start Extension */
+
+// In this Section You Can Extend the WebForms Core Technology and Modify the Following Examples. Please Note that Only Use Numbers for Actions, Because Using String Abbreviations for Actions is a Risk due to Possible Conflicts.
+
+function cb_SetWebFormsValuesExtension(evt, ActionOperation, ActionFeature, Value, LastElementPlaceList, TransientDOM)
+{
+    switch (ActionOperation)
+    {
+        case '0':
+            switch (ActionFeature)
+            {
+                case '0': alert(""Hello "" + Value); return true;
+            }
+    }
+}
+
+function cb_SetValueToInputExtension(evt, ActionOperation, ActionFeature, CurrentElement, Value)
+{
+    switch (ActionOperation)
+    {
+        case '1':
+            switch (ActionFeature)
+            {
+                case '0': console.log(CurrentElement.outerHTML + ""|"" + Value);
+            }
+    }
+}
+
+function cb_FetchValueExtension(evt, ActionOperation, ActionFeature, Value)
+{
+    switch (ActionOperation)
+    {
+        case '2':
+            switch (ActionFeature)
+            {
+                case '0': return ""Hello "" + Value;
+            }
+    }
+}
+
+function cb_SaveValueExtension(evt, ActionOperation, ActionFeature, Name, CurrentElement)
+{
+    switch (ActionOperation)
+    {
+        case '3':
+            switch (ActionFeature)
+            {
+                case '0': cb_SetStorage(true, Name, ""Hello saved in local storage""); break;
+                case '1': cb_SetStorage(false, Name, ""Hello saved in session storage""); break;
+            }
+    }
+}
+
+function cb_CheckConditionExtension(evt, Action, Control)
+{
+    switch (Action)
+    {
+        case ""40"": return (Control == ""Hello"");
+    }
+}
+
+/* End Extension */");
 
             file.Dispose();
             file.Close();
