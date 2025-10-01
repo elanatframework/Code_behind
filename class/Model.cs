@@ -66,6 +66,13 @@ namespace CodeBehind
             IgnoreLayout = true;
         }
 
+        public void IgnoreLayoutForPostBack(IHeaderDictionary Headers)
+        {
+            if (Headers.TryGetValue("Post-Back", out var value))
+                if (value == "true")
+                    IgnoreLayout = true;
+        }
+
         public void Download(string FilePath)
         {
             DownloadFilePath = FilePath;
