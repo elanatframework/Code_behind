@@ -1708,7 +1708,7 @@ function cb_SetWebFormsValues(evt, RequestName, WebFormsValues, UsePostBack, Wit
                 }
                 break;
 
-            case 'a':
+            case 'A':
                 switch (SecondChar)
                 {
                     case 'l':
