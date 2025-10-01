@@ -16,6 +16,7 @@ namespace CodeBehind
         internal static string ErrorPagePathAfterValue { get; private set; }
         internal static int MaxWebSocketConnectionsPerClient { get; private set; }
         internal static int WebSocketBufferSize { get; private set; }
+        internal static bool SendViewOnlyInGetMethod { get; private set; } = false;
 
         internal static void SetValue()
         {
@@ -51,6 +52,8 @@ namespace CodeBehind
 
             MaxWebSocketConnectionsPerClient = options.MaxWebSocketConnectionsPerClient;
             WebSocketBufferSize = options.WebSocketBufferSize;
+
+            SendViewOnlyInGetMethod = options.SendViewOnlyInGetMethod;
 
             StaticObjectHasInitialization = true;
         }
