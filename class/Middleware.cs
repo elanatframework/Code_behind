@@ -931,7 +931,7 @@ public static class CodeBehindMiddlewareExtensions
 
                             context.Request.Form = new FormCollection(formDictionary);
                         }
-                        catch (Exception ex) { }
+                        catch (Exception) { }
                     }
 
                     string responseData = "";
