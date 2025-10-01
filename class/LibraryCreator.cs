@@ -105,7 +105,8 @@ namespace SetCodeBehind
             CodeBehindViews += "        private bool FoundPage { get; set; } = true;" + Environment.NewLine;
             CodeBehindViews += "        private bool FoundController { get; set; } = true;" + Environment.NewLine;
             CodeBehindViews += "        private bool? IgnoreLayout { get; set; } = false;" + Environment.NewLine;
-            CodeBehindViews += "        private string WebSocketId { get; set; } = \"\";" + Environment.NewLine + Environment.NewLine;
+            CodeBehindViews += "        private string WebSocketId { get; set; } = \"\";" + Environment.NewLine;
+            CodeBehindViews += "        private string ResponseText { get; set; } = \"\";" + Environment.NewLine + Environment.NewLine;
 
             CodeBehindOptions options = new CodeBehindOptions();
 
@@ -299,6 +300,13 @@ namespace SetCodeBehind
             CodeBehindViews += "            return FoundPage;" + Environment.NewLine;
             CodeBehindViews += "        }" + Environment.NewLine + Environment.NewLine;
 
+            CodeBehindViews += "        public void IgnoreLayoutForPostBack(IHeaderDictionary Headers)" + Environment.NewLine;
+            CodeBehindViews += "        {" + Environment.NewLine;
+            CodeBehindViews += "            if (Headers.TryGetValue(\"Post-Back\", out var value))" + Environment.NewLine;
+            CodeBehindViews += "                if (value == \"true\")" + Environment.NewLine;
+            CodeBehindViews += "                    IgnoreLayout = true;" + Environment.NewLine;
+            CodeBehindViews += "        }" + Environment.NewLine + Environment.NewLine;
+
             CodeBehindViews += "        public void SetWebSocketId(string Id)" + Environment.NewLine;
             CodeBehindViews += "        {" + Environment.NewLine;
             CodeBehindViews += "            WebSocketId = Id;" + Environment.NewLine;
@@ -322,6 +330,36 @@ namespace SetCodeBehind
             CodeBehindViews += "        public void Control(WebForms Forms)" + Environment.NewLine;
             CodeBehindViews += "        {" + Environment.NewLine;
             CodeBehindViews += "            WebFormsValue += Forms.GetFormsActionData();" + Environment.NewLine;
+            CodeBehindViews += "        }" + Environment.NewLine + Environment.NewLine;
+
+            CodeBehindViews += "        public void Write(string Text)" + Environment.NewLine;
+            CodeBehindViews += "        {" + Environment.NewLine;
+            CodeBehindViews += "            ResponseText += Text;" + Environment.NewLine;
+            CodeBehindViews += "        }" + Environment.NewLine + Environment.NewLine;
+
+            CodeBehindViews += "        public void Write(int Number)" + Environment.NewLine;
+            CodeBehindViews += "        {" + Environment.NewLine;
+            CodeBehindViews += "            ResponseText += Number;" + Environment.NewLine;
+            CodeBehindViews += "        }" + Environment.NewLine + Environment.NewLine;
+
+            CodeBehindViews += "        public void Write(long Number)" + Environment.NewLine;
+            CodeBehindViews += "        {" + Environment.NewLine;
+            CodeBehindViews += "            ResponseText += Number;" + Environment.NewLine;
+            CodeBehindViews += "        }" + Environment.NewLine + Environment.NewLine;
+
+            CodeBehindViews += "        public void WriteLine(string Text)" + Environment.NewLine;
+            CodeBehindViews += "        {" + Environment.NewLine;
+            CodeBehindViews += "            Write(Text + Environment.NewLine);" + Environment.NewLine;
+            CodeBehindViews += "        }" + Environment.NewLine + Environment.NewLine;
+
+            CodeBehindViews += "        public void WriteLine(int Number)" + Environment.NewLine;
+            CodeBehindViews += "        {" + Environment.NewLine;
+            CodeBehindViews += "            Write(Number + Environment.NewLine);" + Environment.NewLine;
+            CodeBehindViews += "        }" + Environment.NewLine + Environment.NewLine;
+
+            CodeBehindViews += "        public void WriteLine(long Number)" + Environment.NewLine;
+            CodeBehindViews += "        {" + Environment.NewLine;
+            CodeBehindViews += "            Write(Number + Environment.NewLine);" + Environment.NewLine;
             CodeBehindViews += "        }" + Environment.NewLine + Environment.NewLine;
 
             CodeBehindViews += "        // WebSockets Broadcast" + Environment.NewLine;
