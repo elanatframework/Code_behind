@@ -351,7 +351,7 @@ namespace CodeBehind
 
         // Start
         public void StartTransientDOM(string InputPlace) => WebFormsData.Add("td", InputPlace);
-        public void EndTransientDOM(string InputPlace) => WebFormsData.Add("td", ";");
+        public void EndTransientDOM() => WebFormsData.Add("td", ";");
 
         // Message
         // Type: warning, problem, help, success, none
