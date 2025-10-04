@@ -2921,18 +2921,18 @@ function cb_FetchValue(evt, Value)
                         return TmpValue;
                     }
                 case 'm':
-                    if (Value.Contains('|'))
+                    if (Value.Contains(','))
                     {
-                        var funcName = Value.GetTextBefore('|');
-                        const [...args] = Value.GetTextAfter('|').split(',');
+                        var funcName = Value.GetTextBefore(',');
+                        const [...args] = Value.GetTextAfter(',').split(',');
 
                         for (let i = 0; i < args.length; i++)
                             args[i] = args[i].Replace(""$[co];"", "","");
 
-                        return cb_RunMethod(funcName, args);
+                        return cb_RunMethod(evt, funcName, ...args);
                     }
                     else
-                        return cb_RunMethod(Value);
+                        return cb_RunMethod(evt, Value);
             }
 
         case 'l':
@@ -3312,16 +3312,22 @@ function cb_CheckCondition(evt, ActionControl)
         case ""gt"": return (Control.GetTextBefore(""|"") > Control.GetTextAfter(""|""));
         case ""lt"": return (Control.GetTextBefore(""|"") < Control.GetTextAfter(""|""));
         case ""et"": return (Control.GetTextBefore(""|"") == Control.GetTextAfter(""|""));
-        case ""tr"": return (Control == true);
-        case ""fa"": return (Control != true);
+        case ""tr"": return (Control);
+        case ""fa"": return (!Control);
         case ""re"":
+        case ""rn"":
             {
                 var value = Control.GetTextBefore(""|"");
                 var pattern = Control.GetTextAfter(""|"");
                 try
                 {
                     var regex = new RegExp(pattern);
-                    return regex.test(value);
+                    var result = regex.test(value);
+
+                    if (Action == ""re"")
+                        return result;
+                    else
+                        return !result;
                 }
                 catch (e)
                 {
@@ -4177,14 +4183,14 @@ function cb_ShowMessage(text, type, duration = 0)
 
 /* Start Call Method */
 
-function cb_RunMethod(funcName, args)
+function cb_RunMethod(evt, funcName, ...args)
 {
     // Set Dynamic Value For Arguments
     if (args)
         for (let i = 0; i < args.length; i++)
             args[i] = cb_SetDynamicForValue(evt, args[i]);
 
-    window[funcName](...args);
+    return window[funcName](...args);
 }
 
 // RUST
