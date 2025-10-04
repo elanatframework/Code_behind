@@ -375,6 +375,7 @@ namespace CodeBehind
         public void IsTrue(string Value, float Interval = -1) => WebFormsData.Add(((Interval >= 0) ? "{(" + Interval + ")" : "{") + "tr", Value);
         public void IsFalse(string Value, float Interval = -1) => WebFormsData.Add(((Interval >= 0) ? "{(" + Interval + ")" : "{") + "fa", Value);
         public void IsRegexMatch(string Value, string Pattern, float Interval = -1) => WebFormsData.Add(((Interval >= 0) ? "{(" + Interval + ")" : "{") + "re", Value + "|" + Pattern);
+        public void IsRegexNoneMatch(string Value, string Pattern, float Interval = -1) => WebFormsData.Add(((Interval >= 0) ? "{(" + Interval + ")" : "{") + "rn", Value + "|" + Pattern);
         public void Break() => WebFormsData.Add(";", "");
         public void StartBracket() => WebFormsData.Add("{", "");
         public void EndBracket() => WebFormsData.Add("}", "");
@@ -542,7 +543,7 @@ namespace CodeBehind
             string ReturnValue = "@cm" + MethodName;
 
             if (Args != null)
-                ReturnValue += (Args.Length > 0) ? "|" + string.Join(",", Args) : "";
+                ReturnValue += (Args.Length > 0) ? "," + string.Join(",", Args) : "";
 
             return ReturnValue;
         }
