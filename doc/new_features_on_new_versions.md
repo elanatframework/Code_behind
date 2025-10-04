@@ -480,12 +480,18 @@ The first version of CodeBehind is based on .NET Core version 7.0; if the versio
 
 ### Version 4.3.1
 
+**New features:**
 - Adding `IsRegexNoneMatch` method
 
 **Problems that were solved:**
 - Fixed name matching issue in action control between alert and label
 - The `EndTransientDOM` and `CallMethod` methods have been modified
 - The problem with the `IsTrue` and `IsFalse` methods has been solved
+
+### Version 4.3.2
+
+**Problems that were solved:**
+- Fixed the issue of ignoring the first command after the opening bracket.
 
 ## Version 4.4
 
