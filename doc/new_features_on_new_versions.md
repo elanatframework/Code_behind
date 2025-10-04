@@ -455,5 +455,40 @@ The first version of CodeBehind is based on .NET Core version 7.0; if the versio
 ## Version 4.3
 
 **New features:**
+- View only in GET method feature
+- Ability to using `Write` method in View
+- Ignore Layout for PostBack action
+- Added Transient DOM feature
+- Added SPA mode feature
+- Faithful to REST by adding many methods such as `PutBack`, `PatchBack`, `DeleteBack` and etc.
+- Conditional features for status control
+- Confirm in events
+- Calling WebAssembly methods in many programming language such as C/C++, C#, Rust, JAVA, AssemblyScript, GO.
+- Call methods feature
+- Upper feature
+- Added Message and Alert
+- Possibility of swapping two tags
+- Added access to the head section
+- Added ability to change title
+- Allowing modular development of WebFormsJS
+- Calling internal scripts
+- and a series of minor features and improvements
+
+**Problems that were solved:**
+- The issue requiring the action attribute in the form tag has been resolved
+- The issue fetching random in WebFormsJS has been resolved
+
+### Version 4.3.1
+
+- Adding `IsRegexNoneMatch` method
+
+**Problems that were solved:**
+- Fixed name matching issue in action control between alert and label
+- The `EndTransientDOM` and `CallMethod` methods have been modified
+- The problem with the `IsTrue` and `IsFalse` methods has been solved
+
+## Version 4.4
+
+**New features:**
 - Ability to compress data for sending data to the server via WebFormsJS
 - New `SendBack` feature for sending all types of data
