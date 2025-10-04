@@ -1561,6 +1561,9 @@ function cb_SetWebFormsValues(evt, RequestName, WebFormsValues, UsePostBack, Wit
         if (FirstChar == ';')
             break;
 
+        if (WebFormsList[i] == '{')
+            continue;
+
         var SecondChar = WebFormsList[i].substring(1, 2);
         switch (FirstChar)
         {
