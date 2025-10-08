@@ -1575,13 +1575,13 @@ function cb_SetWebFormsValues(evt, RequestName, WebFormsValues, UsePostBack, Wit
 
                 if (ConditionPeriodMiliSecond == 0)
                 {
-                    while (!cb_CheckCondition(evt, WebFormsList[i]))
+                    while (!cb_CheckCondition(evt, WebFormsList[i].substring(1)))
                     { 
                     }
                     ConditionIsTrue = true;
                 }
                 else if (ConditionPeriodMiliSecond == -1)
-                    ConditionIsTrue = cb_CheckCondition(evt, WebFormsList[i]);
+                    ConditionIsTrue = cb_CheckCondition(evt, WebFormsList[i].substring(1));
                 continue;
 
             case '_':
