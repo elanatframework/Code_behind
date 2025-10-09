@@ -516,7 +516,7 @@ namespace CodeBehind
         public const string DateMonth = "@dm";
         public const string DateDay = "@dd";
         public const string DateHours = "@dh";
-        public const string Dateinutes = "@di";
+        public const string DateMinutes = "@di";
         public const string DateSeconds = "@ds";
         public const string DateMilliseconds = "@dl";
         public static string Cookie(string Key) => "@co" + Key;
