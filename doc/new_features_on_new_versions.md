@@ -460,10 +460,10 @@ The first version of CodeBehind is based on .NET Core version 7.0; if the versio
 - Ignore Layout for PostBack action
 - Added Transient DOM feature
 - Added SPA mode feature
-- Faithful to REST by adding many methods such as `PutBack`, `PatchBack`, `DeleteBack` and etc.
+- Faithful to REST by adding many methods such as `PutBack`, `PatchBack`, `DeleteBack` and etc
 - Conditional features for status control
 - Confirm in events
-- Calling WebAssembly methods in many programming language such as C/C++, C#, Rust, JAVA, AssemblyScript, GO.
+- Calling WebAssembly methods in many programming language such as C/C++, C#, Rust, JAVA, AssemblyScript, GO
 - Call methods feature
 - Upper feature
 - Added Message and Alert
@@ -491,7 +491,12 @@ The first version of CodeBehind is based on .NET Core version 7.0; if the versio
 ### Version 4.3.2
 
 **Problems that were solved:**
-- Fixed the issue of ignoring the first command after the opening bracket.
+- Fixed the issue of ignoring the first command after the opening bracket
+
+### Version 4.3.3
+
+**Problems that were solved:**
+- Fixing the status check problem in sync conditions
 
 ## Version 4.4
 
