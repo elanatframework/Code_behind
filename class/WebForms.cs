@@ -220,9 +220,9 @@ namespace CodeBehind
         public void SetTagEvent(string InputPlace, string HtmlEvent, string OutputPlace) => Add("Et" + InputPlace, HtmlEvent + "|" + OutputPlace);
         public void SetTagEventListener(string InputPlace, string HtmlEventListener, string OutputPlace) => Add("ET" + InputPlace, HtmlEventListener + "|" + OutputPlace);
         public void SetCommentEvent(string InputPlace, string HtmlEvent, string Index = null, string OutputPlace = null) => Add("Eb" + InputPlace, HtmlEvent + "|" + Index + "|" + OutputPlace);
-        public void SetCommentEvent(string InputPlace, string HtmlEvent, int Index, string OutputPlace = null) => SetCommentEvent(InputPlace, HtmlEvent, Index, OutputPlace = null);
+        public void SetCommentEvent(string InputPlace, string HtmlEvent, int Index, string OutputPlace = null) => SetCommentEvent(InputPlace, HtmlEvent, Index.ToString(), OutputPlace = null);
         public void SetCommentEventListener(string InputPlace, string HtmlEventListener, string Index = null, string OutputPlace = null) => Add("EB" + InputPlace, HtmlEventListener + "|" + Index + "|" + OutputPlace);
-        public void SetCommentEventListener(string InputPlace, string HtmlEventListener, int Index, string OutputPlace = null) => SetCommentEventListener(InputPlace, HtmlEventListener, Index, OutputPlace);
+        public void SetCommentEventListener(string InputPlace, string HtmlEventListener, int Index, string OutputPlace = null) => SetCommentEventListener(InputPlace, HtmlEventListener, Index.ToString(), OutputPlace);
         public void SetWasmEvent(string InputPlace, string HtmlEvent, string WasmLanguage, string WasmUrl, string MethodName, string[] Args = null, string OutputPlace = null)
         {
             string ArgsJoin = "";
@@ -428,7 +428,7 @@ namespace CodeBehind
         // Call
         public void LoadUrl(string InputPlace, string Url) => Add("lu" + InputPlace, Url);
         public void RunActionControls(string ActionControls, string Index = null, bool WithoutWebFormsSection = false, bool UseCurrentEvent = true) => Add("lA", (UseCurrentEvent ? "1" : "0") + "|" + (WithoutWebFormsSection ? "1" : "0") + "|" + Index + "|" + ActionControls);
-        public void RunActionControls(string ActionControls, int Index, bool WithoutWebFormsSection = false, bool UseCurrentEvent = true) => RunActionControls(ActionControls, Index, WithoutWebFormsSection, UseCurrentEvent);
+        public void RunActionControls(string ActionControls, int Index, bool WithoutWebFormsSection = false, bool UseCurrentEvent = true) => RunActionControls(ActionControls, Index.ToString(), WithoutWebFormsSection, UseCurrentEvent);
         public void CallScript(string ScriptText) => Add("_", ScriptText.Replace('\n'.ToString(), "$[ln];"));
         public void CallMethod(string MethodName, string[] Args = null)
         {
@@ -451,7 +451,7 @@ namespace CodeBehind
         public void CallPostBack(string FormInputPlace, string OutputPlace = null) => Add("Lp", "1" + "|" + FormInputPlace + (!string.IsNullOrEmpty(OutputPlace) ? "|" + OutputPlace : ""));
         public void CallTagBack(string OutputPlace = null, bool UseCurrentEvent = true) => Add("Lt", (UseCurrentEvent? "1": "0") + (!string.IsNullOrEmpty(OutputPlace) ? "|" + OutputPlace : ""));
         public void CallCommentBack(string Index = null, string OutputPlace = null, bool UseCurrentEvent = true) => Add("LC", (UseCurrentEvent? "1": "0") + "|" + Index + "|" + OutputPlace);
-        public void CallCommentBack(int Index, string OutputPlace = null, bool UseCurrentEvent = true) => CallCommentBack(Index, OutputPlace, UseCurrentEvent);
+        public void CallCommentBack(int Index, string OutputPlace = null, bool UseCurrentEvent = true) => CallCommentBack(Index.ToString(), OutputPlace, UseCurrentEvent);
         public void CallWasmBack(string WasmLanguage, string WasmUrl, string MethodName, string[] Args = null, string OutputPlace = null, bool UseCurrentEvent = true)
         {
             string ArgsJoin = "";
@@ -648,26 +648,31 @@ namespace CodeBehind
 
         // Condition
         // Type: warning, problem, help, success, none
+        // Interval: Value 0 Is Await (If Is True All Next Action Controls Waiting For It), Value -1 Is Sync Check Once (Is Support Bracket Or Next Action Control), Value > 0 Is Async And Is Wait Based On Time Repetition Until It Becomes True (Is Support Bracket Or Next Action Control)
         public void ConfirmIsTrueAccept(string Text = "Are you sure you want to proceed?", string Type = "none", string Title = "Confirm", string OkText = "OK", string CancelText = "Cancel", float Interval = 100) => Add(((Interval >= 0) ? "{(" + Interval + ")" : "{") + "ct", (Text == "Are you sure you want to proceed?" ? "" : Text) + "|" + (Type == "none" ? "" : Type) + "|" + (Title == "Confirm" ? "" : Title) + "|" + (OkText == "OK" ? "" : OkText) + "|" + (CancelText == "Cancel" ? "" : CancelText));
         public void ConfirmIsFalseAccept(string Text = "Are you sure you want to proceed?", string Type = "none", string Title = "Confirm", string OkText = "OK", string CancelText = "Cancel", float Interval = 100) => Add(((Interval >= 0) ? "{(" + Interval + ")" : "{") + "cf", (Text == "Are you sure you want to proceed?" ? "" : Text) + "|" + (Type == "none" ? "" : Type) + "|" + (Title == "Confirm" ? "" : Title) + "|" + (OkText == "OK" ? "" : OkText) + "|" + (CancelText == "Cancel" ? "" : CancelText));
-        public void IsGreaterThan(string FirstValue, string SecondValue, float Interval = -1) => Add(((Interval >= 0) ? "{(" + Interval + ")" : "{") + "gt", FirstValue + "|" + SecondValue);
-        public void IsLessThan(string FirstValue, string SecondValue, float Interval = -1) => Add(((Interval >= 0) ? "{(" + Interval + ")" : "{") + "lt", FirstValue + "|" + SecondValue);
-        public void IsEqualTo(string FirstValue, string SecondValue, float Interval = -1) => Add(((Interval >= 0) ? "{(" + Interval + ")" : "{") + "et", FirstValue + "|" + SecondValue);
-        public void IsTrue(string Value, float Interval = -1) => Add(((Interval >= 0) ? "{(" + Interval + ")" : "{") + "tr", Value);
-        public void IsFalse(string Value, float Interval = -1) => Add(((Interval >= 0) ? "{(" + Interval + ")" : "{") + "fa", Value);
-        public void IsMatchMedia(string Value, float Interval = -1) => Add(((Interval >= 0) ? "{(" + Interval + ")" : "{") + "mm", Value);
-        public void Include(string Value, string Text, float Interval = -1) => Add(((Interval >= 0) ? "{(" + Interval + ")" : "{") + "In", Value + "|" + Text);
-        public void ElementExists(string InputPlace, float Interval = -1) => Add(((Interval >= 0) ? "{(" + Interval + ")" : "{") + "eE", InputPlace);
-        public void IsRegexMatch(string Value, string Pattern, float Interval = -1) => Add(((Interval >= 0) ? "{(" + Interval + ")" : "{") + "re", Value + "|" + Pattern);
-        public void IsRegexNoneMatch(string Value, string Pattern, float Interval = -1) => Add(((Interval >= 0) ? "{(" + Interval + ")" : "{") + "rn", Value + "|" + Pattern);
+        public void IsGreaterThan(string FirstValue, string SecondValue, int Interval = -1) => Add(((Interval >= 0) ? "{(" + Interval + ")" : "{") + "gt", FirstValue + "|" + SecondValue);
+        public void IsLessThan(string FirstValue, string SecondValue, int Interval = -1) => Add(((Interval >= 0) ? "{(" + Interval + ")" : "{") + "lt", FirstValue + "|" + SecondValue);
+        public void IsEqualTo(string FirstValue, string SecondValue, int Interval = -1) => Add(((Interval >= 0) ? "{(" + Interval + ")" : "{") + "et", FirstValue + "|" + SecondValue);
+        public void IsNotEqualTo(string FirstValue, string SecondValue, int Interval = -1) => Add(((Interval >= 0) ? "{(" + Interval + ")" : "{") + "Nt", FirstValue + "|" + SecondValue);
+        public void Exist(string Value, int Interval = -1) => Add(((Interval >= 0) ? "{(" + Interval + ")" : "{") + "ex", Value);
+        public void NotExist(string Value, int Interval = -1) => Add(((Interval >= 0) ? "{(" + Interval + ")" : "{") + "nx", Value);
+        public void IsTrue(string Value, int Interval = -1) => Add(((Interval >= 0) ? "{(" + Interval + ")" : "{") + "tr", Value);
+        public void IsFalse(string Value, int Interval = -1) => Add(((Interval >= 0) ? "{(" + Interval + ")" : "{") + "fa", Value);
+        public void IsMatchMedia(string Value, int Interval = -1) => Add(((Interval >= 0) ? "{(" + Interval + ")" : "{") + "mm", Value);
+        public void IsNotMatchMedia(string Value, int Interval = -1) => Add(((Interval >= 0) ? "{(" + Interval + ")" : "{") + "nm", Value);
+        public void Include(string Text, string Value, int Interval = -1) => Add(((Interval >= 0) ? "{(" + Interval + ")" : "{") + "In", Value + "|" + Text);
+        public void NotInclude(string Text, string Value, int Interval = -1) => Add(((Interval >= 0) ? "{(" + Interval + ")" : "{") + "Nn", Value + "|" + Text);
+        public void ElementExists(string InputPlace, int Interval = -1) => Add(((Interval >= 0) ? "{(" + Interval + ")" : "{") + "eE", InputPlace);
+        public void ElementNotExists(string InputPlace, int Interval = -1) => Add(((Interval >= 0) ? "{(" + Interval + ")" : "{") + "nE", InputPlace);
+        public void IsRegexMatch(string Value, string Pattern, int Interval = -1) => Add(((Interval >= 0) ? "{(" + Interval + ")" : "{") + "re", Value + "|" + Pattern);
+        public void IsRegexNotMatch(string Value, string Pattern, int Interval = -1) => Add(((Interval >= 0) ? "{(" + Interval + ")" : "{") + "rn", Value + "|" + Pattern);
         public void Break() => Add(";");
         public void StartBracket() => Add("{");
         public void EndBracket() => Add("}");
 
         // Async
         public void Async() => Add("{(a)");
-        public void AwaitSaved(string Key = ".") => Add("{(as)", Key);
-        public void AwaitCache(string Key = ".") => Add("{(ac)", Key);
         public void Delay(int MiliSecond) => Add("De", MiliSecond.ToString());
 
         // Format Storage
