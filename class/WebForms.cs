@@ -184,6 +184,7 @@ namespace CodeBehind
 
         // Event
         // ConstructorName: mouseevent, keyboardevent, uievent, focusevent, inputevent, event
+        // All Method In Event Section Only Support Dynamic Args Once
         public void TriggerEvent(string InputPlace, string HtmlEventListener, string ConstructorName = null) => Add("TE" + InputPlace, HtmlEventListener + (!string.IsNullOrEmpty(ConstructorName)? "|" + ConstructorName : ""));
         public void SetPostEvent(string InputPlace, string HtmlEvent) => Add("Ep" + InputPlace, HtmlEvent);
         public void SetPostEventView(string InputPlace, string HtmlEvent) => Add("Ep" + InputPlace, HtmlEvent + "|+");
@@ -249,6 +250,8 @@ namespace CodeBehind
         public void SetSSEEventListener(string InputPlace, string HtmlEventListener, string Path, string OutputPlace, bool ShouldReconnect = true, int ReconnectTryTimeout = 3000) => Add("EE" + InputPlace, HtmlEventListener + "|" + Path + "|" + (ShouldReconnect ? "1" : "0") + "|" + ReconnectTryTimeout + "|" + OutputPlace);
         public void SetSendEvent(string InputPlace, string HtmlEvent, string Data, string Path = null, string Method = "POST", bool IsMultiPart = false, string ContentType = "text/plain", string OutputPlace = null) => Add("En" + InputPlace, HtmlEvent + "|" + Data.Replace('\n'.ToString(), "$[ln];").Replace("\"", "$[dq];").Replace("'", "$[sq];") + "|" + (!string.IsNullOrEmpty(Path) ? Path : "#") + "|" + Method + "|" + (IsMultiPart ? "1" : "0") + "|" + ContentType + "|" + OutputPlace);
         public void SetSendEventListener(string InputPlace, string HtmlEventListener, string Data, string Path = null, string Method = "POST", bool IsMultiPart = false, string ContentType = "text/plain", string OutputPlace = null) => Add("EN" + InputPlace, HtmlEventListener + "|" + Data.Replace('\n'.ToString(), "$[ln];") + "|" + (!string.IsNullOrEmpty(Path) ? Path : "#") + "|" + Method + "|" + (IsMultiPart ? "1" : "0") + "|" + ContentType + "|" + OutputPlace);
+        public void SetMasterPagesEvent(string InputPlace, string HtmlEvent, string OutputPlace = null) => Add("Eu" + InputPlace, HtmlEvent + "|" + OutputPlace);
+        public void SetMasterPagesEventListener(string InputPlace, string HtmlEventListener, string OutputPlace = null) => Add("EU" + InputPlace, HtmlEventListener + "|" + OutputPlace);
         public void SetPreventDefaultEvent(string InputPlace, string HtmlEvent) => Add("Ed" + InputPlace, HtmlEvent);
         public void SetPreventDefaultEventListener(string InputPlace, string HtmlEventListener) => Add("ED" + InputPlace, HtmlEventListener);
         public void SetStopPropagationEvent(string InputPlace, string HtmlEvent) => Add("Es" + InputPlace, HtmlEvent);
@@ -294,8 +297,6 @@ namespace CodeBehind
         public void RemovePostEventListener(string InputPlace, string HtmlEventListener) => Add("RP" + InputPlace, HtmlEventListener);
         public void RemoveGetEvent(string InputPlace, string HtmlEvent) => Add("Rg" + InputPlace, HtmlEvent);
         public void RemoveGetEventListener(string InputPlace, string HtmlEventListener) => Add("RG" + InputPlace, HtmlEventListener);
-        public void RemovePutEvent(string InputPlace, string HtmlEvent) => Add("Ru" + InputPlace, HtmlEvent);
-        public void RemovePutEventListener(string InputPlace, string HtmlEventListener) => Add("RU" + InputPlace, HtmlEventListener);
         public void RemovePatchEvent(string InputPlace, string HtmlEvent) => Add("Ra" + InputPlace, HtmlEvent);
         public void RemovePatchEventListener(string InputPlace, string HtmlEventListener) => Add("RA" + InputPlace, HtmlEventListener);
         public void RemoveDeleteEvent(string InputPlace, string HtmlEvent) => Add("Rl" + InputPlace, HtmlEvent);
@@ -322,6 +323,8 @@ namespace CodeBehind
         public void RemoveSendEventListener(string InputPlace, string HtmlEventListener) => Add("RN" + InputPlace, HtmlEventListener);
         public void RemovePreventDefaultEvent(string InputPlace, string HtmlEvent) => Add("Rd" + InputPlace, HtmlEvent);
         public void RemovePreventDefaultEventListener(string InputPlace, string HtmlEventListener) => Add("RD" + InputPlace, HtmlEventListener);
+        public void RemoveMasterPagesEvent(string InputPlace, string HtmlEvent) => Add("Ru" + InputPlace, HtmlEvent);
+        public void RemoveMasterPagesEventListener(string InputPlace, string HtmlEventListener) => Add("RU" + InputPlace, HtmlEventListener);
         public void RemoveStopPropagationEvent(string InputPlace, string HtmlEvent) => Add("Rs" + InputPlace, HtmlEvent);
         public void RemoveStopPropagationEventListener(string InputPlace, string HtmlEventListener) => Add("RS" + InputPlace, HtmlEventListener);
         public void RemoveMethodEvent(string InputPlace, string HtmlEvent, string MethodName) => Add("Rm" + InputPlace, HtmlEvent + "|" + MethodName);
@@ -679,8 +682,18 @@ namespace CodeBehind
         public void CreateFormatStorage(string Key, string Data) => Add(".C", Key + "|" + Data);
         public void DeleteFormatStorage(string Key) => Add(".D", Key);
         public void AddJSON(string Key, string Path, string Value) => Add(".a", Key + "|j|" + Value + "|" + Path);
-        // Name: For Support Attribute, Set @ Before Name
-        public void AddXML(string Key, string Path, string Name, string Value) => Add(".a", Key + "|x|" + Name.Replace("@", "$[at];") + "|" + Value + "|" + Path);
+        // Name: For Support Attribute, Set @ Before Name. Add Double @ (@@) For Support Dynamic Args In Attribute
+        public void AddXML(string Key, string Path, string Name, string Value = null)
+        {
+            if (!string.IsNullOrEmpty(Name))
+                if (Name[0] == '@')
+                {
+                    Name = Name.Remove(0);
+                    Name = "$[at];" + Name;
+                }
+
+            Add(".a", Key + "|x|" + Name.Replace("@", "$[at];") + "|" + Value + "|" + Path);
+        }
         public void AddINI(string Key, string Path, string Value, bool IsINILike = false) => Add(".a", Key + "|i|" + (IsINILike ? "1" : "0") + "|" + Value + "|" + Path);
         public void AddTextLine(string Key, int Line, string Text) => Add(".a", Key + "|t|" + Text + "|" + Line);
         public void AddVariable(string Key, string Value) => Add(".a", Key + "|v|" + Value);
