@@ -26,7 +26,7 @@ recreate_web_forms_script_after_recompile=false
 web_forms_view_place=<body>
 use_default_controller=true
 default_controller=DefaultController
-use_section_in_default_controller=true
+use_segment_in_default_controller=true
 set_break_for_default_controller=true
 access_controller_by_lower_case=true
 just_access_controller_by_lower_case=true
@@ -178,7 +178,7 @@ Operation location: Compiling view files
 
 (`error_page_path=/error.aspx/{value}`)
 
-The default CodeBehind template includes an error page. In the options file, there is an option that determines the path of the error file; the path of the error page is set by default in this option. In the error page, we activated the page section attribute by default. If you look carefully at the path of the error page in the options file, you will see the value value surrounded by two brackets. This is a variant and the numeric value of the error replaces this variant.
+The default CodeBehind template includes an error page. In the options file, there is an option that determines the path of the error file; the path of the error page is set by default in this option. In the error page, we activated the page segment attribute by default. If you look carefully at the path of the error page in the options file, you will see the value value surrounded by two brackets. This is a variant and the numeric value of the error replaces this variant.
 
 Example
 `/error.aspx/500`
@@ -257,11 +257,11 @@ If this option is enabled, accessing the root path will cause the default Contro
 
 This option specifies the name of the default Controller class.
 
-**Activation of Sections in the default Controller class**
+**Activation of Segment in the default Controller class**
 
-(`use_section_in_default_controller=true`)
+(`use_segment_in_default_controller=true`)
 
-If this option is enabled, there will be access to Sections in the Controller class.
+If this option is enabled, there will be access to Segments in the Controller class.
 
 > Note: If another controller matching the route is found, that controller will be executed and the default controller class will not be executed.
 
