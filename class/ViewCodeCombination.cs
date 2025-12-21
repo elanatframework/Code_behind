@@ -15,7 +15,7 @@ namespace SetCodeBehind
         internal bool SetBreakForLayoutPage;
         internal bool InnerTrimInAspxFile;
         internal string CaseCodeTemplateValue = "";
-        internal string SectionTemplateValue = "";
+        internal string SegmentTemplateValue = "";
         internal string CaseCodeTemplateValueForFullPath = "";
         internal string CaseCodeTemplateValueForFullPathWithModel = "";
         internal string MethodCodeTemplateValue = "";
@@ -80,7 +80,7 @@ namespace SetCodeBehind
             PageProperties = PageProperties.Replace("layout=\"", "Layout=\"");
             PageProperties = PageProperties.Replace("islayout=\"", "IsLayout=\"");
             PageProperties = PageProperties.Replace("break=\"", "Break=\"");
-            PageProperties = PageProperties.Replace("section=\"", "Section=\"");
+            PageProperties = PageProperties.Replace("segment=\"", "Segment=\"");
             PageProperties = PageProperties.Replace("template=\"", "Template=\"");
             PageProperties = PageProperties.Replace("controllerconstructor=\"", "ControllerConstructor=\"");
             PageProperties = PageProperties.Replace("modelconstructor=\"", "ModelConstructor=\"");
@@ -91,7 +91,7 @@ namespace SetCodeBehind
             PageProperties = PageProperties.Replace('\t' + "Layout=\"", " Layout=\"");
             PageProperties = PageProperties.Replace('\t' + "IsLayout=\"", " IsLayout=\"");
             PageProperties = PageProperties.Replace('\t' + "Break=\"", " Break=\"");
-            PageProperties = PageProperties.Replace('\t' + "Section=\"", " Section=\"");
+            PageProperties = PageProperties.Replace('\t' + "Segment=\"", " Segment=\"");
             PageProperties = PageProperties.Replace('\t' + "Template=\"", " Template=\"");
             PageProperties = PageProperties.Replace('\t' + "ControllerConstructor=\"", " ControllerConstructor=\"");
             PageProperties = PageProperties.Replace('\t' + "ModelConstructor=\"", " ModelConstructor=\"");
@@ -100,7 +100,7 @@ namespace SetCodeBehind
             PageProperties = PageProperties.Replace('\n' + "Layout=\"", " Layout=\"");
             PageProperties = PageProperties.Replace('\n' + "IsLayout=\"", " IsLayout=\"");
             PageProperties = PageProperties.Replace('\n' + "Break=\"", " Break=\"");
-            PageProperties = PageProperties.Replace('\n' + "Section=\"", " Section=\"");
+            PageProperties = PageProperties.Replace('\n' + "Segment=\"", " Segment=\"");
             PageProperties = PageProperties.Replace('\n' + "Template=\"", " Template=\"");
             PageProperties = PageProperties.Replace('\n' + "ControllerConstructor=\"", " ControllerConstructor=\"");
             PageProperties = PageProperties.Replace('\n' + "ModelConstructor=\"", " ModelConstructor=\"");
@@ -236,9 +236,9 @@ namespace SetCodeBehind
             bool IsBreak = (Break == "true");
 
 
-            // Set Section
-            string Section = (PageProperties.Contains(" Section=\"")) ? PageProperties.Split(new string[] { "Section=\"" }, StringSplitOptions.None)[1].Split("\"")[0] : "";
-            bool UseSection = (Section == "true");
+            // Set Segment
+            string Segment = (PageProperties.Contains(" Segment=\"")) ? PageProperties.Split(new string[] { "Segment=\"" }, StringSplitOptions.None)[1].Split("\"")[0] : "";
+            bool UseSegment = (Segment == "true");
 
 
             // Set Global Template
@@ -452,7 +452,7 @@ namespace SetCodeBehind
 
             TextToCodeCombination += GetWriteText(AspxText, PageIsOnlyView);
 
-            SetMethod(AspxFilePath, Controller, ControllerConstructor, ControllerClassConstructor, Model, ModelConstructor, ModelClassConstructor, ModelUseAbstract, !PageIsOnlyView, Layout, IsLayout, IsBreak, UseSection, MethodIndexer, TextToCodeCombination);
+            SetMethod(AspxFilePath, Controller, ControllerConstructor, ControllerClassConstructor, Model, ModelConstructor, ModelClassConstructor, ModelUseAbstract, !PageIsOnlyView, Layout, IsLayout, IsBreak, UseSegment, MethodIndexer, TextToCodeCombination);
         }
 
         private void AspxTextAndCodeCombinationRazor(string AspxText, string FilePath, string RootDirectoryPath, int MethodIndexer)
@@ -488,7 +488,7 @@ namespace SetCodeBehind
             string Layout = "";
             bool IsLayout = false;
             bool IsBreak = false;
-            bool UseSection = false;
+            bool UseSegment = false;
             string Template = "";
 
             string[] AspxLine = AspxText.Split('\n');
@@ -502,7 +502,7 @@ namespace SetCodeBehind
                 if (TmpLine[0] != '@')
                     break;
 
-                // Fetch ControllerConstructor, Controller, Model, ModelConstructor, Layout, IsLayout, IsBreak, UseSection, Template
+                // Fetch ControllerConstructor, Controller, Model, ModelConstructor, Layout, IsLayout, IsBreak, UseSegment, Template
                 if (TmpLine.StartsWith("@controllerconstructor"))
                 {
                     ControllerClassConstructor = ft.FullTrimAll(TmpLine.GetTextAfterValue("@controllerconstructor"));
@@ -545,9 +545,9 @@ namespace SetCodeBehind
                     AspxText = AspxText.GetTextAfterValue(line);
                     continue;
                 }
-                else if (TmpLine == "@section")
+                else if (TmpLine == "@segment")
                 {
-                    UseSection = true;
+                    UseSegment = true;
                     AspxText = AspxText.GetTextAfterValue(line);
                     continue;
                 }
@@ -1512,14 +1512,15 @@ namespace SetCodeBehind
 
             TextToCodeCombination += GetWriteText(TextForWrite, !ControllerIsSet);
 
-            SetMethod(AspxFilePath, Controller, ControllerConstructor, ControllerClassConstructor, Model, ModelConstructor, ModelClassConstructor, ModelUseAbstract, ControllerIsSet, Layout, IsLayout, IsBreak, UseSection, MethodIndexer, TextToCodeCombination);
+            SetMethod(AspxFilePath, Controller, ControllerConstructor, ControllerClassConstructor, Model, ModelConstructor, ModelClassConstructor, ModelUseAbstract, ControllerIsSet, Layout, IsLayout, IsBreak, UseSegment, MethodIndexer, TextToCodeCombination);
         }
 
-        private void SetMethod(string AspxFilePath, string Controller, string ControllerConstructor, string ControllerClassConstructor, string Model, string ModelConstructor, string ModelClassConstructor, bool ModelUseAbstract, bool ControllerIsSet, string Layout, bool IsLayout, bool IsBreak, bool UseSection, int MethodIndexer, string TextToCodeCombination)
+        private void SetMethod(string AspxFilePath, string Controller, string ControllerConstructor, string ControllerClassConstructor, string Model, string ModelConstructor, string ModelClassConstructor, bool ModelUseAbstract, bool ControllerIsSet, string Layout, bool IsLayout, bool IsBreak, bool UseSegment, int MethodIndexer, string TextToCodeCombination)
         {
             if (AspxFilePath.EndsWith(".cshtml"))
                 AspxFilePath = AspxFilePath.GetTextBeforeLastValue(".cshtml") + ".aspx";
 
+            CodeBehindOptions options = new CodeBehindOptions();
 
             string FilePathToMethodName = _ToMethodNameCleanRegex.Replace(AspxFilePath, "_");
             bool PageIsOnlyView = !ControllerIsSet;
@@ -1542,10 +1543,10 @@ namespace SetCodeBehind
                 {
                     CaseCodeTemplateValue += "                case \"" + AspxFilePathUrl + "\": return " + (ViewHasCache? ReturnMethodValueByCache : ReturnMethodValue) + ";" + Environment.NewLine;
 
-                    if (UseSection)
+                    if (UseSegment)
                     {
-                        SectionTemplateValue += "            if (path.StartsWith(\"" + AspxFilePathUrl + "/\")" + ((AspxFilePath.GetTextAfterLastValue(StaticObject.OsDirectorySplitter.ToString()) == "Default.aspx") ? " || path.StartsWith(\"" + AspxFilePathUrl.GetTextBeforeLastValue("Default.aspx") + "\")" : "") + ")" + Environment.NewLine;
-                        SectionTemplateValue += "                return " + (ViewHasCache ? ReturnMethodValueByCache : ReturnMethodValue) + ";" + Environment.NewLine;
+                        SegmentTemplateValue += "            if (path.StartsWith(\"" + AspxFilePathUrl + "/\")" + ((AspxFilePath.GetTextAfterLastValue(StaticObject.OsDirectorySplitter.ToString()) == "Default.aspx") ? " || path.StartsWith(\"" + AspxFilePathUrl.GetTextBeforeLastValue("Default.aspx") + "\")" : "") + ")" + Environment.NewLine;
+                        SegmentTemplateValue += "                return " + (ViewHasCache ? ReturnMethodValueByCache : ReturnMethodValue) + ";" + Environment.NewLine;
                     }
                 }
 
@@ -1554,20 +1555,20 @@ namespace SetCodeBehind
                     {
                         CaseCodeTemplateValue += "                case \"" + AspxFilePathUrl + "\": return " + (ViewHasCache ? ReturnMethodValueByCache : ReturnMethodValue) + ";" + Environment.NewLine;
 
-                        if (UseSection)
+                        if (UseSegment)
                         {
-                            SectionTemplateValue += "            if (path.StartsWith(\"" + AspxFilePathUrl.GetTextBeforeLastValue("Default.aspx") + "\") || path.StartsWith(\"" + AspxFilePathUrl + "/\"))" + Environment.NewLine;
-                            SectionTemplateValue += "                return " + (ViewHasCache ? ReturnMethodValueByCache : ReturnMethodValue) + ";" + Environment.NewLine;
+                            SegmentTemplateValue += "            if (path.StartsWith(\"" + AspxFilePathUrl.GetTextBeforeLastValue("Default.aspx") + "\") || path.StartsWith(\"" + AspxFilePathUrl + "/\"))" + Environment.NewLine;
+                            SegmentTemplateValue += "                return " + (ViewHasCache ? ReturnMethodValueByCache : ReturnMethodValue) + ";" + Environment.NewLine;
                         }
                     }
                     else
                     {
                         CaseCodeTemplateValue += "                case \"" + AspxFilePathUrl.GetTextBeforeLastValue(".aspx") + "/Default.aspx" + "\": return " + (ViewHasCache ? ReturnMethodValueByCache : ReturnMethodValue) + ";" + Environment.NewLine;
 
-                        if (UseSection)
+                        if (UseSegment)
                         {
-                            SectionTemplateValue += "            if (path.StartsWith(\"" + AspxFilePathUrl.GetTextBeforeLastValue(".aspx") + "/\"))" + Environment.NewLine;
-                            SectionTemplateValue += "                return " + (ViewHasCache ? ReturnMethodValueByCache : ReturnMethodValue) + ";" + Environment.NewLine;
+                            SegmentTemplateValue += "            if (path.StartsWith(\"" + AspxFilePathUrl.GetTextBeforeLastValue(".aspx") + "/\"))" + Environment.NewLine;
+                            SegmentTemplateValue += "                return " + (ViewHasCache ? ReturnMethodValueByCache : ReturnMethodValue) + ";" + Environment.NewLine;
                         }
                     }
             }
@@ -1588,8 +1589,8 @@ namespace SetCodeBehind
             TmpMethodCodeTemplateValue += "            CallerViewPath = \"" + AspxFilePathUrl + "\";" + Environment.NewLine;
             TmpMethodCodeTemplateValue += "            CallerViewDirectoryPath = \"" + CallerViewDirectoryPath + "\";" + Environment.NewLine + Environment.NewLine;
 
-            if (UseSection)
-                TmpMethodCodeTemplateValue += "            ValueCollectionLock Section = new ValueCollectionLock(\"" + AspxFilePathUrl + "\", RequestPath, " + (RewriteAspxFileToDirectory ? "true" : "false") + ", " + (IgnoreDefaultAfterRewrite ? "true" : "false") + ");" + Environment.NewLine + Environment.NewLine;
+            if (UseSegment)
+                TmpMethodCodeTemplateValue += "            ValueCollectionLock Segment = new ValueCollectionLock(\"" + AspxFilePathUrl + "\", RequestPath, " + (RewriteAspxFileToDirectory ? "true" : "false") + ", " + (IgnoreDefaultAfterRewrite ? "true" : "false") + ");" + Environment.NewLine + Environment.NewLine;
 
             if (!PageIsOnlyView)
             {
@@ -1597,8 +1598,8 @@ namespace SetCodeBehind
                 TmpMethodCodeTemplateValue += "            controller.CallerViewPath = CallerViewPath;" + Environment.NewLine;
                 TmpMethodCodeTemplateValue += "            controller.CallerViewDirectoryPath = CallerViewDirectoryPath;" + Environment.NewLine;
 
-                if (UseSection)
-                    TmpMethodCodeTemplateValue += "            controller.Section.AddList(Section.GetList());" + Environment.NewLine;
+                if (UseSegment)
+                    TmpMethodCodeTemplateValue += "            controller.Segment.AddList(Segment.GetList());" + Environment.NewLine;
 
                 if (!string.IsNullOrEmpty(ControllerConstructor))
                     TmpMethodCodeTemplateValue += "            controller.CodeBehindConstructor" + ControllerConstructor + ";" + Environment.NewLine;
@@ -1608,6 +1609,12 @@ namespace SetCodeBehind
 
                 TmpMethodCodeTemplateValue += "            if (controller.WebSocketId != null)" + Environment.NewLine;
                 TmpMethodCodeTemplateValue += "                WebSocketId = controller.WebSocketId;" + Environment.NewLine + Environment.NewLine;
+
+                TmpMethodCodeTemplateValue += "            if (controller.SSEId != null)" + Environment.NewLine;
+                TmpMethodCodeTemplateValue += "                SSEId = controller.SSEId;" + Environment.NewLine + Environment.NewLine;
+
+                TmpMethodCodeTemplateValue += "            if (controller.UseSSE != null)" + Environment.NewLine;
+                TmpMethodCodeTemplateValue += "                UseSSE = controller.UseSSE;" + Environment.NewLine + Environment.NewLine;
 
                 TmpMethodCodeTemplateValue += "            if (controller.IgnoreLayout != null)" + Environment.NewLine;
                 TmpMethodCodeTemplateValue += "                IgnoreLayout = controller.IgnoreLayout;" + Environment.NewLine + Environment.NewLine;
@@ -1647,8 +1654,8 @@ namespace SetCodeBehind
                         TmpMethodCodeTemplateValue += "                model.CallerViewPath = CallerViewPath;" + Environment.NewLine;
                         TmpMethodCodeTemplateValue += "                model.CallerViewDirectoryPath = CallerViewDirectoryPath;" + Environment.NewLine;
 
-                        if (UseSection)
-                            TmpMethodCodeTemplateValue += "                model.Section.AddList(Section.GetList());" + Environment.NewLine;
+                        if (UseSegment)
+                            TmpMethodCodeTemplateValue += "                model.Segment.AddList(Segment.GetList());" + Environment.NewLine;
                     }
 
                     if (!string.IsNullOrEmpty(ModelConstructor))
@@ -1668,18 +1675,24 @@ namespace SetCodeBehind
                         TmpMethodCodeTemplateValue += "                this.WebFormsValue += model.WebFormsValue;" + Environment.NewLine + Environment.NewLine;
 
                         TmpMethodCodeTemplateValue += "                if (model.WebSocketId != null)" + Environment.NewLine;
-                        TmpMethodCodeTemplateValue += "                    WebSocketId = model.WebSocketId;" + Environment.NewLine;
+                        TmpMethodCodeTemplateValue += "                    WebSocketId = model.WebSocketId;" + Environment.NewLine + Environment.NewLine;
+
+                        TmpMethodCodeTemplateValue += "                if (model.SSEId != null)" + Environment.NewLine;
+                        TmpMethodCodeTemplateValue += "                    SSEId = model.SSEId;" + Environment.NewLine + Environment.NewLine;
+
+                        TmpMethodCodeTemplateValue += "                if (model.UseSSE != null)" + Environment.NewLine;
+                        TmpMethodCodeTemplateValue += "                    UseSSE = model.UseSSE;" + Environment.NewLine;
                     }
                 }
 
                 TmpMethodCodeTemplateValue += "                controller.ResponseText += this.ResponseText;" + Environment.NewLine;
 
-                if (StaticObject.SendViewOnlyInGetMethod)
+                if (options.SendViewOnlyInGetMethod)
                     TmpMethodCodeTemplateValue += "                string TmpControllerResponseText = controller.ResponseText;" + Environment.NewLine;
 
                 TmpMethodCodeTemplateValue += TextToCodeCombination;
 
-                if (StaticObject.SendViewOnlyInGetMethod)
+                if (options.SendViewOnlyInGetMethod)
                 {
                     TmpMethodCodeTemplateValue += "                if (context.Request.Method != \"GET\")" + Environment.NewLine;
                     TmpMethodCodeTemplateValue += "                     controller.ResponseText = TmpControllerResponseText;" + Environment.NewLine + Environment.NewLine;
@@ -1705,8 +1718,8 @@ namespace SetCodeBehind
                         TmpMethodCodeTemplateValue += "            model.CallerViewPath = CallerViewPath;" + Environment.NewLine;
                         TmpMethodCodeTemplateValue += "            model.CallerViewDirectoryPath = CallerViewDirectoryPath;" + Environment.NewLine;
 
-                        if (UseSection)
-                            TmpMethodCodeTemplateValue += "            model.Section.AddList(Section.GetList());" + Environment.NewLine;
+                        if (UseSegment)
+                            TmpMethodCodeTemplateValue += "            model.Segment.AddList(Segment.GetList());" + Environment.NewLine;
                     }
 
                     if (!string.IsNullOrEmpty(ModelConstructor))
@@ -1728,54 +1741,60 @@ namespace SetCodeBehind
                         TmpMethodCodeTemplateValue += "            if (model.WebSocketId != null)" + Environment.NewLine;
                         TmpMethodCodeTemplateValue += "                WebSocketId = model.WebSocketId;" + Environment.NewLine + Environment.NewLine;
 
+                        TmpMethodCodeTemplateValue += "            if (model.SSEId != null)" + Environment.NewLine;
+                        TmpMethodCodeTemplateValue += "                SSEId = model.SSEId;" + Environment.NewLine + Environment.NewLine;
+
+                        TmpMethodCodeTemplateValue += "            if (model.UseSSE != null)" + Environment.NewLine;
+                        TmpMethodCodeTemplateValue += "                UseSSE = model.UseSSE;" + Environment.NewLine + Environment.NewLine;
+
                         TmpMethodCodeTemplateValue += "            if (!model.IgnoreView)" + Environment.NewLine;
                         TmpMethodCodeTemplateValue += "            {" + Environment.NewLine;
 
-                        TmpMethodCodeTemplateValue += "            ReturnValue = this.ResponseText + ReturnValue;" + Environment.NewLine;
-
-                        if (StaticObject.SendViewOnlyInGetMethod)
+                        if (options.SendViewOnlyInGetMethod)
                             TmpMethodCodeTemplateValue += "                string TmpReturnValue = ReturnValue;" + Environment.NewLine;
 
                         TmpMethodCodeTemplateValue += TextToCodeCombination + Environment.NewLine;
 
-                        if (StaticObject.SendViewOnlyInGetMethod)
+                        if (options.SendViewOnlyInGetMethod)
                         {
                             TmpMethodCodeTemplateValue += "                if (context.Request.Method != \"GET\")" + Environment.NewLine;
                             TmpMethodCodeTemplateValue += "                    ReturnValue = TmpReturnValue;" + Environment.NewLine + Environment.NewLine;
                         }
 
+                        TmpMethodCodeTemplateValue += "            ReturnValue = this.ResponseText + ReturnValue;" + Environment.NewLine;
+
                         TmpMethodCodeTemplateValue += "            }" + Environment.NewLine;
                     }
                     else
                     {
-                        TmpMethodCodeTemplateValue += "            ReturnValue = this.ResponseText + ReturnValue;" + Environment.NewLine;
-
-                        if (StaticObject.SendViewOnlyInGetMethod)
+                        if (options.SendViewOnlyInGetMethod)
                             TmpMethodCodeTemplateValue += "            string TmpReturnValue = ReturnValue;" + Environment.NewLine;
 
                         TmpMethodCodeTemplateValue += TextToCodeCombination + Environment.NewLine;
 
-                        if (StaticObject.SendViewOnlyInGetMethod)
+                        if (options.SendViewOnlyInGetMethod)
                         {
                             TmpMethodCodeTemplateValue += "            if (context.Request.Method != \"GET\")" + Environment.NewLine;
                             TmpMethodCodeTemplateValue += "                ReturnValue = TmpReturnValue;" + Environment.NewLine + Environment.NewLine;
                         }
+
+                        TmpMethodCodeTemplateValue += "            ReturnValue = this.ResponseText + ReturnValue;" + Environment.NewLine;
                     }
                 }
                 else
                 {
-                    TmpMethodCodeTemplateValue += "            ReturnValue = this.ResponseText + ReturnValue;" + Environment.NewLine;
-
-                    if (StaticObject.SendViewOnlyInGetMethod)
+                    if (options.SendViewOnlyInGetMethod)
                         TmpMethodCodeTemplateValue += "            string TmpReturnValue = ReturnValue;" + Environment.NewLine;
 
                     TmpMethodCodeTemplateValue += TextToCodeCombination + Environment.NewLine;
 
-                    if (StaticObject.SendViewOnlyInGetMethod)
+                    if (options.SendViewOnlyInGetMethod)
                     {
                         TmpMethodCodeTemplateValue += "            if (context.Request.Method != \"GET\")" + Environment.NewLine;
                         TmpMethodCodeTemplateValue += "                ReturnValue = TmpReturnValue;" + Environment.NewLine + Environment.NewLine;
                     }
+
+                    TmpMethodCodeTemplateValue += "            ReturnValue = this.ResponseText + ReturnValue;" + Environment.NewLine;
                 }
 
                 TmpMethodCodeTemplateValue += "            RequestPath = PreviousRequestPath;" + Environment.NewLine;
@@ -1791,7 +1810,7 @@ namespace SetCodeBehind
             TmpMethodCodeTemplateValue += "        }" + Environment.NewLine;
 
 
-            // Set Cache Method Section
+            // Set Cache Method Segment
             if (ViewHasCache)
             {
                 TmpMethodCodeTemplateValue += Environment.NewLine;
@@ -1840,8 +1859,8 @@ namespace SetCodeBehind
 
                 TmpMethodCodeTemplateValue += "            " + Model + " model = (" + Model + ")ModelClass;" + Environment.NewLine + Environment.NewLine;
 
-                if (UseSection)
-                    TmpMethodCodeTemplateValue += "            ValueCollectionLock Section = new ValueCollectionLock(\"" + AspxFilePathUrl + "\", RequestPath, " + (RewriteAspxFileToDirectory ? "true" : "false") + ", " + (IgnoreDefaultAfterRewrite ? "true" : "false") + ");" + Environment.NewLine + Environment.NewLine;
+                if (UseSegment)
+                    TmpMethodCodeTemplateValue += "            ValueCollectionLock Segment = new ValueCollectionLock(\"" + AspxFilePathUrl + "\", RequestPath, " + (RewriteAspxFileToDirectory ? "true" : "false") + ", " + (IgnoreDefaultAfterRewrite ? "true" : "false") + ");" + Environment.NewLine + Environment.NewLine;
 
                 if (!PageIsOnlyView)
                 {
@@ -1849,8 +1868,8 @@ namespace SetCodeBehind
                     TmpMethodCodeTemplateValue += "            controller.CallerViewPath = CallerViewPath;" + Environment.NewLine;
                     TmpMethodCodeTemplateValue += "            controller.CallerViewDirectoryPath = CallerViewDirectoryPath;" + Environment.NewLine;
 
-                    if (UseSection)
-                        TmpMethodCodeTemplateValue += "            controller.Section.AddList(Section.GetList());" + Environment.NewLine;
+                    if (UseSegment)
+                        TmpMethodCodeTemplateValue += "            controller.Segment.AddList(Segment.GetList());" + Environment.NewLine;
 
                     if (!string.IsNullOrEmpty(ControllerConstructor))
                         TmpMethodCodeTemplateValue += "            controller.CodeBehindConstructor" + ControllerConstructor + ";" + Environment.NewLine;
@@ -1863,6 +1882,12 @@ namespace SetCodeBehind
 
                     TmpMethodCodeTemplateValue += "            if (controller.WebSocketId != null)" + Environment.NewLine;
                     TmpMethodCodeTemplateValue += "                WebSocketId = controller.WebSocketId;" + Environment.NewLine + Environment.NewLine;
+
+                    TmpMethodCodeTemplateValue += "            if (controller.SSEId != null)" + Environment.NewLine;
+                    TmpMethodCodeTemplateValue += "                SSEId = controller.SSEId;" + Environment.NewLine + Environment.NewLine;
+
+                    TmpMethodCodeTemplateValue += "            if (controller.UseSSE != null)" + Environment.NewLine;
+                    TmpMethodCodeTemplateValue += "                UseSSE = controller.UseSSE;" + Environment.NewLine + Environment.NewLine;
 
                     TmpMethodCodeTemplateValue += "            ViewData.AddList(controller.ViewData.GetList());" + Environment.NewLine;
                     TmpMethodCodeTemplateValue += "            if (!string.IsNullOrEmpty(controller.ViewPath))" + Environment.NewLine;
@@ -1895,8 +1920,8 @@ namespace SetCodeBehind
                         TmpMethodCodeTemplateValue += "                model.CallerViewPath = CallerViewPath;" + Environment.NewLine;
                         TmpMethodCodeTemplateValue += "                model.CallerViewDirectoryPath = CallerViewDirectoryPath;" + Environment.NewLine;
 
-                        if (UseSection)
-                            TmpMethodCodeTemplateValue += "                model.Section.AddList(Section.GetList());" + Environment.NewLine;
+                        if (UseSegment)
+                            TmpMethodCodeTemplateValue += "                model.Segment.AddList(Segment.GetList());" + Environment.NewLine;
                     }
 
                     if (!string.IsNullOrEmpty(ModelConstructor))
@@ -1916,17 +1941,23 @@ namespace SetCodeBehind
                         TmpMethodCodeTemplateValue += "                this.WebFormsValue += model.WebFormsValue;" + Environment.NewLine + Environment.NewLine;
 
                         TmpMethodCodeTemplateValue += "                if (model.WebSocketId != null)" + Environment.NewLine;
-                        TmpMethodCodeTemplateValue += "                    WebSocketId = model.WebSocketId;" + Environment.NewLine;
+                        TmpMethodCodeTemplateValue += "                    WebSocketId = model.WebSocketId;" + Environment.NewLine + Environment.NewLine;
+
+                        TmpMethodCodeTemplateValue += "                if (model.SSEId != null)" + Environment.NewLine;
+                        TmpMethodCodeTemplateValue += "                    SSEId = model.SSEId;" + Environment.NewLine + Environment.NewLine;
+
+                        TmpMethodCodeTemplateValue += "                if (model.UseSSE != null)" + Environment.NewLine;
+                        TmpMethodCodeTemplateValue += "                    UseSSE = model.UseSSE;" + Environment.NewLine;
                     }
 
                     TmpMethodCodeTemplateValue += "                controller.ResponseText += this.ResponseText;" + Environment.NewLine;
 
-                    if (StaticObject.SendViewOnlyInGetMethod)
+                    if (options.SendViewOnlyInGetMethod)
                         TmpMethodCodeTemplateValue += "                string TmpControllerResponseText = controller.ResponseText;" + Environment.NewLine;
 
                     TmpMethodCodeTemplateValue += TextToCodeCombination;
 
-                    if (StaticObject.SendViewOnlyInGetMethod)
+                    if (options.SendViewOnlyInGetMethod)
                     {
                         TmpMethodCodeTemplateValue += "                if (context.Request.Method != \"GET\")" + Environment.NewLine;
                         TmpMethodCodeTemplateValue += "                     controller.ResponseText = TmpControllerResponseText;" + Environment.NewLine + Environment.NewLine;
@@ -1948,8 +1979,8 @@ namespace SetCodeBehind
                         TmpMethodCodeTemplateValue += "            model.CallerViewPath = CallerViewPath;" + Environment.NewLine;
                         TmpMethodCodeTemplateValue += "            model.CallerViewDirectoryPath = CallerViewDirectoryPath;" + Environment.NewLine;
 
-                        if (UseSection)
-                            TmpMethodCodeTemplateValue += "            model.Section.AddList(Section.GetList());" + Environment.NewLine;
+                        if (UseSegment)
+                            TmpMethodCodeTemplateValue += "            model.Segment.AddList(Segment.GetList());" + Environment.NewLine;
                     }
 
                     if (!string.IsNullOrEmpty(ModelConstructor))
@@ -1971,38 +2002,44 @@ namespace SetCodeBehind
                         TmpMethodCodeTemplateValue += "            if (model.WebSocketId != null)" + Environment.NewLine;
                         TmpMethodCodeTemplateValue += "                WebSocketId = model.WebSocketId;" + Environment.NewLine + Environment.NewLine;
 
+                        TmpMethodCodeTemplateValue += "            if (model.SSEId != null)" + Environment.NewLine;
+                        TmpMethodCodeTemplateValue += "                SSEId = model.SSEId;" + Environment.NewLine + Environment.NewLine;
+
+                        TmpMethodCodeTemplateValue += "            if (model.UseSSE != null)" + Environment.NewLine;
+                        TmpMethodCodeTemplateValue += "                UseSSE = model.UseSSE;" + Environment.NewLine + Environment.NewLine;
+
                         TmpMethodCodeTemplateValue += "            if (!model.IgnoreView)" + Environment.NewLine;
                         TmpMethodCodeTemplateValue += "            {" + Environment.NewLine;
 
-                        TmpMethodCodeTemplateValue += "                ReturnValue = this.ResponseText + ReturnValue;" + Environment.NewLine;
-
-                        if (StaticObject.SendViewOnlyInGetMethod)
+                        if (options.SendViewOnlyInGetMethod)
                             TmpMethodCodeTemplateValue += "                string TmpReturnValue = ReturnValue;" + Environment.NewLine;
 
                         TmpMethodCodeTemplateValue += TextToCodeCombination + Environment.NewLine;
 
-                        if (StaticObject.SendViewOnlyInGetMethod)
+                        if (options.SendViewOnlyInGetMethod)
                         {
                             TmpMethodCodeTemplateValue += "                if (context.Request.Method != \"GET\")" + Environment.NewLine;
                             TmpMethodCodeTemplateValue += "                     ReturnValue = TmpReturnValue;" + Environment.NewLine + Environment.NewLine;
                         }
 
+                        TmpMethodCodeTemplateValue += "                ReturnValue = this.ResponseText + ReturnValue;" + Environment.NewLine;
+
                         TmpMethodCodeTemplateValue += "            }" + Environment.NewLine;
                     }
                     else
                     {
-                        TmpMethodCodeTemplateValue += "            ReturnValue = this.ResponseText + ReturnValue;" + Environment.NewLine;
-
-                        if (StaticObject.SendViewOnlyInGetMethod)
+                        if (options.SendViewOnlyInGetMethod)
                             TmpMethodCodeTemplateValue += "            string TmpReturnValue = ReturnValue;" + Environment.NewLine;
 
                         TmpMethodCodeTemplateValue += TextToCodeCombination + Environment.NewLine;
 
-                        if (StaticObject.SendViewOnlyInGetMethod)
+                        if (options.SendViewOnlyInGetMethod)
                         {
                             TmpMethodCodeTemplateValue += "            if (context.Request.Method != \"GET\")" + Environment.NewLine;
                             TmpMethodCodeTemplateValue += "                ReturnValue = TmpReturnValue;" + Environment.NewLine + Environment.NewLine;
                         }
+
+                        TmpMethodCodeTemplateValue += "            ReturnValue = this.ResponseText + ReturnValue;" + Environment.NewLine;
                     }
 
                     TmpMethodCodeTemplateValue += "            RequestPath = PreviousRequestPath;" + Environment.NewLine;
@@ -2018,7 +2055,7 @@ namespace SetCodeBehind
                 TmpMethodCodeTemplateValue += "        }" + Environment.NewLine;
 
 
-                // Set Cache Method Section
+                // Set Cache Method Segment
                 if (ViewHasCache)
                 {
                     TmpMethodCodeTemplateValue += Environment.NewLine;
