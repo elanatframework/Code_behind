@@ -248,6 +248,24 @@ namespace CodeBehind
         public void SetSSEEvent(string InputPlace, string HtmlEvent, string Path, string OutputPlace, bool ShouldReconnect = true, int ReconnectTryTimeout = 3000) => Add("Ee" + InputPlace, HtmlEvent + "|" + Path + "|" + (ShouldReconnect ? "1" : "0") + "|" + ReconnectTryTimeout + "|" + OutputPlace);
         public void SetSSEEventListener(string InputPlace, string HtmlEventListener, string Path, bool ShouldReconnect = true, int ReconnectTryTimeout = 3000) => Add("EE" + InputPlace, HtmlEventListener + "|" + Path + "|" + (ShouldReconnect? "1" : "0") + "|" + ReconnectTryTimeout);
         public void SetSSEEventListener(string InputPlace, string HtmlEventListener, string Path, string OutputPlace, bool ShouldReconnect = true, int ReconnectTryTimeout = 3000) => Add("EE" + InputPlace, HtmlEventListener + "|" + Path + "|" + (ShouldReconnect ? "1" : "0") + "|" + ReconnectTryTimeout + "|" + OutputPlace);
+        public void SetFrontEvent(string InputPlace, string HtmlEvent, string ModulePath, string[] Args = null, string OutputPlace = null)
+        {
+            string ArgsJoin = "";
+
+            if (Args != null)
+                ArgsJoin = (Args.Length > 0) ? "|" + string.Join("|", Args) : "";
+
+            Add("Ej" + InputPlace, HtmlEvent + "|" + ModulePath + "|" + OutputPlace + ArgsJoin);
+        }
+        public void SetFrontEventListener(string InputPlace, string HtmlEventListener, string ModulePath, string[] Args = null, string OutputPlace = null)
+        {
+            string ArgsJoin = "";
+
+            if (Args != null)
+                ArgsJoin = (Args.Length > 0) ? "|" + string.Join("|", Args) : "";
+
+            Add("EJ" + InputPlace, HtmlEventListener + "|" + ModulePath + "|" + OutputPlace + ArgsJoin);
+        }
         public void SetSendEvent(string InputPlace, string HtmlEvent, string Data, string Path = null, string Method = "POST", bool IsMultiPart = false, string ContentType = "text/plain", string OutputPlace = null) => Add("En" + InputPlace, HtmlEvent + "|" + Data.Replace('\n'.ToString(), "$[ln];").Replace("\"", "$[dq];").Replace("'", "$[sq];") + "|" + (!string.IsNullOrEmpty(Path) ? Path : "#") + "|" + Method + "|" + (IsMultiPart ? "1" : "0") + "|" + ContentType + "|" + OutputPlace);
         public void SetSendEventListener(string InputPlace, string HtmlEventListener, string Data, string Path = null, string Method = "POST", bool IsMultiPart = false, string ContentType = "text/plain", string OutputPlace = null) => Add("EN" + InputPlace, HtmlEventListener + "|" + Data.Replace('\n'.ToString(), "$[ln];") + "|" + (!string.IsNullOrEmpty(Path) ? Path : "#") + "|" + Method + "|" + (IsMultiPart ? "1" : "0") + "|" + ContentType + "|" + OutputPlace);
         public void SetMasterPagesEvent(string InputPlace, string HtmlEvent, string OutputPlace = null) => Add("Eu" + InputPlace, HtmlEvent + "|" + OutputPlace);
@@ -319,6 +337,8 @@ namespace CodeBehind
         public void RemoveWebSocketEventListener(string InputPlace, string HtmlEventListener) => Add("RW" + InputPlace, HtmlEventListener);
         public void RemoveSSEEvent(string InputPlace, string HtmlEvent) => Add("Re" + InputPlace, HtmlEvent);
         public void RemoveSSEEventListener(string InputPlace, string HtmlEventListener) => Add("RE" + InputPlace, HtmlEventListener);
+        public void RemoveFrontEvent(string InputPlace, string HtmlEvent) => Add("Rj" + InputPlace, HtmlEvent);
+        public void RemoveFrontEventListener(string InputPlace, string HtmlEventListener) => Add("RJ" + InputPlace, HtmlEventListener);
         public void RemoveSendEvent(string InputPlace, string HtmlEvent) => Add("Rn" + InputPlace, HtmlEvent);
         public void RemoveSendEventListener(string InputPlace, string HtmlEventListener) => Add("RN" + InputPlace, HtmlEventListener);
         public void RemovePreventDefaultEvent(string InputPlace, string HtmlEvent) => Add("Rd" + InputPlace, HtmlEvent);
@@ -353,7 +373,8 @@ namespace CodeBehind
         public void AssertEqualByOutputPlace(string InputPlace, string OutputPlace) => Add("Ao" + InputPlace, OutputPlace);
 
         // Service Worker
-        public void ServiceWorkerRegister() => Add("wR");
+        // To Use Service Worker, You Need To Add The Elanat Dedicated Module (service-worker.js) On The Client Side
+        public void ServiceWorkerRegister(string Path = null, string ScobePath = null) => Add("wR", Path + "|" + ScobePath);
         public void ServiceWorkerPreCacheStatic(string[] PathList) => Add("wp",string.Join("|", PathList));
         public void ServiceWorkerDynamicCache(string Path, int Seconds = 0) => Add("wc", Path + (Seconds > 0 ? "|" + Seconds : ""));
         public void ServiceWorkerDeleteDynamicCache() => Add("wd");
@@ -361,12 +382,22 @@ namespace CodeBehind
         public void ServiceWorkerDynamicCacheTTLUpdate(string Path, int Seconds = 0) => Add("wt", Path + (Seconds > 0 ? "|" + Seconds : ""));
         // Path: Support Wildcard Automatically And Also Support Regex If Use "re:" Before Pattern
         // Type: Type Is Cache Strategy. cachefirst, networkfirst, cacheonly, networkonly, stalerevalidate (Fast From Cache, Updates Simultaneously From The Network)
-        // CacheDynamic: If True, Any Successful Network Response For That Route Will Be Stored In The Dynamic Cache.
+        // CacheDynamic: If True, Any Successful Network Response For That Route Will Be Stored In The Dynamic Cache
         public void ServiceWorkerRouteSet(string Path, string Type, bool CacheDynamic = false) => Add("wr", Path + "|" + Type + (CacheDynamic? "|1" : ""));
         public void ServiceWorkerRouteAlias(string Path, string To) => Add("wa", Path + "|" + To);
+        public void ServiceWorkerDeleteRouteAlias(string Path = null) => Add("wC", Path);
         // Delete All Route And Alias
         public void ServiceWorkerDeleteRoute() => Add("wD");
         public void ServiceWorkerDeleteRoute(string Path) => Add("wD", Path);
+
+        // SSE
+        public void DisconnectSSE(string Path) => Add("Ds", Path);
+        public void DisconnectAllSSE() => Add("Ds");
+
+        // State
+        public void AddState(string Path = null, string Title = null) => Add("AS", Path + "|" + Title);
+        public void DeleteState(string Path = null) => Add("DS", Path);
+        public void DeleteAllState() => Add("DS", "*");
 
         // Cookie
         public void SetCookie(string Key, string Value, int Seconds, string Path = null) => Add("sC", Key + "|" + Value + "|" + Seconds + (!string.IsNullOrEmpty(Path) ? "|" + Path : ""));
@@ -466,6 +497,15 @@ namespace CodeBehind
         }
         public void CallWebSocketBack(string Path, bool UseCurrentEvent = true) => Add("Lw", (UseCurrentEvent? "1": "0") + "|" + Path);
         public void CallSSEBack(string Path, string OutputPlace = null, bool UseCurrentEvent = true, bool ShouldReconnect = true, int ReconnectTryTimeout = 3000) => Add("Ls", (UseCurrentEvent? "1": "0") + "|" + Path + "|" + (ShouldReconnect ? "1" : "0") + "|" + ReconnectTryTimeout + (!string.IsNullOrEmpty(OutputPlace) ? "|" + OutputPlace : ""));
+        public void CallFront(string ModulePath, string[] Args = null, string OutputPlace = null, bool UseCurrentEvent = true)
+        {
+            string ArgsJoin = "";
+
+            if (Args != null)
+                ArgsJoin = (Args.Length > 0) ? "|" + string.Join("|", Args) : "";
+
+            Add("Lj", (UseCurrentEvent ? "1" : "0") + "|" + ModulePath + "|" + OutputPlace + ArgsJoin);
+        }
         public void CallGetBack(string Path, string OutputPlace = null, bool UseCurrentEvent = true) => Add("Lg", (UseCurrentEvent ? "1" : "0") + "|" + Path + (!string.IsNullOrEmpty(OutputPlace) ? "|" + OutputPlace : ""));
         public void CallPutBack(string Path, string OutputPlace = null, bool UseCurrentEvent = true) => Add("Lu", (UseCurrentEvent ? "1" : "0") + "|" + Path + (!string.IsNullOrEmpty(OutputPlace) ? "|" + OutputPlace : ""));
         public void CallPatchBack(string Path, string OutputPlace = null, bool UseCurrentEvent = true) => Add("LP", (UseCurrentEvent ? "1" : "0") + "|" + Path + (!string.IsNullOrEmpty(OutputPlace) ? "|" + OutputPlace : ""));
@@ -554,20 +594,20 @@ namespace CodeBehind
             UpdateLineByIndex(Index, newName, newValue);
         }
 
-        public void AssignInterval(int MiliSecond, int Index = -1)
+        public void AssignInterval(int MiliSecond, string Id = null, int Index = -1)
         {
             string currentLine = GetLineByIndex(Index);
             if (string.IsNullOrEmpty(currentLine))
                 return;
 
             string[] parts = currentLine.Split('=', 2);
-            string newName = "(" + MiliSecond + ")" + parts[0];
+            string newName = "(" + MiliSecond + (!string.IsNullOrEmpty(Id) ? "|" + Id : "") + ")" + parts[0];
             string newValue = parts.Length > 1 ? parts[1] : "";
 
             UpdateLineByIndex(Index, newName, newValue);
         }
 
-        public void AssignIntervalChange(float MiliSecond, int Index = -1)
+        public void AssignIntervalChange(float MiliSecond, string Id = null, int Index = -1)
         {
             string currentLine = GetLineByIndex(Index);
             if (string.IsNullOrEmpty(currentLine))
@@ -582,11 +622,13 @@ namespace CodeBehind
                 currentName = currentName.Substring(closingBracket + 1);
             }
 
-            string newName = "(" + MiliSecond + ")" + currentName;
+            string newName = "(" + MiliSecond + (!string.IsNullOrEmpty(Id) ? "|" + Id : "") + ")" + currentName;
             string newValue = parts.Length > 1 ? parts[1] : "";
 
             UpdateLineByIndex(Index, newName, newValue);
         }
+
+        public void DeleteInterval(string Id) => Add("Di", Id);
 
         public void AssignRepeat(int Count, int Index = -1)
         {
@@ -642,11 +684,14 @@ namespace CodeBehind
         public void ConsoleMessageAssert(string Text, string Condition) => Add("ma", Text.Replace('\n'.ToString(), "$[ln];") + "|" + Condition);
 
         // Enable
+        //Calling The EnableWebSocket Or EnableWebSocketOnce Or AddWebSocket Methods Will Cause Any Subsequent Requests (Under WebForms Core Technology) To Operate Under The WebSocket Protocol.
         public void EnableWebSocket(bool Enable = true) => Add("ew", Enable ? "1" : "0");
-        public void EnableWebSocketOnce() => Add("ew", "@");
+        public void EnableWebSocketOnce() => Add("ew", "$");
+        public void AddWebSocket(string Path) => Add("aw" + Path);
 
         // Use
-        public void UseWebSocket(string Path) => Add("uw", Path);
+        // InputPlace Using Only For form Element
+        public void UseWebSocket(string InputPlace) => Add("uw" + InputPlace);
         public void UseOnlyChangeUpdate(string InputPlace) => Add("uo" + InputPlace);
 
         // Condition
@@ -1005,6 +1050,14 @@ namespace CodeBehind
         public const string TabIsActive = "@da";
 
         // Window
+        public const string Href = "@wf";
+        public const string PathName = "@wP";
+        public const string Query= "@wq";
+        public const string Hash = "@wh";
+        public const string Host = "@wH";
+        public const string HostName = "@wn";
+        public const string Port = "@wT";
+        public const string Origin = "@wo";
         public const string GetSelection = "@ws";
         public const string ScrollX = "@wx";
         public const string ScrollY = "@wy";
