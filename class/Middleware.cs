@@ -1,10 +1,22 @@
 using CodeBehind;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Features;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Primitives;
+using System.IO.Compression;
 using System.Net.WebSockets;
 using System.Text;
 using System.Web;
+
+public static class CodeBehindServiceExtensions
+{
+    public static IServiceCollection AddCodeBehind(this IServiceCollection services)
+    {
+        SetCodeBehind.CodeBehindCompiler.Initialization();
+        return services;
+    }
+}
 
 public class UseCodeBehindMiddleware
 {
@@ -18,7 +30,16 @@ public class UseCodeBehindMiddleware
     public async Task Invoke(HttpContext context)
     {
         CodeBehindExecute execute = new CodeBehindExecute();
-        await context.Response.WriteAsync(execute.Run(context));
+
+        string PageResult = execute.Run(context);
+
+        if (execute.UseSSE == true)
+        {
+            await new CodeBehindMiddlewareExtensions.UseCodeBehindSSEMiddleware(_next).Invoke(context, execute.SSEId);
+            return;
+        }
+
+        await context.Response.WriteAsync(PageResult);
 
         await _next(context);
     }
@@ -38,6 +59,12 @@ public class UseCodeBehindMiddlewareWithErrorHandling
         CodeBehindExecute execute = new CodeBehindExecute();
 
         string PageResult = execute.Run(context);
+
+        if (execute.UseSSE == true)
+        {
+            await new CodeBehindMiddlewareExtensions.UseCodeBehindSSEMiddleware(_next).Invoke(context, execute.SSEId);
+            return;
+        }
 
         if (execute.FoundPage)
             await context.Response.WriteAsync(PageResult);
@@ -63,6 +90,12 @@ public class UseCodeBehindNextNotFoundMiddleware
 
         string PageResult = execute.Run(context);
 
+        if (execute.UseSSE == true)
+        {
+            await new CodeBehindMiddlewareExtensions.UseCodeBehindSSEMiddleware(_next).Invoke(context, execute.SSEId);
+            return;
+        }
+
         if (execute.FoundPage)
             await context.Response.WriteAsync(PageResult);
         else if (execute.IsAspxExtension)
@@ -75,16 +108,27 @@ public class UseCodeBehindNextNotFoundMiddleware
 public class UseCodeBehindRouteMiddleware
 {
     private readonly RequestDelegate _next;
+    private readonly int _routeIndex;
 
-    public UseCodeBehindRouteMiddleware(RequestDelegate next)
+    public UseCodeBehindRouteMiddleware(RequestDelegate next, int routeIndex)
     {
         _next = next;
+        _routeIndex = routeIndex;
     }
 
     public async Task Invoke(HttpContext context)
     {
         CodeBehindExecute execute = new CodeBehindExecute();
-        await context.Response.WriteAsync(execute.RunRoute(context, 0));
+
+        string PageResult = execute.RunRoute(context, _routeIndex);
+
+        if (execute.UseSSE == true)
+        {
+            await new CodeBehindMiddlewareExtensions.UseCodeBehindSSEMiddleware(_next).Invoke(context, execute.SSEId);
+            return;
+        }
+
+        await context.Response.WriteAsync(PageResult);
 
         await _next(context);
     }
@@ -93,17 +137,25 @@ public class UseCodeBehindRouteMiddleware
 public class UseCodeBehindRouteMiddlewareWithErrorHandling
 {
     private readonly RequestDelegate _next;
+    private readonly int _routeIndex;
 
-    public UseCodeBehindRouteMiddlewareWithErrorHandling(RequestDelegate next)
+    public UseCodeBehindRouteMiddlewareWithErrorHandling(RequestDelegate next, int routeIndex)
     {
         _next = next;
+        _routeIndex = routeIndex;
     }
 
     public async Task Invoke(HttpContext context)
     {
         CodeBehindExecute execute = new CodeBehindExecute();
 
-        string PageResult = execute.RunRoute(context, 0);
+        string PageResult = execute.RunRoute(context, _routeIndex);
+
+        if (execute.UseSSE == true)
+        {
+            await new CodeBehindMiddlewareExtensions.UseCodeBehindSSEMiddleware(_next).Invoke(context, execute.SSEId);
+            return;
+        }
 
         if (execute.FoundController)
             await context.Response.WriteAsync(PageResult);
@@ -128,6 +180,12 @@ public class UseCodeBehindRouteNextNotFoundMiddleware
         CodeBehindExecute execute = new CodeBehindExecute();
 
         string PageResult = execute.RunRoute(context, 0);
+
+        if (execute.UseSSE == true)
+        {
+            await new CodeBehindMiddlewareExtensions.UseCodeBehindSSEMiddleware(_next).Invoke(context, execute.SSEId);
+            return;
+        }
 
         if (execute.FoundController)
             await context.Response.WriteAsync(PageResult);
@@ -190,6 +248,122 @@ public class UseRoleAccessMiddlewareWithErrorHandling
     }
 }
 
+public class GzipDecompressionMiddleware
+{
+    private readonly RequestDelegate _next;
+
+    public GzipDecompressionMiddleware(RequestDelegate next)
+    {
+        _next = next;
+    }
+
+    public async Task Invoke(HttpContext context)
+    {
+        if (context.Request.Headers.TryGetValue("Content-Encoding", out var encoding) && encoding.ToString().Equals("gzip", StringComparison.OrdinalIgnoreCase))
+        {
+            var decompressedStream = new MemoryStream();
+            using (var gzipStream = new GZipStream(context.Request.Body, CompressionMode.Decompress))
+            {
+                await gzipStream.CopyToAsync(decompressedStream);
+            }
+
+            decompressedStream.Seek(0, SeekOrigin.Begin);
+            context.Request.Body = decompressedStream;
+
+            context.Request.Headers.Remove("Content-Encoding");
+        }
+
+        await _next(context);
+    }
+}
+
+public class GzipFileDecompressionMiddleware
+{
+    private readonly RequestDelegate _next;
+    private readonly HashSet<string> _allowedExtensions;
+    private readonly long _maxFileSize;
+
+    public GzipFileDecompressionMiddleware(RequestDelegate next, IEnumerable<string> allowedExtensions, long maxFileSize)
+    {
+        _next = next;
+        _allowedExtensions = new HashSet<string>(allowedExtensions, StringComparer.OrdinalIgnoreCase);
+        _maxFileSize = maxFileSize;
+    }
+
+    public async Task Invoke(HttpContext context)
+    {
+        var blockedFiles = new List<string>();
+
+        if (context.Request.Headers.TryGetValue("X-Files-Gzip", out var val) && val == "true" && context.Request.HasFormContentType)
+        {
+            context.Request.EnableBuffering();
+
+            var form = await context.Request.ReadFormAsync();
+
+            var formFields = form.ToDictionary(f => f.Key, f => f.Value);
+            var newFiles = new FormFileCollection();
+
+            foreach (var file in form.Files)
+            {
+                if (!file.FileName.EndsWith(".gz", StringComparison.OrdinalIgnoreCase))
+                {
+                    newFiles.Add(file);
+                    continue;
+                }
+
+                var originalFileName = Path.GetFileNameWithoutExtension(file.FileName);
+                var innerExtension = Path.GetExtension(originalFileName);
+
+                if (!_allowedExtensions.Contains(innerExtension))
+                {
+                    blockedFiles.Add(file.FileName);
+                    continue;
+                }
+
+                using var gzipStream = new GZipStream(file.OpenReadStream(), CompressionMode.Decompress);
+
+                var memoryStream = new MemoryStream();
+                var buffer = new byte[81920];
+                int read;
+                long totalRead = 0;
+
+                while ((read = await gzipStream.ReadAsync(buffer, 0, buffer.Length)) > 0)
+                {
+                    totalRead += read;
+
+                    if (totalRead > _maxFileSize)
+                    {
+                        blockedFiles.Add(file.FileName);
+                        memoryStream.Dispose();
+                        goto SkipFile;
+                    }
+
+                    await memoryStream.WriteAsync(buffer, 0, read);
+                }
+
+                memoryStream.Position = 0;
+
+                var newFile = new FormFile(memoryStream, 0, memoryStream.Length, file.Name, originalFileName)
+                {
+                    Headers = file.Headers,
+                    ContentType = "application/octet-stream"
+                };
+
+                newFiles.Add(newFile);
+
+            SkipFile:
+                continue;
+            }
+
+            context.Request.Form = new FormCollection(formFields, newFiles);
+        }
+
+        context.Items["BlockedFiles"] = blockedFiles;
+
+        await _next(context);
+    }
+}
+
 public static class CodeBehindMiddlewareExtensions
 {
     public static IApplicationBuilder UseCodeBehind(this IApplicationBuilder app)
@@ -210,17 +384,17 @@ public static class CodeBehindMiddlewareExtensions
         return app.UseMiddleware<UseCodeBehindNextNotFoundMiddleware>();
     }
 
-    public static IApplicationBuilder UseCodeBehindRoute(this IApplicationBuilder app)
+    public static IApplicationBuilder UseCodeBehindRoute(this IApplicationBuilder app, int RouteIndex = 0)
     {
-        return app.UseMiddleware<UseCodeBehindRouteMiddleware>();
+        return app.UseMiddleware<UseCodeBehindRouteMiddleware>(RouteIndex);
     }
 
-    public static IApplicationBuilder UseCodeBehindRoute(this IApplicationBuilder app, bool ErrorHandling)
+    public static IApplicationBuilder UseCodeBehindRoute(this IApplicationBuilder app, bool ErrorHandling, int RouteIndex = 0)
     {
         if (ErrorHandling)
-            return app.UseMiddleware<UseCodeBehindRouteMiddlewareWithErrorHandling>();
+            return app.UseMiddleware<UseCodeBehindRouteMiddlewareWithErrorHandling>(RouteIndex);
         else
-            return app.UseMiddleware<UseCodeBehindRouteMiddleware>();
+            return app.UseMiddleware<UseCodeBehindRouteMiddleware>(RouteIndex);
     }
 
     public static IApplicationBuilder UseCodeBehindRouteNextNotFound(this IApplicationBuilder app)
@@ -247,6 +421,21 @@ public static class CodeBehindMiddlewareExtensions
             return app.UseMiddleware<UseRoleAccessMiddleware>();
     }
 
+    // Gzip Decompression
+    public static IApplicationBuilder UseGzipDecompression(this IApplicationBuilder app)
+    {
+        return app.UseMiddleware<GzipDecompressionMiddleware>();
+    }
+
+    // Gzip File Decompression
+    // Note: If You Using Gzip Decompression For Request Body, Using GzipDecompression Middleware Before UseGzipFileDecompression Middleware
+    // Example For Allowed Files: var allowedFiles = new[] { ".jpg", ".png", ".pdf", ".txt" }; app.UseGzipFileDecompression(allowedFiles);
+    public static IApplicationBuilder UseGzipFileDecompression(this IApplicationBuilder app, IEnumerable<string> AllowedExtensions, long MaxFileSize)
+    {
+        return app.UseMiddleware<GzipFileDecompressionMiddleware>(AllowedExtensions, MaxFileSize);
+    }
+
+    // WebSocket
     public static IApplicationBuilder UseCodeBehindWebSockets(this IApplicationBuilder app)
     {
         app.UseWebSockets();
@@ -272,7 +461,6 @@ public static class CodeBehindMiddlewareExtensions
             }
         });
     }
-
 
     public static IApplicationBuilder UseCodeBehindWebSocketsByRole(this IApplicationBuilder app)
     {
@@ -920,18 +1108,22 @@ public static class CodeBehindMiddlewareExtensions
 
                     if (!string.IsNullOrEmpty(formData))
                     {
-                        try
+                        if (formData.StartsWith("form=true&"))
                         {
-                            var formDictionary = new Dictionary<string, StringValues>();
-                            var parsedQuery = HttpUtility.ParseQueryString(formData);
+                            formData = formData.Remove(0,10);
+                            try
+                            {
+                                var formDictionary = new Dictionary<string, StringValues>();
+                                var parsedQuery = HttpUtility.ParseQueryString(formData);
 
-                            foreach (string key in parsedQuery)
-                                if (!formDictionary.ContainsKey(key))
-                                    formDictionary[key] = new StringValues(parsedQuery.GetValues(key));
+                                foreach (string key in parsedQuery)
+                                    if (!formDictionary.ContainsKey(key))
+                                        formDictionary[key] = new StringValues(parsedQuery.GetValues(key));
 
-                            context.Request.Form = new FormCollection(formDictionary);
+                                context.Request.Form = new FormCollection(formDictionary);
+                            }
+                            catch (Exception) { }
                         }
-                        catch (Exception) { }
                     }
 
                     string responseData = "";
@@ -1107,6 +1299,16 @@ public static class CodeBehindMiddlewareExtensions
                 }
         }
 
+        public static bool WebSocketExists(WebSocket webSocket)
+        {
+            return WebSockets.Any(ws => ws.WebSocket == webSocket);
+        }
+
+        public static bool WebSocketExistsById(string webSocketId)
+        {
+            return WebSockets.Any(ws => ws.WebSocketId == webSocketId);
+        }
+
         public static void CheckMaxWebSocketConnections(string clientId)
         {
             int numberOfConnections = 0;
@@ -1180,5 +1382,212 @@ public static class CodeBehindMiddlewareExtensions
         public string WebSocketId { get; set; }
         public string RoleName { get; set; }
         public string ClientId { get; set; }
+    }
+
+    // SSE
+    public static IApplicationBuilder UseCodeBehindSSE(this IApplicationBuilder app)
+    {
+        return app.UseMiddleware<UseCodeBehindSSEMiddleware>();
+    }
+
+    public class UseCodeBehindSSEMiddleware
+    {
+        private readonly RequestDelegate _next;
+
+        public UseCodeBehindSSEMiddleware()
+        {
+
+        }
+
+        public UseCodeBehindSSEMiddleware(RequestDelegate next)
+        {
+            _next = next;
+        }
+
+        public async Task Invoke(HttpContext context, string sseId)
+        {
+            context.Response.Headers.Add("Content-Type", "text/event-stream");
+            context.Response.Headers.Add("Cache-Control", "no-cache");
+            context.Response.Headers.Add("Connection", "keep-alive");
+
+            if (!sseId.Has())
+                sseId = new Random().Next(1, 1000000000).ToString();
+
+            string roleName = "";
+            var sessionFeature = context.Features.Get<ISessionFeature>();
+            if (sessionFeature?.Session != null)
+            {
+                RoleAccess role = new RoleAccess(context.Session);
+                roleName = role.GetUserRole();
+            }
+
+            string clientId = "";
+            if (context.Request.Cookies.ContainsKey("SessionId"))
+                clientId = context.Request.Cookies["SessionId"];
+
+            string path = context.Request.Path;
+
+            SSEManager.AddSSE(sseId, path, clientId, roleName);
+
+            try
+            {
+                while (!context.RequestAborted.IsCancellationRequested)
+                {
+                    foreach (var client in SSEManager.GetAllSSEs())
+                    {
+                        if (client.SSEId == sseId)
+                        {
+                            foreach (string message in client.Message)
+                            {
+                                byte[] buffer = Encoding.UTF8.GetBytes("data: " + message + "\n\n");
+
+                                await context.Response.Body.WriteAsync(buffer, 0, buffer.Length);
+                                await context.Response.Body.FlushAsync();
+                            }
+                            client.Message.Clear();
+                        }
+                    }
+
+                    await Task.Delay(StaticObject.SseInterval);
+                }
+            }
+            finally
+            {
+                SSEManager.RemoveSSE(sseId);
+            }
+        }
+    }
+
+    public static void SSEsBroadcast(HttpContext context, string broadcastMessage, string broadcastRoleName, string broadcastSSEId, string broadcastClientId, bool IgnoreThis)
+    {
+        string userSessionId = "";
+        if (context.Request.Cookies.ContainsKey("SessionId"))
+            userSessionId = context.Request.Cookies["SessionId"];
+
+        foreach (var client in SSEManager.GetAllSSEs())
+        {
+            bool sendIt = false;
+            if (IgnoreThis && userSessionId.Has() && (userSessionId == client.ClientId))
+                continue;
+
+            if (broadcastRoleName.Has() && broadcastSSEId.Has() && broadcastClientId.Has())
+            {
+                if ((broadcastRoleName == client.RoleName) && (broadcastSSEId == client.SSEId) && (broadcastClientId == client.ClientId))
+                    sendIt = true;
+            }
+            else if (broadcastRoleName.Has() && broadcastClientId.Has())
+            {
+                if ((broadcastRoleName == client.RoleName) && (broadcastClientId == client.ClientId))
+                    sendIt = true;
+            }
+            else if (broadcastSSEId.Has() && broadcastClientId.Has())
+            {
+                if ((broadcastSSEId == client.SSEId) && (broadcastClientId == client.ClientId))
+                    sendIt = true;
+            }
+            else if (broadcastRoleName.Has() && broadcastSSEId.Has())
+            {
+                if ((broadcastRoleName == client.RoleName) && (broadcastSSEId == client.SSEId))
+                    sendIt = true;
+            }
+            else if (broadcastRoleName.Has())
+            {
+                if (broadcastRoleName == client.RoleName)
+                    sendIt = true;
+            }
+            else if (broadcastSSEId.Has())
+            {
+                if (broadcastSSEId == client.SSEId)
+                    sendIt = true;
+            }
+            else if (broadcastClientId.Has())
+            {
+                if (broadcastClientId == client.ClientId)
+                    sendIt = true;
+            }
+            else
+                sendIt = true;
+
+            if (sendIt)
+                client.Message.Add(broadcastMessage);
+            sendIt = false;
+        }
+    }
+
+    public static class SSEManager
+    {
+        private static readonly List<SSEInfo> SSEs = new List<SSEInfo>();
+
+        public static bool AddSSE(string sseId, string path, string clientId, string roleName = "")
+        {
+            if (clientId.Has())
+                CheckMaxSSEConnections(clientId);
+
+            SSEs.Add(new SSEInfo(sseId, path, roleName, clientId));
+            return true;
+        }
+
+        public static void RemoveSSE(string sseId)
+        {
+            for (int i = 0; i < SSEs.Count; i++)
+                if (SSEs[i].SSEId == sseId)
+                {
+                    SSEs.RemoveAt(i);
+                    return;
+                }
+        }
+
+        public static bool SSEExist(string sseId)
+        {
+            for (int i = 0; i < SSEs.Count; i++)
+                if (SSEs[i].SSEId == sseId)
+                    return true;
+
+            return false;
+        }
+
+        public static void CheckMaxSSEConnections(string clientId)
+        {
+            int numberOfConnections = 0;
+
+            for (int i = SSEs.Count - 1; i >= 0; i--)
+                if (SSEs[i].ClientId == clientId)
+                {
+                    numberOfConnections++;
+
+                    if (numberOfConnections >= StaticObject.MaxSSEConnectionsPerClient)
+                    {
+                        SSEs.RemoveAt(i);
+                        return;
+                    }
+                }
+        }
+
+        public static List<SSEInfo> GetAllSSEs()
+        {
+            return SSEs;
+        }
+    }
+
+    public class SSEInfo
+    {
+        public SSEInfo()
+        {
+
+        }
+
+        public SSEInfo(string sseId, string ssePath, string roleName, string clientId)
+        {
+            SSEId = sseId;
+            SSEPath = ssePath;
+            RoleName = roleName;
+            ClientId = clientId;
+        }
+
+        public string SSEId { get; set; }
+        public string SSEPath { get; set; }
+        public string RoleName { get; set; }
+        public string ClientId { get; set; }
+        public List<string> Message { get; set; } = new List<string>();
     }
 }
