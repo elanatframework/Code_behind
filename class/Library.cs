@@ -12,44 +12,44 @@ namespace CodeBehind
 
         public ValueCollectionLock(string AspxPagePath, string RequestPath, bool RewriteAspxFileToDirectory, bool IgnoreDefaultAfterRewrite)
         {
-            string Sections = RequestPath;
+            string Segments = RequestPath;
 
-            Sections = Sections.GetTextBeforeValue("?");
+            Segments = Segments.GetTextBeforeValue("?");
 
-            if (StaticObject.PreventAccessDefaultAspx && Sections.EndsWith("/Default.aspx"))
-                Sections = Sections.GetTextBeforeLastValue("/Default.aspx");
+            if (StaticObject.PreventAccessDefaultAspx && Segments.EndsWith("/Default.aspx"))
+                Segments = Segments.GetTextBeforeLastValue("/Default.aspx");
 
-            if (string.IsNullOrEmpty(Sections))
+            if (string.IsNullOrEmpty(Segments))
                 return;
 
-            if (Sections.StartsWith(AspxPagePath))
-                Sections = Sections.Remove(0, AspxPagePath.Length);
-            else if (Sections.StartsWith(AspxPagePath.GetTextBeforeValue(".aspx") + "/") && RewriteAspxFileToDirectory && !IgnoreDefaultAfterRewrite)
-                Sections = Sections.Remove(0, AspxPagePath.GetTextBeforeValue(".aspx").Length);
-            else if (Sections.StartsWith(AspxPagePath.GetTextBeforeValue("/Default.aspx")))
-                Sections = Sections.Remove(0, AspxPagePath.GetTextBeforeValue("/Default.aspx").Length);
-            else if (Sections.StartsWith(AspxPagePath.GetTextBeforeValue(".aspx")))
+            if (Segments.StartsWith(AspxPagePath))
+                Segments = Segments.Remove(0, AspxPagePath.Length);
+            else if (Segments.StartsWith(AspxPagePath.GetTextBeforeValue(".aspx") + "/") && RewriteAspxFileToDirectory && !IgnoreDefaultAfterRewrite)
+                Segments = Segments.Remove(0, AspxPagePath.GetTextBeforeValue(".aspx").Length);
+            else if (Segments.StartsWith(AspxPagePath.GetTextBeforeValue("/Default.aspx")))
+                Segments = Segments.Remove(0, AspxPagePath.GetTextBeforeValue("/Default.aspx").Length);
+            else if (Segments.StartsWith(AspxPagePath.GetTextBeforeValue(".aspx")))
             {
                 if (RewriteAspxFileToDirectory)
                     if (!(IgnoreDefaultAfterRewrite && AspxPagePath.EndsWith("/Default.aspx")))
-                        Sections = Sections.Remove(0, AspxPagePath.GetTextBeforeValue(".aspx").Length);
+                        Segments = Segments.Remove(0, AspxPagePath.GetTextBeforeValue(".aspx").Length);
             }
             else
                 return;
 
 
-            if (Sections.Length == 0)
+            if (Segments.Length == 0)
                 return;
 
-            if (Sections[0] != '/')
+            if (Segments[0] != '/')
                 return;
 
-            if (Sections == "/Default" && RewriteAspxFileToDirectory && !IgnoreDefaultAfterRewrite)
+            if (Segments == "/Default" && RewriteAspxFileToDirectory && !IgnoreDefaultAfterRewrite)
                 return;
 
-            Sections = Sections.Remove(0, 1);
+            Segments = Segments.Remove(0, 1);
 
-            ValueList = Sections.Split("/");
+            ValueList = Segments.Split("/");
 
             Lock = true;
         }
