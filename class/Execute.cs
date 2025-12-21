@@ -11,6 +11,8 @@ namespace CodeBehind
         public bool FoundController { get; private set; } = true;
         public bool IsAspxExtension { get; private set; } = false;
         public string? WebSocketId { get; private set; }
+        public string? SSEId { get; private set; }
+        public bool? UseSSE { get; private set; }
 
         private string RunByContext(HttpContext context, string MethodName, string QueryString = "")
         {
@@ -25,9 +27,9 @@ namespace CodeBehind
                     return "";
                 }
 
-            bool HasSection = path.Contains(".aspx/");
+            bool HasSegment = path.Contains(".aspx/");
 
-            if (string.IsNullOrEmpty(extension) && !HasSection)
+            if (string.IsNullOrEmpty(extension) && !HasSegment)
             {
                 bool AddSlash = true;
 
@@ -44,7 +46,7 @@ namespace CodeBehind
 
             IsAspxExtension = extension == ".aspx";
 
-            if (extension == ".aspx" || HasSection)
+            if (extension == ".aspx" || HasSegment)
             {
                 // Add QueryString Value
                 new RequestQuery().AddQueryString(context, QueryString);
@@ -63,6 +65,12 @@ namespace CodeBehind
 
                 method = type.GetMethod("GetWebSocketId");
                 WebSocketId = (string)method.Invoke(obj, null);
+
+                method = type.GetMethod("GetSSEId");
+                SSEId = (string)method.Invoke(obj, null);
+
+                method = type.GetMethod("GetUseSSE");
+                UseSSE = (bool)method.Invoke(obj, null);
 
                 // Set Web-Forms Control
                 method = type.GetMethod("GetWebFormsValue");
@@ -174,9 +182,9 @@ namespace CodeBehind
                     return "";
                 }
 
-            bool HasSection = path.Contains(".aspx/");
+            bool HasSegment = path.Contains(".aspx/");
 
-            if (string.IsNullOrEmpty(extension) && !HasSection)
+            if (string.IsNullOrEmpty(extension) && !HasSegment)
             {
                 bool AddSlash = true;
 
@@ -190,7 +198,7 @@ namespace CodeBehind
 
             IsAspxExtension = extension == ".aspx";
 
-            if (extension == ".aspx" || HasSection)
+            if (extension == ".aspx" || HasSegment)
             {
                 Type type = CodeBehindCompiler.CompileAspxAndReturnType();
                 object obj = Activator.CreateInstance(type);
@@ -203,6 +211,12 @@ namespace CodeBehind
 
                 method = type.GetMethod("GetWebSocketId");
                 WebSocketId = (string)method.Invoke(obj, null);
+
+                method = type.GetMethod("GetSSEId");
+                SSEId = (string)method.Invoke(obj, null);
+
+                method = type.GetMethod("GetUseSSE");
+                UseSSE = (bool)method.Invoke(obj, null);
 
                 return ReturnResult;
             }
@@ -248,7 +262,7 @@ namespace CodeBehind
             return Run(context, path);
         }
 
-        internal string RunControllerValue(HttpContext context, string ViewPath, object CodeBehindModel, NameValueCollection ViewData, string DownloadFilePath, bool? IgnoreLayout, string WebFormsValue, string? WebSocketId)
+        internal string RunControllerValue(HttpContext context, string ViewPath, object CodeBehindModel, NameValueCollection ViewData, string DownloadFilePath, bool? IgnoreLayout, string WebFormsValue, string? WebSocketId, string? SSEId, bool? UseSSE)
         {
             if (string.IsNullOrEmpty(ViewPath) && string.IsNullOrEmpty(DownloadFilePath))
             {
@@ -272,7 +286,7 @@ namespace CodeBehind
             Type type = CodeBehindCompiler.CompileAspxAndReturnType();
             object obj = Activator.CreateInstance(type);
             MethodInfo method = type.GetMethod("RunController");
-            object[] Arguments = new object[] { context, ViewPath, CodeBehindModel, ViewData, DownloadFilePath, IgnoreLayout, WebFormsValue, WebSocketId };
+            object[] Arguments = new object[] { context, ViewPath, CodeBehindModel, ViewData, DownloadFilePath, IgnoreLayout, WebFormsValue, WebSocketId, SSEId, UseSSE };
             string ReturnResult = (string)method.Invoke(obj, Arguments);
 
             method = type.GetMethod("PageHasFound");
@@ -280,6 +294,12 @@ namespace CodeBehind
 
             method = type.GetMethod("GetWebSocketId");
             WebSocketId = (string)method.Invoke(obj, null);
+
+            method = type.GetMethod("GetSSEId");
+            SSEId = (string)method.Invoke(obj, null);
+
+            method = type.GetMethod("GetUseSSE");
+            UseSSE = (bool)method.Invoke(obj, null);
 
             // Set Web-Forms Control
             method = type.GetMethod("GetWebFormsValue");
@@ -318,7 +338,7 @@ namespace CodeBehind
         public string RunController(object ControllerClass, HttpContext context)
         {
             Type type = ControllerClass.GetType();
-            MethodInfo method = type.GetMethod("FillSection");
+            MethodInfo method = type.GetMethod("FillSegment");
             method.Invoke(ControllerClass, new object[] { context });
             method = type.GetMethod("PageLoad");
             method.Invoke(ControllerClass, new object[] { context });
@@ -332,7 +352,7 @@ namespace CodeBehind
         public string RunController(object ControllerClass)
         {
             Type type = ControllerClass.GetType();
-            MethodInfo method = type.GetMethod("FillSection");
+            MethodInfo method = type.GetMethod("FillSegment");
             method.Invoke(ControllerClass, new object[] { null });
             method = type.GetMethod("PageLoad");
             method.Invoke(ControllerClass, new object[] { null });
@@ -355,6 +375,12 @@ namespace CodeBehind
 
             method = type.GetMethod("GetWebSocketId");
             WebSocketId = (string)method.Invoke(obj, null);
+
+            method = type.GetMethod("GetSSEId");
+            SSEId = (string)method.Invoke(obj, null);
+
+            method = type.GetMethod("GetUseSSE");
+            UseSSE = (bool)method.Invoke(obj, null);
 
             // Set Web-Forms Control
             method = type.GetMethod("GetWebFormsValue");
@@ -391,7 +417,7 @@ namespace CodeBehind
             return RunController(ControllerClass, null);
         }
 
-        public string RunRoute(HttpContext context, int ControllerSection)
+        public string RunRoute(HttpContext context, int ControllerSegment)
         {
             if (context == null)
             {
@@ -405,45 +431,50 @@ namespace CodeBehind
                 if (RequestPath[0] == '/')
                     RequestPath = RequestPath.Remove(0, 1);
 
-            ValueCollectionLock Section = new ValueCollectionLock();
+            ValueCollectionLock Segment = new ValueCollectionLock();
 
             string[] ValueList = RequestPath.Split('/');
-            Section.AddList(ValueList);
+            Segment.AddList(ValueList);
 
-            if (Section.Count() <= ControllerSection)
+            if (Segment.Count() <= ControllerSegment)
             {
                 FoundController = false;
                 return "";
             }
 
-            string ControllerClass = Section.GetValue(ControllerSection);
+            string ControllerClass = Segment.GetValue(ControllerSegment);
 
             if (string.IsNullOrEmpty(ControllerClass))
             {
                 if (StaticObject.UseDefaultController)
                     return RunController(StaticObject.DefaultController, context, true);
-                else
-                {
-                    FoundController = false;
-                    return "";
-                }
+
+                FoundController = false;
+                return "";
             }
 
             return RunController(ControllerClass, context);
         }
 
-        private string SetWebFormsCombinate(string ResponseText, string WebFormsValue) => "[web-forms]" + (!string.IsNullOrEmpty(ResponseText) ? Environment.NewLine + "st" + StaticObject.ViewPlace + "=" + ResponseText.Replace('\n'.ToString(), "$[ln];") : "") + WebFormsValue;
+        private string SetWebFormsCombinate(string ResponseText, string WebFormsValue)
+        {
+            if (!string.IsNullOrEmpty(ResponseText))
+            {
+                if (StaticObject.UseCommentModeForWebFormsCombinate)
+                    return ResponseText + WebFormsValue.ExportActionControlsToHtmlComment(true);
+
+                return "[web-forms]" + "\nst" + StaticObject.ViewPlace + "=" + ResponseText.Replace('\n'.ToString(), "$[ln];") + '\n' + WebFormsValue;
+            }
+            else
+                return WebFormsValue.ExportActionControlsToResponse();
+        }
 
         private string SetWebFormsCombinateFirstResponse(string ResponseText, string WebFormsValue)
         {
             if (string.IsNullOrEmpty(ResponseText))
                 return "";
 
-            if (!string.IsNullOrEmpty(WebFormsValue))
-                if (WebFormsValue.StartsWith(Environment.NewLine))
-                    WebFormsValue = WebFormsValue.Remove(0, Environment.NewLine.Length);
-
-            return ResponseText + WebFormsValue.Replace(Environment.NewLine, "$[sln];").ExportActionControlsToWebFormsTag();
+            return ResponseText + WebFormsValue.ExportActionControlsToHtmlComment(true);
         }
     }
 }
