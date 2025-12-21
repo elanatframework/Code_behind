@@ -23,7 +23,7 @@ namespace CodeBehind
         internal string WebFormsViewPlace { private set; get; }
         internal bool UseDefaultController { private set; get; }
         internal string DefaultController { private set; get; }
-        internal bool UseSectionInDefaultController { private set; get; }
+        internal bool UseSegmentInDefaultController { private set; get; }
         internal bool SetBreakForDefaultController { private set; get; }
         internal bool AccessControllerByLowerCase { private set; get; }
         internal bool JustAccessControllerByLowerCase { private set; get; }
@@ -34,6 +34,10 @@ namespace CodeBehind
         internal int MaxWebSocketConnectionsPerClient { private set; get; }
         internal int WebSocketBufferSize { private set; get; }
         internal bool SendViewOnlyInGetMethod { private set; get; }
+        internal bool IgnoreLayoutForPostBack { private set; get; }
+        internal int SseInterval { private set; get; }
+        internal int MaxSSEConnectionsPerClient { private set; get; }
+        internal bool UseCommentModeForWebFormsCombinate { private set; get; }
 
         internal CodeBehindOptions()
         {
@@ -62,26 +66,30 @@ namespace CodeBehind
                 SetBreakForLayoutPage = (reader.ReadLine().GetTextAfterValue("=").Trim() == "true");
                 ConvertCsHtmlToAspx = (reader.ReadLine().GetTextAfterValue("=").Trim() == "true");
                 ShowMinorErrors = (reader.ReadLine().GetTextAfterValue("=").Trim() == "true");
-                ErrorPagePath = (reader.ReadLine().GetTextAfterValue("="));
+                ErrorPagePath = reader.ReadLine().GetTextAfterValue("=");
                 PreventAccessDefaultAspx = (reader.ReadLine().GetTextAfterValue("=").Trim() == "true");
-                DefaultRole = (reader.ReadLine().GetTextAfterValue("=").Trim());
-                WebFormsScriptPath = (reader.ReadLine().GetTextAfterValue("="));
+                DefaultRole = reader.ReadLine().GetTextAfterValue("=").Trim();
+                WebFormsScriptPath = reader.ReadLine().GetTextAfterValue("=");
                 AutoCreateWebFormsScript = (reader.ReadLine().GetTextAfterValue("=").Trim() == "true");
                 RecreateWebFormsScriptAfterRecompile = (reader.ReadLine().GetTextAfterValue("=").Trim() == "true");
-                WebFormsViewPlace = (reader.ReadLine().GetTextAfterValue("=").Trim());
+                WebFormsViewPlace = reader.ReadLine().GetTextAfterValue("=").Trim();
+                UseCommentModeForWebFormsCombinate = (reader.ReadLine().GetTextAfterValue("=").Trim() == "true");
                 UseDefaultController = (reader.ReadLine().GetTextAfterValue("=").Trim() == "true");
-                DefaultController = (reader.ReadLine().GetTextAfterValue("=").Trim());
-                UseSectionInDefaultController = (reader.ReadLine().GetTextAfterValue("=").Trim() == "true");
+                DefaultController = reader.ReadLine().GetTextAfterValue("=").Trim();
+                UseSegmentInDefaultController = (reader.ReadLine().GetTextAfterValue("=").Trim() == "true");
                 SetBreakForDefaultController = (reader.ReadLine().GetTextAfterValue("=").Trim() == "true");
                 AccessControllerByLowerCase = (reader.ReadLine().GetTextAfterValue("=").Trim() == "true");
                 JustAccessControllerByLowerCase = (reader.ReadLine().GetTextAfterValue("=").Trim() == "true");
-                IgnorePrefixController = (reader.ReadLine().GetTextAfterValue("=").Trim());
-                IgnoreSuffixController = (reader.ReadLine().GetTextAfterValue("=").Trim());
+                IgnorePrefixController = reader.ReadLine().GetTextAfterValue("=").Trim();
+                IgnoreSuffixController = reader.ReadLine().GetTextAfterValue("=").Trim();
                 PutTwoUnderlinesEqualToDashForController = (reader.ReadLine().GetTextAfterValue("=").Trim() == "true");
                 SetDefaultPages = (reader.ReadLine().GetTextAfterValue("=").Trim() == "true");
                 MaxWebSocketConnectionsPerClient = reader.ReadLine().GetTextAfterValue("=").Trim().ToNumber();
                 WebSocketBufferSize = reader.ReadLine().GetTextAfterValue("=").Trim().ToNumber();
                 SendViewOnlyInGetMethod = (reader.ReadLine().GetTextAfterValue("=").Trim() == "true");
+                IgnoreLayoutForPostBack = (reader.ReadLine().GetTextAfterValue("=").Trim() == "true");
+                SseInterval = reader.ReadLine().GetTextAfterValue("=").Trim().ToNumber();
+                MaxSSEConnectionsPerClient = reader.ReadLine().GetTextAfterValue("=").Trim().ToNumber();
             }
         }
 
@@ -108,9 +116,10 @@ namespace CodeBehind
                 "auto_create_web_forms_script=true",
                 "recreate_web_forms_script_after_recompile=false",
                 "web_forms_view_place=<body>",
+                "use_comment_mode_for_web_forms_combinate=false",
                 "use_default_controller=true",
                 "default_controller=DefaultController",
-                "use_section_in_default_controller=true",
+                "use_segment_in_default_controller=true",
                 "set_break_for_default_controller=true",
                 "access_controller_by_lower_case=true",
                 "just_access_controller_by_lower_case=true",
@@ -120,7 +129,10 @@ namespace CodeBehind
                 "set_default_pages=true",
                 "max_web_socket_connections_per_client=3",
                 "web_socket_buffer_size=4096",
-                "send_view_only_in_get_method=false"
+                "send_view_only_in_get_method=false",
+                "ignore_layout_for_post_back=false",
+                "sse_interval=1000",
+                "max_sse_connections_per_client=3"
             };
 
             bool HasMoreOption = false;
