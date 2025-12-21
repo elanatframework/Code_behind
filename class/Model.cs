@@ -9,8 +9,10 @@ namespace CodeBehind
         public bool IgnoreView = false;
         public bool? IgnoreLayout = null;
         public string? WebSocketId = null;
+        public string? SSEId = null;
+        public bool? UseSSE = null;
         public HtmlData.NameValueCollection ViewData = new HtmlData.NameValueCollection();
-        public ValueCollectionLock Section = new ValueCollectionLock();
+        public ValueCollectionLock Segment = new ValueCollectionLock();
         public string DownloadFilePath { get; private set; } = "";
         /// <summary>
         /// This Attribute Does Not Have A Value In The Constructor Method Of The Class, And Is Set Only After An Instance Of The Class Is Created.
@@ -132,6 +134,42 @@ namespace CodeBehind
         public async void BroadcastForClientIdAsync(HttpContext context, string Message, string ClientId, bool IgnoreThis = false)
         {
             await CodeBehindMiddlewareExtensions.WebSocketsBroadcastAsync(context, Message, "", "", ClientId, IgnoreThis);
+        }
+
+        public void SetSSEId(string Id)
+        {
+            SSEId = Id;
+        }
+
+        public void EnableSSE()
+        {
+            UseSSE = true;
+        }
+
+        // SSE Broadcast
+        public void BroadcastSSE(HttpContext context, string Message, bool IgnoreThis = false)
+        {
+            CodeBehindMiddlewareExtensions.SSEsBroadcast(context, Message, "", "", "", IgnoreThis);
+        }
+
+        public void BroadcastSSE(HttpContext context, string Message, string RoleName, string Id, string ClientId, bool IgnoreThis = false)
+        {
+            CodeBehindMiddlewareExtensions.SSEsBroadcast(context, Message, RoleName, Id, ClientId, IgnoreThis);
+        }
+
+        public void BroadcastSSEForRole(HttpContext context, string Message, string RoleName, bool IgnoreThis = false)
+        {
+            CodeBehindMiddlewareExtensions.SSEsBroadcast(context, Message, RoleName, "", "", IgnoreThis);
+        }
+
+        public void BroadcastSSEForSSEId(HttpContext context, string Message, string Id, bool IgnoreThis = false)
+        {
+            CodeBehindMiddlewareExtensions.SSEsBroadcast(context, Message, "", Id, "", IgnoreThis);
+        }
+
+        public void BroadcastSSEForClientId(HttpContext context, string Message, string ClientId, bool IgnoreThis = false)
+        {
+            CodeBehindMiddlewareExtensions.SSEsBroadcast(context, Message, "", "", ClientId, IgnoreThis);
         }
     }
 }
