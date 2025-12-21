@@ -9,7 +9,7 @@ namespace SetCodeBehind
     {
         private List<string> ErrorList = new List<string>();
         private string CaseCodeTemplateValue = "";
-        private string SectionTemplateValue = "";
+        private string SegmentTemplateValue = "";
         private string CaseCodeTemplateValueForFullPath = "";
         private string CaseCodeTemplateValueForFullPathWithModel = "";
         private string MethodCodeTemplateValue = "";
@@ -106,6 +106,8 @@ namespace SetCodeBehind
             CodeBehindViews += "        private bool FoundController { get; set; } = true;" + Environment.NewLine;
             CodeBehindViews += "        private bool? IgnoreLayout { get; set; } = false;" + Environment.NewLine;
             CodeBehindViews += "        private string WebSocketId { get; set; } = \"\";" + Environment.NewLine;
+            CodeBehindViews += "        private string SSEId { get; set; } = \"\";" + Environment.NewLine;
+            CodeBehindViews += "        private bool? UseSSE { get; set; } = false;" + Environment.NewLine;
             CodeBehindViews += "        private string ResponseText { get; set; } = \"\";" + Environment.NewLine + Environment.NewLine;
 
             CodeBehindOptions options = new CodeBehindOptions();
@@ -156,7 +158,7 @@ namespace SetCodeBehind
                 lock (EmptyObjectForLock)
                 {
                     CaseCodeTemplateValue += combination.CaseCodeTemplateValue;
-                    SectionTemplateValue += combination.SectionTemplateValue;
+                    SegmentTemplateValue += combination.SegmentTemplateValue;
                     CaseCodeTemplateValueForFullPath += combination.CaseCodeTemplateValueForFullPath;
                     CaseCodeTemplateValueForFullPathWithModel += combination.CaseCodeTemplateValueForFullPathWithModel;
                     MethodCodeTemplateValue += combination.MethodCodeTemplateValue;
@@ -182,7 +184,7 @@ namespace SetCodeBehind
                     lock (EmptyObjectForLock)
                     {
                         CaseCodeTemplateValue += combination.CaseCodeTemplateValue;
-                        SectionTemplateValue += combination.SectionTemplateValue;
+                        SegmentTemplateValue += combination.SegmentTemplateValue;
                         CaseCodeTemplateValueForFullPath += combination.CaseCodeTemplateValueForFullPath;
                         CaseCodeTemplateValueForFullPathWithModel += combination.CaseCodeTemplateValueForFullPathWithModel;
                         MethodCodeTemplateValue += combination.MethodCodeTemplateValue;
@@ -193,9 +195,11 @@ namespace SetCodeBehind
             CodeBehindViews += "        // It Works Based On Rewriting The Option File" + Environment.NewLine;
             CodeBehindViews += "        public string SetPageLoadByPath(string path, HttpContext context)" + Environment.NewLine;
             CodeBehindViews += "        {" + Environment.NewLine;
+            if (options.IgnoreLayoutForPostBack)
+                CodeBehindViews += "            try{IgnoreLayoutForPostBack(context.Request.Headers);} catch(NullReferenceException){}" + Environment.NewLine + Environment.NewLine;
             CodeBehindViews += "            RequestPath = path;" + Environment.NewLine;
             CodeBehindViews += "            FoundPage = true;" + Environment.NewLine + Environment.NewLine;
-            CodeBehindViews += SectionTemplateValue + "/*{SectionTemplateValue}*/" + Environment.NewLine;
+            CodeBehindViews += SegmentTemplateValue + "/*{SegmentTemplateValue}*/" + Environment.NewLine;
             CodeBehindViews += "            switch (path)" + Environment.NewLine;
             CodeBehindViews += "            {" + Environment.NewLine;
             CodeBehindViews += CaseCodeTemplateValue + Environment.NewLine + "/*{CaseCodeTemplateValue}*/" + Environment.NewLine;
@@ -207,6 +211,8 @@ namespace SetCodeBehind
             CodeBehindViews += "        // Load All Page By Full Path, This Method Load Break Page And Does Not Apply Rewrite" + Environment.NewLine;
             CodeBehindViews += "        public string SetPageLoadByFullPath(string path, HttpContext context, string PageReturnValue = \"\")" + Environment.NewLine;
             CodeBehindViews += "        {" + Environment.NewLine;
+            if (options.IgnoreLayoutForPostBack)
+                CodeBehindViews += "            try{IgnoreLayoutForPostBack(context.Request.Headers);} catch(NullReferenceException){}" + Environment.NewLine + Environment.NewLine;
             CodeBehindViews += "            RequestPath = path;" + Environment.NewLine;
             CodeBehindViews += "            FoundPage = true;" + Environment.NewLine + Environment.NewLine;
             CodeBehindViews += "            switch (path)" + Environment.NewLine;
@@ -220,6 +226,8 @@ namespace SetCodeBehind
             CodeBehindViews += "        // Load All Page By Full Path With Model, This Method Load Break Page And Does Not Apply Rewrite" + Environment.NewLine;
             CodeBehindViews += "        public string SetPageLoadByFullPathWithModel(string path, HttpContext context, string PageReturnValue = \"\", object model = null)" + Environment.NewLine;
             CodeBehindViews += "        {" + Environment.NewLine;
+            if (options.IgnoreLayoutForPostBack)
+                CodeBehindViews += "            try{IgnoreLayoutForPostBack(context.Request.Headers);} catch(NullReferenceException){}" + Environment.NewLine + Environment.NewLine;
             CodeBehindViews += "            RequestPath = path;" + Environment.NewLine;
             CodeBehindViews += "            FoundPage = true;" + Environment.NewLine + Environment.NewLine;
             CodeBehindViews += "            switch (path)" + Environment.NewLine;
@@ -254,7 +262,7 @@ namespace SetCodeBehind
             CodeBehindViews += "            return SetPageLoadByFullPath(path, null, \"\");" + Environment.NewLine;
             CodeBehindViews += "        }" + Environment.NewLine + Environment.NewLine;
 
-            CodeBehindViews += "        public string RunController(HttpContext context, string ViewPath, object ModelClass, CodeBehind.HtmlData.NameValueCollection ViewData, string DownloadFilePath, bool? IgnoreLayout, string WebFormsValue, string? WebSocketId)" + Environment.NewLine;
+            CodeBehindViews += "        public string RunController(HttpContext context, string ViewPath, object ModelClass, CodeBehind.HtmlData.NameValueCollection ViewData, string DownloadFilePath, bool? IgnoreLayout, string WebFormsValue, string? WebSocketId, string? SSEId, bool? UseSSE)" + Environment.NewLine;
             CodeBehindViews += "        {" + Environment.NewLine;
             CodeBehindViews += "            if (!string.IsNullOrEmpty(DownloadFilePath))" + Environment.NewLine;
             CodeBehindViews += "            {" + Environment.NewLine;
@@ -271,6 +279,12 @@ namespace SetCodeBehind
             CodeBehindViews += "            if (WebSocketId != null)" + Environment.NewLine;
             CodeBehindViews += "                this.WebSocketId = WebSocketId;" + Environment.NewLine + Environment.NewLine;
 
+            CodeBehindViews += "            if (SSEId != null)" + Environment.NewLine;
+            CodeBehindViews += "                this.SSEId = SSEId;" + Environment.NewLine + Environment.NewLine;
+
+            CodeBehindViews += "            if (UseSSE != null)" + Environment.NewLine;
+            CodeBehindViews += "                this.UseSSE = UseSSE;" + Environment.NewLine + Environment.NewLine;
+
             CodeBehindViews += "            if (ViewPath[0] == '>')" + Environment.NewLine;
             CodeBehindViews += "            {" + Environment.NewLine;
             CodeBehindViews += "                string TmpViewPath = ViewPath;" + Environment.NewLine;
@@ -285,6 +299,8 @@ namespace SetCodeBehind
 
             CodeBehindViews += "        public string RunControllerName(string ControllerClass, HttpContext context, bool IsDefaultController, bool BreakDefaultInSwitch)" + Environment.NewLine;
             CodeBehindViews += "        {" + Environment.NewLine;
+            if (options.IgnoreLayoutForPostBack)
+                CodeBehindViews += "            try{IgnoreLayoutForPostBack(context.Request.Headers);} catch(NullReferenceException){}" + Environment.NewLine + Environment.NewLine;
             CodeBehindViews += "            string TmpViewPath = \"\";" + Environment.NewLine;
             CodeBehindViews += "            switch (ControllerClass)" + Environment.NewLine;
             CodeBehindViews += "            {" + Environment.NewLine;
@@ -315,6 +331,26 @@ namespace SetCodeBehind
             CodeBehindViews += "        public string GetWebSocketId()" + Environment.NewLine;
             CodeBehindViews += "        {" + Environment.NewLine;
             CodeBehindViews += "            return WebSocketId;" + Environment.NewLine;
+            CodeBehindViews += "        }" + Environment.NewLine + Environment.NewLine;
+
+            CodeBehindViews += "        public void SetSSEId(string Id)" + Environment.NewLine;
+            CodeBehindViews += "        {" + Environment.NewLine;
+            CodeBehindViews += "            SSEId = Id;" + Environment.NewLine;
+            CodeBehindViews += "        }" + Environment.NewLine + Environment.NewLine;
+
+            CodeBehindViews += "        public string GetSSEId()" + Environment.NewLine;
+            CodeBehindViews += "        {" + Environment.NewLine;
+            CodeBehindViews += "            return SSEId;" + Environment.NewLine;
+            CodeBehindViews += "        }" + Environment.NewLine + Environment.NewLine;
+
+            CodeBehindViews += "        public void EnableSSE()" + Environment.NewLine;
+            CodeBehindViews += "        {" + Environment.NewLine;
+            CodeBehindViews += "            UseSSE = true;" + Environment.NewLine;
+            CodeBehindViews += "        }" + Environment.NewLine + Environment.NewLine;
+
+            CodeBehindViews += "        public bool? GetUseSSE()" + Environment.NewLine;
+            CodeBehindViews += "        {" + Environment.NewLine;
+            CodeBehindViews += "            return UseSSE;" + Environment.NewLine;
             CodeBehindViews += "        }" + Environment.NewLine + Environment.NewLine;
 
             CodeBehindViews += "        public bool ControllerHasFound()" + Environment.NewLine;
@@ -411,6 +447,32 @@ namespace SetCodeBehind
             CodeBehindViews += "        public async void BroadcastForClientIdAsync(HttpContext context, string Message, string ClientId, bool IgnoreThis = false)" + Environment.NewLine;
             CodeBehindViews += "        {" + Environment.NewLine;
             CodeBehindViews += "            await CodeBehindMiddlewareExtensions.WebSocketsBroadcastAsync(context, Message, \"\", \"\", ClientId, IgnoreThis);" + Environment.NewLine;
+            CodeBehindViews += "        }" + Environment.NewLine + Environment.NewLine;
+
+            CodeBehindViews += "        // SSE Broadcast" + Environment.NewLine;
+            CodeBehindViews += "        public void BroadcastSSE(HttpContext context, string Message, bool IgnoreThis = false)" + Environment.NewLine;
+            CodeBehindViews += "        {" + Environment.NewLine;
+            CodeBehindViews += "            CodeBehindMiddlewareExtensions.SSEsBroadcast(context, Message, \"\", \"\", \"\", IgnoreThis);" + Environment.NewLine;
+            CodeBehindViews += "        }" + Environment.NewLine + Environment.NewLine;
+
+            CodeBehindViews += "        public void BroadcastSSE(HttpContext context, string Message, string RoleName, string Id, string ClientId, bool IgnoreThis = false)" + Environment.NewLine;
+            CodeBehindViews += "        {" + Environment.NewLine;
+            CodeBehindViews += "            CodeBehindMiddlewareExtensions.SSEsBroadcast(context, Message, RoleName, Id, ClientId, IgnoreThis);" + Environment.NewLine;
+            CodeBehindViews += "        }" + Environment.NewLine + Environment.NewLine;
+
+            CodeBehindViews += "        public void BroadcastSSEForRole(HttpContext context, string Message, string RoleName, bool IgnoreThis = false)" + Environment.NewLine;
+            CodeBehindViews += "        {" + Environment.NewLine;
+            CodeBehindViews += "            CodeBehindMiddlewareExtensions.SSEsBroadcast(context, Message, RoleName, \"\", \"\", IgnoreThis);" + Environment.NewLine;
+            CodeBehindViews += "        }" + Environment.NewLine + Environment.NewLine;
+
+            CodeBehindViews += "        public void BroadcastSSEForSSEId(HttpContext context, string Message, string Id, bool IgnoreThis = false)" + Environment.NewLine;
+            CodeBehindViews += "        {" + Environment.NewLine;
+            CodeBehindViews += "            CodeBehindMiddlewareExtensions.SSEsBroadcast(context, Message, \"\", Id, \"\", IgnoreThis);" + Environment.NewLine;
+            CodeBehindViews += "        }" + Environment.NewLine + Environment.NewLine;
+
+            CodeBehindViews += "        public void BroadcastSSEForClientId(HttpContext context, string Message, string ClientId, bool IgnoreThis = false)" + Environment.NewLine;
+            CodeBehindViews += "        {" + Environment.NewLine;
+            CodeBehindViews += "            CodeBehindMiddlewareExtensions.SSEsBroadcast(context, Message, \"\", \"\", ClientId, IgnoreThis);" + Environment.NewLine;
             CodeBehindViews += "        }" + Environment.NewLine + Environment.NewLine;
 
             CodeBehindViews += "        private void Download(HttpContext context, string FilePath)" + Environment.NewLine;
@@ -643,12 +705,18 @@ namespace SetCodeBehind
                 }
 
                 ReturnValue += "                " + NameSpace + TmpClass.Name + " " + ClassName + " = new " + NameSpace + TmpClass.Name + "();" + Environment.NewLine;
-                ReturnValue += "                " + ClassName + ".FillSection(context, \"/\" + ControllerClass);" + Environment.NewLine;
+                ReturnValue += "                " + ClassName + ".FillSegment(context, \"/\" + ControllerClass);" + Environment.NewLine;
                 ReturnValue += "                " + ClassName + ".PageLoad(context);" + Environment.NewLine;
                 ReturnValue += "                this.WebFormsValue += " + ClassName + ".WebFormsValue;" + Environment.NewLine + Environment.NewLine;
 
                 ReturnValue += "                if (" + ClassName + ".WebSocketId != null)" + Environment.NewLine;
-                ReturnValue += "                    this.WebSocketId = " + ClassName + ".WebSocketId;" + Environment.NewLine;
+                ReturnValue += "                    this.WebSocketId = " + ClassName + ".WebSocketId;" + Environment.NewLine + Environment.NewLine;
+
+                ReturnValue += "                if (" + ClassName + ".SSEId != null)" + Environment.NewLine;
+                ReturnValue += "                    this.SSEId = " + ClassName + ".SSEId;" + Environment.NewLine + Environment.NewLine;
+
+                ReturnValue += "                if (" + ClassName + ".UseSSE != null)" + Environment.NewLine;
+                ReturnValue += "                    this.UseSSE = " + ClassName + ".UseSSE;" + Environment.NewLine;
 
                 ReturnValue += Environment.NewLine;
 
@@ -665,7 +733,7 @@ namespace SetCodeBehind
                     ReturnValue += "                    }" + Environment.NewLine;
                     ReturnValue += "                    else" + Environment.NewLine;
                     ReturnValue += "                    {" + Environment.NewLine;
-                    ReturnValue += "                        string ControllerReturnValue = " + ClassName + ".ResponseText + RunController(context, " + ClassName + ".ViewPath, " + ClassName + ".CodeBehindModel, " + ClassName + ".ViewData, " + ClassName + ".DownloadFilePath, " + ClassName + ".IgnoreLayout, " + ClassName + ".WebFormsValue, " + ClassName + ".WebSocketId);" + Environment.NewLine;
+                    ReturnValue += "                        string ControllerReturnValue = " + ClassName + ".ResponseText + RunController(context, " + ClassName + ".ViewPath, " + ClassName + ".CodeBehindModel, " + ClassName + ".ViewData, " + ClassName + ".DownloadFilePath, " + ClassName + ".IgnoreLayout, " + ClassName + ".WebFormsValue, " + ClassName + ".WebSocketId, " + ClassName + ".SSEId, " + ClassName + ".UseSSE);" + Environment.NewLine;
                     ReturnValue += "                        cache.SetControllerCache(\"" + TmpClass.Name + "\" + cbcc.CacheFilter, ControllerReturnValue, " + ControllerCache.Duration + ");" + Environment.NewLine;
                     ReturnValue += "                        return ControllerReturnValue;" + Environment.NewLine;
                     ReturnValue += "                    }" + Environment.NewLine;
@@ -676,7 +744,7 @@ namespace SetCodeBehind
                 ReturnValue += "                if (" + ClassName + ".IgnoreViewAndModel)" + Environment.NewLine;
                 ReturnValue += "                    TmpViewPath = \"\";" + Environment.NewLine + Environment.NewLine;
 
-                ReturnValue += "                return " + ClassName + ".ResponseText + RunController(context, TmpViewPath, " + ClassName + ".CodeBehindModel, " + ClassName + ".ViewData, " + ClassName + ".DownloadFilePath, " + ClassName + ".IgnoreLayout, " + ClassName + ".WebFormsValue, " + ClassName + ".WebSocketId);" + Environment.NewLine + Environment.NewLine;
+                ReturnValue += "                return " + ClassName + ".ResponseText + RunController(context, TmpViewPath, " + ClassName + ".CodeBehindModel, " + ClassName + ".ViewData, " + ClassName + ".DownloadFilePath, " + ClassName + ".IgnoreLayout, " + ClassName + ".WebFormsValue, " + ClassName + ".WebSocketId, " + ClassName + ".SSEId, " + ClassName + ".UseSSE);" + Environment.NewLine + Environment.NewLine;
             }
 
             ReturnValue += "/*{CaseCodeTemplateValueForControllerName}*/" + Environment.NewLine;
@@ -688,7 +756,7 @@ namespace SetCodeBehind
         {
             string ReturnValue = "";
 
-            if (StaticObject.UseDefaultController && StaticObject.UseSectionInDefaultController)
+            if (StaticObject.UseDefaultController && StaticObject.UseSegmentInDefaultController)
             {
                 ReturnValue += "                default:" + Environment.NewLine;
                 ReturnValue += "                    if (!BreakDefaultInSwitch)" + Environment.NewLine;
