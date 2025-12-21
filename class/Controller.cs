@@ -10,8 +10,10 @@ namespace CodeBehind
         public bool IgnoreViewAndModel = false;
         public bool? IgnoreLayout = null;
         public string? WebSocketId = null;
+        public string? SSEId = null;
+        public bool? UseSSE = null;
         public HtmlData.NameValueCollection ViewData = new HtmlData.NameValueCollection();
-        public ValueCollectionLock Section = new ValueCollectionLock();
+        public ValueCollectionLock Segment = new ValueCollectionLock();
         public string ViewPath { get; private set; } = "";
         public string DownloadFilePath { get; private set; } = "";
 
@@ -158,10 +160,10 @@ namespace CodeBehind
                 return ResponseText;
 
             CodeBehindExecute execute = new CodeBehindExecute();
-            return ResponseText + execute.RunControllerValue(context, ViewPath, CodeBehindModel, ViewData, DownloadFilePath, IgnoreLayout, WebFormsValue, WebSocketId);
+            return ResponseText + execute.RunControllerValue(context, ViewPath, CodeBehindModel, ViewData, DownloadFilePath, IgnoreLayout, WebFormsValue, WebSocketId, SSEId, UseSSE);
         }
 
-        public void FillSection(HttpContext context, string FillAfter = "")
+        public void FillSegment(HttpContext context, string FillAfter = "")
         {
             if (!string.IsNullOrEmpty(CallerViewPath))
                 return;
@@ -183,7 +185,7 @@ namespace CodeBehind
                     RequestPath = RequestPath.Remove(0, 1);
                
             string[] ValueList = RequestPath.Split('/');
-            Section.AddList(ValueList);
+            Segment.AddList(ValueList);
         }
 
         public void SetWebSocketId(string Id)
@@ -240,6 +242,42 @@ namespace CodeBehind
         public async void BroadcastForClientIdAsync(HttpContext context, string Message, string ClientId, bool IgnoreThis = false)
         {
             await CodeBehindMiddlewareExtensions.WebSocketsBroadcastAsync(context, Message, "", "", ClientId, IgnoreThis);
+        }
+
+        public void SetSSEId(string Id)
+        {
+            SSEId = Id;
+        }
+
+        public void EnableSSE()
+        {
+            UseSSE = true;
+        }
+
+        // SSE Broadcast
+        public void BroadcastSSE(HttpContext context, string Message, bool IgnoreThis = false)
+        {
+            CodeBehindMiddlewareExtensions.SSEsBroadcast(context, Message, "", "", "", IgnoreThis);
+        }
+
+        public void BroadcastSSE(HttpContext context, string Message, string RoleName, string Id, string ClientId, bool IgnoreThis = false)
+        {
+            CodeBehindMiddlewareExtensions.SSEsBroadcast(context, Message, RoleName, Id, ClientId, IgnoreThis);
+        }
+
+        public void BroadcastSSEForRole(HttpContext context, string Message, string RoleName, bool IgnoreThis = false)
+        {
+            CodeBehindMiddlewareExtensions.SSEsBroadcast(context, Message, RoleName, "", "", IgnoreThis);
+        }
+
+        public void BroadcastSSEForSSEId(HttpContext context, string Message, string Id, bool IgnoreThis = false)
+        {
+            CodeBehindMiddlewareExtensions.SSEsBroadcast(context, Message, "", Id, "", IgnoreThis);
+        }
+
+        public void BroadcastSSEForClientId(HttpContext context, string Message, string ClientId, bool IgnoreThis = false)
+        {
+            CodeBehindMiddlewareExtensions.SSEsBroadcast(context, Message, "", "", ClientId, IgnoreThis);
         }
     }
 }
