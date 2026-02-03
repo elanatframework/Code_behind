@@ -12,25 +12,21 @@ Route configuration in the CodeBehind framework
 ```csharp
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddCodeBehind();
+
 var app = builder.Build();
 
-SetCodeBehind.CodeBehindCompiler.Initialization();
-
-app.Run(async context =>
-{
-    CodeBehind.CodeBehindExecute execute = new CodeBehind.CodeBehindExecute();
-    await context.Response.WriteAsync(execute.RunRoute(context, 0));
-});
+app.UseCodeBehindRoute();
 
 app.Run();
 ```
 
-The code above shows the Route configuration in the CodeBehind framework in the `Program.cs` class. The `RunRoute` method takes two arguments. The first argument is the context and the second is the section that specifies the Controller.
+The code above shows the Route configuration in the CodeBehind framework in the `Program.cs` class. The `UseCodeBehindRoute` middleware takes one argument. The argument is a part that specifies the Controller name from the segment, and its default value is 0.
 
 Note: Section means the strings between slash characters.
 Example: `example.com/section0/section1/section2`
 
-If we set the section value to 0, if there is a Controller with the same name as the value of the first section, the `RunRoute` method will execute the Controller.
+If we set the section value to 0, if there is a Controller with the same name as the value of the first section, the `UseCodeBehindRoute` middleware will execute the Controller.
 
 Example:
 
