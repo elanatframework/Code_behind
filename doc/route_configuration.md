@@ -23,10 +23,10 @@ app.Run();
 
 The code above shows the Route configuration in the CodeBehind framework in the `Program.cs` class. The `UseCodeBehindRoute` middleware takes one argument. The argument is a part that specifies the Controller name from the segment, and its default value is 0.
 
-Note: Section means the strings between slash characters.
-Example: `example.com/section0/section1/section2`
+Note: Segment means the strings between slash characters.
+Example: `example.com/segment0/segment1/segment2`
 
-If we set the section value to 0, if there is a Controller with the same name as the value of the first section, the `UseCodeBehindRoute` middleware will execute the Controller.
+If we set the segment value to 0, if there is a Controller with the same name as the value of the first segment, the `UseCodeBehindRoute` middleware will execute the Controller.
 
 Example:
 
@@ -46,11 +46,11 @@ namespace YourProjectName
 }
 ```
 
-> Note: When the Controller is executed, the sections are created after the Controller path.
+> Note: When the Controller is executed, the segments are created after the Controller path.
 
 According to the Controller class above, if the path `example.com/home` is requested, the Controller class above is executed and the `Route work fine` string is returned.
 
-If the name of the Controller class matches the section in the url, Regardless of the namespace, the Controller class is executed.
+If the name of the Controller class matches the segment in the url, Regardless of the namespace, the Controller class is executed.
 
 The Controller class name is case sensitive. Therefore, the path `example.com/Home` cannot execute the Controller with the class name home.
 
@@ -70,13 +70,13 @@ namespace YourProjectName
     {
         public void PageLoad(HttpContext context)
         {
-            if (Section.Count() == 0)
+            if (Segment.Count() == 0)
             {
                 Write("This is main page");
                 return;
             }
 
-            switch (Section.GetValue(0))
+            switch (Segment.GetValue(0))
             {
                 case "first": View("/page1.aspx"); break;
                 case "second": View("/page2.aspx"); break;
@@ -88,7 +88,7 @@ namespace YourProjectName
 }
 ```
 
-The code above shows a Controller that returns the string `This is main page` if there is no section. If there is section named first, second, third, and fourth is requested after the main path, the pages `page1.aspx`, `page2.aspx`, `page3.aspx` and `page4.aspx` will be returned respectively.
+The code above shows a Controller that returns the string `This is main page` if there is no segment. If there is segment named first, second, third, and fourth is requested after the main path, the pages `page1.aspx`, `page2.aspx`, `page3.aspx` and `page4.aspx` will be returned respectively.
 
 Example:
 
