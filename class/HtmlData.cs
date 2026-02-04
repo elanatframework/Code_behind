@@ -144,15 +144,9 @@ namespace CodeBehind.HtmlData
 
         public void Delete(string Name)
         {
-            List<NameValue> TmpNameValueList = new List<NameValue>();
-
-            foreach (NameValue nv in NameValueList)
-            {
-                if (nv.Name != Name)
-                    TmpNameValueList.Add(nv);
-            }
-
-            NameValueList = TmpNameValueList;
+            for (int i = NameValueList.Count - 1; i >= 0; i--)
+                if (NameValueList[i].Name == Name)
+                    NameValueList.RemoveAt(i);
         }
 
         public void DeleteByIndex(int Index)
