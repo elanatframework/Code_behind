@@ -14,7 +14,7 @@ namespace CodeBehind
         public string? SSEId { get; private set; }
         public bool? UseSSE { get; private set; }
 
-        private string RunByContext(HttpContext context, string MethodName, string QueryString = "")
+        private async Task<string> RunByContextAsync(HttpContext context, string MethodName, string QueryString = "")
         {
             string path = context.Request.Path.ToString();
             path = System.Net.WebUtility.UrlDecode(path);
@@ -56,24 +56,34 @@ namespace CodeBehind
 
                 Type type = CodeBehindCompiler.CompileAspxAndReturnType();
                 object obj = Activator.CreateInstance(type);
-                MethodInfo method = type.GetMethod(MethodName);
-                object[] Arguments = (MethodName == "SetPageLoadByFullPath") ? new object[] { path, context, "" } : new object[] { path, context };
-                string ReturnResult = (string)method.Invoke(obj, Arguments);
+                MethodInfo method;
+                object[] Arguments;
+                if (MethodName == "SetPageLoadByFullPath")
+                {
+                    method = CodeBehindCompiler.CompileAspxStaticMethodSetPageLoadByFullPath();
+                    Arguments = new object[] { path, context, "" };
+                }
+                else
+                {
+                    method = CodeBehindCompiler.CompileAspxStaticMethodSetPageLoadByPath();
+                    Arguments = new object[] { path, context };
+                }
+                string ReturnResult = await (Task<string>)method.Invoke(obj, Arguments);
 
-                method = type.GetMethod("PageHasFound");
+                method = CodeBehindCompiler.CompileAspxStaticMethodPageHasFound();
                 FoundPage = (bool)method.Invoke(obj, null);
 
-                method = type.GetMethod("GetWebSocketId");
+                method = CodeBehindCompiler.CompileAspxStaticMethodGetWebSocketId();
                 WebSocketId = (string)method.Invoke(obj, null);
 
-                method = type.GetMethod("GetSSEId");
+                method = CodeBehindCompiler.CompileAspxStaticMethodGetSSEId();
                 SSEId = (string)method.Invoke(obj, null);
 
-                method = type.GetMethod("GetUseSSE");
+                method = CodeBehindCompiler.CompileAspxStaticMethodGetUseSSE();
                 UseSSE = (bool)method.Invoke(obj, null);
 
                 // Set Web-Forms Control
-                method = type.GetMethod("GetWebFormsValue");
+                method = CodeBehindCompiler.CompileAspxStaticMethodGetWebFormsValue();
                 string WebFormsValue = (string)method.Invoke(obj, null);
 
                 if (!string.IsNullOrEmpty(WebFormsValue))
@@ -108,6 +118,11 @@ namespace CodeBehind
             return "";
         }
 
+        private string RunByContext(HttpContext context, string MethodName, string QueryString = "")
+        {
+            return RunByContextAsync(context, MethodName, QueryString).GetAwaiter().GetResult();
+        }
+
         /// <summary>
         /// It Works Based On Rewriting The Option File
         /// </summary>
@@ -124,8 +139,18 @@ namespace CodeBehind
             return RunByContext(context, "SetPageLoadByFullPath");
         }
 
+        public async Task<string> RunAsync(HttpContext context)
+        {
+            return await RunByContextAsync(context, "SetPageLoadByPathAsync");
+        }
+
+        public async Task<string> RunFullPathAsync(HttpContext context)
+        {
+            return await RunByContextAsync(context, "SetPageLoadByFullPathAsync");
+        }
+
         // Overload
-        private string PrivateRun(HttpContext context, string Path, string MethodName)
+        private async Task<string> PrivateRun(HttpContext context, string Path, string MethodName)
         {
             string SavedPath = context.Request.Path;
             string QueryString = "";
@@ -138,7 +163,7 @@ namespace CodeBehind
             else
                 context.Request.Path = Path;
 
-            string ReturnValue = RunByContext(context, MethodName, QueryString);
+            string ReturnValue = await RunByContextAsync(context, MethodName, QueryString);
 
             context.Request.Path = SavedPath;
 
@@ -151,7 +176,7 @@ namespace CodeBehind
         /// </summary>
         public string Run(HttpContext context, string Path)
         {
-            return PrivateRun(context, Path, "SetPageLoadByPath");
+            return PrivateRun(context, Path, "SetPageLoadByPath").GetAwaiter().GetResult();
         }
 
         // Overload
@@ -160,7 +185,17 @@ namespace CodeBehind
         /// </summary>
         public string RunFullPath(HttpContext context, string Path)
         {
-            return PrivateRun(context, Path, "SetPageLoadByFullPath");
+            return PrivateRun(context, Path, "SetPageLoadByFullPath").GetAwaiter().GetResult();
+        }
+
+        public async Task<string> RunAsync(HttpContext context, string Path)
+        {
+            return await PrivateRun(context, Path, "SetPageLoadByPath");
+        }
+
+        public async Task<string> RunFullPathAsync(HttpContext context, string Path)
+        {
+            return await PrivateRun(context, Path, "SetPageLoadByFullPath");
         }
 
         // Overload
@@ -169,7 +204,7 @@ namespace CodeBehind
         /// This Overload Method Does Not Support Query String
         /// This Overload Method Does Not Support Web-Forms Control
         /// </summary>
-        private string RunByPath(string path, string MethodName)
+        private async Task<string> RunByPathAsync(string path, string MethodName)
         {
             string extension = Path.GetExtension(path);
             path = System.Net.WebUtility.UrlDecode(path);
@@ -202,20 +237,31 @@ namespace CodeBehind
             {
                 Type type = CodeBehindCompiler.CompileAspxAndReturnType();
                 object obj = Activator.CreateInstance(type);
-                MethodInfo method = type.GetMethod(MethodName);
-                object[] Arguments = (MethodName == "SetPageLoadByFullPath") ? new object[] { path, null, "" } : new object[] { path, null };
-                string ReturnResult = (string)method.Invoke(obj, Arguments);
+                MethodInfo method;
+                object[] Arguments;
+                if (MethodName == "SetPageLoadByFullPath")
+                {
+                    method = CodeBehindCompiler.CompileAspxStaticMethodSetPageLoadByFullPath();
+                    Arguments = new object[] { path, null, "" };
+                }
+                else
+                {
+                    method = CodeBehindCompiler.CompileAspxStaticMethodSetPageLoadByPath();
+                    Arguments = new object[] { path, null };
+                }
 
-                method = type.GetMethod("PageHasFound");
+                string ReturnResult = await (Task<string>)method.Invoke(obj, Arguments);
+
+                method = CodeBehindCompiler.CompileAspxStaticMethodPageHasFound();
                 FoundPage = (bool)method.Invoke(obj, null);
 
-                method = type.GetMethod("GetWebSocketId");
+                method = CodeBehindCompiler.CompileAspxStaticMethodGetWebSocketId();
                 WebSocketId = (string)method.Invoke(obj, null);
 
-                method = type.GetMethod("GetSSEId");
+                method = CodeBehindCompiler.CompileAspxStaticMethodGetSSEId();
                 SSEId = (string)method.Invoke(obj, null);
 
-                method = type.GetMethod("GetUseSSE");
+                method = CodeBehindCompiler.CompileAspxStaticMethodGetUseSSE();
                 UseSSE = (bool)method.Invoke(obj, null);
 
                 return ReturnResult;
@@ -224,6 +270,11 @@ namespace CodeBehind
             FoundPage = false;
 
             return "";
+        }
+
+        private string RunByPath(string path, string MethodName)
+        {
+            return RunByPathAsync(path, MethodName).GetAwaiter().GetResult();
         }
 
         // Overload
@@ -246,6 +297,16 @@ namespace CodeBehind
             return RunByPath(path, "SetPageLoadByFullPath");
         }
 
+        public async Task<string> RunAsync(string path)
+        {
+            return await RunByPathAsync(path, "SetPageLoadByPath");
+        }
+
+        public async Task<string> RunFullPathAsync(string path)
+        {
+            return await RunByPathAsync(path, "SetPageLoadByFullPath");
+        }
+
         public string RunErrorPage(int ErrorValue)
         {
             string path = StaticObject.ErrorPagePathBeforeValue + ErrorValue + StaticObject.ErrorPagePathAfterValue;
@@ -262,7 +323,7 @@ namespace CodeBehind
             return Run(context, path);
         }
 
-        internal string RunControllerValue(HttpContext context, string ViewPath, object CodeBehindModel, NameValueCollection ViewData, string DownloadFilePath, bool? IgnoreLayout, string WebFormsValue, string? WebSocketId, string? SSEId, bool? UseSSE)
+        internal async Task<string> RunControllerValueAsync(HttpContext context, string ViewPath, object CodeBehindModel, NameValueCollection ViewData, string DownloadFilePath, bool? IgnoreLayout, string WebFormsValue, string? WebSocketId, string? SSEId, bool? UseSSE)
         {
             if (string.IsNullOrEmpty(ViewPath) && string.IsNullOrEmpty(DownloadFilePath))
             {
@@ -285,24 +346,24 @@ namespace CodeBehind
 
             Type type = CodeBehindCompiler.CompileAspxAndReturnType();
             object obj = Activator.CreateInstance(type);
-            MethodInfo method = type.GetMethod("RunController");
+            MethodInfo method = CodeBehindCompiler.CompileAspxStaticMethodRunControllerName();
             object[] Arguments = new object[] { context, ViewPath, CodeBehindModel, ViewData, DownloadFilePath, IgnoreLayout, WebFormsValue, WebSocketId, SSEId, UseSSE };
-            string ReturnResult = (string)method.Invoke(obj, Arguments);
+            string ReturnResult = await (Task<string>)method.Invoke(obj, Arguments);
 
-            method = type.GetMethod("PageHasFound");
+            method = CodeBehindCompiler.CompileAspxStaticMethodPageHasFound();
             FoundPage = (bool)method.Invoke(obj, null);
 
-            method = type.GetMethod("GetWebSocketId");
+            method = CodeBehindCompiler.CompileAspxStaticMethodGetWebSocketId();
             WebSocketId = (string)method.Invoke(obj, null);
 
-            method = type.GetMethod("GetSSEId");
+            method = CodeBehindCompiler.CompileAspxStaticMethodGetSSEId();
             SSEId = (string)method.Invoke(obj, null);
 
-            method = type.GetMethod("GetUseSSE");
+            method = CodeBehindCompiler.CompileAspxStaticMethodGetUseSSE();
             UseSSE = (bool)method.Invoke(obj, null);
 
             // Set Web-Forms Control
-            method = type.GetMethod("GetWebFormsValue");
+            method = CodeBehindCompiler.CompileAspxStaticMethodGetWebFormsValue();
             string TmpWebFormsValue = (string)method.Invoke(obj, null);
 
             if (!string.IsNullOrEmpty(TmpWebFormsValue))
@@ -335,6 +396,11 @@ namespace CodeBehind
             return ReturnResult;
         }
 
+        internal string RunControllerValue(HttpContext context, string ViewPath, object CodeBehindModel, NameValueCollection ViewData, string DownloadFilePath, bool? IgnoreLayout, string WebFormsValue, string? WebSocketId, string? SSEId, bool? UseSSE)
+        {
+            return RunControllerValueAsync(context, ViewPath, CodeBehindModel, ViewData, DownloadFilePath, IgnoreLayout, WebFormsValue, WebSocketId, SSEId, UseSSE).GetAwaiter().GetResult();
+        }
+
         public string RunController(object ControllerClass, HttpContext context)
         {
             Type type = ControllerClass.GetType();
@@ -362,28 +428,55 @@ namespace CodeBehind
             return ReturnResult;
         }
 
+        public async Task<string> RunControllerAsync(object ControllerClass, HttpContext context)
+        {
+            Type type = ControllerClass.GetType();
+            MethodInfo method = type.GetMethod("FillSegment");
+            method.Invoke(ControllerClass, new object[] { context });
+            method = type.GetMethod("PageLoad");
+            await (Task)method.Invoke(ControllerClass, new object[] { context });
+            method = type.GetMethod("RunAsync");
+            string ReturnResult = await (Task<string>)method.Invoke(ControllerClass, new object[] { context });
+
+            return ReturnResult;
+        }
+
         // Overload
-        public string RunController(string ControllerClass, HttpContext context, bool IsDefaultController = false)
+        public async Task<string> RunControllerAsync(object ControllerClass)
+        {
+            Type type = ControllerClass.GetType();
+            MethodInfo method = type.GetMethod("FillSegment");
+            method.Invoke(ControllerClass, new object[] { null });
+            method = type.GetMethod("PageLoad");
+            await (Task)method.Invoke(ControllerClass, new object[] { null });
+            method = type.GetMethod("RunAsync");
+            string ReturnResult = await (Task<string>)method.Invoke(ControllerClass, new object[] { null });
+
+            return ReturnResult;
+        }
+
+        // Overload
+        public async Task<string> RunControllerAsync(string ControllerClass, HttpContext context, bool IsDefaultController = false)
         {
             Type type = CodeBehindCompiler.CompileAspxAndReturnType();
             object obj = Activator.CreateInstance(type);
-            MethodInfo method = type.GetMethod("RunControllerName");
-            string ReturnResult = (string)method.Invoke(obj, new object[] { ControllerClass, context, IsDefaultController, false });
+            MethodInfo method = CodeBehindCompiler.CompileAspxStaticMethodRunControllerName();
+            string ReturnResult = await (Task<string>)method.Invoke(obj, new object[] { ControllerClass, context, IsDefaultController, false });
 
-            method = type.GetMethod("ControllerHasFound");
+            method = CodeBehindCompiler.CompileAspxStaticMethodControllerHasFound();
             FoundController = (bool)method.Invoke(obj, null);
 
-            method = type.GetMethod("GetWebSocketId");
+            method = CodeBehindCompiler.CompileAspxStaticMethodGetWebSocketId();
             WebSocketId = (string)method.Invoke(obj, null);
 
-            method = type.GetMethod("GetSSEId");
+            method = CodeBehindCompiler.CompileAspxStaticMethodGetSSEId();
             SSEId = (string)method.Invoke(obj, null);
 
-            method = type.GetMethod("GetUseSSE");
+            method = CodeBehindCompiler.CompileAspxStaticMethodGetUseSSE();
             UseSSE = (bool)method.Invoke(obj, null);
 
             // Set Web-Forms Control
-            method = type.GetMethod("GetWebFormsValue");
+            method = CodeBehindCompiler.CompileAspxStaticMethodGetWebFormsValue();
             string TmpWebFormsValue = (string)method.Invoke(obj, null);
 
             if (!string.IsNullOrEmpty(TmpWebFormsValue))
@@ -411,10 +504,20 @@ namespace CodeBehind
             return ReturnResult;
         }
 
+        public string RunController(string ControllerClass, HttpContext context, bool IsDefaultController = false)
+        {
+            return RunControllerAsync(ControllerClass, context, IsDefaultController).GetAwaiter().GetResult();
+        }
+
         // Overload
         public string RunController(string ControllerClass)
         {
             return RunController(ControllerClass, null);
+        }
+
+        public async Task<string> RunControllerAsync(string ControllerClass)
+        {
+            return await RunControllerAsync(ControllerClass, null);
         }
 
         public string RunRoute(HttpContext context, int ControllerSegment)
@@ -454,6 +557,45 @@ namespace CodeBehind
             }
 
             return RunController(ControllerClass, context);
+        }
+
+        public async Task<string> RunRouteAsync(HttpContext context, int ControllerSegment)
+        {
+            if (context == null)
+            {
+                FoundController = false;
+                return "";
+            }
+
+            string RequestPath = context.Request.Path;
+
+            if (RequestPath.Length > 0)
+                if (RequestPath[0] == '/')
+                    RequestPath = RequestPath.Remove(0, 1);
+
+            ValueCollectionLock Segment = new ValueCollectionLock();
+
+            string[] ValueList = RequestPath.Split('/');
+            Segment.AddList(ValueList);
+
+            if (Segment.Count() <= ControllerSegment)
+            {
+                FoundController = false;
+                return "";
+            }
+
+            string ControllerClass = Segment.GetValue(ControllerSegment);
+
+            if (string.IsNullOrEmpty(ControllerClass))
+            {
+                if (StaticObject.UseDefaultController)
+                    return await RunControllerAsync(StaticObject.DefaultController, context, true);
+
+                FoundController = false;
+                return "";
+            }
+
+            return await RunControllerAsync(ControllerClass, context);
         }
 
         private string SetWebFormsCombinate(string ResponseText, string WebFormsValue)
