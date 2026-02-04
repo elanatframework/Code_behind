@@ -12,6 +12,15 @@ namespace SetCodeBehind
     {
         private static Assembly CompiledAssembly;
         private static Type ClassType;
+        private static MethodInfo StaticMethodSetPageLoadByFullPath;
+        private static MethodInfo StaticMethodSetPageLoadByPath;
+        private static MethodInfo StaticMethodPageHasFound;
+        private static MethodInfo StaticMethodGetWebSocketId;
+        private static MethodInfo StaticMethodGetSSEId;
+        private static MethodInfo StaticMethodGetUseSSE;
+        private static MethodInfo StaticMethodGetWebFormsValue;
+        private static MethodInfo StaticMethodRunControllerName;
+        private static MethodInfo StaticMethodControllerHasFound;
 
         internal static Assembly CompileAspx(bool UseLastSuccessCompiled = false, List<string> CurrentErrorList = null)
         {
@@ -193,6 +202,78 @@ namespace SetCodeBehind
             return ClassType;
         }
 
+        internal static MethodInfo CompileAspxStaticMethodSetPageLoadByFullPath()
+        {
+            if (StaticMethodSetPageLoadByFullPath == null)
+                StaticMethodSetPageLoadByFullPath = CompileAspxAndReturnType().GetMethod("SetPageLoadByFullPath");
+
+            return StaticMethodSetPageLoadByFullPath;
+        }
+
+        internal static MethodInfo CompileAspxStaticMethodSetPageLoadByPath()
+        {
+            if (StaticMethodSetPageLoadByPath == null)
+                StaticMethodSetPageLoadByPath = CompileAspxAndReturnType().GetMethod("SetPageLoadByPath");
+
+            return StaticMethodSetPageLoadByPath;
+        }
+
+        internal static MethodInfo CompileAspxStaticMethodPageHasFound()
+        {
+            if (StaticMethodPageHasFound == null)
+                StaticMethodPageHasFound = CompileAspxAndReturnType().GetMethod("PageHasFound");
+
+            return StaticMethodPageHasFound;
+        }
+
+        internal static MethodInfo CompileAspxStaticMethodGetWebSocketId()
+        {
+            if (StaticMethodGetWebSocketId == null)
+                StaticMethodGetWebSocketId = CompileAspxAndReturnType().GetMethod("GetWebSocketId");
+
+            return StaticMethodGetWebSocketId;
+        }
+
+        internal static MethodInfo CompileAspxStaticMethodGetSSEId()
+        {
+            if (StaticMethodGetSSEId == null)
+                StaticMethodGetSSEId = CompileAspxAndReturnType().GetMethod("GetSSEId");
+
+            return StaticMethodGetSSEId;
+        }
+
+        internal static MethodInfo CompileAspxStaticMethodGetUseSSE()
+        {
+            if (StaticMethodGetUseSSE == null)
+                StaticMethodGetUseSSE = CompileAspxAndReturnType().GetMethod("GetUseSSE");
+
+            return StaticMethodGetUseSSE;
+        }
+
+        internal static MethodInfo CompileAspxStaticMethodGetWebFormsValue()
+        {
+            if (StaticMethodGetWebFormsValue == null)
+                StaticMethodGetWebFormsValue = CompileAspxAndReturnType().GetMethod("GetWebFormsValue");
+
+            return StaticMethodGetWebFormsValue;
+        }
+
+        internal static MethodInfo CompileAspxStaticMethodRunControllerName()
+        {
+            if (StaticMethodRunControllerName == null)
+                StaticMethodRunControllerName = CompileAspxAndReturnType().GetMethod("RunControllerName");
+
+            return StaticMethodRunControllerName;
+        }
+
+        internal static MethodInfo CompileAspxStaticMethodControllerHasFound()
+        {
+            if (StaticMethodControllerHasFound == null)
+                StaticMethodControllerHasFound = CompileAspxAndReturnType().GetMethod("ControllerHasFound");
+
+            return StaticMethodControllerHasFound;
+        }
+
         private static void SaveError(List<string> ErrorList, bool UseLastLastSuccessCompiled = false)
         {
             if (!Directory.Exists("code_behind"))
@@ -289,6 +370,15 @@ namespace SetCodeBehind
             
             CompiledAssembly = null;
             ClassType = null;
+            StaticMethodSetPageLoadByFullPath = null;
+            StaticMethodSetPageLoadByPath = null;
+            StaticMethodPageHasFound = null;
+            StaticMethodGetWebSocketId = null;
+            StaticMethodGetSSEId = null;
+            StaticMethodGetUseSSE = null;
+            StaticMethodGetWebFormsValue = null;
+            StaticMethodRunControllerName = null;
+            StaticMethodControllerHasFound = null;
 
             string FilePath = AppContext.BaseDirectory + "/CodeBehindLastSuccessCompiled.dll.tmp";
             if (File.Exists(FilePath))
