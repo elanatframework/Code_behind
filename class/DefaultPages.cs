@@ -4415,7 +4415,7 @@ async function cb_SetValueToInput(evt, ActionOperation, ActionFeature, ActionVal
                             if (ActionFeature == 'b')
                                 cb_AddEvent(CurrentElement, event, `CommentBack(event, '${index}', '${outputPlace}')`);
                             else
-                                await cb_AddEventListener(CurrentElement, event, CommentBack, [outputPlace, index]);
+                                await cb_AddEventListener(CurrentElement, event, CommentBack, [index, outputPlace]);
                             break;
                         case 'y':
                         case 'Y':
