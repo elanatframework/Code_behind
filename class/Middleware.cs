@@ -45,6 +45,33 @@ public class UseCodeBehindMiddleware
     }
 }
 
+public class UseCodeBehindAsyncMiddleware
+{
+    private readonly RequestDelegate _next;
+
+    public UseCodeBehindAsyncMiddleware(RequestDelegate next)
+    {
+        _next = next;
+    }
+
+    public async Task Invoke(HttpContext context)
+    {
+        CodeBehindExecute execute = new CodeBehindExecute();
+
+        string PageResult = await execute.RunAsync(context);
+
+        if (execute.UseSSE == true)
+        {
+            await new CodeBehindMiddlewareExtensions.UseCodeBehindSSEMiddleware(_next).Invoke(context, execute.SSEId);
+            return;
+        }
+
+        await context.Response.WriteAsync(PageResult);
+
+        await _next(context);
+    }
+}
+
 public class UseCodeBehindMiddlewareWithErrorHandling
 {
     private readonly RequestDelegate _next;
@@ -59,6 +86,36 @@ public class UseCodeBehindMiddlewareWithErrorHandling
         CodeBehindExecute execute = new CodeBehindExecute();
 
         string PageResult = execute.Run(context);
+
+        if (execute.UseSSE == true)
+        {
+            await new CodeBehindMiddlewareExtensions.UseCodeBehindSSEMiddleware(_next).Invoke(context, execute.SSEId);
+            return;
+        }
+
+        if (execute.FoundPage)
+            await context.Response.WriteAsync(PageResult);
+        else
+            await context.Response.WriteAsync(execute.RunErrorPage(404, context));
+
+        await _next(context);
+    }
+}
+
+public class UseCodeBehindAsyncMiddlewareWithErrorHandling
+{
+    private readonly RequestDelegate _next;
+
+    public UseCodeBehindAsyncMiddlewareWithErrorHandling(RequestDelegate next)
+    {
+        _next = next;
+    }
+
+    public async Task Invoke(HttpContext context)
+    {
+        CodeBehindExecute execute = new CodeBehindExecute();
+
+        string PageResult = await execute.RunAsync(context);
 
         if (execute.UseSSE == true)
         {
@@ -105,6 +162,36 @@ public class UseCodeBehindNextNotFoundMiddleware
     }
 }
 
+public class UseCodeBehindNextNotFoundAsyncMiddleware
+{
+    private readonly RequestDelegate _next;
+
+    public UseCodeBehindNextNotFoundAsyncMiddleware(RequestDelegate next)
+    {
+        _next = next;
+    }
+
+    public async Task Invoke(HttpContext context)
+    {
+        CodeBehindExecute execute = new CodeBehindExecute();
+
+        string PageResult = await execute.RunAsync(context);
+
+        if (execute.UseSSE == true)
+        {
+            await new CodeBehindMiddlewareExtensions.UseCodeBehindSSEMiddleware(_next).Invoke(context, execute.SSEId);
+            return;
+        }
+
+        if (execute.FoundPage)
+            await context.Response.WriteAsync(PageResult);
+        else if (execute.IsAspxExtension)
+            return;
+        else
+            await _next(context);
+    }
+}
+
 public class UseCodeBehindRouteMiddleware
 {
     private readonly RequestDelegate _next;
@@ -121,6 +208,35 @@ public class UseCodeBehindRouteMiddleware
         CodeBehindExecute execute = new CodeBehindExecute();
 
         string PageResult = execute.RunRoute(context, _routeIndex);
+
+        if (execute.UseSSE == true)
+        {
+            await new CodeBehindMiddlewareExtensions.UseCodeBehindSSEMiddleware(_next).Invoke(context, execute.SSEId);
+            return;
+        }
+
+        await context.Response.WriteAsync(PageResult);
+
+        await _next(context);
+    }
+}
+
+public class UseCodeBehindRouteAsyncMiddleware
+{
+    private readonly RequestDelegate _next;
+    private readonly int _routeIndex;
+
+    public UseCodeBehindRouteAsyncMiddleware(RequestDelegate next, int routeIndex)
+    {
+        _next = next;
+        _routeIndex = routeIndex;
+    }
+
+    public async Task Invoke(HttpContext context)
+    {
+        CodeBehindExecute execute = new CodeBehindExecute();
+
+        string PageResult = await execute.RunRouteAsync(context, _routeIndex);
 
         if (execute.UseSSE == true)
         {
@@ -166,6 +282,38 @@ public class UseCodeBehindRouteMiddlewareWithErrorHandling
     }
 }
 
+public class UseCodeBehindRouteAsyncMiddlewareWithErrorHandling
+{
+    private readonly RequestDelegate _next;
+    private readonly int _routeIndex;
+
+    public UseCodeBehindRouteAsyncMiddlewareWithErrorHandling(RequestDelegate next, int routeIndex)
+    {
+        _next = next;
+        _routeIndex = routeIndex;
+    }
+
+    public async Task Invoke(HttpContext context)
+    {
+        CodeBehindExecute execute = new CodeBehindExecute();
+
+        string PageResult = await execute.RunRouteAsync(context, _routeIndex);
+
+        if (execute.UseSSE == true)
+        {
+            await new CodeBehindMiddlewareExtensions.UseCodeBehindSSEMiddleware(_next).Invoke(context, execute.SSEId);
+            return;
+        }
+
+        if (execute.FoundController)
+            await context.Response.WriteAsync(PageResult);
+        else
+            await context.Response.WriteAsync(execute.RunErrorPage(404, context));
+
+        await _next(context);
+    }
+}
+
 public class UseCodeBehindRouteNextNotFoundMiddleware
 {
     private readonly RequestDelegate _next;
@@ -180,6 +328,43 @@ public class UseCodeBehindRouteNextNotFoundMiddleware
         CodeBehindExecute execute = new CodeBehindExecute();
 
         string PageResult = execute.RunRoute(context, 0);
+
+        if (execute.UseSSE == true)
+        {
+            await new CodeBehindMiddlewareExtensions.UseCodeBehindSSEMiddleware(_next).Invoke(context, execute.SSEId);
+            return;
+        }
+
+        if (execute.FoundController)
+            await context.Response.WriteAsync(PageResult);
+        else
+        {
+            string path = context.Request.Path.ToString();
+            path = System.Net.WebUtility.UrlDecode(path);
+            string extension = Path.GetExtension(path);
+
+            if (extension == ".aspx")
+                return;
+            else
+                await _next(context);
+        }
+    }
+}
+
+public class UseCodeBehindRouteNextNotFoundAsyncMiddleware
+{
+    private readonly RequestDelegate _next;
+
+    public UseCodeBehindRouteNextNotFoundAsyncMiddleware(RequestDelegate next)
+    {
+        _next = next;
+    }
+
+    public async Task Invoke(HttpContext context)
+    {
+        CodeBehindExecute execute = new CodeBehindExecute();
+
+        string PageResult = await execute.RunRouteAsync(context, 0);
 
         if (execute.UseSSE == true)
         {
@@ -371,6 +556,11 @@ public static class CodeBehindMiddlewareExtensions
         return app.UseMiddleware<UseCodeBehindMiddleware>();
     }
 
+    public static IApplicationBuilder UseCodeBehindAsync(this IApplicationBuilder app)
+    {
+        return app.UseMiddleware<UseCodeBehindAsyncMiddleware>();
+    }
+
     public static IApplicationBuilder UseCodeBehind(this IApplicationBuilder app, bool ErrorHandling)
     {
         if (ErrorHandling)
@@ -379,14 +569,32 @@ public static class CodeBehindMiddlewareExtensions
             return app.UseMiddleware<UseCodeBehindMiddleware>();
     }
 
+    public static IApplicationBuilder UseCodeBehindAsync(this IApplicationBuilder app, bool ErrorHandling)
+    {
+        if (ErrorHandling)
+            return app.UseMiddleware<UseCodeBehindAsyncMiddlewareWithErrorHandling>();
+        else
+            return app.UseMiddleware<UseCodeBehindAsyncMiddleware>();
+    }
+
     public static IApplicationBuilder UseCodeBehindNextNotFound(this IApplicationBuilder app)
     {
         return app.UseMiddleware<UseCodeBehindNextNotFoundMiddleware>();
     }
 
+    public static IApplicationBuilder UseCodeBehindNextNotFoundAsync(this IApplicationBuilder app)
+    {
+        return app.UseMiddleware<UseCodeBehindNextNotFoundAsyncMiddleware>();
+    }
+
     public static IApplicationBuilder UseCodeBehindRoute(this IApplicationBuilder app, int RouteIndex = 0)
     {
         return app.UseMiddleware<UseCodeBehindRouteMiddleware>(RouteIndex);
+    }
+
+    public static IApplicationBuilder UseCodeBehindRouteAsync(this IApplicationBuilder app, int RouteIndex = 0)
+    {
+        return app.UseMiddleware<UseCodeBehindRouteAsyncMiddleware>(RouteIndex);
     }
 
     public static IApplicationBuilder UseCodeBehindRoute(this IApplicationBuilder app, bool ErrorHandling, int RouteIndex = 0)
@@ -397,9 +605,22 @@ public static class CodeBehindMiddlewareExtensions
             return app.UseMiddleware<UseCodeBehindRouteMiddleware>(RouteIndex);
     }
 
+    public static IApplicationBuilder UseCodeBehindRouteAsync(this IApplicationBuilder app, bool ErrorHandling, int RouteIndex = 0)
+    {
+        if (ErrorHandling)
+            return app.UseMiddleware<UseCodeBehindRouteAsyncMiddlewareWithErrorHandling>(RouteIndex);
+        else
+            return app.UseMiddleware<UseCodeBehindRouteAsyncMiddleware>(RouteIndex);
+    }
+
     public static IApplicationBuilder UseCodeBehindRouteNextNotFound(this IApplicationBuilder app)
     {
         return app.UseMiddleware<UseCodeBehindRouteNextNotFoundMiddleware>();
+    }
+
+    public static IApplicationBuilder UseCodeBehindRouteNextNotFoundAsync(this IApplicationBuilder app)
+    {
+        return app.UseMiddleware<UseCodeBehindRouteNextNotFoundAsyncMiddleware>();
     }
 
     /// <summary>
