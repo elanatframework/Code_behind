@@ -374,7 +374,7 @@ namespace CodeBehind
 
         // Service Worker
         // To Use Service Worker, You Need To Add The Elanat Dedicated Module (service-worker.js) On The Client Side
-        public void ServiceWorkerRegister(string Path = null, string ScobePath = null) => Add("wR", Path + "|" + ScobePath);
+        public void ServiceWorkerRegister(string Path = null, string ScopePath = null) => Add("wR", Path + "|" + ScopePath);
         public void ServiceWorkerPreCacheStatic(string[] PathList) => Add("wp",string.Join("|", PathList));
         public void ServiceWorkerDynamicCache(string Path, int Seconds = 0) => Add("wc", Path + (Seconds > 0 ? "|" + Seconds : ""));
         public void ServiceWorkerDeleteDynamicCache() => Add("wd");
@@ -906,10 +906,13 @@ namespace CodeBehind
         public static string Id(string Id) => Id;
         public static string Name(string Name) => '(' + Name + ')';
         public static string Name(string Name, int Index) => '(' + Name + ')' + Index;
+        public static string AllNames(string Name) => "(" + Name + ")*";
         public static string Tag(string Tag) => '<' + Tag + '>';
         public static string Tag(string Tag, int Index) => '<' + Tag + '>' + Index;
+        public static string AllTags(string Tag) => "<" + Tag + ">*";
         public static string Class(string Class) => '{' + Class + '}';
         public static string Class(string Class, int Index) => '{' + Class + '}' + Index;
+        public static string AllClasses(string Class) => "{" + Class + "}*";
         public static string Query(string Query) => "*" + Query.Replace("=", "$[eq];");
         public static string QueryAll(string Query) => "[" + Query.Replace("=", "$[eq];");
     }
@@ -1284,7 +1287,7 @@ namespace CodeBehind
             return Text + "|" + Value;
         }
 
-        public static string AppendParrent(this string Text)
+        public static string AppendParent(this string Text)
         {
             return "/" + Text;
         }
