@@ -75,7 +75,7 @@ namespace SetCodeBehind
 
             // Support Lowercase
             PageProperties = " Page" + PageProperties.Remove(0, 5);
-            PageProperties = PageProperties.Replace("controller=\"",  "Controller=\"");
+            PageProperties = PageProperties.Replace("controller=\"", "Controller=\"");
             PageProperties = PageProperties.Replace("model=\"", "Model=\"");
             PageProperties = PageProperties.Replace("layout=\"", "Layout=\"");
             PageProperties = PageProperties.Replace("islayout=\"", "IsLayout=\"");
@@ -116,10 +116,17 @@ namespace SetCodeBehind
             // Set Controller
             string Controller = "";
             string ControllerConstructor = "";
+            bool IsAsyncController = false;
 
             if (!PageIsOnlyView)
             {
                 Controller = PageProperties.Split(new string[] { "Controller=\"" }, StringSplitOptions.None)[1].Split("\"")[0];
+
+                if (Controller.StartsWith("await "))
+                {
+                    IsAsyncController = true;
+                    Controller = Controller.Remove(0, 6).TrimStart();
+                }
 
                 // Get Controller Constructor Method
                 if (Controller.Contains("("))
@@ -154,6 +161,7 @@ namespace SetCodeBehind
             string Model = (PageProperties.Contains(" Model=\"")) ? PageProperties.Split(new string[] { "Model=\"" }, StringSplitOptions.None)[1].Split("\"")[0] : "";
             string ModelConstructor = "";
             bool ModelUseAbstract = true;
+            bool IsAsyncModel = false;
 
             if (Model != "")
             {
@@ -164,6 +172,12 @@ namespace SetCodeBehind
                         Model = Model.Remove(Model.Length - 1, 1);
                         ModelUseAbstract = false;
                     }
+
+                if (Model.StartsWith("await "))
+                {
+                    IsAsyncModel = true;
+                    Model = Model.Remove(0, 6).TrimStart();
+                }
 
                 // Get Model Constructor Method
                 if (Model.Contains("("))
@@ -258,7 +272,7 @@ namespace SetCodeBehind
                     string TemplatePath = "";
 
                     if (Template[0] == '/' || Template[0].ToString() == @"\")
-                        TemplatePath = RootDirectoryPath + StaticObject.OsDirectorySplitter + Template.Remove(0,1);
+                        TemplatePath = RootDirectoryPath + StaticObject.OsDirectorySplitter + Template.Remove(0, 1);
                     else
                         TemplatePath = FilePath.GetTextBeforeLastValue(StaticObject.OsDirectorySplitter.ToString()) + StaticObject.OsDirectorySplitter + Template;
 
@@ -452,7 +466,7 @@ namespace SetCodeBehind
 
             TextToCodeCombination += GetWriteText(AspxText, PageIsOnlyView);
 
-            SetMethod(AspxFilePath, Controller, ControllerConstructor, ControllerClassConstructor, Model, ModelConstructor, ModelClassConstructor, ModelUseAbstract, !PageIsOnlyView, Layout, IsLayout, IsBreak, UseSegment, MethodIndexer, TextToCodeCombination);
+            SetMethod(AspxFilePath, Controller, ControllerConstructor, ControllerClassConstructor, Model, ModelConstructor, ModelClassConstructor, ModelUseAbstract, !PageIsOnlyView, Layout, IsLayout, IsAsyncController, IsAsyncModel, IsBreak, UseSegment, MethodIndexer, TextToCodeCombination);
         }
 
         private void AspxTextAndCodeCombinationRazor(string AspxText, string FilePath, string RootDirectoryPath, int MethodIndexer)
@@ -487,6 +501,8 @@ namespace SetCodeBehind
             string ModelClassConstructor = "";
             string Layout = "";
             bool IsLayout = false;
+            bool IsAsyncController = false;
+            bool IsAsyncModel = false;
             bool IsBreak = false;
             bool UseSegment = false;
             string Template = "";
@@ -502,7 +518,7 @@ namespace SetCodeBehind
                 if (TmpLine[0] != '@')
                     break;
 
-                // Fetch ControllerConstructor, Controller, Model, ModelConstructor, Layout, IsLayout, IsBreak, UseSegment, Template
+                // Fetch Controller, IsAsyncController, ControllerConstructor, Model, IsAsyncModel, ModelConstructor, Layout, IsLayout, IsBreak, UseSegment, Template
                 if (TmpLine.StartsWith("@controllerconstructor"))
                 {
                     ControllerClassConstructor = ft.FullTrimAll(TmpLine.GetTextAfterValue("@controllerconstructor"));
@@ -512,6 +528,13 @@ namespace SetCodeBehind
                 else if (TmpLine.StartsWith("@controller"))
                 {
                     Controller = ft.FullTrimAll(TmpLine.GetTextAfterValue("@controller"));
+
+                    if (Controller.StartsWith("await "))
+                    {
+                        IsAsyncController = true;
+                        Controller = Controller.Remove(0, 6).TrimStart();
+                    }
+
                     AspxText = AspxText.GetTextAfterValue(line);
                     continue;
                 }
@@ -597,6 +620,12 @@ namespace SetCodeBehind
                         Model = Model.Remove(Model.Length - 1, 1);
                         ModelUseAbstract = false;
                     }
+
+                if (Model.StartsWith("await "))
+                {
+                    IsAsyncModel = true;
+                    Model = Model.Remove(0, 6).TrimStart();
+                }
 
                 // Get Model Constructor Method
                 if (Model.Contains("("))
@@ -1512,10 +1541,10 @@ namespace SetCodeBehind
 
             TextToCodeCombination += GetWriteText(TextForWrite, !ControllerIsSet);
 
-            SetMethod(AspxFilePath, Controller, ControllerConstructor, ControllerClassConstructor, Model, ModelConstructor, ModelClassConstructor, ModelUseAbstract, ControllerIsSet, Layout, IsLayout, IsBreak, UseSegment, MethodIndexer, TextToCodeCombination);
+            SetMethod(AspxFilePath, Controller, ControllerConstructor, ControllerClassConstructor, Model, ModelConstructor, ModelClassConstructor, ModelUseAbstract, ControllerIsSet, Layout, IsLayout, IsAsyncController, IsAsyncModel, IsBreak, UseSegment, MethodIndexer, TextToCodeCombination);
         }
 
-        private void SetMethod(string AspxFilePath, string Controller, string ControllerConstructor, string ControllerClassConstructor, string Model, string ModelConstructor, string ModelClassConstructor, bool ModelUseAbstract, bool ControllerIsSet, string Layout, bool IsLayout, bool IsBreak, bool UseSegment, int MethodIndexer, string TextToCodeCombination)
+        private void SetMethod(string AspxFilePath, string Controller, string ControllerConstructor, string ControllerClassConstructor, string Model, string ModelConstructor, string ModelClassConstructor, bool ModelUseAbstract, bool ControllerIsSet, string Layout, bool IsLayout, bool IsAsyncController, bool IsAsyncModel, bool IsBreak, bool UseSegment, int MethodIndexer, string TextToCodeCombination)
         {
             if (AspxFilePath.EndsWith(".cshtml"))
                 AspxFilePath = AspxFilePath.GetTextBeforeLastValue(".cshtml") + ".aspx";
@@ -1541,39 +1570,39 @@ namespace SetCodeBehind
             {
                 if (!RewriteAspxFileToDirectory || (RewriteAspxFileToDirectory && AccessAspxFileAfterRewrite && !(IgnoreDefaultAfterRewrite && (AspxFilePath.GetTextAfterLastValue(StaticObject.OsDirectorySplitter.ToString()) == "Default.aspx"))))
                 {
-                    CaseCodeTemplateValue += "                case \"" + AspxFilePathUrl + "\": return " + (ViewHasCache? ReturnMethodValueByCache : ReturnMethodValue) + ";" + Environment.NewLine;
+                    CaseCodeTemplateValue += "                case \"" + AspxFilePathUrl + "\": return await " + (ViewHasCache ? ReturnMethodValueByCache : ReturnMethodValue) + ";" + Environment.NewLine;
 
                     if (UseSegment)
                     {
                         SegmentTemplateValue += "            if (path.StartsWith(\"" + AspxFilePathUrl + "/\")" + ((AspxFilePath.GetTextAfterLastValue(StaticObject.OsDirectorySplitter.ToString()) == "Default.aspx") ? " || path.StartsWith(\"" + AspxFilePathUrl.GetTextBeforeLastValue("Default.aspx") + "\")" : "") + ")" + Environment.NewLine;
-                        SegmentTemplateValue += "                return " + (ViewHasCache ? ReturnMethodValueByCache : ReturnMethodValue) + ";" + Environment.NewLine;
+                        SegmentTemplateValue += "                return await " + (ViewHasCache ? ReturnMethodValueByCache : ReturnMethodValue) + ";" + Environment.NewLine;
                     }
                 }
 
                 if (RewriteAspxFileToDirectory)
                     if (IgnoreDefaultAfterRewrite && (AspxFilePath.GetTextAfterLastValue(StaticObject.OsDirectorySplitter.ToString()) == "Default.aspx"))
                     {
-                        CaseCodeTemplateValue += "                case \"" + AspxFilePathUrl + "\": return " + (ViewHasCache ? ReturnMethodValueByCache : ReturnMethodValue) + ";" + Environment.NewLine;
+                        CaseCodeTemplateValue += "                case \"" + AspxFilePathUrl + "\": return await " + (ViewHasCache ? ReturnMethodValueByCache : ReturnMethodValue) + ";" + Environment.NewLine;
 
                         if (UseSegment)
                         {
                             SegmentTemplateValue += "            if (path.StartsWith(\"" + AspxFilePathUrl.GetTextBeforeLastValue("Default.aspx") + "\") || path.StartsWith(\"" + AspxFilePathUrl + "/\"))" + Environment.NewLine;
-                            SegmentTemplateValue += "                return " + (ViewHasCache ? ReturnMethodValueByCache : ReturnMethodValue) + ";" + Environment.NewLine;
+                            SegmentTemplateValue += "                return await " + (ViewHasCache ? ReturnMethodValueByCache : ReturnMethodValue) + ";" + Environment.NewLine;
                         }
                     }
                     else
                     {
-                        CaseCodeTemplateValue += "                case \"" + AspxFilePathUrl.GetTextBeforeLastValue(".aspx") + "/Default.aspx" + "\": return " + (ViewHasCache ? ReturnMethodValueByCache : ReturnMethodValue) + ";" + Environment.NewLine;
+                        CaseCodeTemplateValue += "                case \"" + AspxFilePathUrl.GetTextBeforeLastValue(".aspx") + "/Default.aspx" + "\": return await " + (ViewHasCache ? ReturnMethodValueByCache : ReturnMethodValue) + ";" + Environment.NewLine;
 
                         if (UseSegment)
                         {
                             SegmentTemplateValue += "            if (path.StartsWith(\"" + AspxFilePathUrl.GetTextBeforeLastValue(".aspx") + "/\"))" + Environment.NewLine;
-                            SegmentTemplateValue += "                return " + (ViewHasCache ? ReturnMethodValueByCache : ReturnMethodValue) + ";" + Environment.NewLine;
+                            SegmentTemplateValue += "                return await " + (ViewHasCache ? ReturnMethodValueByCache : ReturnMethodValue) + ";" + Environment.NewLine;
                         }
                     }
             }
 
-            CaseCodeTemplateValueForFullPath += "                case \"" + AspxFilePathUrl + "\": return " + FilePathToMethodName + "_" + Controller.Replace('.', '_') + "_PageLoad" + (ViewHasCache? "Cache" : "") + MethodIndexer + "(context" + (IsLayout ? ", PageReturnValue" : "") + ");" + Environment.NewLine;
+            CaseCodeTemplateValueForFullPath += "                case \"" + AspxFilePathUrl + "\": return await " + FilePathToMethodName + "_" + Controller.Replace('.', '_') + "_PageLoad" + (ViewHasCache ? "Cache" : "") + MethodIndexer + "(context" + (IsLayout ? ", PageReturnValue" : "") + ");" + Environment.NewLine;
 
             string CallerViewDirectoryPath = AspxFilePathUrl.GetTextBeforeLastValue("/");
             if (string.IsNullOrEmpty(CallerViewDirectoryPath))
@@ -1581,7 +1610,7 @@ namespace SetCodeBehind
 
             string TmpMethodCodeTemplateValue = Environment.NewLine;
             TmpMethodCodeTemplateValue += "        // View Path: " + AspxFilePathUrl + Environment.NewLine;
-            TmpMethodCodeTemplateValue += "        private string " + FilePathToMethodName + "_" + Controller.Replace('.', '_') + "_PageLoad" + MethodIndexer + "(HttpContext context" + (IsLayout ? ", string PageReturnValue" : "") + ")" + Environment.NewLine;
+            TmpMethodCodeTemplateValue += "        private async Task<string> " + FilePathToMethodName + "_" + Controller.Replace('.', '_') + "_PageLoad" + MethodIndexer + "(HttpContext context" + (IsLayout ? ", string PageReturnValue" : "") + ")" + Environment.NewLine;
             TmpMethodCodeTemplateValue += "        {" + Environment.NewLine;
             TmpMethodCodeTemplateValue += "            string PreviousRequestPath = RequestPath;" + Environment.NewLine;
             TmpMethodCodeTemplateValue += "            string PreviousCallerViewPath = CallerViewPath;" + Environment.NewLine;
@@ -1602,9 +1631,9 @@ namespace SetCodeBehind
                     TmpMethodCodeTemplateValue += "            controller.Segment.AddList(Segment.GetList());" + Environment.NewLine;
 
                 if (!string.IsNullOrEmpty(ControllerConstructor))
-                    TmpMethodCodeTemplateValue += "            controller.CodeBehindConstructor" + ControllerConstructor + ";" + Environment.NewLine;
+                    TmpMethodCodeTemplateValue += "            " + (IsAsyncController ? "await " : "") + "controller.CodeBehindConstructor" + ControllerConstructor + ";" + Environment.NewLine;
 
-                TmpMethodCodeTemplateValue += "            controller.PageLoad(context);" + Environment.NewLine;
+                TmpMethodCodeTemplateValue += "            " + ((string.IsNullOrEmpty(ControllerConstructor) && IsAsyncController) ? "await " : "") + "controller.PageLoad(context);" + Environment.NewLine;
                 TmpMethodCodeTemplateValue += "            this.WebFormsValue += controller.WebFormsValue;" + Environment.NewLine + Environment.NewLine;
 
                 TmpMethodCodeTemplateValue += "            if (controller.WebSocketId != null)" + Environment.NewLine;
@@ -1625,20 +1654,20 @@ namespace SetCodeBehind
                 TmpMethodCodeTemplateValue += "                if (controller.ViewPath[0] == '>')" + Environment.NewLine;
                 TmpMethodCodeTemplateValue += "                {" + Environment.NewLine;
                 TmpMethodCodeTemplateValue += "                    string TmpViewPath = controller.ViewPath;" + Environment.NewLine;
-                TmpMethodCodeTemplateValue += "                    return SetPageLoadByPath(TmpViewPath.Remove(0, 1), context);" + Environment.NewLine;
+                TmpMethodCodeTemplateValue += "                    return await SetPageLoadByPath(TmpViewPath.Remove(0, 1), context);" + Environment.NewLine;
                 TmpMethodCodeTemplateValue += "                }" + Environment.NewLine + Environment.NewLine;
                 TmpMethodCodeTemplateValue += "                if (controller.ViewPath != CallerViewPath)" + Environment.NewLine;
                 TmpMethodCodeTemplateValue += "                {" + Environment.NewLine;
                 TmpMethodCodeTemplateValue += "                    if (controller.CodeBehindModel == null)" + Environment.NewLine;
-                TmpMethodCodeTemplateValue += "                        return controller.ResponseText + LoadPage(controller.ViewPath, context);" + Environment.NewLine;
+                TmpMethodCodeTemplateValue += "                        return controller.ResponseText + await LoadPageAsync(controller.ViewPath, context);" + Environment.NewLine;
                 TmpMethodCodeTemplateValue += "                    else" + Environment.NewLine;
-                TmpMethodCodeTemplateValue += "                        return controller.ResponseText + LoadPage(controller.ViewPath, controller.CodeBehindModel, context);" + Environment.NewLine;
+                TmpMethodCodeTemplateValue += "                        return controller.ResponseText + await LoadPageAsync(controller.ViewPath, controller.CodeBehindModel, context);" + Environment.NewLine;
                 TmpMethodCodeTemplateValue += "                }" + Environment.NewLine;
                 TmpMethodCodeTemplateValue += "            }" + Environment.NewLine + Environment.NewLine;
 
                 TmpMethodCodeTemplateValue += "            if (!string.IsNullOrEmpty(controller.DownloadFilePath))" + Environment.NewLine;
                 TmpMethodCodeTemplateValue += "            {" + Environment.NewLine;
-                TmpMethodCodeTemplateValue += "                Download(context, controller.DownloadFilePath);" + Environment.NewLine;
+                TmpMethodCodeTemplateValue += "                await DownloadAsync(context, controller.DownloadFilePath);" + Environment.NewLine;
                 TmpMethodCodeTemplateValue += "                return \"\";" + Environment.NewLine;
                 TmpMethodCodeTemplateValue += "            }" + Environment.NewLine + Environment.NewLine;
 
@@ -1659,7 +1688,7 @@ namespace SetCodeBehind
                     }
 
                     if (!string.IsNullOrEmpty(ModelConstructor))
-                        TmpMethodCodeTemplateValue += "                model.CodeBehindConstructor" + ModelConstructor + ";" + Environment.NewLine;
+                        TmpMethodCodeTemplateValue += "                " + (IsAsyncModel ? "await " : "") + "model.CodeBehindConstructor" + ModelConstructor + ";" + Environment.NewLine;
 
                     if (ModelUseAbstract)
                     {
@@ -1667,7 +1696,7 @@ namespace SetCodeBehind
 
                         TmpMethodCodeTemplateValue += "                if (!string.IsNullOrEmpty(model.DownloadFilePath))" + Environment.NewLine;
                         TmpMethodCodeTemplateValue += "                {" + Environment.NewLine;
-                        TmpMethodCodeTemplateValue += "                    Download(context, model.DownloadFilePath);" + Environment.NewLine;
+                        TmpMethodCodeTemplateValue += "                    await DownloadAsync(context, model.DownloadFilePath);" + Environment.NewLine;
                         TmpMethodCodeTemplateValue += "                    return \"\";" + Environment.NewLine;
                         TmpMethodCodeTemplateValue += "                }" + Environment.NewLine + Environment.NewLine;
 
@@ -1703,7 +1732,7 @@ namespace SetCodeBehind
                 TmpMethodCodeTemplateValue += "            RequestPath = PreviousRequestPath;" + Environment.NewLine;
                 TmpMethodCodeTemplateValue += "            CallerViewPath = PreviousCallerViewPath;" + Environment.NewLine;
                 TmpMethodCodeTemplateValue += "            CallerViewDirectoryPath = PreviousCallerViewDirectoryPath;" + Environment.NewLine + Environment.NewLine;
-                TmpMethodCodeTemplateValue += "            return " + (!string.IsNullOrEmpty(Layout) ? "(IgnoreLayout.IsNullOrFalse() ? SetPageLoadByFullPath(\"" + Layout + "\", context, controller.ResponseText) : controller.ResponseText)" : "controller.ResponseText") + ";" + Environment.NewLine;
+                TmpMethodCodeTemplateValue += "            return " + (!string.IsNullOrEmpty(Layout) ? "(IgnoreLayout.IsNullOrFalse() ? await SetPageLoadByFullPath(\"" + Layout + "\", context, controller.ResponseText) : controller.ResponseText)" : "controller.ResponseText") + ";" + Environment.NewLine;
             }
             else
             {
@@ -1723,7 +1752,7 @@ namespace SetCodeBehind
                     }
 
                     if (!string.IsNullOrEmpty(ModelConstructor))
-                        TmpMethodCodeTemplateValue += "            model.CodeBehindConstructor" + ModelConstructor + ";" + Environment.NewLine;
+                        TmpMethodCodeTemplateValue += "            " + (IsAsyncModel ? "await " : "") + "model.CodeBehindConstructor" + ModelConstructor + ";" + Environment.NewLine;
 
                     if (ModelUseAbstract)
                     {
@@ -1731,7 +1760,7 @@ namespace SetCodeBehind
 
                         TmpMethodCodeTemplateValue += "            if (!string.IsNullOrEmpty(model.DownloadFilePath))" + Environment.NewLine;
                         TmpMethodCodeTemplateValue += "            {" + Environment.NewLine;
-                        TmpMethodCodeTemplateValue += "                Download(context, model.DownloadFilePath);" + Environment.NewLine;
+                        TmpMethodCodeTemplateValue += "                await DownloadAsync(context, model.DownloadFilePath);" + Environment.NewLine;
                         TmpMethodCodeTemplateValue += "                return \"\";" + Environment.NewLine;
                         TmpMethodCodeTemplateValue += "            }" + Environment.NewLine + Environment.NewLine;
 
@@ -1802,9 +1831,9 @@ namespace SetCodeBehind
                 TmpMethodCodeTemplateValue += "            CallerViewDirectoryPath = PreviousCallerViewDirectoryPath;" + Environment.NewLine + Environment.NewLine;
 
                 if (!string.IsNullOrEmpty(Model) && ModelUseAbstract)
-                    TmpMethodCodeTemplateValue += "            return " + (!string.IsNullOrEmpty(Layout) ? "((model.IgnoreLayout.IsNullOrFalse() && IgnoreLayout.IsNullOrFalse()) ? SetPageLoadByFullPath(\"" + Layout + "\", context, ReturnValue) : ReturnValue)" : "ReturnValue") + ";" + Environment.NewLine;
+                    TmpMethodCodeTemplateValue += "            return " + (!string.IsNullOrEmpty(Layout) ? "((model.IgnoreLayout.IsNullOrFalse() && IgnoreLayout.IsNullOrFalse()) ? await SetPageLoadByFullPath(\"" + Layout + "\", context, ReturnValue) : ReturnValue)" : "ReturnValue") + ";" + Environment.NewLine;
                 else
-                    TmpMethodCodeTemplateValue += "            return " + (!string.IsNullOrEmpty(Layout) ? "(IgnoreLayout.IsNullOrFalse() ? SetPageLoadByFullPath(\"" + Layout + "\", context, ReturnValue) : ReturnValue)" : "ReturnValue") + ";" + Environment.NewLine;
+                    TmpMethodCodeTemplateValue += "            return " + (!string.IsNullOrEmpty(Layout) ? "(IgnoreLayout.IsNullOrFalse() ? await SetPageLoadByFullPath(\"" + Layout + "\", context, ReturnValue) : ReturnValue)" : "ReturnValue") + ";" + Environment.NewLine;
             }
 
             TmpMethodCodeTemplateValue += "        }" + Environment.NewLine;
@@ -1815,7 +1844,7 @@ namespace SetCodeBehind
             {
                 TmpMethodCodeTemplateValue += Environment.NewLine;
                 TmpMethodCodeTemplateValue += "        // View Path: " + AspxFilePathUrl + Environment.NewLine;
-                TmpMethodCodeTemplateValue += "        private string " + FilePathToMethodName + "_" + Controller.Replace('.', '_') + "_PageLoadCache" + MethodIndexer + "(HttpContext context" + (IsLayout ? ", string PageReturnValue" : "") + ")" + Environment.NewLine;
+                TmpMethodCodeTemplateValue += "        private async Task<string> " + FilePathToMethodName + "_" + Controller.Replace('.', '_') + "_PageLoadCache" + MethodIndexer + "(HttpContext context" + (IsLayout ? ", string PageReturnValue" : "") + ")" + Environment.NewLine;
                 TmpMethodCodeTemplateValue += "        {" + Environment.NewLine;
 
                 TmpMethodCodeTemplateValue += "            // Get Cache" + Environment.NewLine;
@@ -1830,7 +1859,7 @@ namespace SetCodeBehind
                 TmpMethodCodeTemplateValue += "            }" + Environment.NewLine + Environment.NewLine;
 
                 TmpMethodCodeTemplateValue += "            // Set Cache" + Environment.NewLine;
-                TmpMethodCodeTemplateValue += "            string ViewReturnValue = " + ReturnMethodValue + ";" + Environment.NewLine;
+                TmpMethodCodeTemplateValue += "            string ViewReturnValue = await " + ReturnMethodValue + ";" + Environment.NewLine;
                 TmpMethodCodeTemplateValue += "            if (HasMatchingView)" + Environment.NewLine;
                 TmpMethodCodeTemplateValue += "            {" + Environment.NewLine;
                 TmpMethodCodeTemplateValue += "                ViewCache cache = new ViewCache(context);" + Environment.NewLine;
@@ -1843,13 +1872,13 @@ namespace SetCodeBehind
 
             if (!string.IsNullOrEmpty(Model))
             {
-                CaseCodeTemplateValueForFullPathWithModel += "                case \"" + AspxFilePathUrl + "\": return " + FilePathToMethodName + "_" + Controller.Replace('.', '_') + "_PageLoad" + (ViewHasCache ? "Cache" : "") + MethodIndexer + "(context" + (IsLayout ? ", PageReturnValue" : "") + ", model);" + Environment.NewLine;
+                CaseCodeTemplateValueForFullPathWithModel += "                case \"" + AspxFilePathUrl + "\": return await " + FilePathToMethodName + "_" + Controller.Replace('.', '_') + "_PageLoad" + (ViewHasCache ? "Cache" : "") + MethodIndexer + "(context" + (IsLayout ? ", PageReturnValue" : "") + ", model);" + Environment.NewLine;
 
                 TmpMethodCodeTemplateValue += Environment.NewLine;
 
                 // Overload With Model Parameter
                 TmpMethodCodeTemplateValue += "        // View Path: " + AspxFilePathUrl + Environment.NewLine;
-                TmpMethodCodeTemplateValue += "        private string " + FilePathToMethodName + "_" + Controller.Replace('.', '_') + "_PageLoad" + MethodIndexer + "(HttpContext context" + (IsLayout ? ", string PageReturnValue" : "") + ", object ModelClass)" + Environment.NewLine;
+                TmpMethodCodeTemplateValue += "        private async Task<string> " + FilePathToMethodName + "_" + Controller.Replace('.', '_') + "_PageLoad" + MethodIndexer + "(HttpContext context" + (IsLayout ? ", string PageReturnValue" : "") + ", object ModelClass)" + Environment.NewLine;
                 TmpMethodCodeTemplateValue += "        {" + Environment.NewLine;
                 TmpMethodCodeTemplateValue += "            string PreviousRequestPath = RequestPath;" + Environment.NewLine;
                 TmpMethodCodeTemplateValue += "            string PreviousCallerViewPath = CallerViewPath;" + Environment.NewLine;
@@ -1872,9 +1901,9 @@ namespace SetCodeBehind
                         TmpMethodCodeTemplateValue += "            controller.Segment.AddList(Segment.GetList());" + Environment.NewLine;
 
                     if (!string.IsNullOrEmpty(ControllerConstructor))
-                        TmpMethodCodeTemplateValue += "            controller.CodeBehindConstructor" + ControllerConstructor + ";" + Environment.NewLine;
+                        TmpMethodCodeTemplateValue += "            " + (IsAsyncController ? "await " : "") + "controller.CodeBehindConstructor" + ControllerConstructor + ";" + Environment.NewLine;
 
-                    TmpMethodCodeTemplateValue += "            controller.PageLoad(context);" + Environment.NewLine;
+                    TmpMethodCodeTemplateValue += "            " + ((string.IsNullOrEmpty(ControllerConstructor) && IsAsyncController) ? "await " : "") + "controller.PageLoad(context);" + Environment.NewLine;
                     TmpMethodCodeTemplateValue += "            this.WebFormsValue += controller.WebFormsValue;" + Environment.NewLine + Environment.NewLine;
 
                     TmpMethodCodeTemplateValue += "            if (controller.IgnoreLayout != null)" + Environment.NewLine;
@@ -1895,20 +1924,20 @@ namespace SetCodeBehind
                     TmpMethodCodeTemplateValue += "                if (controller.ViewPath[0] == '>')" + Environment.NewLine;
                     TmpMethodCodeTemplateValue += "                {" + Environment.NewLine;
                     TmpMethodCodeTemplateValue += "                    string TmpViewPath = controller.ViewPath;" + Environment.NewLine;
-                    TmpMethodCodeTemplateValue += "                    return SetPageLoadByPath(TmpViewPath.Remove(0, 1), context);" + Environment.NewLine;
+                    TmpMethodCodeTemplateValue += "                    return await SetPageLoadByPath(TmpViewPath.Remove(0, 1), context);" + Environment.NewLine;
                     TmpMethodCodeTemplateValue += "                }" + Environment.NewLine + Environment.NewLine;
                     TmpMethodCodeTemplateValue += "                if (controller.ViewPath != CallerViewPath)" + Environment.NewLine;
                     TmpMethodCodeTemplateValue += "                {" + Environment.NewLine;
                     TmpMethodCodeTemplateValue += "                    if (controller.CodeBehindModel == null)" + Environment.NewLine;
-                    TmpMethodCodeTemplateValue += "                        return controller.ResponseText + LoadPage(controller.ViewPath, context);" + Environment.NewLine;
+                    TmpMethodCodeTemplateValue += "                        return controller.ResponseText + await LoadPageAsync(controller.ViewPath, context);" + Environment.NewLine;
                     TmpMethodCodeTemplateValue += "                    else" + Environment.NewLine;
-                    TmpMethodCodeTemplateValue += "                        return controller.ResponseText + LoadPage(controller.ViewPath, controller.CodeBehindModel, context);" + Environment.NewLine;
+                    TmpMethodCodeTemplateValue += "                        return controller.ResponseText + await LoadPageAsync(controller.ViewPath, controller.CodeBehindModel, context);" + Environment.NewLine;
                     TmpMethodCodeTemplateValue += "                }" + Environment.NewLine;
                     TmpMethodCodeTemplateValue += "            }" + Environment.NewLine + Environment.NewLine;
 
                     TmpMethodCodeTemplateValue += "            if (!string.IsNullOrEmpty(controller.DownloadFilePath))" + Environment.NewLine;
                     TmpMethodCodeTemplateValue += "            {" + Environment.NewLine;
-                    TmpMethodCodeTemplateValue += "                Download(context, controller.DownloadFilePath);" + Environment.NewLine;
+                    TmpMethodCodeTemplateValue += "                await DownloadAsync(context, controller.DownloadFilePath);" + Environment.NewLine;
                     TmpMethodCodeTemplateValue += "                return \"\";" + Environment.NewLine;
                     TmpMethodCodeTemplateValue += "            }" + Environment.NewLine + Environment.NewLine;
 
@@ -1925,7 +1954,7 @@ namespace SetCodeBehind
                     }
 
                     if (!string.IsNullOrEmpty(ModelConstructor))
-                        TmpMethodCodeTemplateValue += "                model.CodeBehindConstructor" + ModelConstructor + ";" + Environment.NewLine;
+                        TmpMethodCodeTemplateValue += "                " + (IsAsyncModel ? "await " : "") + "model.CodeBehindConstructor" + ModelConstructor + ";" + Environment.NewLine;
 
                     if (ModelUseAbstract)
                     {
@@ -1933,7 +1962,7 @@ namespace SetCodeBehind
 
                         TmpMethodCodeTemplateValue += "                if (!string.IsNullOrEmpty(model.DownloadFilePath))" + Environment.NewLine;
                         TmpMethodCodeTemplateValue += "                {" + Environment.NewLine;
-                        TmpMethodCodeTemplateValue += "                    Download(context, model.DownloadFilePath);" + Environment.NewLine;
+                        TmpMethodCodeTemplateValue += "                    await DownloadAsync(context, model.DownloadFilePath);" + Environment.NewLine;
                         TmpMethodCodeTemplateValue += "                    return \"\";" + Environment.NewLine;
                         TmpMethodCodeTemplateValue += "                }" + Environment.NewLine + Environment.NewLine;
 
@@ -1968,7 +1997,7 @@ namespace SetCodeBehind
                     TmpMethodCodeTemplateValue += "            RequestPath = PreviousRequestPath;" + Environment.NewLine;
                     TmpMethodCodeTemplateValue += "            CallerViewPath = PreviousCallerViewPath;" + Environment.NewLine;
                     TmpMethodCodeTemplateValue += "            CallerViewDirectoryPath = PreviousCallerViewDirectoryPath;" + Environment.NewLine + Environment.NewLine;
-                    TmpMethodCodeTemplateValue += "            return " + (!string.IsNullOrEmpty(Layout) ? "(IgnoreLayout.IsNullOrFalse() ? SetPageLoadByFullPath(\"" + Layout + "\", context, controller.ResponseText) : controller.ResponseText)" : "controller.ResponseText") + ";" + Environment.NewLine;
+                    TmpMethodCodeTemplateValue += "            return " + (!string.IsNullOrEmpty(Layout) ? "(IgnoreLayout.IsNullOrFalse() ? await SetPageLoadByFullPath(\"" + Layout + "\", context, controller.ResponseText) : controller.ResponseText)" : "controller.ResponseText") + ";" + Environment.NewLine;
                 }
                 else
                 {
@@ -1984,7 +2013,7 @@ namespace SetCodeBehind
                     }
 
                     if (!string.IsNullOrEmpty(ModelConstructor))
-                        TmpMethodCodeTemplateValue += "            model.CodeBehindConstructor" + ModelConstructor + ";" + Environment.NewLine;
+                        TmpMethodCodeTemplateValue += "            " + (IsAsyncModel ? "await " : "") + "model.CodeBehindConstructor" + ModelConstructor + ";" + Environment.NewLine;
 
                     if (ModelUseAbstract)
                     {
@@ -1992,7 +2021,7 @@ namespace SetCodeBehind
 
                         TmpMethodCodeTemplateValue += "            if (!string.IsNullOrEmpty(model.DownloadFilePath))" + Environment.NewLine;
                         TmpMethodCodeTemplateValue += "            {" + Environment.NewLine;
-                        TmpMethodCodeTemplateValue += "                Download(context, model.DownloadFilePath);" + Environment.NewLine;
+                        TmpMethodCodeTemplateValue += "                await DownloadAsync(context, model.DownloadFilePath);" + Environment.NewLine;
                         TmpMethodCodeTemplateValue += "                return \"\";" + Environment.NewLine;
                         TmpMethodCodeTemplateValue += "            }" + Environment.NewLine + Environment.NewLine;
 
@@ -2047,9 +2076,9 @@ namespace SetCodeBehind
                     TmpMethodCodeTemplateValue += "            CallerViewDirectoryPath = PreviousCallerViewDirectoryPath;" + Environment.NewLine + Environment.NewLine;
 
                     if (!string.IsNullOrEmpty(Model) && ModelUseAbstract)
-                        TmpMethodCodeTemplateValue += "            return " + (!string.IsNullOrEmpty(Layout) ? "((model.IgnoreLayout.IsNullOrFalse() && IgnoreLayout.IsNullOrFalse()) ? SetPageLoadByFullPath(\"" + Layout + "\", context, ReturnValue) : ReturnValue)" : "ReturnValue") + ";" + Environment.NewLine;
+                        TmpMethodCodeTemplateValue += "            return " + (!string.IsNullOrEmpty(Layout) ? "((model.IgnoreLayout.IsNullOrFalse() && IgnoreLayout.IsNullOrFalse()) ? await SetPageLoadByFullPath(\"" + Layout + "\", context, ReturnValue) : ReturnValue)" : "ReturnValue") + ";" + Environment.NewLine;
                     else
-                        TmpMethodCodeTemplateValue += "            return " + (!string.IsNullOrEmpty(Layout) ? "(IgnoreLayout.IsNullOrFalse() ? SetPageLoadByFullPath(\"" + Layout + "\", context, ReturnValue) : ReturnValue)" : "ReturnValue") + ";" + Environment.NewLine;
+                        TmpMethodCodeTemplateValue += "            return " + (!string.IsNullOrEmpty(Layout) ? "(IgnoreLayout.IsNullOrFalse() ? await SetPageLoadByFullPath(\"" + Layout + "\", context, ReturnValue) : ReturnValue)" : "ReturnValue") + ";" + Environment.NewLine;
                 }
 
                 TmpMethodCodeTemplateValue += "        }" + Environment.NewLine;
@@ -2060,7 +2089,7 @@ namespace SetCodeBehind
                 {
                     TmpMethodCodeTemplateValue += Environment.NewLine;
                     TmpMethodCodeTemplateValue += "        // View Path: " + AspxFilePathUrl + Environment.NewLine;
-                    TmpMethodCodeTemplateValue += "        private string " + FilePathToMethodName + "_" + Controller.Replace('.', '_') + "_PageLoadCache" + MethodIndexer + "(HttpContext context" + (IsLayout ? ", string PageReturnValue" : "") + ", object ModelClass)" + Environment.NewLine;
+                    TmpMethodCodeTemplateValue += "        private async Task<string> " + FilePathToMethodName + "_" + Controller.Replace('.', '_') + "_PageLoadCache" + MethodIndexer + "(HttpContext context" + (IsLayout ? ", string PageReturnValue" : "") + ", object ModelClass)" + Environment.NewLine;
                     TmpMethodCodeTemplateValue += "        {" + Environment.NewLine;
 
                     TmpMethodCodeTemplateValue += "            // Get Cache" + Environment.NewLine;
@@ -2075,7 +2104,7 @@ namespace SetCodeBehind
                     TmpMethodCodeTemplateValue += "            }" + Environment.NewLine + Environment.NewLine;
 
                     TmpMethodCodeTemplateValue += "            // Set Cache" + Environment.NewLine;
-                    TmpMethodCodeTemplateValue += "            string ViewReturnValue = " + FilePathToMethodName + "_" + Controller.Replace('.', '_') + "_PageLoad" + MethodIndexer + "(context" + (IsLayout ? ", PageReturnValue" : "") + ", ModelClass);" + Environment.NewLine;
+                    TmpMethodCodeTemplateValue += "            string ViewReturnValue = await " + FilePathToMethodName + "_" + Controller.Replace('.', '_') + "_PageLoad" + MethodIndexer + "(context" + (IsLayout ? ", PageReturnValue" : "") + ", ModelClass);" + Environment.NewLine;
                     TmpMethodCodeTemplateValue += "            if (HasMatchingView)" + Environment.NewLine;
                     TmpMethodCodeTemplateValue += "            {" + Environment.NewLine;
                     TmpMethodCodeTemplateValue += "                ViewCache cache = new ViewCache(context);" + Environment.NewLine;
