@@ -163,6 +163,18 @@ namespace CodeBehind
             return ResponseText + execute.RunControllerValue(context, ViewPath, CodeBehindModel, ViewData, DownloadFilePath, IgnoreLayout, WebFormsValue, WebSocketId, SSEId, UseSSE);
         }
 
+        public async Task<string> RunAsync(HttpContext context)
+        {
+            if (!string.IsNullOrEmpty(CallerViewPath))
+                return "";
+
+            if (IgnoreViewAndModel)
+                return ResponseText;
+
+            CodeBehindExecute execute = new CodeBehindExecute();
+            return ResponseText + await execute.RunControllerValueAsync(context, ViewPath, CodeBehindModel, ViewData, DownloadFilePath, IgnoreLayout, WebFormsValue, WebSocketId, SSEId, UseSSE);
+        }
+
         public void FillSegment(HttpContext context, string FillAfter = "")
         {
             if (!string.IsNullOrEmpty(CallerViewPath))
