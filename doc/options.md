@@ -65,7 +65,7 @@ One of the interesting ideas of the Elanat team for the CodeBehind framework is 
 Note: You can safely activate this option because this rewrite will not create any extra load for processing.
 
 Example:
-access `/page/aboue.aspx` in `/page/about` path
+access `/page/about.aspx` in `/page/about` path
 
 Also access aspx file after rewrite as directory
 (`access_aspx_file_after_rewrite=false`)
