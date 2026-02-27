@@ -100,3 +100,5 @@ Example
     <b>Value not exist</b>
 }
 ```
+
+> Note: The Segment feature is enabled by default in the controller configuration in route.
