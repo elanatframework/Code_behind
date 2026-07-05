@@ -5,6 +5,8 @@ namespace CodeBehind
         private string OptionsFilePath = "code_behind/options.ini";
         internal string ViewPath { private set; get; }
         internal bool MoveViewFromWwwroot { private set; get; }
+        internal string DllPath { private set; get; }
+        internal bool MoveDllFromWwwrootBin { private set; get; }
         internal bool RewriteAspxFileToDirectory { private set; get; }
         internal bool AccessAspxFileAfterRewrite { private set; get; }
         internal bool IgnoreDefaultAfterRewrite { private set; get; }
@@ -35,6 +37,7 @@ namespace CodeBehind
         internal int WebSocketBufferSize { private set; get; }
         internal bool SendViewOnlyInGetMethod { private set; get; }
         internal bool IgnoreLayoutForPostBack { private set; get; }
+        internal bool SetTextHtmlContentTypeForPostBack { private set; get; }
         internal int SseInterval { private set; get; }
         internal int MaxSSEConnectionsPerClient { private set; get; }
         internal bool UseCommentModeForWebFormsCombinate { private set; get; }
@@ -57,6 +60,8 @@ namespace CodeBehind
 
                 ViewPath = reader.ReadLine().GetTextAfterValue("=");
                 MoveViewFromWwwroot = (reader.ReadLine().GetTextAfterValue("=").Trim() == "true");
+                DllPath = reader.ReadLine().GetTextAfterValue("=");
+                MoveDllFromWwwrootBin = (reader.ReadLine().GetTextAfterValue("=").Trim() == "true");
                 RewriteAspxFileToDirectory = (reader.ReadLine().GetTextAfterValue("=").Trim() == "true");
                 AccessAspxFileAfterRewrite = (reader.ReadLine().GetTextAfterValue("=").Trim() == "true");
                 IgnoreDefaultAfterRewrite = (reader.ReadLine().GetTextAfterValue("=").Trim() == "true");
@@ -88,6 +93,7 @@ namespace CodeBehind
                 WebSocketBufferSize = reader.ReadLine().GetTextAfterValue("=").Trim().ToNumber();
                 SendViewOnlyInGetMethod = (reader.ReadLine().GetTextAfterValue("=").Trim() == "true");
                 IgnoreLayoutForPostBack = (reader.ReadLine().GetTextAfterValue("=").Trim() == "true");
+                SetTextHtmlContentTypeForPostBack = (reader.ReadLine().GetTextAfterValue("=").Trim() == "true");
                 SseInterval = reader.ReadLine().GetTextAfterValue("=").Trim().ToNumber();
                 MaxSSEConnectionsPerClient = reader.ReadLine().GetTextAfterValue("=").Trim().ToNumber();
             }
@@ -97,9 +103,11 @@ namespace CodeBehind
         {
             List<string> OptionsList = new List<string>
             {
-                "[CodeBehind options]; do not change order",
+                "[CodeBehind-options]",
                 "view_path=wwwroot",
                 "move_view_from_wwwroot=true",
+                "dll_path=wwwroot/bin",
+                "move_dll_from_wwwroot_bin=true",
                 "rewrite_aspx_file_to_directory=false",
                 "access_aspx_file_after_rewrite=false",
                 "ignore_default_after_rewrite=true",
@@ -131,6 +139,7 @@ namespace CodeBehind
                 "web_socket_buffer_size=4096",
                 "send_view_only_in_get_method=false",
                 "ignore_layout_for_post_back=false",
+                "set_text_html_content_type_for_post_back=true",
                 "sse_interval=1000",
                 "max_sse_connections_per_client=3"
             };
