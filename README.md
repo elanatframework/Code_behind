@@ -208,3 +208,9 @@ Get from Nuget (We added CodeBehind in Nuget so that you can access it easily):
 ### Ready project
 
 [Get ready project](https://github.com/elanatframework/Code_behind/tree/elanat_framework/ready_project)
+
+## License
+
+CodeBehind Framework is licensed under the [MIT License](LICENSE).
+
+Copyright (c) 2023-2026 Elanat.
