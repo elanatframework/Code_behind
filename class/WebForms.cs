@@ -1,3 +1,6 @@
+// WebForms.cs 2.1 - The Back-End Part of WebForms Core Technology, Owned by Elanat (https://elanat.net)
+// Compatible with WebFormsJS version 2.1
+
 using System.Text;
 
 namespace CodeBehind
@@ -88,6 +91,7 @@ namespace CodeBehind
         public void AddLine(string Name, string Value) => Add(Name, Value);
 
         // Add
+        // Creates the Data if it does not exist; otherwise, Appends the New Value to the Existing Value.
         public void AddId(string InputPlace, string Id) => Add("ai" + InputPlace, Id);
         public void AddName(string InputPlace, string Name) => Add("an" + InputPlace, Name);
         public void AddValue(string InputPlace, string Value) => Add("av" + InputPlace, Value);
@@ -108,6 +112,7 @@ namespace CodeBehind
         public void AddHidden(string InputPlace, string Name, string Value, string Id = "") => Add("ah" + InputPlace, Name + GS + Value + (!string.IsNullOrEmpty(Id) ? GS + Id : ""));
 
         // Set
+        // Creates the Data if it does not exist; otherwise, Replaces the Existing Value with the New Value.
         public void SetId(string InputPlace, string Id) => Add("si" + InputPlace, Id);
         public void SetName(string InputPlace, string Name) => Add("sn" + InputPlace, Name);
         public void SetValue(string InputPlace, string Value) => Add("sv" + InputPlace, Value);
@@ -129,21 +134,26 @@ namespace CodeBehind
         public void SetTextColor(string InputPlace, string Color) => Add("tc" + InputPlace, Color);
         public void SetFontName(string InputPlace, string Name) => Add("fn" + InputPlace, Name);
         public void SetFontSize(string InputPlace, string Size) => Add("fs" + InputPlace, Size);
-        public void SetFontSize(string InputPlace, int Size) => Add("fs" + InputPlace, Size + "px");
+        public void SetFontSize(string InputPlace, int Size) => Add("fs" + InputPlace, Size.ToString() + "px");
         public void SetFontBold(string InputPlace, bool Bold) => Add("fb" + InputPlace, Bold ? "1" : "0");
         public void SetVisible(string InputPlace, bool Visible) => Add("vi" + InputPlace, Visible ? "1" : "0");
         public void SetTextAlign(string InputPlace, string Align) => Add("ta" + InputPlace, Align);
         public void SetReadOnly(string InputPlace, bool ReadOnly) => Add("sr" + InputPlace, ReadOnly ? "1" : "0");
         public void SetDisabled(string InputPlace, bool Disabled) => Add("sd" + InputPlace, Disabled ? "1" : "0");
         public void SetFocus(string InputPlace, bool Focus) => Add("sf" + InputPlace, Focus ? "1" : "0");
-        public void SetMinLength(string InputPlace, int Length) => Add("mn" + InputPlace, Length.ToString());
-        public void SetMaxLength(string InputPlace, int Length) => Add("mx" + InputPlace, Length.ToString());
+        public void SetMinLength(string InputPlace, string Length) => Add("mn" + InputPlace, Length);
+        public void SetMinLength(string InputPlace, int Length) => SetMinLength(InputPlace, Length.ToString());
+        public void SetMaxLength(string InputPlace, string Length) => Add("mx" + InputPlace, Length);
+        public void SetMaxLength(string InputPlace, int Length) => Add(InputPlace, Length.ToString());
         public void SetSelectedValue(string InputPlace, string Value) => Add("ts" + InputPlace, Value);
-        public void SetSelectedIndex(string InputPlace, int Index) => Add("ti" + InputPlace, Index.ToString());
+        public void SetSelectedIndex(string InputPlace, string Index) => Add("ti" + InputPlace, Index);
+        public void SetSelectedIndex(string InputPlace, int Index) => SetSelectedIndex(InputPlace, Index.ToString());
         public void SetCheckedValue(string InputPlace, string Value, bool Selected) => Add("ks" + InputPlace, Value + GS + (Selected ? "1" : "0"));
-        public void SetCheckedIndex(string InputPlace, int Index, bool Selected) => Add("ki" + InputPlace, Index.ToString() + GS + (Selected ? "1" : "0"));
+        public void SetCheckedIndex(string InputPlace, string Index, bool Selected) => Add("ki" + InputPlace, Index + GS + (Selected ? "1" : "0"));
+        public void SetCheckedIndex(string InputPlace, int Index, bool Selected) => SetCheckedIndex(InputPlace, Index.ToString(), Selected);
 
         // Insert
+        // Creates the Data only if it does not exist; otherwise, does nothing.
         public void InsertId(string InputPlace, string Id) => Add("ii" + InputPlace, Id);
         public void InsertName(string InputPlace, string Name) => Add("in" + InputPlace, Name);
         public void InsertValue(string InputPlace, string Value) => Add("iv" + InputPlace, Value);
@@ -156,7 +166,7 @@ namespace CodeBehind
         public void InsertLabel(string InputPlace, string Label) => Add("iA" + InputPlace, Label);
         public void InsertText(string InputPlace, string Text) => Add("it" + InputPlace, Text.Replace('\n'.ToString(), "$[ln];"));
         public void InsertAttribute(string InputPlace, string Attribute, string Value = "", char Splitter = '\0') => Add("ia" + InputPlace, Attribute + GS + ((Splitter != '\0') ? Splitter.ToString() : "") + (!string.IsNullOrEmpty(Value) ? GS + Value : ""));
-
+        
         // Delete
         public void DeleteId(string InputPlace) => Add("di" + InputPlace);
         public void DeleteName(string InputPlace) => Add("dn" + InputPlace);
@@ -178,35 +188,51 @@ namespace CodeBehind
         public void SwapTag(string InputPlace, string OutputPlace) => Add("sp" + InputPlace, OutputPlace);
         public void SetReflection(string InputPlace, string Tag) => Add("sR" + InputPlace, Tag);
         public void SetReflectionByOutputPlace(string InputPlace, string OutputPlace) => Add("iR" + InputPlace, OutputPlace);
+        public void SetMorph(string InputPlace, string Tag) => Add("sM" + InputPlace, Tag);
+        public void SetMorphByOutputPlace(string InputPlace, string OutputPlace) => Add("iM" + InputPlace, OutputPlace);
 
         // Browser
         public void ChangeUrl(string Url) => Add("cu", Url);
         public void SetHeadTitle(string Title) => Add("ht", Title);
         public void ClipboardWriteText(string Text) => Add("nw", Text);
-        public void ScrollTo(int X, int Y) => Add("ws", X.ToString() + GS + Y.ToString());
-        public void HistoryGo(int Steps) => Add("wg", Steps.ToString());
+        public void ScrollTo(string X, string Y) => Add("ws", X + GS + Y);
+        public void ScrollTo(int X, int Y) => ScrollTo(X.ToString(), Y.ToString());
+        public void HistoryGo(string Steps) => Add("wg", Steps);
+        public void HistoryGo(int Steps) => HistoryGo(Steps.ToString());
         public void ReloadPage() => Add("lr");
         public void Redirect(string Path) => Add("lh", Path);
 
         // Increase
-        public void IncreaseMinLength(string InputPlace, int Value) => Add("+n" + InputPlace, Value.ToString());
-        public void IncreaseMaxLength(string InputPlace, int Value) => Add("+x" + InputPlace, Value.ToString());
-        public void IncreaseFontSize(string InputPlace, int Value) => Add("+f" + InputPlace, Value.ToString());
-        public void IncreaseWidth(string InputPlace, int Value) => Add("+w" + InputPlace, Value.ToString());
-        public void IncreaseHeight(string InputPlace, int Value) => Add("+h" + InputPlace, Value.ToString());
-        public void IncreaseValue(string InputPlace, int Value) => Add("+v" + InputPlace, Value.ToString());
+        public void IncreaseMinLength(string InputPlace, string Value) => Add("+n" + InputPlace, Value);
+        public void IncreaseMinLength(string InputPlace, int Value) => IncreaseMinLength(InputPlace, Value.ToString());
+        public void IncreaseMaxLength(string InputPlace, string Value) => Add("+x" + InputPlace, Value);
+        public void IncreaseMaxLength(string InputPlace, int Value) => IncreaseMaxLength(InputPlace, Value.ToString());
+        public void IncreaseFontSize(string InputPlace, string Value) => Add("+f" + InputPlace, Value);
+        public void IncreaseFontSize(string InputPlace, int Value) => IncreaseFontSize(InputPlace, Value.ToString());
+        public void IncreaseWidth(string InputPlace, string Value) => Add("+w" + InputPlace, Value);
+        public void IncreaseWidth(string InputPlace, int Value) => IncreaseWidth(InputPlace, Value.ToString());
+        public void IncreaseHeight(string InputPlace, string Value) => Add("+h" + InputPlace, Value);
+        public void IncreaseHeight(string InputPlace, int Value) => IncreaseHeight(InputPlace, Value.ToString());
+        public void IncreaseValue(string InputPlace, string Value) => Add("+v" + InputPlace, Value);
+        public void IncreaseValue(string InputPlace, int Value) => IncreaseValue(InputPlace, Value.ToString());
 
         // Decrease
-        public void DecreaseMinLength(string InputPlace, int Value) => Add("-n" + InputPlace, Value.ToString());
-        public void DecreaseMaxLength(string InputPlace, int Value) => Add("-x" + InputPlace, Value.ToString());
-        public void DecreaseFontSize(string InputPlace, int Value) => Add("-f" + InputPlace, Value.ToString());
-        public void DecreaseWidth(string InputPlace, int Value) => Add("-w" + InputPlace, Value.ToString());
-        public void DecreaseHeight(string InputPlace, int Value) => Add("-h" + InputPlace, Value.ToString());
-        public void DecreaseValue(string InputPlace, int Value) => Add("-v" + InputPlace, Value.ToString());
+        public void DecreaseMinLength(string InputPlace, string Value) => Add("-n" + InputPlace, Value);
+        public void DecreaseMinLength(string InputPlace, int Value) => DecreaseMinLength(InputPlace, Value.ToString());
+        public void DecreaseMaxLength(string InputPlace, string Value) => Add("-x" + InputPlace, Value);
+        public void DecreaseMaxLength(string InputPlace, int Value) => DecreaseMaxLength(InputPlace, Value.ToString());
+        public void DecreaseFontSize(string InputPlace, string Value) => Add("-f" + InputPlace, Value);
+        public void DecreaseFontSize(string InputPlace, int Value) => DecreaseFontSize(InputPlace, Value.ToString());
+        public void DecreaseWidth(string InputPlace, string Value) => Add("-w" + InputPlace, Value);
+        public void DecreaseWidth(string InputPlace, int Value) => DecreaseWidth(InputPlace, Value.ToString());
+        public void DecreaseHeight(string InputPlace, string Value) => Add("-h" + InputPlace, Value);
+        public void DecreaseHeight(string InputPlace, int Value) => DecreaseHeight(InputPlace, Value.ToString());
+        public void DecreaseValue(string InputPlace, string Value) => Add("-v" + InputPlace, Value);
+        public void DecreaseValue(string InputPlace, int Value) => DecreaseValue(InputPlace, Value.ToString());
 
         // Event
         // ConstructorName: mouseevent, keyboardevent, uievent, focusevent, inputevent, event
-        // All Method In Event Section Only Support Dynamic Args Once
+        // All Method in "Event" Section Only Support Dynamic Args Once. To Support Invoking Dynamic Arguments on a Momentary Basis, Use "EventListener" Section Methods.
         public void TriggerEvent(string InputPlace, string HtmlEventListener, string ConstructorName = null) => Add("TE" + InputPlace, HtmlEventListener + (!string.IsNullOrEmpty(ConstructorName)? GS + ConstructorName : ""));
         public void SetPostEvent(string InputPlace, string HtmlEvent) => Add("Ep" + InputPlace, HtmlEvent);
         public void SetPostEvent(string InputPlace, string HtmlEvent, string OutputPlace) => Add("Ep" + InputPlace, HtmlEvent + GS + OutputPlace);
@@ -240,7 +266,7 @@ namespace CodeBehind
         public void SetSendEvent(string InputPlace, string HtmlEvent, string Data, string Path = null, string Method = "POST", bool IsMultiPart = false, string ContentType = "text/plain", string OutputPlace = null) => Add("En" + InputPlace, HtmlEvent + GS + Data.Replace('\n'.ToString(), "$[ln];").Replace("\"", "$[dq];").Replace("'", "$[sq];") + GS + (!string.IsNullOrEmpty(Path) ? Path : "#") + GS + Method + GS + (IsMultiPart ? "1" : "0") + GS + ContentType + GS + OutputPlace);
         public void SetSendEventListener(string InputPlace, string HtmlEventListener, string Data, string Path = null, string Method = "POST", bool IsMultiPart = false, string ContentType = "text/plain", string OutputPlace = null) => Add("EN" + InputPlace, HtmlEventListener + GS + Data.Replace('\n'.ToString(), "$[ln];") + GS + (!string.IsNullOrEmpty(Path) ? Path : "#") + GS + Method + GS + (IsMultiPart ? "1" : "0") + GS + ContentType + GS + OutputPlace);
         public void SetCommentEvent(string InputPlace, string HtmlEvent, string Index = null, string OutputPlace = null) => Add("Eb" + InputPlace, HtmlEvent + GS + Index + GS + OutputPlace);
-        public void SetCommentEvent(string InputPlace, string HtmlEvent, int Index, string OutputPlace = null) => SetCommentEvent(InputPlace, HtmlEvent, Index.ToString(), OutputPlace = null);
+        public void SetCommentEvent(string InputPlace, string HtmlEvent, int Index, string OutputPlace = null) => SetCommentEvent(InputPlace, HtmlEvent, Index.ToString(), OutputPlace);
         public void SetCommentEventListener(string InputPlace, string HtmlEventListener, string Index = null, string OutputPlace = null) => Add("EB" + InputPlace, HtmlEventListener + GS + Index + GS + OutputPlace);
         public void SetCommentEventListener(string InputPlace, string HtmlEventListener, int Index, string OutputPlace = null) => SetCommentEventListener(InputPlace, HtmlEventListener, Index.ToString(), OutputPlace);
         public void SetWasmEvent(string InputPlace, string HtmlEvent, string WasmLanguage, string WasmUrl, string MethodName, object[] Args = null, string OutputPlace = null)
@@ -248,7 +274,7 @@ namespace CodeBehind
             string ArgsJoin = "";
 
             if (Args != null)
-                ArgsJoin = (Args.Length > 0) ? string.Join(US, Args) : "";
+                ArgsJoin = (Args.Length > 0) ? "[" + string.Join(US, Args) : "";
 
             Add("Ey" + InputPlace, HtmlEvent + GS + WasmLanguage + GS + WasmUrl + GS + MethodName + GS + ArgsJoin + GS + OutputPlace);
         }
@@ -257,7 +283,7 @@ namespace CodeBehind
             string ArgsJoin = "";
 
             if (Args != null)
-                ArgsJoin = (Args.Length > 0) ? string.Join(US, Args) : "";
+                ArgsJoin = (Args.Length > 0) ? "[" + string.Join(US, Args) : "";
 
             Add("EY" + InputPlace, HtmlEventListener + GS + WasmLanguage + GS + WasmUrl + GS + MethodName + GS + ArgsJoin + GS + OutputPlace);
         }
@@ -272,7 +298,7 @@ namespace CodeBehind
             string ArgsJoin = "";
 
             if (Args != null)
-                ArgsJoin = (Args.Length > 0) ? GS + string.Join(US, Args) : "";
+                ArgsJoin = (Args.Length > 0) ? GS + "[" + string.Join(US, Args) : "";
 
             Add("Ej" + InputPlace, HtmlEvent + GS + ModulePath + GS + OutputPlace + ArgsJoin);
         }
@@ -281,7 +307,7 @@ namespace CodeBehind
             string ArgsJoin = "";
 
             if (Args != null)
-                ArgsJoin = (Args.Length > 0) ? GS + string.Join(US, Args) : "";
+                ArgsJoin = (Args.Length > 0) ? GS + "[" + string.Join(US, Args) : "";
 
             Add("EJ" + InputPlace, HtmlEventListener + GS + ModulePath + GS + OutputPlace + ArgsJoin);
         }
@@ -296,7 +322,7 @@ namespace CodeBehind
             string ArgsJoin = "";
 
             if (Args != null)
-                ArgsJoin = (Args.Length > 0) ? GS + string.Join(US, Args) : "";
+                ArgsJoin = (Args.Length > 0) ? GS + "[" + string.Join(US, Args) : "";
 
             Add("Em" + InputPlace, HtmlEvent + GS + MethodName + ArgsJoin);
         }
@@ -305,7 +331,7 @@ namespace CodeBehind
             string ArgsJoin = "";
 
             if (Args != null)
-                ArgsJoin = (Args.Length > 0) ? GS + string.Join(US, Args) : "";
+                ArgsJoin = (Args.Length > 0) ? GS + "[" + string.Join(US, Args) : "";
 
             Add("EM" + InputPlace, HtmlEventListener + GS + MethodName + ArgsJoin);
         }
@@ -314,7 +340,7 @@ namespace CodeBehind
             string ArgsJoin = "";
 
             if (Args != null)
-                ArgsJoin = (Args.Length > 0) ? GS + string.Join(US, Args) : "";
+                ArgsJoin = (Args.Length > 0) ? GS + "[" + string.Join(US, Args) : "";
 
             Add("Ex" + InputPlace, HtmlEvent + GS + MethodName + ArgsJoin);
         }
@@ -323,7 +349,7 @@ namespace CodeBehind
             string ArgsJoin = "";
 
             if (Args != null)
-                ArgsJoin = (Args.Length > 0) ? GS + string.Join(US, Args) : "";
+                ArgsJoin = (Args.Length > 0) ? GS + "[" + string.Join(US, Args) : "";
 
             Add("EX" + InputPlace, HtmlEventListener + GS + MethodName + ArgsJoin);
         }
@@ -372,15 +398,16 @@ namespace CodeBehind
         // Compare: greater, less, equal, notequal, includes, startswith, endswith, matches, changed, inrange, lengthgreater, lengthless, lengthequal
         // Range: Only Use For Compare With inrange Value. Split By Comma ","
         // Key: Only Use For Watch With attribute And style Value
-        public void CreateCustomDOMEvent(string InputPlace, string EventName ,string Watch, string Key, string Compare, string Value, string Range, bool Immediate = false, int Delay = 0) => Add("eC" + InputPlace, EventName + GS + Watch + GS + Key + GS + Compare + GS + Value + GS + Range + GS + (Immediate?  "1" : "0") + GS + Delay.ToString());
+        public void CreateCustomDOMEvent(string InputPlace, string EventName ,string Watch, string Key, string Compare, string Value, string Range, bool Immediate = false, string Delay = "0") => Add("eC" + InputPlace, EventName + GS + Watch + GS + Key + GS + Compare + GS + Value + GS + Range + GS + (Immediate?  "1" : "0") + GS + Delay);
+        public void CreateCustomDOMEvent(string InputPlace, string EventName ,string Watch, string Key, string Compare, string Value, string Range, bool Immediate, int Delay) => CreateCustomDOMEvent(InputPlace, EventName, Watch, Key, Compare, Value, Range, Immediate, Delay.ToString());
         public void EnableScrollBottomEvent(bool Enable = true) => Add("eb", Enable? "1" : "0");
         public void EnableReachedElementEvent(string InputPlace, bool Once, bool Enable = true) => Add("er" + InputPlace, (Once ? "1" : "0") + GS + (Enable? "1" : "0"));
 
         // Module
         public void LoadModule(string ModulePath, string[] Methods = null)
         {
-            Methods ??= Array.Empty<string>();
-            Add("Ml", ModulePath + ((Methods.Length > 0) ? GS + string.Join(GS, Methods) : ""));
+            Methods ??= System.Array.Empty<string>();
+            Add("Ml", ModulePath + ((Methods.Length > 0) ? GS + "[" + string.Join(US, Methods) : ""));
         }
         public void UnloadModule(string ModulePath) => Add("Mu", ModulePath);
         public void DeleteModuleMethod(string MethodName) => Add("Md", MethodName);
@@ -397,10 +424,12 @@ namespace CodeBehind
         // To Use Service Worker, You Need To Add The Elanat Dedicated Module (service-worker.js) On The Client Side
         public void ServiceWorkerRegister(string Path = null, string ScopePath = null) => Add("wR", Path + GS + ScopePath);
         public void ServiceWorkerPreCacheStatic(string[] PathList) => Add("wp",string.Join(GS, PathList));
-        public void ServiceWorkerDynamicCache(string Path, int Seconds = 0) => Add("wc", Path + (Seconds > 0 ? GS + Seconds.ToString() : ""));
+        public void ServiceWorkerDynamicCache(string Path, string Seconds = "") => Add("wc", Path + (Seconds != "" ? GS + Seconds : ""));
+        public void ServiceWorkerDynamicCache(string Path, int Seconds) => ServiceWorkerDynamicCache(Path, Seconds > 0 ? Seconds.ToString() : "");
         public void ServiceWorkerDeleteDynamicCache() => Add("wd");
         public void ServiceWorkerDeleteDynamicCache(string Path) => Add("wd", Path);
-        public void ServiceWorkerDynamicCacheTTLUpdate(string Path, int Seconds = 0) => Add("wt", Path + (Seconds > 0 ? GS + Seconds.ToString() : ""));
+        public void ServiceWorkerDynamicCacheTTLUpdate(string Path, string Seconds = "") => Add("wt", Path + (Seconds != "" ? GS + Seconds : ""));
+        public void ServiceWorkerDynamicCacheTTLUpdate(string Path, int Seconds) => ServiceWorkerDynamicCacheTTLUpdate(Path, Seconds > 0 ? Seconds.ToString() : "");
         // Path: Support Wildcard Automatically And Also Support Regex If Use "re:" Before Pattern
         // Type: Type Is Cache Strategy. cachefirst, networkfirst, cacheonly, networkonly, stalerevalidate (Fast From Cache, Updates Simultaneously From The Network)
         // CacheDynamic: If True, Any Successful Network Response For That Route Will Be Stored In The Dynamic Cache
@@ -423,7 +452,7 @@ namespace CodeBehind
         public void DeleteAllState() => Add("DS", "*");
 
         // Cookie
-        public void SetCookie(string Key, string Value, int Seconds, string Path = null) => Add("sC", Key + GS + Value + GS + Seconds.ToString() + (!string.IsNullOrEmpty(Path) ? GS + Path : ""));
+        public void SetCookie(string Key, string Value, object Seconds, string Path = null) => Add("sC", Key + GS + Value + GS + Seconds.ToString() + (!string.IsNullOrEmpty(Path) ? GS + Path : ""));
 
         // Save (Session Cache)
         public void SaveId(string InputPlace, string Key = ".") => Add("@gi" + InputPlace, Key);
@@ -449,6 +478,7 @@ namespace CodeBehind
         public void SaveIndex(string InputPlace, string Key = ".") => Add("@gI" + InputPlace, Key);
         public void RemoveSave(string CacheKey) => Add("rs", CacheKey);
         public void RemoveAllSave() => Add("rs", "*");
+        // Calling the SetSave Method Causes Action Control Requests Triggered by Events Using the GET, POST, PUT, PATCH, DELETE, and OPTIONS Methods, as well as Requests Triggered by the Send Event, to be Temporarily Saved on the Active Page, so the Request will not be Sent to the Server Again.
         public void SetSave() => Add("cs", "*");
         public void AddSaveValue(string CacheKey, string Value) => Add("SA", CacheKey + GS + Value.Replace('\n'.ToString(), "$[ln];"));
         public void InsertSaveValue(string CacheKey, string Value) => Add("SI", CacheKey + GS + Value.Replace('\n'.ToString(), "$[ln];"));
@@ -479,7 +509,9 @@ namespace CodeBehind
         public void CacheIndex(string InputPlace, string Key = ".") => Add("@cI" + InputPlace, Key);
         public void RemoveCache(string CacheKey) => Add("rd", CacheKey);
         public void RemoveAllCache() => Add("rd", "*");
-        public void SetCache(int Second) => Add("cd", Second.ToString());
+        // Calling the SetCache Method Causes Action Control Requests Triggered by events using the GET, POST, PUT, PATCH, DELETE, and OPTIONS Methods, as well as Requests Triggered by the Send event, to be Cached, so the Request will not be Sent to the Server Again.
+        public void SetCache(string Second) => Add("cd", Second);
+        public void SetCache(int Second) => SetCache(Second.ToString());
         public void SetCache() => Add("cd", "*");
         public void AddCacheValue(string CacheKey, string Value) => Add("CA", CacheKey + GS + Value.Replace('\n'.ToString(), "$[ln];"));
         public void InsertCacheValue(string CacheKey, string Value) => Add("CI", CacheKey + GS + Value.Replace('\n'.ToString(), "$[ln];"));
@@ -488,15 +520,14 @@ namespace CodeBehind
 
         // Call
         public void LoadUrl(string InputPlace, string Url) => Add("lu" + InputPlace, Url);
-        public void RunActionControls(string ActionControls, string Index = null, bool WithoutWebFormsSection = false, bool UseCurrentEvent = true) => Add("lA", (UseCurrentEvent ? "1" : "0") + GS + (WithoutWebFormsSection ? "1" : "0") + GS + Index + GS + ActionControls);
-        public void RunActionControls(string ActionControls, int Index, bool WithoutWebFormsSection = false, bool UseCurrentEvent = true) => RunActionControls(ActionControls, Index.ToString(), WithoutWebFormsSection, UseCurrentEvent);
+        public void RunActionControls(string ActionControls, bool WithoutWebFormsSection = true, string Index = null, bool UseCurrentEvent = true) => Add("lA", (UseCurrentEvent ? "1" : "0") + GS + (WithoutWebFormsSection ? "1" : "0") + GS + Index + GS + ActionControls);
         public void CallScript(string ScriptText) => Add("_", ScriptText.Replace('\n'.ToString(), "$[ln];"));
         public void CallMethod(string MethodName, object[] Args = null)
         {
             string ArgsJoin = "";
 
             if (Args != null)
-                ArgsJoin = (Args.Length > 0) ? GS + string.Join(US, Args) : "";
+                ArgsJoin = (Args.Length > 0) ? GS + "[" + string.Join(US, Args) : "";
 
             Add("lm", MethodName + ArgsJoin);
         }
@@ -505,30 +536,31 @@ namespace CodeBehind
             string ArgsJoin = "";
 
             if (Args != null)
-                ArgsJoin = (Args.Length > 0) ? GS + string.Join(US, Args) : "";
+                ArgsJoin = (Args.Length > 0) ? GS + "[" + string.Join(US, Args) : "";
 
             Add("lM", MethodName + ArgsJoin);
         }
         public void CallPostBack(string FormInputPlace, string OutputPlace = null) => Add("Lp", "1" + GS + FormInputPlace + (!string.IsNullOrEmpty(OutputPlace) ? GS + OutputPlace : ""));
-        public void CallCommentBack(string Index = null, string OutputPlace = null, bool UseCurrentEvent = true) => Add("LC", (UseCurrentEvent? "1": "0") + GS + Index + GS + OutputPlace);
-        public void CallCommentBack(int Index, string OutputPlace = null, bool UseCurrentEvent = true) => CallCommentBack(Index.ToString(), OutputPlace, UseCurrentEvent);
+        public void CallCommentBack(string Index = null, string InputPlace = null, bool UseCurrentEvent = true) => Add("LC", (UseCurrentEvent? "1": "0") + GS + Index + GS + InputPlace);
+        public void CallCommentBack(int Index, string InputPlace = null, bool UseCurrentEvent = true) => CallCommentBack(Index.ToString(), InputPlace, UseCurrentEvent);
         public void CallWasmBack(string WasmLanguage, string WasmUrl, string MethodName, object[] Args = null, string OutputPlace = null, bool UseCurrentEvent = true)
         {
             string ArgsJoin = "";
 
             if (Args != null)
-                ArgsJoin = (Args.Length > 0) ? string.Join(US, Args) : "";
+                ArgsJoin = (Args.Length > 0) ? "[" + string.Join(US, Args) : "";
 
             Add("Ly", (UseCurrentEvent ? "1" : "0") + GS + WasmLanguage + GS + WasmUrl + GS + MethodName + GS + ArgsJoin + GS + OutputPlace);
         }
         public void CallWebSocketBack(string Path, bool UseCurrentEvent = true) => Add("Lw", (UseCurrentEvent? "1": "0") + GS + Path);
-        public void CallSSEBack(string Path, string OutputPlace = null, bool UseCurrentEvent = true, bool ShouldReconnect = true, int ReconnectTryTimeout = 3000) => Add("Ls", (UseCurrentEvent? "1": "0") + GS + Path + GS + (ShouldReconnect ? "1" : "0") + GS + ReconnectTryTimeout.ToString() + (!string.IsNullOrEmpty(OutputPlace) ? GS + OutputPlace : ""));
+        public void CallSSEBack(string Path, string OutputPlace = null, bool UseCurrentEvent = true, bool ShouldReconnect = true, string ReconnectTryTimeout = "3000") => Add("Ls", (UseCurrentEvent ? "1" : "0") + GS + Path + GS + (ShouldReconnect ? "1" : "0") + GS + ReconnectTryTimeout + (!string.IsNullOrEmpty(OutputPlace) ? GS + OutputPlace : ""));
+        public void CallSSEBack(string Path, string OutputPlace, bool UseCurrentEvent, bool ShouldReconnect, int ReconnectTryTimeout) => CallSSEBack(Path, OutputPlace, UseCurrentEvent, ShouldReconnect, ReconnectTryTimeout.ToString());
         public void CallFront(string ModulePath, object[] Args = null, string OutputPlace = null, bool UseCurrentEvent = true)
         {
             string ArgsJoin = "";
 
             if (Args != null)
-                ArgsJoin = (Args.Length > 0) ? GS + string.Join(US, Args) : "";
+                ArgsJoin = (Args.Length > 0) ? GS + "[" + string.Join(US, Args) : "";
 
             Add("Lj", (UseCurrentEvent ? "1" : "0") + GS + ModulePath + GS + OutputPlace + ArgsJoin);
         }
@@ -536,9 +568,9 @@ namespace CodeBehind
         public void CallPutBack(string Path, string OutputPlace = null, bool UseCurrentEvent = true) => Add("Lt", (UseCurrentEvent ? "1" : "0") + GS + Path + (!string.IsNullOrEmpty(OutputPlace) ? GS + OutputPlace : ""));
         public void CallPatchBack(string Path, string OutputPlace = null, bool UseCurrentEvent = true) => Add("LP", (UseCurrentEvent ? "1" : "0") + GS + Path + (!string.IsNullOrEmpty(OutputPlace) ? GS + OutputPlace : ""));
         public void CallDeleteBack(string Path, string OutputPlace = null, bool UseCurrentEvent = true) => Add("Ld", (UseCurrentEvent ? "1" : "0") + GS + Path + (!string.IsNullOrEmpty(OutputPlace) ? GS + OutputPlace : ""));
-        public void CallHeadBack(string Path, string OutputPlace = null, bool UseCurrentEvent = true) => Add("Lh", (UseCurrentEvent ? "1" : "0") + GS + Path + (!string.IsNullOrEmpty(OutputPlace) ? GS + OutputPlace : ""));
+        public void CallHeadBack(string Path, bool UseCurrentEvent = true) => Add("Lh", (UseCurrentEvent ? "1" : "0") + GS + Path);
         public void CallOptionsBack(string Path, string OutputPlace = null, bool UseCurrentEvent = true) => Add("Lo", (UseCurrentEvent ? "1" : "0") + GS + Path + (!string.IsNullOrEmpty(OutputPlace) ? GS + OutputPlace : ""));
-        public void CallSendBack(string Path, string Method, bool IsMultiPart, string ContentType, string Data, string OutputPlace = null, bool UseCurrentEvent = true) => Add("LS", (UseCurrentEvent ? "1" : "0") + GS + Path + GS + Method + GS + (IsMultiPart ? "1" : "0") + GS + ContentType + GS + Data.Replace('\n'.ToString(), "$[ln];").Replace(GS.ToString(), "$[vb];") + (!string.IsNullOrEmpty(OutputPlace) ? GS + OutputPlace : ""));
+        public void CallSendBack(string Path, string Method, bool IsMultiPart, string ContentType, string Data, string OutputPlace = null, bool UseCurrentEvent = true) => Add("LS", (UseCurrentEvent ? "1" : "0") + GS + Path + GS + Method + GS + (IsMultiPart ? "1" : "0") + GS + ContentType + GS + Data.Replace('\n'.ToString(), "$[ln];") + (!string.IsNullOrEmpty(OutputPlace) ? GS + OutputPlace : ""));
 
         // Update
         public void Increase(string InputPlace, float Value) => Add("gt" + InputPlace, "i" + GS + Value.ToString());
@@ -693,8 +725,9 @@ namespace CodeBehind
         public void StartIndex() => StartIndex("");
         // This Index Is Automatically Run After Changing The Browser History (Back And Forward Buttons)
         public void StartState() => StartIndex("$");
-        public void GoTo(int Line, int Repeat = 1) => Add("&", Line.ToString() + GS + Repeat.ToString());
-        public void GoTo(string Index, int Repeat = 1) => Add("&", "#" + Index + GS + Repeat.ToString());
+        public void GoTo(string Line, string Repeat = "1") => Add("&", Line + GS + Repeat);
+        public void GoTo(int Line, int Repeat = 1) => GoTo(Line.ToString(), Repeat.ToString());
+        public void GoTo(string Index, int Repeat) => Add("&", "#" + Index + GS + Repeat.ToString());
         
         // Start
         public void StartTransientDOM(string InputPlace) => Add("td", InputPlace);
@@ -703,7 +736,8 @@ namespace CodeBehind
         // Message
         // Type: warning, problem, help, success, none
         public void Alert(string Text, string Type = "none", string Title = "Alert", string OkText = "OK") => Add("Al", Text + GS + (Type == "none" ? "" : Type) + GS + (Title == "Alert" ? "" : Title) + GS + (OkText == "OK" ? "" : OkText));
-        public void Message(string Text, string Type = "none", int Duration = 0) => Add("me", Text + GS + (Type == "none" ? "" : Type) + GS + (Duration == 0 ? "" : Duration.ToString()));
+        public void Message(string Text, string Type = "none", string Duration = "0") => Add("me", Text + GS + (Type == "none" ? "" : Type) + GS + (Duration == "0" ? "" : Duration));
+        public void Message(string Text, string Type, int Duration) => Message(Text, Type, Duration.ToString());
 
         // Type: log, info, warn, error, debug, trace, group, groupend, table
         public void ConsoleMessage(string Text, string Type = "log") => Add("mc", Text.Replace('\n'.ToString(), "$[ln];") + (Type == "log" ? "" : GS + Type));
@@ -769,7 +803,7 @@ namespace CodeBehind
             return this;
         }
 
-        public WebForms Then(Action<WebForms> configure)
+        public WebForms Then(System.Action<WebForms> configure)
         {
             var newForm = new WebForms();
             configure(newForm);
@@ -824,7 +858,14 @@ namespace CodeBehind
 
             if (string.IsNullOrEmpty(index))
             {
-                int indexNumber = GetWebFormsData().Split('\n').Count(x => x.StartsWith("#")) - 1;
+                int indexNumber = -1;
+
+                foreach (string x in GetWebFormsData().Split('\n'))
+                {
+                    if (x.StartsWith("#"))
+                        indexNumber++;
+                }
+
                 GoTo(indexNumber.ToString(), repeat - 1);
             }
             else
@@ -833,14 +874,14 @@ namespace CodeBehind
             return this;
         }
     
-        public WebForms Repeat(Action<WebForms> configure, int repeat)
+        public WebForms Repeat(System.Action<WebForms> configure, int repeat)
         {
             var newForm = new WebForms();
             configure(newForm);
             return Repeat(newForm, repeat);
         }
         
-        public WebForms Repeat(Action<WebForms> configure, int repeat, string index)
+        public WebForms Repeat(System.Action<WebForms> configure, int repeat, string index)
         {
             var newForm = new WebForms();
             configure(newForm);
@@ -849,10 +890,12 @@ namespace CodeBehind
 
         // Async
         public void Async() => Add("{(a)");
-        public void Delay(int MiliSecond) => Add("De", MiliSecond.ToString());
+        public void Delay(string MiliSecond) => Add("De", MiliSecond);
+        public void Delay(int MiliSecond) => Delay(MiliSecond.ToString());
 
         // Option
         public void ChangeOption(string Name, string Value) => Add("co", Name + GS + Value.JsonNormalize());
+        public void ResetOption() => Add("ro");
         public void ResetOption(string Name) => Add("ro", Name);
 
         // Format Storage
@@ -872,19 +915,23 @@ namespace CodeBehind
             Add(".a", Key + GS + "x" + GS + Name.Replace("@", "$[at];") + GS + Value + GS + Path);
         }
         public void AddINI(string Key, string Path, string Value, bool IsINILike = false) => Add(".a", Key + GS + "i" + GS + (IsINILike ? "1" : "0") + GS + Value + GS + Path);
-        public void AddTextLine(string Key, int Line, string Text) => Add(".a", Key + GS + "t" + GS + Text + GS + Line.ToString());
+        public void AddTextLine(string Key, string Line, string Text) => Add(".a", Key + GS + "t" + GS + Text + GS + Line);
+        public void AddTextLine(string Key, int Line, string Text) => AddTextLine(Key, Line.ToString(), Text);
         public void AddVariable(string Key, string Value) => Add(".a", Key + GS + "v" + GS + Value);
         public void UpdateJSON(string Key, string Path, string Value) => Add(".u", Key + GS + "j" + GS + Value + GS + Path);
         public void UpdateXML(string Key, string Path, string Value) => Add(".u", Key + GS + "x" + GS + Value + GS + Path);
         public void UpdateINI(string Key, string Path, string Value, bool IsINILike = false) => Add(".u", Key + GS + "i" + GS + (IsINILike ? "1" : "0") + GS + Value + GS + Path);
-        public void UpdateTexLine(string Key, int Line, string Text) => Add(".u", Key + GS + "t" + GS + Text + GS + Line.ToString());
+        public void UpdateTexLine(string Key, string Line, string Text) => Add(".u", Key + GS + "t" + GS + Text + GS + Line);
+        public void UpdateTexLine(string Key, int Line, string Text) => UpdateTexLine(Key, Line.ToString(), Text);
         public void UpdateVariable(string Key, string Value) => Add(".u", Key + GS + "v" + GS + Value);
-        public void IncreaceVariable(string Key, int Value) => Add(".i", Key + GS + "v" + GS + Value.ToString());
+        public void IncreaceVariable(string Key, string Value) => Add(".i", Key + GS + "v" + GS + Value);
+        public void IncreaceVariable(string Key, int Value) => IncreaceVariable(Key, Value.ToString());
         public void DecreaseVariable(string Key, int Value) => IncreaceVariable(Key, Value * -1);
         public void DeleteJSON(string Key, string Path) => Add(".d", Key + GS + "j" + GS + Path);
         public void DeleteXML(string Key, string Path) => Add(".d", Key + GS + "x" + GS + Path);
         public void DeleteINI(string Key, string Path, bool IsINILike = false) => Add(".d", Key + GS + "i" + GS + IsINILike + GS + Path);
-        public void DeleteTextLine(string Key, int Line) => Add(".d", Key + GS + "t" + GS + Line.ToString());
+        public void DeleteTextLine(string Key, string Line) => Add(".d", Key + GS + "t" + GS + Line);
+        public void DeleteTextLine(string Key, int Line) => DeleteTextLine(Key, Line.ToString());
         public void DeleteVariable(string Key) => Add(".d", Key + GS + "v");
 
         // Template Engine
@@ -905,6 +952,7 @@ namespace CodeBehind
             else
                 Add("rE", SearchValue + GS + Value);
         }
+        
         public void AssignReplace(string SearchValue, string Value, int Index = -1)
         {
             string currentLine = GetLineByIndex(Index);
@@ -964,11 +1012,6 @@ namespace CodeBehind
         }
 
         // Export
-        public string ExportToLineBreak(string src = null)
-        {
-            return "[web-forms]$[sln];" + GetFormsActionDataLineBreak();
-        }
-
         public string ExportToHtmlComment(bool AddLine = false)
         {
             string response = Response().Replace("--", "$[dd];");
@@ -976,6 +1019,12 @@ namespace CodeBehind
                 response = response.Substring(0, response.Length - 1) + "$[da];";
 
             return (AddLine ? "\n" : "") + "<!--" + response + "-->";
+        }
+
+        // Using it for SSE Response
+        public string ExportToLineBreak(string src = null)
+        {
+            return "[web-forms]$[sln];" + GetFormsActionDataLineBreak();
         }
 
         public string GetWebFormsData()
@@ -1103,6 +1152,7 @@ namespace CodeBehind
             return ReturnValue;
         }
 
+        // MethodName: The Method Name May Need to Include the Class Name, Separated by a Period. Example: MyClassName.MyMethodName
         public static string WasmMethod(string WasmLanguage, string WasmUrl, string MethodName, object[] Args = null, string Key = ".")
         {
             string ReturnValue = "@wA" + WasmLanguage + RS + WasmUrl + RS + MethodName;
@@ -1180,18 +1230,19 @@ namespace CodeBehind
         // Save
         public static string HasHash(string Hash) => "@HH" + Hash;
         public static string Cookie(string Key) => "@co" + Key;
-        public static string Save(string Key) => "@cs" + Key;
+        public static string Save(string Key = ".") => "@cs" + Key;
         public static string Save(string Key, string ReplaceValue) => "@cs" + Key + RS + ReplaceValue;
-        public static string SaveAndRemove(string Key) => "@cl" + Key;
-        public static string Saved(string Key = ".") => Save(Key);
+        public static string SaveThenRemove(string Key) => "@cl" + Key;
         public static string Cache(string Key = ".") => "@cd" + Key;
         public static string Cache(string Key, string ReplaceValue) => "@cd" + Key + RS + ReplaceValue;
-        public static string CacheAndRemove(string Key) => "@ct" + Key;
+        public static string CacheThenRemove(string Key) => "@ct" + Key;
         public static string SavedLine(string Key = ".", int Line = 0) => "@lL" + Key + "[" + Line;
         public static string SavedLineConsume(string Key = ".") => "@lL" + Key;
+        // INIKey: Only Direct Key is Supported
         public static string SavedINI(string Key, string INIKey) => "@lI" + Key + "[" + INIKey;
         public static string CacheLine(string Key = ".", int Line = 0) => "@dL" + Key + "[" + Line;
         public static string CacheLineConsume(string Key = ".") => "@dL" + Key;
+        // INIKey: Only Direct Key is Supported
         public static string CacheINI(string Key, string INIKey) => "@dI" + Key + "[" + INIKey;
 
         // Format Storage
@@ -1227,6 +1278,7 @@ namespace CodeBehind
         public const string ScrollX = "@wx";
         public const string ScrollY = "@wy";
         public static string Segment(int Index) => "@wS" + Index;
+        // It Only Works when the String Starts with the Tilde Character (~). The Path is Also Separated by the Slash Character (/). #~/Segment1/Segment2/Segment3
         public static string HashSegment(int Index) => "@wt" + Index;
 
         // Navigator
@@ -1263,10 +1315,13 @@ namespace CodeBehind
 
     public class WasmLanguage
     {
+        // The Suffix "Mediator" Means You Must Call the JavaScript Interface. In Other Cases, the WASM File Should Be Called Directly.
         public const string C = "c";
         public const string CPP = "c";
         public const string Rust = "rust";
         public const string CSharp = "csharp";
+        // .NET WebCIL Container. The "dotnet.js" File Should Be Invoked.
+        public const string CSharpMediator = "csharp-m";
         public const string GO = "go";
         public const string JAVA = "java";
         public const string AssemblyScript = "as";
@@ -1490,28 +1545,6 @@ namespace CodeBehind
         {
             if (Text.Length == 0)
                 return Text;
-
-            if (Text[0] == '$')
-            {
-                if (Text.Length == 1)
-                    return Text.Remove(0, 1);
-
-                if (Text[1] == '$')
-                    Text = Text.Remove(0, 1);
-                else
-                    return Text.Remove(0, 1);
-            }
-
-            if (Text[0] == '@')
-            {
-                if (Text.Length == 1)
-                    return Text.Remove(0, 1);
-
-                if (Text[1] == '@')
-                    Text = Text.Remove(0, 1);
-                else
-                    return Text.Remove(0, 1);
-            }
 
             return "\"" + Text.Replace("\\", "\\\\").Replace("\"", "\\\"").Replace("\r", "\\r").Replace("\n", "\\n").Replace("\t", "\\t").Replace("\b", "\\b").Replace("\f", "\\f") + "\"";
         }
