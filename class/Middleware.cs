@@ -11,9 +11,9 @@ using System.Web;
 
 public static class CodeBehindServiceExtensions
 {
-    public static IServiceCollection AddCodeBehind(this IServiceCollection services)
+    public static IServiceCollection AddCodeBehind(this IServiceCollection services, bool BreakExist = false)
     {
-        SetCodeBehind.CodeBehindCompiler.Initialization();
+        SetCodeBehind.CodeBehindCompiler.Initialization(BreakExist);
         return services;
     }
 }
@@ -1315,115 +1315,151 @@ public static class CodeBehindMiddlewareExtensions
         try
         {
             WebSocketReceiveResult receiveData;
+
             while (webSocket.State == WebSocketState.Open)
             {
                 receiveData = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
 
                 if (receiveData.MessageType == WebSocketMessageType.Close)
                 {
-                    await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closing", CancellationToken.None);
+                    if (webSocket.State == WebSocketState.Open || webSocket.State == WebSocketState.CloseReceived)
+                        await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closing", CancellationToken.None);
+
+                    break;
                 }
-                else
+
+                string formData = Encoding.UTF8.GetString(buffer, 0, receiveData.Count);
+
+                if (!string.IsNullOrEmpty(formData))
                 {
-                    string formData = Encoding.UTF8.GetString(buffer, 0, receiveData.Count);
-
-                    if (!string.IsNullOrEmpty(formData))
+                    if (formData.StartsWith("form=true&"))
                     {
-                        if (formData.StartsWith("form=true&"))
+                        formData = formData.Remove(0, 10);
+
+                        try
                         {
-                            formData = formData.Remove(0,10);
-                            try
+                            var formDictionary = new Dictionary<string, StringValues>();
+                            var parsedQuery = HttpUtility.ParseQueryString(formData);
+
+                            foreach (string key in parsedQuery)
                             {
-                                var formDictionary = new Dictionary<string, StringValues>();
-                                var parsedQuery = HttpUtility.ParseQueryString(formData);
-
-                                foreach (string key in parsedQuery)
-                                    if (!formDictionary.ContainsKey(key))
-                                        formDictionary[key] = new StringValues(parsedQuery.GetValues(key));
-
-                                context.Request.Form = new FormCollection(formDictionary);
+                                if (!formDictionary.ContainsKey(key))
+                                    formDictionary[key] = new StringValues(parsedQuery.GetValues(key));
                             }
-                            catch (Exception) { }
+
+                            context.Request.Form = new FormCollection(formDictionary);
+                        }
+                        catch (Exception)
+                        {
                         }
                     }
-
-                    string responseData = "";
-                    CodeBehindExecute execute = new CodeBehindExecute();
-                    switch (middleware)
-                    {
-                        case "UseCodeBehind":
-                            responseData = execute.Run(context);
-                            if (execute.WebSocketId != null)
-                                WebSocketManager.UpdateWebSocketInfoByWebSocketId(webSocket, execute.WebSocketId);
-                            break;
-
-                        case "UseCodeBehindWithErrorHandling":
-                            string pageResult1 = execute.Run(context);
-
-                            if (execute.FoundPage)
-                                responseData = pageResult1;
-                            else
-                                responseData = execute.RunErrorPage(404, context);
-
-                            if (execute.WebSocketId != null)
-                                WebSocketManager.UpdateWebSocketInfoByWebSocketId(webSocket, execute.WebSocketId);
-                            break;
-
-                        case "UseCodeBehindNextNotFound":
-                            responseData = execute.Run(context);
-
-                            if (!execute.FoundPage)
-                            {
-                                if (execute.IsAspxExtension)
-                                    return;
-                            }
-
-                            if (execute.WebSocketId != null)
-                                WebSocketManager.UpdateWebSocketInfoByWebSocketId(webSocket, execute.WebSocketId);
-                            break;
-
-                        case "UseCodeBehindRoute":
-                            responseData = execute.RunRoute(context, 0);
-
-                            if (execute.WebSocketId != null)
-                                WebSocketManager.UpdateWebSocketInfoByWebSocketId(webSocket, execute.WebSocketId);
-                            break;
-
-                        case "UseCodeBehindRouteWithErrorHandling":
-                            responseData = execute.RunRoute(context, 0);
-
-                            if (!execute.FoundController)
-                                responseData = execute.RunErrorPage(404, context);
-
-                            if (execute.WebSocketId != null)
-                                WebSocketManager.UpdateWebSocketInfoByWebSocketId(webSocket, execute.WebSocketId);
-                            break;
-
-                        case "UseCodeBehindRouteNextNotFound":
-                            responseData = execute.RunRoute(context, 0);
-
-                            if (!execute.FoundController)
-                            {
-                                string path = context.Request.Path.ToString();
-                                path = System.Net.WebUtility.UrlDecode(path);
-                                string extension = Path.GetExtension(path);
-
-                                if (extension == ".aspx")
-                                    return;
-                            }
-
-                            if (execute.WebSocketId != null)
-                                WebSocketManager.UpdateWebSocketInfoByWebSocketId(webSocket, execute.WebSocketId);
-                            break;
-                    }
-
-                    if (!responseData.Has())
-                        continue;
-
-                    buffer = Encoding.UTF8.GetBytes(responseData);
-                    await webSocket.SendAsync(new ArraySegment<byte>(buffer, 0, buffer.Length), WebSocketMessageType.Text, true, CancellationToken.None);
                 }
+
+                string responseData = "";
+
+                CodeBehindExecute execute = new CodeBehindExecute();
+
+                switch (middleware)
+                {
+                    case "UseCodeBehind":
+
+                        responseData = execute.Run(context);
+
+                        if (execute.WebSocketId != null)
+                            WebSocketManager.UpdateWebSocketInfoByWebSocketId(webSocket, execute.WebSocketId);
+
+                        break;
+
+                    case "UseCodeBehindWithErrorHandling":
+
+                        string pageResult1 = execute.Run(context);
+
+                        if (execute.FoundPage)
+                            responseData = pageResult1;
+                        else
+                            responseData = execute.RunErrorPage(404, context);
+
+                        if (execute.WebSocketId != null)
+                            WebSocketManager.UpdateWebSocketInfoByWebSocketId(webSocket, execute.WebSocketId);
+
+                        break;
+
+                    case "UseCodeBehindNextNotFound":
+
+                        responseData = execute.Run(context);
+
+                        if (!execute.FoundPage)
+                        {
+                            if (execute.IsAspxExtension)
+                                return;
+                        }
+
+                        if (execute.WebSocketId != null)
+                            WebSocketManager.UpdateWebSocketInfoByWebSocketId(webSocket, execute.WebSocketId);
+
+                        break;
+
+                    case "UseCodeBehindRoute":
+
+                        responseData = execute.RunRoute(context, 0);
+
+                        if (execute.WebSocketId != null)
+                            WebSocketManager.UpdateWebSocketInfoByWebSocketId(webSocket, execute.WebSocketId);
+
+                        break;
+
+                    case "UseCodeBehindRouteWithErrorHandling":
+
+                        responseData = execute.RunRoute(context, 0);
+
+                        if (!execute.FoundController)
+                            responseData = execute.RunErrorPage(404, context);
+
+                        if (execute.WebSocketId != null)
+                            WebSocketManager.UpdateWebSocketInfoByWebSocketId(webSocket, execute.WebSocketId);
+
+                        break;
+
+                    case "UseCodeBehindRouteNextNotFound":
+
+                        responseData = execute.RunRoute(context, 0);
+
+                        if (!execute.FoundController)
+                        {
+                            string path = context.Request.Path.ToString();
+
+                            path = System.Net.WebUtility.UrlDecode(path);
+
+                            string extension = Path.GetExtension(path);
+
+                            if (extension == ".aspx")
+                                return;
+                        }
+
+                        if (execute.WebSocketId != null)
+                            WebSocketManager.UpdateWebSocketInfoByWebSocketId(webSocket, execute.WebSocketId);
+
+                        break;
+                }
+
+                if (!responseData.Has())
+                    continue;
+
+                buffer = Encoding.UTF8.GetBytes(responseData);
+
+                await WebSocketManager.SendAsync(
+                    webSocket,
+                    buffer,
+                    CancellationToken.None);
             }
+        }
+        catch (WebSocketException)
+        {
+            // Connection Closed or Aborted
+        }
+        catch (OperationCanceledException)
+        {
+            // Request Cancelled
         }
         finally
         {
@@ -1433,162 +1469,268 @@ public static class CodeBehindMiddlewareExtensions
 
     public static async Task WebSocketsBroadcastAsync(HttpContext context, string broadcastMessage, string broadcastRoleName, string broadcastWebSocketId, string broadcastClientId, bool IgnoreThis)
     {
-        var buffer = new byte[StaticObject.WebSocketBufferSize];
-        buffer = Encoding.UTF8.GetBytes(broadcastMessage);
+        byte[] buffer = Encoding.UTF8.GetBytes(broadcastMessage);
 
         string userSessionId = "";
+
         if (context.Request.Cookies.ContainsKey("SessionId"))
             userSessionId = context.Request.Cookies["SessionId"];
 
-        foreach (var client in WebSocketManager.GetAllWebSockets())
+        // Get Snapshot
+        List<WebSocketInfo> clients = WebSocketManager.GetAllWebSockets();
+
+        foreach (var client in clients)
         {
             bool sendIt = false;
-            if (client.WebSocket.State == WebSocketState.Open)
-            {
-                if (IgnoreThis && userSessionId.Has() && (userSessionId == client.ClientId))
-                    continue;
 
-                if (broadcastRoleName.Has() && broadcastWebSocketId.Has() && broadcastClientId.Has())
-                {
-                    if ((broadcastRoleName == client.RoleName) && (broadcastWebSocketId == client.WebSocketId) && (broadcastClientId == client.ClientId))
-                        sendIt = true;
-                }
-                else if (broadcastRoleName.Has() && broadcastClientId.Has())
-                {
-                    if ((broadcastRoleName == client.RoleName) && (broadcastClientId == client.ClientId))
-                        sendIt = true;
-                }
-                else if (broadcastWebSocketId.Has() && broadcastClientId.Has())
-                {
-                    if ((broadcastWebSocketId == client.WebSocketId) && (broadcastClientId == client.ClientId))
-                        sendIt = true;
-                }
-                else if (broadcastRoleName.Has() && broadcastWebSocketId.Has())
-                {
-                    if ((broadcastRoleName == client.RoleName) && (broadcastWebSocketId == client.WebSocketId))
-                        sendIt = true;
-                }
-                else if (broadcastRoleName.Has())
-                {
-                    if (broadcastRoleName == client.RoleName)
-                        sendIt = true;
-                }
-                else if (broadcastWebSocketId.Has())
-                {
-                    if (broadcastWebSocketId == client.WebSocketId)
-                        sendIt = true;
-                }
-                else if (broadcastClientId.Has())
-                {
-                    if (broadcastClientId == client.ClientId)
-                        sendIt = true;
-                }
-                else
+            if (client.WebSocket.State != WebSocketState.Open)
+                continue;
+
+            if (IgnoreThis && userSessionId.Has() && userSessionId == client.ClientId)
+                continue;
+
+            if (broadcastRoleName.Has() && broadcastWebSocketId.Has() && broadcastClientId.Has())
+            {
+                if (broadcastRoleName == client.RoleName && broadcastWebSocketId == client.WebSocketId && broadcastClientId == client.ClientId)
                     sendIt = true;
             }
-            if (sendIt)
-                await client.WebSocket.SendAsync(new ArraySegment<byte>(buffer, 0, buffer.Length), WebSocketMessageType.Text, true, CancellationToken.None);
-            sendIt = false;
+            else if (broadcastRoleName.Has() && broadcastClientId.Has())
+            {
+                if (broadcastRoleName == client.RoleName && broadcastClientId == client.ClientId)
+                    sendIt = true;
+            }
+            else if (broadcastWebSocketId.Has() && broadcastClientId.Has())
+            {
+                if (broadcastWebSocketId == client.WebSocketId && broadcastClientId == client.ClientId)
+                    sendIt = true;
+            }
+            else if (broadcastRoleName.Has() && broadcastWebSocketId.Has())
+            {
+                if (broadcastRoleName == client.RoleName && broadcastWebSocketId == client.WebSocketId)
+                    sendIt = true;
+            }
+            else if (broadcastRoleName.Has())
+            {
+                if (broadcastRoleName == client.RoleName)
+                    sendIt = true;
+            }
+            else if (broadcastWebSocketId.Has())
+            {
+                if (broadcastWebSocketId == client.WebSocketId)
+                    sendIt = true;
+            }
+            else if (broadcastClientId.Has())
+            {
+                if (broadcastClientId == client.ClientId)
+                    sendIt = true;
+            }
+            else
+                sendIt = true;
+
+            if (!sendIt)
+                continue;
+
+            if (client.WebSocket.State != WebSocketState.Open)
+                continue;
+
+            try
+            {
+                await WebSocketManager.SendAsync(client.WebSocket, buffer, CancellationToken.None);
+            }
+            catch (WebSocketException)
+            {
+                WebSocketManager.RemoveWebSocket(client.WebSocket);
+            }
+            catch (OperationCanceledException)
+            {
+                WebSocketManager.RemoveWebSocket(client.WebSocket);
+            }
         }
     }
 
     public static void WebSocketsBroadcast(HttpContext context, string broadcastMessage, string broadcastRoleName, string broadcastWebSocketId, string broadcastClientId, bool IgnoreThis)
     {
-        WebSocketsBroadcastAsync(context, broadcastMessage, broadcastRoleName, broadcastWebSocketId, broadcastClientId, IgnoreThis).GetAwaiter().GetResult();
+        WebSocketsBroadcastAsync(context, broadcastMessage, broadcastRoleName, broadcastWebSocketId, broadcastClientId, IgnoreThis).GetAwaiter() .GetResult();
     }
 
     public static class WebSocketManager
     {
         private static readonly List<WebSocketInfo> WebSockets = new List<WebSocketInfo>();
+        private static readonly object WebSocketLock = new object();
 
         public static bool AddWebSocket(WebSocket webSocket, string clientId, string roleName = "", string webSocketId = "")
         {
-            if (clientId.Has())
-                CheckMaxWebSocketConnections(clientId);
+            lock (WebSocketLock)
+            {
+                if (clientId.Has())
+                    CheckMaxWebSocketConnections(clientId);
 
-            WebSockets.Add(new WebSocketInfo(webSocket, webSocketId, roleName, clientId));
-            return true;
+                WebSockets.Add( new WebSocketInfo(webSocket, webSocketId, roleName, clientId));
+
+                return true;
+            }
         }
 
         public static void RemoveWebSocket(WebSocket webSocket)
         {
-            for (int i = 0; i < WebSockets.Count; i++)
-                if (WebSockets[i].WebSocket == webSocket)
+            lock (WebSocketLock)
+            {
+                for (int i = 0; i < WebSockets.Count; i++)
                 {
-                    WebSockets.RemoveAt(i);
-                    return;
+                    if (WebSockets[i].WebSocket == webSocket)
+                    {
+                        WebSocketInfo info = WebSockets[i];
+
+                        WebSockets.RemoveAt(i);
+
+                        info.Dispose();
+
+                        return;
+                    }
                 }
+            }
         }
 
         public static bool WebSocketExists(WebSocket webSocket)
         {
-            return WebSockets.Any(ws => ws.WebSocket == webSocket);
+            lock (WebSocketLock)
+            {
+                return WebSockets.Any(
+                    ws => ws.WebSocket == webSocket);
+            }
         }
 
         public static bool WebSocketExistsById(string webSocketId)
         {
-            return WebSockets.Any(ws => ws.WebSocketId == webSocketId);
+            lock (WebSocketLock)
+            {
+                return WebSockets.Any(
+                    ws => ws.WebSocketId == webSocketId);
+            }
         }
 
         public static void CheckMaxWebSocketConnections(string clientId)
         {
             int numberOfConnections = 0;
 
-            for (int i = WebSockets.Count - 1; i >= 0; i--)
+            for (int i = 0; i < WebSockets.Count; i++)
+            {
                 if (WebSockets[i].ClientId == clientId)
-                {
                     numberOfConnections++;
+            }
 
-                    if (numberOfConnections >= StaticObject.MaxWebSocketConnectionsPerClient)
+            if (numberOfConnections >= StaticObject.MaxWebSocketConnectionsPerClient)
+            {
+                for (int i = 0; i < WebSockets.Count; i++)
+                {
+                    if (WebSockets[i].ClientId == clientId)
                     {
+                        WebSocketInfo info = WebSockets[i];
+
                         WebSockets.RemoveAt(i);
+
+                        info.Dispose();
+
                         return;
                     }
                 }
+            }
         }
 
         public static List<WebSocketInfo> GetAllWebSockets()
         {
-            return WebSockets;
+            lock (WebSocketLock)
+            {
+                return WebSockets.ToList();
+            }
         }
 
         public static void UpdateWebSocketInfo(WebSocket webSocket, string newRoleName, string newWebSocketId)
         {
-            for (int i = 0; i < WebSockets.Count; i++)
-                if (WebSockets[i].WebSocket == webSocket)
+            lock (WebSocketLock)
+            {
+                for (int i = 0; i < WebSockets.Count; i++)
                 {
-                    WebSockets[i].RoleName = newRoleName;
-                    WebSockets[i].WebSocketId = newWebSocketId;
-                    return;
+                    if (WebSockets[i].WebSocket == webSocket)
+                    {
+                        WebSockets[i].RoleName = newRoleName;
+                        WebSockets[i].WebSocketId = newWebSocketId;
+
+                        return;
+                    }
                 }
+            }
         }
 
         public static void UpdateWebSocketInfoByRoleName(WebSocket webSocket, string newRoleName)
         {
-            for (int i = 0; i < WebSockets.Count; i++)
-                if (WebSockets[i].WebSocket == webSocket)
+            lock (WebSocketLock)
+            {
+                for (int i = 0; i < WebSockets.Count; i++)
                 {
-                    WebSockets[i].RoleName = newRoleName;
-                    return;
+                    if (WebSockets[i].WebSocket == webSocket)
+                    {
+                        WebSockets[i].RoleName = newRoleName;
+
+                        return;
+                    }
                 }
+            }
         }
 
         public static void UpdateWebSocketInfoByWebSocketId(WebSocket webSocket, string newWebSocketId)
         {
-            for (int i = 0; i < WebSockets.Count; i++)
-                if (WebSockets[i].WebSocket == webSocket)
+            lock (WebSocketLock)
+            {
+                for (int i = 0; i < WebSockets.Count; i++)
                 {
-                    WebSockets[i].WebSocketId = newWebSocketId;
-                    return;
+                    if (WebSockets[i].WebSocket == webSocket)
+                    {
+                        WebSockets[i].WebSocketId = newWebSocketId;
+
+                        return;
+                    }
                 }
+            }
+        }
+
+        public static async Task SendAsync(WebSocket webSocket, byte[] buffer, CancellationToken cancellationToken)
+        {
+            WebSocketInfo info = null;
+
+            lock (WebSocketLock)
+            {
+                for (int i = 0; i < WebSockets.Count; i++)
+                {
+                    if (WebSockets[i].WebSocket == webSocket)
+                    {
+                        info = WebSockets[i];
+                        break;
+                    }
+                }
+            }
+
+            if (info == null)
+                return;
+
+            await info.SendLock.WaitAsync(cancellationToken);
+
+            try
+            {
+                if (webSocket.State == WebSocketState.Open)
+                    await webSocket.SendAsync(new ArraySegment<byte>(buffer, 0, buffer.Length), WebSocketMessageType.Text, true, cancellationToken);
+            }
+            finally
+            {
+                info.SendLock.Release();
+            }
         }
     }
 
-    public class WebSocketInfo
+    public class WebSocketInfo : IDisposable
     {
         public WebSocketInfo()
         {
-
         }
 
         public WebSocketInfo(WebSocket webSocket, string webSocketId, string roleName, string clientId)
@@ -1600,9 +1742,20 @@ public static class CodeBehindMiddlewareExtensions
         }
 
         public WebSocket WebSocket { get; set; }
+
         public string WebSocketId { get; set; }
+
         public string RoleName { get; set; }
+
         public string ClientId { get; set; }
+
+
+        public SemaphoreSlim SendLock { get; } = new SemaphoreSlim(1, 1);
+
+        public void Dispose()
+        {
+            SendLock.Dispose();
+        }
     }
 
     // SSE
@@ -1627,15 +1780,19 @@ public static class CodeBehindMiddlewareExtensions
 
         public async Task Invoke(HttpContext context, string sseId)
         {
-            context.Response.Headers.Add("Content-Type", "text/event-stream");
+            context.Response.ContentType = "text/event-stream";
             context.Response.Headers.Add("Cache-Control", "no-cache");
-            context.Response.Headers.Add("Connection", "keep-alive");
+
+            if (context.Request.Protocol == "HTTP/1.1")
+                context.Response.Headers.Add("Connection", "keep-alive");
 
             if (!sseId.Has())
                 sseId = new Random().Next(1, 1000000000).ToString();
 
             string roleName = "";
+
             var sessionFeature = context.Features.Get<ISessionFeature>();
+
             if (sessionFeature?.Session != null)
             {
                 RoleAccess role = new RoleAccess(context.Session);
@@ -1643,6 +1800,7 @@ public static class CodeBehindMiddlewareExtensions
             }
 
             string clientId = "";
+
             if (context.Request.Cookies.ContainsKey("SessionId"))
                 clientId = context.Request.Cookies["SessionId"];
 
@@ -1656,21 +1814,37 @@ public static class CodeBehindMiddlewareExtensions
                 {
                     foreach (var client in SSEManager.GetAllSSEs())
                     {
-                        if (client.SSEId == sseId)
-                        {
-                            foreach (string message in client.Message)
-                            {
-                                byte[] buffer = Encoding.UTF8.GetBytes("data: " + message + "\n\n");
+                        if (client.SSEId != sseId)
+                            continue;
 
-                                await context.Response.Body.WriteAsync(buffer, 0, buffer.Length);
-                                await context.Response.Body.FlushAsync();
-                            }
-                            client.Message.Clear();
+                        List<string> messages;
+
+                        lock (client.Message)
+                        {
+                            messages = client.Message.ToList();
+
+                            if (messages.Count > 0)
+                                client.Message.RemoveRange(0, messages.Count);
                         }
+
+                        foreach (string message in messages)
+                        {
+                            byte[] buffer = Encoding.UTF8.GetBytes("data: " + message + "\n\n");
+
+                            await context.Response.Body.WriteAsync(buffer, 0, buffer.Length);
+
+                            await context.Response.Body.FlushAsync();
+                        }
+
+                        break;
                     }
 
-                    await Task.Delay(StaticObject.SseInterval);
+                    await Task.Delay(StaticObject.SseInterval, context.RequestAborted);
                 }
+            }
+            catch (OperationCanceledException)
+            {
+                // Client Disconnected
             }
             finally
             {
@@ -1682,33 +1856,37 @@ public static class CodeBehindMiddlewareExtensions
     public static void SSEsBroadcast(HttpContext context, string broadcastMessage, string broadcastRoleName, string broadcastSSEId, string broadcastClientId, bool IgnoreThis)
     {
         string userSessionId = "";
+
         if (context.Request.Cookies.ContainsKey("SessionId"))
             userSessionId = context.Request.Cookies["SessionId"];
+
+        string broadcastSSEPath = context.Request.Path;
 
         foreach (var client in SSEManager.GetAllSSEs())
         {
             bool sendIt = false;
-            if (IgnoreThis && userSessionId.Has() && (userSessionId == client.ClientId))
+
+            if (IgnoreThis && userSessionId.Has() && userSessionId == client.ClientId)
                 continue;
 
             if (broadcastRoleName.Has() && broadcastSSEId.Has() && broadcastClientId.Has())
             {
-                if ((broadcastRoleName == client.RoleName) && (broadcastSSEId == client.SSEId) && (broadcastClientId == client.ClientId))
+                if (broadcastRoleName == client.RoleName && broadcastSSEId == client.SSEId && broadcastClientId == client.ClientId)
                     sendIt = true;
             }
             else if (broadcastRoleName.Has() && broadcastClientId.Has())
             {
-                if ((broadcastRoleName == client.RoleName) && (broadcastClientId == client.ClientId))
+                if (broadcastRoleName == client.RoleName && broadcastClientId == client.ClientId)
                     sendIt = true;
             }
             else if (broadcastSSEId.Has() && broadcastClientId.Has())
             {
-                if ((broadcastSSEId == client.SSEId) && (broadcastClientId == client.ClientId))
+                if (broadcastSSEId == client.SSEId && broadcastClientId == client.ClientId)
                     sendIt = true;
             }
             else if (broadcastRoleName.Has() && broadcastSSEId.Has())
             {
-                if ((broadcastRoleName == client.RoleName) && (broadcastSSEId == client.SSEId))
+                if (broadcastRoleName == client.RoleName && broadcastSSEId == client.SSEId)
                     sendIt = true;
             }
             else if (broadcastRoleName.Has())
@@ -1727,68 +1905,100 @@ public static class CodeBehindMiddlewareExtensions
                     sendIt = true;
             }
             else
-                sendIt = true;
+            {
+                if (broadcastSSEPath == client.SSEPath)
+                    sendIt = true;
+            }
 
             if (sendIt)
-                client.Message.Add(broadcastMessage);
-            sendIt = false;
+            {
+                lock (client.Message)
+                {
+                    client.Message.Add(broadcastMessage);
+                }
+            }
         }
     }
 
     public static class SSEManager
     {
         private static readonly List<SSEInfo> SSEs = new List<SSEInfo>();
+        private static readonly object SSELock = new object();
 
         public static bool AddSSE(string sseId, string path, string clientId, string roleName = "")
         {
-            if (clientId.Has())
-                CheckMaxSSEConnections(clientId);
+            lock (SSELock)
+            {
+                if (clientId.Has())
+                    CheckMaxSSEConnections(clientId);
 
-            SSEs.Add(new SSEInfo(sseId, path, roleName, clientId));
-            return true;
+                SSEs.Add(new SSEInfo(sseId, path, roleName, clientId));
+
+                return true;
+            }
         }
 
         public static void RemoveSSE(string sseId)
         {
-            for (int i = 0; i < SSEs.Count; i++)
-                if (SSEs[i].SSEId == sseId)
+            lock (SSELock)
+            {
+                for (int i = 0; i < SSEs.Count; i++)
                 {
-                    SSEs.RemoveAt(i);
-                    return;
+                    if (SSEs[i].SSEId == sseId)
+                    {
+                        SSEs.RemoveAt(i);
+                        return;
+                    }
                 }
+            }
         }
 
         public static bool SSEExist(string sseId)
         {
-            for (int i = 0; i < SSEs.Count; i++)
-                if (SSEs[i].SSEId == sseId)
-                    return true;
+            lock (SSELock)
+            {
+                for (int i = 0; i < SSEs.Count; i++)
+                {
+                    if (SSEs[i].SSEId == sseId)
+                        return true;
+                }
 
-            return false;
+                return false;
+            }
         }
 
         public static void CheckMaxSSEConnections(string clientId)
         {
             int numberOfConnections = 0;
 
-            for (int i = SSEs.Count - 1; i >= 0; i--)
+            for (int i = 0; i < SSEs.Count; i++)
+            {
                 if (SSEs[i].ClientId == clientId)
-                {
                     numberOfConnections++;
+            }
 
-                    if (numberOfConnections >= StaticObject.MaxSSEConnectionsPerClient)
+            if (numberOfConnections >= StaticObject.MaxSSEConnectionsPerClient)
+            {
+                for (int i = 0; i < SSEs.Count; i++)
+                {
+                    if (SSEs[i].ClientId == clientId)
                     {
                         SSEs.RemoveAt(i);
                         return;
                     }
                 }
+            }
         }
 
         public static List<SSEInfo> GetAllSSEs()
         {
-            return SSEs;
+            lock (SSELock)
+            {
+                return SSEs.ToList();
+            }
         }
     }
+
 
     public class SSEInfo
     {
@@ -1806,9 +2016,13 @@ public static class CodeBehindMiddlewareExtensions
         }
 
         public string SSEId { get; set; }
+
         public string SSEPath { get; set; }
+
         public string RoleName { get; set; }
+
         public string ClientId { get; set; }
+
         public List<string> Message { get; set; } = new List<string>();
     }
 }
