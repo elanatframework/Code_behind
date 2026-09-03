@@ -16,106 +16,111 @@ namespace CodeBehind
 
         private async Task<string> RunByContextAsync(HttpContext context, string MethodName, string QueryString = "")
         {
-            string path = context.Request.Path.ToString();
-            path = System.Net.WebUtility.UrlDecode(path);
-            string extension = Path.GetExtension(path);
-
-            if (StaticObject.PreventAccessDefaultAspx && MethodName == "SetPageLoadByPath")
-                if (path.EndsWith("/Default.aspx") || path.Contains("/Default.aspx/"))
-                {
-                    FoundPage = false;
-                    return "";
-                }
-
-            bool HasSegment = path.Contains(".aspx/");
-
-            if (string.IsNullOrEmpty(extension) && !HasSegment)
+            try
             {
-                bool AddSlash = true;
+                string path = context.Request.Path.ToString();
+                path = System.Net.WebUtility.UrlDecode(path);
+                string extension = Path.GetExtension(path);
 
-                if (path.Length > 0)
-                    AddSlash = (path[path.Length - 1] != '/');
-
-                if (!string.IsNullOrEmpty(QueryString))
-                    path = path + (AddSlash ? "/" : "") + "Default.aspx?" + QueryString;
-                else
-                    path = path + (AddSlash ? "/" : "") + "Default.aspx";
-
-                extension = ".aspx";
-            }
-
-            IsAspxExtension = extension == ".aspx";
-
-            if (extension == ".aspx" || HasSegment)
-            {
-                // Add QueryString Value
-                new RequestQuery().AddQueryString(context, QueryString);
-
-                if (context.Request.ContentType == null)
-                    context.Request.ContentType = "application/x-www-form-urlencoded; charset=utf-8";
-
-                Type type = CodeBehindCompiler.CompileAspxAndReturnType();
-                object obj = Activator.CreateInstance(type);
-                MethodInfo method;
-                object[] Arguments;
-                if (MethodName == "SetPageLoadByFullPath")
-                {
-                    method = CodeBehindCompiler.CompileAspxStaticMethodSetPageLoadByFullPath();
-                    Arguments = new object[] { path, context, "" };
-                }
-                else
-                {
-                    method = CodeBehindCompiler.CompileAspxStaticMethodSetPageLoadByPath();
-                    Arguments = new object[] { path, context };
-                }
-                string ReturnResult = await (Task<string>)method.Invoke(obj, Arguments);
-
-                method = CodeBehindCompiler.CompileAspxStaticMethodPageHasFound();
-                FoundPage = (bool)method.Invoke(obj, null);
-
-                method = CodeBehindCompiler.CompileAspxStaticMethodGetWebSocketId();
-                WebSocketId = (string)method.Invoke(obj, null);
-
-                method = CodeBehindCompiler.CompileAspxStaticMethodGetSSEId();
-                SSEId = (string)method.Invoke(obj, null);
-
-                method = CodeBehindCompiler.CompileAspxStaticMethodGetUseSSE();
-                UseSSE = (bool)method.Invoke(obj, null);
-
-                // Set Web-Forms Control
-                method = CodeBehindCompiler.CompileAspxStaticMethodGetWebFormsValue();
-                string WebFormsValue = (string)method.Invoke(obj, null);
-
-                if (!string.IsNullOrEmpty(WebFormsValue))
-                {
-                    bool HasPostBack = false;
-
-                    if (context.Request.Headers.TryGetValue("Post-Back", out var value))
+                if (StaticObject.PreventAccessDefaultAspx && MethodName == "SetPageLoadByPath")
+                    if (path.EndsWith("/Default.aspx") || path.Contains("/Default.aspx/"))
                     {
-                        if (value == "true")
-                        {
-                            HasPostBack = true;
-                            context.Response.Headers.Add("Content-Type", "text/plain");
-                        }
-                    }
-                    else if (context.Request.Headers.TryGetValue("Upgrade", out var value2))
-                    {
-                        if (value2 == "websocket")
-                            HasPostBack = true;
+                        FoundPage = false;
+                        return "";
                     }
 
-                    if (HasPostBack)
-                        ReturnResult = SetWebFormsCombinate(ReturnResult, WebFormsValue);
+                bool HasSegment = path.Contains(".aspx/");
+
+                if (string.IsNullOrEmpty(extension) && !HasSegment)
+                {
+                    bool AddSlash = true;
+
+                    if (path.Length > 0)
+                        AddSlash = (path[path.Length - 1] != '/');
+
+                    if (!string.IsNullOrEmpty(QueryString))
+                        path = path + (AddSlash ? "/" : "") + "Default.aspx?" + QueryString;
                     else
-                        ReturnResult = SetWebFormsCombinateFirstResponse(ReturnResult, WebFormsValue);
+                        path = path + (AddSlash ? "/" : "") + "Default.aspx";
+
+                    extension = ".aspx";
                 }
 
-                return ReturnResult;
+                IsAspxExtension = extension == ".aspx";
+
+                if (extension == ".aspx" || HasSegment)
+                {
+                    // Add QueryString Value
+                    new RequestQuery().AddQueryString(context, QueryString);
+
+                    Type type = CodeBehindCompiler.CompileAspxAndReturnType();
+                    object obj = Activator.CreateInstance(type);
+                    MethodInfo method;
+                    object[] Arguments;
+                    if (MethodName == "SetPageLoadByFullPath")
+                    {
+                        method = CodeBehindCompiler.CompileAspxStaticMethodSetPageLoadByFullPath();
+                        Arguments = new object[] { path, context, "" };
+                    }
+                    else
+                    {
+                        method = CodeBehindCompiler.CompileAspxStaticMethodSetPageLoadByPath();
+                        Arguments = new object[] { path, context };
+                    }
+                    string ReturnResult = await (Task<string>)method.Invoke(obj, Arguments);
+
+                    method = CodeBehindCompiler.CompileAspxStaticMethodPageHasFound();
+                    FoundPage = (bool)method.Invoke(obj, null);
+
+                    method = CodeBehindCompiler.CompileAspxStaticMethodGetWebSocketId();
+                    WebSocketId = (string)method.Invoke(obj, null);
+
+                    method = CodeBehindCompiler.CompileAspxStaticMethodGetSSEId();
+                    SSEId = (string)method.Invoke(obj, null);
+
+                    method = CodeBehindCompiler.CompileAspxStaticMethodGetUseSSE();
+                    UseSSE = (bool)method.Invoke(obj, null);
+
+                    // Set Web-Forms Control
+                    method = CodeBehindCompiler.CompileAspxStaticMethodGetWebFormsValue();
+                    string WebFormsValue = (string)method.Invoke(obj, null);
+
+                    if (!string.IsNullOrEmpty(WebFormsValue))
+                    {
+                        bool HasPostBack = false;
+
+                        if (context.Request.Headers.TryGetValue("Post-Back", out var value))
+                        {
+                            if (value == "true")
+                            {
+                                HasPostBack = true;
+                                context.Response.ContentType = "text/plain";
+                            }
+                        }
+                        else if (context.Request.Headers.TryGetValue("Upgrade", out var value2))
+                        {
+                            if (value2 == "websocket")
+                                HasPostBack = true;
+                        }
+
+                        if (HasPostBack)
+                            ReturnResult = SetWebFormsCombinate(ReturnResult, WebFormsValue);
+                        else
+                            ReturnResult = SetWebFormsCombinateFirstResponse(ReturnResult, WebFormsValue);
+                    }
+
+                    return ReturnResult;
+                }
+
+                FoundPage = false;
+
+                return "";
             }
-
-            FoundPage = false;
-
-            return "";
+            catch (Exception ex)
+            {
+                new ExceptionLog(ex);
+                return "";
+            }
         }
 
         private string RunByContext(HttpContext context, string MethodName, string QueryString = "")
@@ -206,70 +211,78 @@ namespace CodeBehind
         /// </summary>
         private async Task<string> RunByPathAsync(string path, string MethodName)
         {
-            string extension = Path.GetExtension(path);
-            path = System.Net.WebUtility.UrlDecode(path);
-            path = path.GetTextBeforeValue("?");
-
-            if (StaticObject.PreventAccessDefaultAspx && MethodName == "SetPageLoadByPath")
-                if (path.EndsWith("/Default.aspx") || path.Contains("/Default.aspx/"))
-                {
-                    FoundPage = false;
-                    return "";
-                }
-
-            bool HasSegment = path.Contains(".aspx/");
-
-            if (string.IsNullOrEmpty(extension) && !HasSegment)
+            try
             {
-                bool AddSlash = true;
+                string extension = Path.GetExtension(path);
+                path = System.Net.WebUtility.UrlDecode(path);
+                path = path.GetTextBeforeValue("?");
 
-                if (path.Length > 0)
-                    AddSlash = (path[path.Length - 1] != '/');
+                if (StaticObject.PreventAccessDefaultAspx && MethodName == "SetPageLoadByPath")
+                    if (path.EndsWith("/Default.aspx") || path.Contains("/Default.aspx/"))
+                    {
+                        FoundPage = false;
+                        return "";
+                    }
 
-                path = path + (AddSlash ? "/" : "") + "Default.aspx";
+                bool HasSegment = path.Contains(".aspx/");
 
-                extension = ".aspx";
+                if (string.IsNullOrEmpty(extension) && !HasSegment)
+                {
+                    bool AddSlash = true;
+
+                    if (path.Length > 0)
+                        AddSlash = (path[path.Length - 1] != '/');
+
+                    path = path + (AddSlash ? "/" : "") + "Default.aspx";
+
+                    extension = ".aspx";
+                }
+
+                IsAspxExtension = extension == ".aspx";
+
+                if (extension == ".aspx" || HasSegment)
+                {
+                    Type type = CodeBehindCompiler.CompileAspxAndReturnType();
+                    object obj = Activator.CreateInstance(type);
+                    MethodInfo method;
+                    object[] Arguments;
+                    if (MethodName == "SetPageLoadByFullPath")
+                    {
+                        method = CodeBehindCompiler.CompileAspxStaticMethodSetPageLoadByFullPath();
+                        Arguments = new object[] { path, null, "" };
+                    }
+                    else
+                    {
+                        method = CodeBehindCompiler.CompileAspxStaticMethodSetPageLoadByPath();
+                        Arguments = new object[] { path, null };
+                    }
+
+                    string ReturnResult = await (Task<string>)method.Invoke(obj, Arguments);
+
+                    method = CodeBehindCompiler.CompileAspxStaticMethodPageHasFound();
+                    FoundPage = (bool)method.Invoke(obj, null);
+
+                    method = CodeBehindCompiler.CompileAspxStaticMethodGetWebSocketId();
+                    WebSocketId = (string)method.Invoke(obj, null);
+
+                    method = CodeBehindCompiler.CompileAspxStaticMethodGetSSEId();
+                    SSEId = (string)method.Invoke(obj, null);
+
+                    method = CodeBehindCompiler.CompileAspxStaticMethodGetUseSSE();
+                    UseSSE = (bool)method.Invoke(obj, null);
+
+                    return ReturnResult;
+                }
+
+                FoundPage = false;
+
+                return "";
             }
-
-            IsAspxExtension = extension == ".aspx";
-
-            if (extension == ".aspx" || HasSegment)
+            catch (Exception ex)
             {
-                Type type = CodeBehindCompiler.CompileAspxAndReturnType();
-                object obj = Activator.CreateInstance(type);
-                MethodInfo method;
-                object[] Arguments;
-                if (MethodName == "SetPageLoadByFullPath")
-                {
-                    method = CodeBehindCompiler.CompileAspxStaticMethodSetPageLoadByFullPath();
-                    Arguments = new object[] { path, null, "" };
-                }
-                else
-                {
-                    method = CodeBehindCompiler.CompileAspxStaticMethodSetPageLoadByPath();
-                    Arguments = new object[] { path, null };
-                }
-
-                string ReturnResult = await (Task<string>)method.Invoke(obj, Arguments);
-
-                method = CodeBehindCompiler.CompileAspxStaticMethodPageHasFound();
-                FoundPage = (bool)method.Invoke(obj, null);
-
-                method = CodeBehindCompiler.CompileAspxStaticMethodGetWebSocketId();
-                WebSocketId = (string)method.Invoke(obj, null);
-
-                method = CodeBehindCompiler.CompileAspxStaticMethodGetSSEId();
-                SSEId = (string)method.Invoke(obj, null);
-
-                method = CodeBehindCompiler.CompileAspxStaticMethodGetUseSSE();
-                UseSSE = (bool)method.Invoke(obj, null);
-
-                return ReturnResult;
+                new ExceptionLog(ex);
+                return "";
             }
-
-            FoundPage = false;
-
-            return "";
         }
 
         private string RunByPath(string path, string MethodName)
@@ -325,75 +338,80 @@ namespace CodeBehind
 
         internal async Task<string> RunControllerValueAsync(HttpContext context, string ViewPath, object CodeBehindModel, NameValueCollection ViewData, string DownloadFilePath, bool? IgnoreLayout, string WebFormsValue, string? WebSocketId, string? SSEId, bool? UseSSE)
         {
-            if (string.IsNullOrEmpty(ViewPath) && string.IsNullOrEmpty(DownloadFilePath))
+            try
             {
-                FoundPage = false;
-                return "";
-            }
-
-            string path = context.Request.Path.ToString();
-            path = System.Net.WebUtility.UrlDecode(path);
-
-            if (StaticObject.PreventAccessDefaultAspx)
-                if (path.EndsWith("/Default.aspx") || path.Contains("/Default.aspx/"))
+                if (string.IsNullOrEmpty(ViewPath) && string.IsNullOrEmpty(DownloadFilePath))
                 {
                     FoundPage = false;
                     return "";
                 }
 
-            if (context.Request.ContentType == null)
-                context.Request.ContentType = "application/x-www-form-urlencoded; charset=utf-8";
+                string path = context.Request.Path.ToString();
+                path = System.Net.WebUtility.UrlDecode(path);
 
-            Type type = CodeBehindCompiler.CompileAspxAndReturnType();
-            object obj = Activator.CreateInstance(type);
-            MethodInfo method = CodeBehindCompiler.CompileAspxStaticMethodRunControllerName();
-            object[] Arguments = new object[] { context, ViewPath, CodeBehindModel, ViewData, DownloadFilePath, IgnoreLayout, WebFormsValue, WebSocketId, SSEId, UseSSE };
-            string ReturnResult = await (Task<string>)method.Invoke(obj, Arguments);
-
-            method = CodeBehindCompiler.CompileAspxStaticMethodPageHasFound();
-            FoundPage = (bool)method.Invoke(obj, null);
-
-            method = CodeBehindCompiler.CompileAspxStaticMethodGetWebSocketId();
-            WebSocketId = (string)method.Invoke(obj, null);
-
-            method = CodeBehindCompiler.CompileAspxStaticMethodGetSSEId();
-            SSEId = (string)method.Invoke(obj, null);
-
-            method = CodeBehindCompiler.CompileAspxStaticMethodGetUseSSE();
-            UseSSE = (bool)method.Invoke(obj, null);
-
-            // Set Web-Forms Control
-            method = CodeBehindCompiler.CompileAspxStaticMethodGetWebFormsValue();
-            string TmpWebFormsValue = (string)method.Invoke(obj, null);
-
-            if (!string.IsNullOrEmpty(TmpWebFormsValue))
-            {
-                bool HasPostBack = false;
-
-                if (context.Request.Headers.TryGetValue("Post-Back", out var value))
-                {
-                    if (value == "true")
+                if (StaticObject.PreventAccessDefaultAspx)
+                    if (path.EndsWith("/Default.aspx") || path.Contains("/Default.aspx/"))
                     {
-                        HasPostBack = true;
-                        context.Response.Headers.Add("Content-Type", "text/plain");
+                        FoundPage = false;
+                        return "";
                     }
-                }
-                else if (context.Request.Headers.TryGetValue("Upgrade", out var value2))
+
+                Type type = CodeBehindCompiler.CompileAspxAndReturnType();
+                object obj = Activator.CreateInstance(type);
+                MethodInfo method = CodeBehindCompiler.CompileAspxStaticMethodRunControllerName();
+                object[] Arguments = new object[] { context, ViewPath, CodeBehindModel, ViewData, DownloadFilePath, IgnoreLayout, WebFormsValue, WebSocketId, SSEId, UseSSE };
+                string ReturnResult = await (Task<string>)method.Invoke(obj, Arguments);
+
+                method = CodeBehindCompiler.CompileAspxStaticMethodPageHasFound();
+                FoundPage = (bool)method.Invoke(obj, null);
+
+                method = CodeBehindCompiler.CompileAspxStaticMethodGetWebSocketId();
+                WebSocketId = (string)method.Invoke(obj, null);
+
+                method = CodeBehindCompiler.CompileAspxStaticMethodGetSSEId();
+                SSEId = (string)method.Invoke(obj, null);
+
+                method = CodeBehindCompiler.CompileAspxStaticMethodGetUseSSE();
+                UseSSE = (bool)method.Invoke(obj, null);
+
+                // Set Web-Forms Control
+                method = CodeBehindCompiler.CompileAspxStaticMethodGetWebFormsValue();
+                string TmpWebFormsValue = (string)method.Invoke(obj, null);
+
+                if (!string.IsNullOrEmpty(TmpWebFormsValue))
                 {
-                    if (value2 == "websocket")
-                        HasPostBack = true;
+                    bool HasPostBack = false;
+
+                    if (context.Request.Headers.TryGetValue("Post-Back", out var value))
+                    {
+                        if (value == "true")
+                        {
+                            HasPostBack = true;
+                            context.Response.ContentType = "text/plain";
+                        }
+                    }
+                    else if (context.Request.Headers.TryGetValue("Upgrade", out var value2))
+                    {
+                        if (value2 == "websocket")
+                            HasPostBack = true;
+                    }
+
+                    if (HasPostBack)
+                    {
+                        ReturnResult = SetWebFormsCombinate(ReturnResult, TmpWebFormsValue);
+                        context.Response.ContentType = "text/plain";
+                    }
+                    else
+                        ReturnResult = SetWebFormsCombinateFirstResponse(ReturnResult, TmpWebFormsValue);
                 }
 
-                if (HasPostBack)
-                {
-                    ReturnResult = SetWebFormsCombinate(ReturnResult, TmpWebFormsValue);
-                    context.Response.Headers.Add("Content-Type", "text/plain");
-                }
-                else
-                    ReturnResult = SetWebFormsCombinateFirstResponse(ReturnResult, TmpWebFormsValue);
+                return ReturnResult;
             }
-
-            return ReturnResult;
+            catch (Exception ex)
+            {
+                new ExceptionLog(ex);
+                return "";
+            }
         }
 
         internal string RunControllerValue(HttpContext context, string ViewPath, object CodeBehindModel, NameValueCollection ViewData, string DownloadFilePath, bool? IgnoreLayout, string WebFormsValue, string? WebSocketId, string? SSEId, bool? UseSSE)
@@ -403,105 +421,145 @@ namespace CodeBehind
 
         public string RunController(object ControllerClass, HttpContext context)
         {
-            Type type = ControllerClass.GetType();
-            MethodInfo method = type.GetMethod("FillSegment");
-            method.Invoke(ControllerClass, new object[] { context });
-            method = type.GetMethod("PageLoad");
-            method.Invoke(ControllerClass, new object[] { context });
-            method = type.GetMethod("Run");
-            string ReturnResult = (string)method.Invoke(ControllerClass, new object[] { context });
+            try
+            {
+                Type type = ControllerClass.GetType();
+                MethodInfo method = type.GetMethod("FillSegment");
+                method.Invoke(ControllerClass, new object[] { context });
+                method = type.GetMethod("PageLoad");
+                method.Invoke(ControllerClass, new object[] { context });
+                method = type.GetMethod("Run");
+                string ReturnResult = (string)method.Invoke(ControllerClass, new object[] { context });
 
-            return ReturnResult;
+                return ReturnResult;
+            }
+            catch (Exception ex)
+            {
+                new ExceptionLog(ex);
+                return "";
+            }
         }
 
         // Overload
         public string RunController(object ControllerClass)
         {
-            Type type = ControllerClass.GetType();
-            MethodInfo method = type.GetMethod("FillSegment");
-            method.Invoke(ControllerClass, new object[] { null });
-            method = type.GetMethod("PageLoad");
-            method.Invoke(ControllerClass, new object[] { null });
-            method = type.GetMethod("Run");
-            string ReturnResult = (string)method.Invoke(ControllerClass, new object[] { null });
+            try
+            {
+                Type type = ControllerClass.GetType();
+                MethodInfo method = type.GetMethod("FillSegment");
+                method.Invoke(ControllerClass, new object[] { null });
+                method = type.GetMethod("PageLoad");
+                method.Invoke(ControllerClass, new object[] { null });
+                method = type.GetMethod("Run");
+                string ReturnResult = (string)method.Invoke(ControllerClass, new object[] { null });
 
-            return ReturnResult;
+                return ReturnResult;
+            }
+            catch (Exception ex)
+            {
+                new ExceptionLog(ex);
+                return "";
+            }
         }
 
         public async Task<string> RunControllerAsync(object ControllerClass, HttpContext context)
         {
-            Type type = ControllerClass.GetType();
-            MethodInfo method = type.GetMethod("FillSegment");
-            method.Invoke(ControllerClass, new object[] { context });
-            method = type.GetMethod("PageLoad");
-            await (Task)method.Invoke(ControllerClass, new object[] { context });
-            method = type.GetMethod("RunAsync");
-            string ReturnResult = await (Task<string>)method.Invoke(ControllerClass, new object[] { context });
+            try
+            {
+                Type type = ControllerClass.GetType();
+                MethodInfo method = type.GetMethod("FillSegment");
+                method.Invoke(ControllerClass, new object[] { context });
+                method = type.GetMethod("PageLoad");
+                await (Task)method.Invoke(ControllerClass, new object[] { context });
+                method = type.GetMethod("RunAsync");
+                string ReturnResult = await (Task<string>)method.Invoke(ControllerClass, new object[] { context });
 
-            return ReturnResult;
+                return ReturnResult;
+            }
+            catch (Exception ex)
+            {
+                new ExceptionLog(ex);
+                return "";
+            }
         }
 
         // Overload
         public async Task<string> RunControllerAsync(object ControllerClass)
         {
-            Type type = ControllerClass.GetType();
-            MethodInfo method = type.GetMethod("FillSegment");
-            method.Invoke(ControllerClass, new object[] { null });
-            method = type.GetMethod("PageLoad");
-            await (Task)method.Invoke(ControllerClass, new object[] { null });
-            method = type.GetMethod("RunAsync");
-            string ReturnResult = await (Task<string>)method.Invoke(ControllerClass, new object[] { null });
+            try
+            {
+                Type type = ControllerClass.GetType();
+                MethodInfo method = type.GetMethod("FillSegment");
+                method.Invoke(ControllerClass, new object[] { null });
+                method = type.GetMethod("PageLoad");
+                await (Task)method.Invoke(ControllerClass, new object[] { null });
+                method = type.GetMethod("RunAsync");
+                string ReturnResult = await (Task<string>)method.Invoke(ControllerClass, new object[] { null });
 
-            return ReturnResult;
+                return ReturnResult;
+            }
+            catch (Exception ex)
+            {
+                new ExceptionLog(ex);
+                return "";
+            }
         }
 
         // Overload
         public async Task<string> RunControllerAsync(string ControllerClass, HttpContext context, bool IsDefaultController = false)
         {
-            Type type = CodeBehindCompiler.CompileAspxAndReturnType();
-            object obj = Activator.CreateInstance(type);
-            MethodInfo method = CodeBehindCompiler.CompileAspxStaticMethodRunControllerName();
-            string ReturnResult = await (Task<string>)method.Invoke(obj, new object[] { ControllerClass, context, IsDefaultController, false });
-
-            method = CodeBehindCompiler.CompileAspxStaticMethodControllerHasFound();
-            FoundController = (bool)method.Invoke(obj, null);
-
-            method = CodeBehindCompiler.CompileAspxStaticMethodGetWebSocketId();
-            WebSocketId = (string)method.Invoke(obj, null);
-
-            method = CodeBehindCompiler.CompileAspxStaticMethodGetSSEId();
-            SSEId = (string)method.Invoke(obj, null);
-
-            method = CodeBehindCompiler.CompileAspxStaticMethodGetUseSSE();
-            UseSSE = (bool)method.Invoke(obj, null);
-
-            // Set Web-Forms Control
-            method = CodeBehindCompiler.CompileAspxStaticMethodGetWebFormsValue();
-            string TmpWebFormsValue = (string)method.Invoke(obj, null);
-
-            if (!string.IsNullOrEmpty(TmpWebFormsValue))
+            try
             {
-                bool HasPostBack = false;
+                Type type = CodeBehindCompiler.CompileAspxAndReturnType();
+                object obj = Activator.CreateInstance(type);
+                MethodInfo method = CodeBehindCompiler.CompileAspxStaticMethodRunControllerName();
+                string ReturnResult = await (Task<string>)method.Invoke(obj, new object[] { ControllerClass, context, IsDefaultController, false });
 
-                if (context.Request.Headers.TryGetValue("Post-Back", out var value))
-                    if (value == "true")
-                    {
-                        HasPostBack = true;
-                        context.Response.Headers.Add("Content-Type", "text/plain");
-                    }
-                    else if (context.Request.Headers.TryGetValue("Upgrade", out var value2))
-                        HasPostBack = (value2 == "websocket");
+                method = CodeBehindCompiler.CompileAspxStaticMethodControllerHasFound();
+                FoundController = (bool)method.Invoke(obj, null);
 
-                if (HasPostBack)
+                method = CodeBehindCompiler.CompileAspxStaticMethodGetWebSocketId();
+                WebSocketId = (string)method.Invoke(obj, null);
+
+                method = CodeBehindCompiler.CompileAspxStaticMethodGetSSEId();
+                SSEId = (string)method.Invoke(obj, null);
+
+                method = CodeBehindCompiler.CompileAspxStaticMethodGetUseSSE();
+                UseSSE = (bool)method.Invoke(obj, null);
+
+                // Set Web-Forms Control
+                method = CodeBehindCompiler.CompileAspxStaticMethodGetWebFormsValue();
+                string TmpWebFormsValue = (string)method.Invoke(obj, null);
+
+                if (!string.IsNullOrEmpty(TmpWebFormsValue))
                 {
-                    ReturnResult = SetWebFormsCombinate(ReturnResult, TmpWebFormsValue);
-                    context.Response.Headers.Add("Content-Type", "text/plain");
-                }
-                else
-                    ReturnResult = SetWebFormsCombinateFirstResponse(ReturnResult, TmpWebFormsValue);
-            }
+                    bool HasPostBack = false;
 
-            return ReturnResult;
+                    if (context.Request.Headers.TryGetValue("Post-Back", out var value))
+                        if (value == "true")
+                        {
+                            HasPostBack = true;
+                            context.Response.ContentType = "text/plain";
+                        }
+                        else if (context.Request.Headers.TryGetValue("Upgrade", out var value2))
+                            HasPostBack = (value2 == "websocket");
+
+                    if (HasPostBack)
+                    {
+                        ReturnResult = SetWebFormsCombinate(ReturnResult, TmpWebFormsValue);
+                        context.Response.ContentType = "text/plain";
+                    }
+                    else
+                        ReturnResult = SetWebFormsCombinateFirstResponse(ReturnResult, TmpWebFormsValue);
+                }
+
+                return ReturnResult;
+            }
+            catch (Exception ex)
+            {
+                new ExceptionLog(ex);
+                return "";
+            }
         }
 
         public string RunController(string ControllerClass, HttpContext context, bool IsDefaultController = false)
