@@ -148,9 +148,9 @@ namespace CodeBehind
         public void SetSelectedValue(string InputPlace, string Value) => Add("ts" + InputPlace, Value);
         public void SetSelectedIndex(string InputPlace, string Index) => Add("ti" + InputPlace, Index);
         public void SetSelectedIndex(string InputPlace, int Index) => SetSelectedIndex(InputPlace, Index.ToString());
-        public void SetCheckedValue(string InputPlace, string Value, bool Selected) => Add("ks" + InputPlace, Value + GS + (Selected ? "1" : "0"));
-        public void SetCheckedIndex(string InputPlace, string Index, bool Selected) => Add("ki" + InputPlace, Index + GS + (Selected ? "1" : "0"));
-        public void SetCheckedIndex(string InputPlace, int Index, bool Selected) => SetCheckedIndex(InputPlace, Index.ToString(), Selected);
+        public void SetCheckedValue(string InputPlace, string Value, bool Checked) => Add("ks" + InputPlace, Value + GS + (Checked ? "1" : "0"));
+        public void SetCheckedIndex(string InputPlace, string Index, bool Checked) => Add("ki" + InputPlace, Index + GS + (Checked ? "1" : "0"));
+        public void SetCheckedIndex(string InputPlace, int Index, bool Checked) => SetCheckedIndex(InputPlace, Index.ToString(), Checked);
 
         // Insert
         // Creates the Data only if it does not exist; otherwise, does nothing.
@@ -452,7 +452,8 @@ namespace CodeBehind
         public void DeleteAllState() => Add("DS", "*");
 
         // Cookie
-        public void SetCookie(string Key, string Value, object Seconds, string Path = null) => Add("sC", Key + GS + Value + GS + Seconds.ToString() + (!string.IsNullOrEmpty(Path) ? GS + Path : ""));
+        public void SetCookie(string Key, string Value, string Seconds, string Path = null) => Add("sC", Key + GS + Value + GS + Seconds + (!string.IsNullOrEmpty(Path) ? GS + Path : ""));
+        public void SetCookie(string Key, string Value, int Seconds, string Path = null) => SetCookie(Key, Value , Seconds.ToString(), Path);
 
         // Save (Session Cache)
         public void SaveId(string InputPlace, string Key = ".") => Add("@gi" + InputPlace, Key);
@@ -575,45 +576,10 @@ namespace CodeBehind
         // Update
         public void Increase(string InputPlace, float Value) => Add("gt" + InputPlace, "i" + GS + Value.ToString());
         public void Decrease(string InputPlace, float Value) => Add("gt" + InputPlace, "i" + GS + (Value * -1).ToString());
-        // If You Don't Use Deep Mode, Any Tags Inside The Current Tag Will Simply Be Treated As Strings. Deep Mode Does Not Remove Inner Elements.
-        public void Replace(string InputPlace, string Value, string NewValue, bool AlsoStartTag = false, bool Deep = true)
-        {
-            if (!string.IsNullOrEmpty(Value))
-                if (Value[0] == '@')
-                {
-                    Value = Value.Remove(0, 1);
-                    Value = "$[at];" + Value;
-                }
-
-            if (!string.IsNullOrEmpty(NewValue))
-                if (NewValue[0] == '@')
-                {
-                    NewValue = NewValue.Remove(0, 1);
-                    NewValue = "$[at];" + NewValue;
-                }
-
-            Add("gt" + InputPlace, "r" + GS + Value + GS + NewValue + GS + (AlsoStartTag ? "1" : "0") + GS + (Deep ? "1" : "0"));
-        }
-
-        // HTML Converts Attribute Names To Lowercase, So They Need To Be Written In Lowercase.
-        public void ReplaceStartTag(string InputPlace, string Value, string NewValue)
-        {
-            if (!string.IsNullOrEmpty(Value))
-                if (Value[0] == '@')
-                {
-                    Value = Value.Remove(0, 1);
-                    Value = "$[at];" + Value;
-                }
-
-            if (!string.IsNullOrEmpty(NewValue))
-                if (NewValue[0] == '@')
-                {
-                    NewValue = NewValue.Remove(0, 1);
-                    NewValue = "$[at];" + NewValue;
-                }
-
-            Add("gt" + InputPlace, "s" + GS + Value + GS + NewValue);
-        }
+        // If You Don't Use Deep Mode, any Tags Inside the Current Tag Will Simply Be Treated as Strings. Deep Mode Does not Remove Inner Elements.
+        public void Replace(string InputPlace, string Value, string NewValue, bool AlsoStartTag = false, bool Deep = true) => Add("gt" + InputPlace, "r" + GS + Value + GS + NewValue + GS + (AlsoStartTag ? "1" : "0") + GS + (Deep ? "1" : "0"));
+        // HTML Converts Attribute Names to Lowercase, so they Need to Be Written in Lowercase.
+        public void ReplaceStartTag(string InputPlace, string Value, string NewValue) => Add("gt" + InputPlace, "s" + GS + Value + GS + NewValue);
 
         // Pre Runner
         public void AssignDelay(int MiliSecond, int Index = -1)
@@ -663,7 +629,7 @@ namespace CodeBehind
             UpdateLineByIndex(Index, newName, newValue);
         }
 
-        public void AssignIntervalChange(float MiliSecond, string Id = null, int Index = -1)
+        public void AssignIntervalChange(int MiliSecond, string Id = null, int Index = -1)
         {
             string currentLine = GetLineByIndex(Index);
             if (string.IsNullOrEmpty(currentLine))
@@ -725,9 +691,9 @@ namespace CodeBehind
         public void StartIndex() => StartIndex("");
         // This Index Is Automatically Run After Changing The Browser History (Back And Forward Buttons)
         public void StartState() => StartIndex("$");
-        public void GoTo(string Line, string Repeat = "1") => Add("&", Line + GS + Repeat);
+        public void GoTo(string Line, string Repeat) => Add("&", Line + GS + Repeat);
         public void GoTo(int Line, int Repeat = 1) => GoTo(Line.ToString(), Repeat.ToString());
-        public void GoTo(string Index, int Repeat) => Add("&", "#" + Index + GS + Repeat.ToString());
+        public void GoTo(string Index, int Repeat = 1) => Add("&", "#" + Index + GS + Repeat.ToString());
         
         // Start
         public void StartTransientDOM(string InputPlace) => Add("td", InputPlace);
@@ -738,6 +704,7 @@ namespace CodeBehind
         public void Alert(string Text, string Type = "none", string Title = "Alert", string OkText = "OK") => Add("Al", Text + GS + (Type == "none" ? "" : Type) + GS + (Title == "Alert" ? "" : Title) + GS + (OkText == "OK" ? "" : OkText));
         public void Message(string Text, string Type = "none", string Duration = "0") => Add("me", Text + GS + (Type == "none" ? "" : Type) + GS + (Duration == "0" ? "" : Duration));
         public void Message(string Text, string Type, int Duration) => Message(Text, Type, Duration.ToString());
+        public void Message(string Text, int Duration) => Message(Text, "", Duration.ToString());
 
         // Type: log, info, warn, error, debug, trace, group, groupend, table
         public void ConsoleMessage(string Text, string Type = "log") => Add("mc", Text.Replace('\n'.ToString(), "$[ln];") + (Type == "log" ? "" : GS + Type));
@@ -748,6 +715,7 @@ namespace CodeBehind
         public void EnableWebSocket(bool Enable = true) => Add("ew", Enable ? "1" : "0");
         public void EnableWebSocketOnce() => Add("ew", "$");
         public void AddWebSocket(string Path) => Add("aw" + Path);
+        // Disconnected WebSocket
         public void DeleteWebSocket(string Path) => Add("dw" + Path);
 
         // Use
@@ -756,33 +724,114 @@ namespace CodeBehind
         public void UseOnlyChangeUpdate(string InputPlace) => Add("uo" + InputPlace);
 
         // Condition And Loop
+        // Condition And Loop Supports Brackets and Then
         // Type: warning, problem, help, success, none
         // Interval: Value 0 is Await (if is not True, all Next Action Controls Waiting for it), Value -1 is Sync Check Once (is Support Bracket or Next Action Control), Value > 0 is Async and is Wait Based on Time Repetition Until it Becomes True (Is Support Bracket or Next Action Control, but is not Support Else).
         // Nested Conditions and Nested Loops are Possible.
-        public void ConfirmIsTrueAccept(string Text = "Are you sure you want to proceed?", string Type = "none", string Title = "Confirm", string OkText = "OK", string CancelText = "Cancel", float Interval = 100) => Add(((Interval >= 0) ? "{(" + Interval + ")" : "{") + "ct", (Text == "Are you sure you want to proceed?" ? "" : Text) + GS + (Type == "none" ? "" : Type) + GS + (Title == "Confirm" ? "" : Title) + GS + (OkText == "OK" ? "" : OkText) + GS + (CancelText == "Cancel" ? "" : CancelText));
-        public void ConfirmIsFalseAccept(string Text = "Are you sure you want to proceed?", string Type = "none", string Title = "Confirm", string OkText = "OK", string CancelText = "Cancel", float Interval = 100) => Add(((Interval >= 0) ? "{(" + Interval + ")" : "{") + "cf", (Text == "Are you sure you want to proceed?" ? "" : Text) + GS + (Type == "none" ? "" : Type) + GS + (Title == "Confirm" ? "" : Title) + GS + (OkText == "OK" ? "" : OkText) + GS + (CancelText == "Cancel" ? "" : CancelText));
-        public void IsGreaterThan(string FirstValue, string SecondValue, int Interval = -1) => Add(((Interval >= 0) ? "{(" + Interval + ")" : "{") + "gt", FirstValue + GS + SecondValue);
-        public void IsLessThan(string FirstValue, string SecondValue, int Interval = -1) => Add(((Interval >= 0) ? "{(" + Interval + ")" : "{") + "lt", FirstValue + GS + SecondValue);
-        public void IsEqualTo(string FirstValue, string SecondValue, int Interval = -1) => Add(((Interval >= 0) ? "{(" + Interval + ")" : "{") + "et", FirstValue + GS + SecondValue);
-        public void IsNotEqualTo(string FirstValue, string SecondValue, int Interval = -1) => Add(((Interval >= 0) ? "{(" + Interval + ")" : "{") + "Nt", FirstValue + GS + SecondValue);
-        public void Exist(string Value, int Interval = -1) => Add(((Interval >= 0) ? "{(" + Interval + ")" : "{") + "ex", Value);
-        public void NotExist(string Value, int Interval = -1) => Add(((Interval >= 0) ? "{(" + Interval + ")" : "{") + "nx", Value);
-        public void IsTrue(string Value, int Interval = -1) => Add(((Interval >= 0) ? "{(" + Interval + ")" : "{") + "tr", Value);
-        public void IsFalse(string Value, int Interval = -1) => Add(((Interval >= 0) ? "{(" + Interval + ")" : "{") + "fa", Value);
-        public void IsMatchMedia(string Value, int Interval = -1) => Add(((Interval >= 0) ? "{(" + Interval + ")" : "{") + "mm", Value);
-        public void IsNotMatchMedia(string Value, int Interval = -1) => Add(((Interval >= 0) ? "{(" + Interval + ")" : "{") + "nm", Value);
-        public void Include(string Text, string Value, int Interval = -1) => Add(((Interval >= 0) ? "{(" + Interval + ")" : "{") + "In", Value + GS + Text);
-        public void NotInclude(string Text, string Value, int Interval = -1) => Add(((Interval >= 0) ? "{(" + Interval + ")" : "{") + "Nn", Value + GS + Text);
-        public void ElementExists(string InputPlace, int Interval = -1) => Add(((Interval >= 0) ? "{(" + Interval + ")" : "{") + "eE", InputPlace);
-        public void ElementNotExists(string InputPlace, int Interval = -1) => Add(((Interval >= 0) ? "{(" + Interval + ")" : "{") + "nE", InputPlace);
-        public void IsRegexMatch(string Value, string Pattern, int Interval = -1) => Add(((Interval >= 0) ? "{(" + Interval + ")" : "{") + "re", Value + GS + Pattern);
-        public void IsRegexNotMatch(string Value, string Pattern, int Interval = -1) => Add(((Interval >= 0) ? "{(" + Interval + ")" : "{") + "rn", Value + GS + Pattern);
+        public WebForms ConfirmIsTrueAccept(string Text = "Are you sure you want to proceed?", string Type = "none", string Title = "Confirm", string OkText = "OK", string CancelText = "Cancel", int Interval = 100)
+        {
+            Add(((Interval >= 0) ? "{(" + Interval + ")" : "{") + "ct", (Text == "Are you sure you want to proceed?" ? "" : Text) + GS + (Type == "none" ? "" : Type) + GS + (Title == "Confirm" ? "" : Title) + GS + (OkText == "OK" ? "" : OkText) + GS + (CancelText == "Cancel" ? "" : CancelText));
+            return this;
+        }
+        public WebForms ConfirmIsFalseAccept(string Text = "Are you sure you want to proceed?", string Type = "none", string Title = "Confirm", string OkText = "OK", string CancelText = "Cancel", int Interval = 100)
+        {
+            Add(((Interval >= 0) ? "{(" + Interval + ")" : "{") + "cf", (Text == "Are you sure you want to proceed?" ? "" : Text) + GS + (Type == "none" ? "" : Type) + GS + (Title == "Confirm" ? "" : Title) + GS + (OkText == "OK" ? "" : OkText) + GS + (CancelText == "Cancel" ? "" : CancelText));
+            return this;
+        }
+        public WebForms IsGreaterThan(string FirstValue, string SecondValue, int Interval = -1)
+        {
+            Add(((Interval >= 0) ? "{(" + Interval + ")" : "{") + "gt", FirstValue + GS + SecondValue);
+            return this;
+        }
+        public WebForms IsLessThan(string FirstValue, string SecondValue, int Interval = -1)
+        {
+            Add(((Interval >= 0) ? "{(" + Interval + ")" : "{") + "lt", FirstValue + GS + SecondValue);
+            return this;
+        }
+        public WebForms IsEqualTo(string FirstValue, string SecondValue, int Interval = -1)
+        {
+            Add(((Interval >= 0) ? "{(" + Interval + ")" : "{") + "et", FirstValue + GS + SecondValue);
+            return this;
+        }
+        public WebForms IsNotEqualTo(string FirstValue, string SecondValue, int Interval = -1)
+        {
+            Add(((Interval >= 0) ? "{(" + Interval + ")" : "{") + "Nt", FirstValue + GS + SecondValue);
+            return this;
+        }
+        public WebForms Exist(string Value, int Interval = -1)
+        {
+            Add(((Interval >= 0) ? "{(" + Interval + ")" : "{") + "ex", Value);
+            return this;
+        }
+        public WebForms NotExist(string Value, int Interval = -1)
+        {
+            Add(((Interval >= 0) ? "{(" + Interval + ")" : "{") + "nx", Value);
+            return this;
+        }
+        public WebForms IsTrue(string Value, int Interval = -1)
+        {
+            Add(((Interval >= 0) ? "{(" + Interval + ")" : "{") + "tr", Value);
+            return this;
+        }
+        public WebForms IsFalse(string Value, int Interval = -1)
+        {
+            Add(((Interval >= 0) ? "{(" + Interval + ")" : "{") + "fa", Value);
+            return this;
+        }
+        public WebForms IsMatchMedia(string Value, int Interval = -1)
+        {
+            Add(((Interval >= 0) ? "{(" + Interval + ")" : "{") + "mm", Value);
+            return this;
+        }
+        public WebForms IsNotMatchMedia(string Value, int Interval = -1)
+        {
+            Add(((Interval >= 0) ? "{(" + Interval + ")" : "{") + "nm", Value);
+            return this;
+        }
+        public WebForms Include(string Text, string Value, int Interval = -1)
+        {
+            Add(((Interval >= 0) ? "{(" + Interval + ")" : "{") + "In", Value + GS + Text);
+            return this;
+        }
+        public WebForms NotInclude(string Text, string Value, int Interval = -1)
+        {
+            Add(((Interval >= 0) ? "{(" + Interval + ")" : "{") + "Nn", Value + GS + Text);
+            return this;
+        }
+        public WebForms ElementExists(string InputPlace, int Interval = -1)
+        {
+            Add(((Interval >= 0) ? "{(" + Interval + ")" : "{") + "eE", InputPlace);
+            return this;
+        }
+        public WebForms ElementNotExists(string InputPlace, int Interval = -1)
+        {
+            Add(((Interval >= 0) ? "{(" + Interval + ")" : "{") + "nE", InputPlace);
+            return this;
+        }
+        public WebForms IsRegexMatch(string Value, string Pattern, int Interval = -1)
+        {
+            Add(((Interval >= 0) ? "{(" + Interval + ")" : "{") + "re", Value + GS + Pattern);
+            return this;
+        }
+        public WebForms IsRegexNotMatch(string Value, string Pattern, int Interval = -1)
+        {
+            Add(((Interval >= 0) ? "{(" + Interval + ")" : "{") + "rn", Value + GS + Pattern);
+            return this;
+        }
         // In: Everything Becomes A JSON List.
         // Key: Creates A Temporary Data In The Browser IndexedDB.
         // Key + "i" Creates A Temporary Data To Maintain The Loop Counter In The Browser IndexedDB.
-        public void ForEach(string Path, string In, string Key = ".") => Add( "{fe", Path + GS + In + GS + Key);
+        public WebForms ForEach(string Path, string In, string Key = ".")
+        {
+            Add( "{fe", Path + GS + In + GS + Key);
+            return this;
+        }
         public void Break() => Add(";");
-        public void Else() => Add("}e");
+        public WebForms Else()
+        {
+            Add("}e");
+            return this;
+        }
         public void StartBracket() => Add("{");
         public void EndBracket() => Add("}");
         // Used Then In Condition And Loop Methods
@@ -833,7 +882,7 @@ namespace CodeBehind
             if (string.IsNullOrEmpty(bodyData))
                 return this;
 
-            int startLine = GetWebFormsData().Split('\n').Length - 1;
+            int startLine = bodyData.Split('\n').Length * -1;
 
             AppendForm(newForm);
             GoTo(startLine, repeat - 1);
@@ -889,12 +938,17 @@ namespace CodeBehind
         }
 
         // Async
-        public void Async() => Add("{(a)");
+        // It Supports Brackets and Then
+        public WebForms Async()
+        {
+            Add("{(a)");
+            return this;
+        }
         public void Delay(string MiliSecond) => Add("De", MiliSecond);
         public void Delay(int MiliSecond) => Delay(MiliSecond.ToString());
 
         // Option
-        public void ChangeOption(string Name, string Value) => Add("co", Name + GS + Value.JsonNormalize());
+        public void ChangeOption(string Name, string Value) => Add("co", Name + GS + Value);
         public void ResetOption() => Add("ro");
         public void ResetOption(string Name) => Add("ro", Name);
 
@@ -902,18 +956,8 @@ namespace CodeBehind
         public void CreateFormatStorage(string Key, string Data) => Add(".C", Key + GS + Data);
         public void DeleteFormatStorage(string Key) => Add(".D", Key);
         public void AddJSON(string Key, string Path, string Value) => Add(".a", Key + GS + "j" + GS + Value + GS + Path);
-        // Name: For Support Attribute, Set @ Before Name. Add Double @ (@@) For Support Dynamic Args In Attribute
-        public void AddXML(string Key, string Path, string Name, string Value = null)
-        {
-            if (!string.IsNullOrEmpty(Name))
-                if (Name[0] == '@')
-                {
-                    Name = Name.Remove(0);
-                    Name = "$[at];" + Name;
-                }
-
-            Add(".a", Key + GS + "x" + GS + Name.Replace("@", "$[at];") + GS + Value + GS + Path);
-        }
+        // Name: For Support Attribute, Set Double At Sign (@@) Before Name.
+        public void AddXML(string Key, string Path, string Name, string Value = null) => Add(".a", Key + GS + "x" + GS + Name + GS + Value + GS + Path);
         public void AddINI(string Key, string Path, string Value, bool IsINILike = false) => Add(".a", Key + GS + "i" + GS + (IsINILike ? "1" : "0") + GS + Value + GS + Path);
         public void AddTextLine(string Key, string Line, string Text) => Add(".a", Key + GS + "t" + GS + Text + GS + Line);
         public void AddTextLine(string Key, int Line, string Text) => AddTextLine(Key, Line.ToString(), Text);
@@ -937,11 +981,12 @@ namespace CodeBehind
         // Template Engine
         // Pattern Example: {{value}}, ((value)), *value*, $value;
         public void BindJSONToTemplate(string InputPlace, string JSONText, string Path, string Pattern, bool AlsoStartTag = true) =>  Add("Tj" + InputPlace, JSONText + GS + Path + GS + Pattern + GS + (AlsoStartTag ? "1" : "0"));
+        // Because XML Elements Are Lowercased, Placeholders Must Use Lowercase Names.
         public void BindXMLToTemplate(string InputPlace, string XMLText, string Path, string Pattern, bool AlsoStartTag = true) =>  Add("Tx" + InputPlace, XMLText + GS + Path + GS + Pattern + GS + (AlsoStartTag ? "1" : "0"));
         public void BindINIToTemplate(string InputPlace, string INIText, string Path, string Pattern, bool AlsoStartTag = true) =>  Add("Ti" + InputPlace, INIText + GS + Path + GS + Pattern + GS + (AlsoStartTag ? "1" : "0"));
 
         // Inject
-        // Need Add @: To First Of String
+        // Need Add @: to First of String
         public string Inject(string Value) => "$[" + Value + "];";
 
         // Action Control
@@ -1060,10 +1105,7 @@ namespace CodeBehind
                 return Value;
 
             if (Value[0] == '@')
-            {
-                Value = Value.Remove(0, 1);
-                Value = "$[at];" + Value;
-            }
+                Value = "@" + Value;
 
             Value = Value
             .Replace('\n'.ToString(), "$[ln];")
@@ -1233,9 +1275,11 @@ namespace CodeBehind
         public static string Save(string Key = ".") => "@cs" + Key;
         public static string Save(string Key, string ReplaceValue) => "@cs" + Key + RS + ReplaceValue;
         public static string SaveThenRemove(string Key) => "@cl" + Key;
+        public static string SaveLength(string Key = ".") => "@cg" + Key;
         public static string Cache(string Key = ".") => "@cd" + Key;
         public static string Cache(string Key, string ReplaceValue) => "@cd" + Key + RS + ReplaceValue;
         public static string CacheThenRemove(string Key) => "@ct" + Key;
+        public static string CacheLength(string Key = ".") => "@cG" + Key;
         public static string SavedLine(string Key = ".", int Line = 0) => "@lL" + Key + "[" + Line;
         public static string SavedLineConsume(string Key = ".") => "@lL" + Key;
         // INIKey: Only Direct Key is Supported
@@ -1536,17 +1580,22 @@ namespace CodeBehind
             return Text.Replace("\r\n", encode).Replace("\n", encode).Replace("\r", encode);
         }
 
-        public static string AddDblQuote(this string Text)
+        // Converts Numbers to Strings
+        public static string ToJSString(this string Text)
         {
             return "\"" + Text + "\"";
         }
-        
-        public static string JsonNormalize(this string Text)
-        {
-            if (Text.Length == 0)
-                return Text;
 
-            return "\"" + Text.Replace("\\", "\\\\").Replace("\"", "\\\"").Replace("\r", "\\r").Replace("\n", "\\n").Replace("\t", "\\t").Replace("\b", "\\b").Replace("\f", "\\f") + "\"";
+        // Get JS Object Momentary 
+        public static string ToJSObject(this string Text)
+        {
+            return "$" + Text;
+        }
+
+        // Get JS Object Returned Value Once
+        public static string ToJSReturnObject(this string Text)
+        {
+            return "$@" + Text;
         }
     }
 }
