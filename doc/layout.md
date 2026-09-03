@@ -76,7 +76,7 @@ According to the above code, only one LoadPage function has been added to the pr
 
 The `LoadPage("/header.aspx")` function also adds a page at the path `wwwroot/header.aspx` to the same section.
 
-Please note that if you want to access the HttpContet in the header.aspx file, you must write a method similar to the following:
+Please note that if you want to access the HttpContext in the header.aspx file, you must write a method similar to the following:
 `@LoadPage("/header.aspx", context)`
 
 Header page (header.aspx) (Razor syntax)
