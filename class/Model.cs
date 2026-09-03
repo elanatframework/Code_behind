@@ -23,6 +23,11 @@ namespace CodeBehind
         /// </summary>
         public string CallerViewDirectoryPath { get; set; } = "";
 
+        public void PageLoad(HttpContext context)
+        {
+            
+        }
+
         public void Write(string Text)
         {
             ResponseText += Text;
