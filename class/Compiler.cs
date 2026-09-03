@@ -21,138 +21,135 @@ namespace SetCodeBehind
         private static MethodInfo StaticMethodGetWebFormsValue;
         private static MethodInfo StaticMethodRunControllerName;
         private static MethodInfo StaticMethodControllerHasFound;
+        private static readonly object CompileLock = new object();
 
         internal static Assembly CompileAspx(bool UseLastSuccessCompiled = false, List<string> CurrentErrorList = null)
         {
             if (CompiledAssembly != null)
                 return CompiledAssembly;
 
-            List<string> ErrorList = (CurrentErrorList != null)? CurrentErrorList : new List<string>();
-
-            CodeBehindLibraryCreator la = new CodeBehindLibraryCreator();
-            string code = (UseLastSuccessCompiled) ? la.GetLastSuccessCompiledViewClass() : la.GetCodeBehindViews();
-
-            if (string.IsNullOrEmpty(code))
+            lock (CompileLock)
             {
-                ErrorList.Add("Failed to load last successful compilation.");
-                SaveError(ErrorList);
+                // Double Check
+                if (CompiledAssembly != null)
+                    return CompiledAssembly;
 
-                return null;
-            }
+                List<string> ErrorList = (CurrentErrorList != null)? CurrentErrorList : new List<string>();
 
-            CodeBehind.API.Path path = new CodeBehind.API.Path();
+                CodeBehindLibraryCreator la = new CodeBehindLibraryCreator();
+                string code = (UseLastSuccessCompiled) ? la.GetLastSuccessCompiledViewClass() : la.GetCodeBehindViews();
 
-            const string assemblyName = "CodeBehindViews";
-            string CurrentProjectName = Assembly.GetEntryAssembly().GetName().Name;
-
-
-            SyntaxTree syntaxTree = CSharpSyntaxTree.ParseText(code);
-
-            List<MetadataReference> ReferencesList = new List<MetadataReference>
-            {
-                MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
-                MetadataReference.CreateFromFile(path.BaseDirectory + "/" + CurrentProjectName + ".dll"), // When You Run Your Program Under CodeBehind Source, Remove This Line
-                MetadataReference.CreateFromFile(path.BaseDirectory + "/CodeBehind.dll"),
-                MetadataReference.CreateFromFile(path.AspRunTimePath + "/Microsoft.AspNetCore.Http.Abstractions.dll"),
-                MetadataReference.CreateFromFile(path.AspRunTimePath + "/Microsoft.AspNetCore.Http.Features.dll"),
-                MetadataReference.CreateFromFile(path.AspRunTimePath + "/Microsoft.Extensions.Primitives.dll"),
-                MetadataReference.CreateFromFile(path.RunTimePath + "/System.Runtime.dll")
-            };
-
-            List<string> DllList = SetImportDllList();
-
-            foreach(string dll in DllList)
-                ReferencesList.Add(MetadataReference.CreateFromFile(dll));
-
-
-            // Add All dll In bin Directory
-            if (Directory.Exists(StaticObject.ViewPath + "/bin"))
-            {
-                List<string> BinFileList = new List<string>();
-                DirectoryInfo BinDir = new DirectoryInfo(StaticObject.ViewPath + "/bin");
-
-                foreach (FileInfo file in BinDir.GetFiles("*.dll"))
+                if (string.IsNullOrEmpty(code))
                 {
-                    try
-                    {
-                        File.Copy(file.FullName, AppContext.BaseDirectory + "/" + file.Name, true);
-                    }
-                    catch
-                    {
-                        ErrorList.Add("Failed to copy or over write assembly in bin/" + file.Name + " path.");
-                    }
+                    ErrorList.Add("Failed to load last successful compilation.");
+                    SaveError(ErrorList);
 
-                    ReferencesList.Add(MetadataReference.CreateFromFile(AppContext.BaseDirectory + "/" + file.Name));
-                    BinFileList.Add(file.Name);
-
-                    try
-                    {
-                        AssemblyLoadContext.Default.LoadFromAssemblyPath(AppContext.BaseDirectory + "/" + file.Name);
-                    }
-                    catch
-                    {
-                        ErrorList.Add("Failed to load the assembly in bin/" + file.Name + " path.");
-                    }
+                    return null;
                 }
 
-                foreach (DirectoryInfo dir in BinDir.GetDirectories("*" , SearchOption.AllDirectories))
+                CodeBehind.API.Path path = new CodeBehind.API.Path();
+
+                const string assemblyName = "CodeBehindViews";
+                string CurrentProjectName = Assembly.GetEntryAssembly().GetName().Name;
+
+
+                SyntaxTree syntaxTree = CSharpSyntaxTree.ParseText(code);
+
+                List<MetadataReference> ReferencesList = new List<MetadataReference>
                 {
-                    foreach (FileInfo file in dir.GetFiles("*"))
+                    MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
+                    MetadataReference.CreateFromFile(path.BaseDirectory + "/" + CurrentProjectName + ".dll"), // When You Run Your Program Under CodeBehind Source, Remove This Line
+                    MetadataReference.CreateFromFile(path.BaseDirectory + "/CodeBehind.dll"),
+                    MetadataReference.CreateFromFile(path.AspRunTimePath + "/Microsoft.AspNetCore.Http.Abstractions.dll"),
+                    MetadataReference.CreateFromFile(path.AspRunTimePath + "/Microsoft.AspNetCore.Http.Features.dll"),
+                    MetadataReference.CreateFromFile(path.AspRunTimePath + "/Microsoft.Extensions.Primitives.dll"),
+                    MetadataReference.CreateFromFile(path.RunTimePath + "/System.Runtime.dll")
+                };
+
+                List<string> DllList = SetImportDllList();
+
+                foreach(string dll in DllList)
+                    ReferencesList.Add(MetadataReference.CreateFromFile(dll));
+
+
+                // Add All dll In bin Directory
+                if (Directory.Exists(StaticObject.DllPath))
+                {
+                    List<string> BinFileList = new List<string>();
+                    DirectoryInfo BinDir = new DirectoryInfo(StaticObject.DllPath);
+
+                    foreach (FileInfo file in BinDir.GetFiles("*.dll"))
                     {
-                        string DirectoryPath = file.DirectoryName.GetTextAfterValue(BinDir.FullName);
-
-                        Directory.CreateDirectory(AppContext.BaseDirectory + "/" + DirectoryPath);
-
-                        File.Copy(file.FullName, AppContext.BaseDirectory + "/" + DirectoryPath + "/" + file.Name);
-                        ReferencesList.Add(MetadataReference.CreateFromFile(AppContext.BaseDirectory + "/" + DirectoryPath + "/" + file.Name));
-                        BinFileList.Add(DirectoryPath + "/" + file.Name);
-
                         try
                         {
-                            AssemblyLoadContext.Default.LoadFromAssemblyPath(AppContext.BaseDirectory + "/" + DirectoryPath + "/" + file.Name);
+                            File.Copy(file.FullName, AppContext.BaseDirectory + "/" + file.Name, true);
                         }
                         catch
                         {
-                            ErrorList.Add("Failed to load the assembly in bin/" + DirectoryPath + "/" + file.Name + " path.");
+                            ErrorList.Add("Failed to copy or over write assembly in bin/" + file.Name + " path.");
+                        }
+
+                        ReferencesList.Add(MetadataReference.CreateFromFile(AppContext.BaseDirectory + "/" + file.Name));
+                        BinFileList.Add(file.Name);
+
+                        try
+                        {
+                            AssemblyLoadContext.Default.LoadFromAssemblyPath(AppContext.BaseDirectory + "/" + file.Name);
+                        }
+                        catch
+                        {
+                            ErrorList.Add("Failed to load the assembly in bin/" + file.Name + " path.");
                         }
                     }
+
+                    foreach (DirectoryInfo dir in BinDir.GetDirectories("*" , SearchOption.AllDirectories))
+                    {
+                        foreach (FileInfo file in dir.GetFiles("*"))
+                        {
+                            string DirectoryPath = file.DirectoryName.GetTextAfterValue(BinDir.FullName);
+
+                            Directory.CreateDirectory(AppContext.BaseDirectory + "/" + DirectoryPath);
+
+                            File.Copy(file.FullName, AppContext.BaseDirectory + "/" + DirectoryPath + "/" + file.Name);
+                            ReferencesList.Add(MetadataReference.CreateFromFile(AppContext.BaseDirectory + "/" + DirectoryPath + "/" + file.Name));
+                            BinFileList.Add(DirectoryPath + "/" + file.Name);
+
+                            try
+                            {
+                                AssemblyLoadContext.Default.LoadFromAssemblyPath(AppContext.BaseDirectory + "/" + DirectoryPath + "/" + file.Name);
+                            }
+                            catch
+                            {
+                                ErrorList.Add("Failed to load the assembly in bin/" + DirectoryPath + "/" + file.Name + " path.");
+                            }
+                        }
+                    }
+
+                    RemovingUnusedDll();
+                    SaveBinFileList(BinFileList);
                 }
 
-                RemovingUnusedDll();
-                SaveBinFileList(BinFileList);
-            }
-
-            MetadataReference[] references = ReferencesList.ToArray();
+                MetadataReference[] references = ReferencesList.ToArray();
 
 
-            Assembly.GetEntryAssembly().GetReferencedAssemblies().ToList().ForEach(asm => references.Append(MetadataReference.CreateFromFile(Assembly.Load(asm).Location)));
+                Assembly.GetEntryAssembly().GetReferencedAssemblies().ToList().ForEach(asm => references.Append(MetadataReference.CreateFromFile(Assembly.Load(asm).Location)));
 
-            CSharpCompilation compilation = CSharpCompilation.Create(
-                assemblyName,
-                syntaxTrees: new[] { syntaxTree },
-                references: references,
-                options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+                CSharpCompilation compilation = CSharpCompilation.Create(
+                    assemblyName,
+                    syntaxTrees: new[] { syntaxTree },
+                    references: references,
+                    options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
 
-            using (var ms = new MemoryStream())
-            {
-                EmitResult result = compilation.Emit(ms);
-
-                CodeBehindOptions options = new CodeBehindOptions();
-
-                if (!result.Success)
+                using (var ms = new MemoryStream())
                 {
-                    foreach (var diagnostic in result.Diagnostics)
-                        if (diagnostic.WarningLevel == 0)
-                        {
-                            if (UseLastSuccessCompiled)
-                                ErrorList.Add("views_class_last_success_compiled.cs.tmp - " + diagnostic.ToString());
-                            else
-                                ErrorList.Add("views_class.cs.tmp - " + diagnostic.ToString());
-                        }
+                    EmitResult result = compilation.Emit(ms);
 
-                    if (options.ShowMinorErrors)
+                    CodeBehindOptions options = new CodeBehindOptions();
+
+                    if (!result.Success)
+                    {
                         foreach (var diagnostic in result.Diagnostics)
-                            if (diagnostic.WarningLevel > 0)
+                            if (diagnostic.WarningLevel == 0)
                             {
                                 if (UseLastSuccessCompiled)
                                     ErrorList.Add("views_class_last_success_compiled.cs.tmp - " + diagnostic.ToString());
@@ -160,37 +157,48 @@ namespace SetCodeBehind
                                     ErrorList.Add("views_class.cs.tmp - " + diagnostic.ToString());
                             }
 
-                    SaveError(ErrorList);
+                        if (options.ShowMinorErrors)
+                            foreach (var diagnostic in result.Diagnostics)
+                                if (diagnostic.WarningLevel > 0)
+                                {
+                                    if (UseLastSuccessCompiled)
+                                        ErrorList.Add("views_class_last_success_compiled.cs.tmp - " + diagnostic.ToString());
+                                    else
+                                        ErrorList.Add("views_class.cs.tmp - " + diagnostic.ToString());
+                                }
+
+                        SaveError(ErrorList);
+
+                        if (UseLastSuccessCompiled)
+                            return null;
+                        else
+                            return CompileAspx(true, ErrorList); // Set Recursive
+                    }
+
+                    ms.Seek(0, SeekOrigin.Begin);
+
+                    byte[] bytes = ms.ToArray();
+                    CompiledAssembly = Assembly.Load(bytes);
+
+                    if (options.ShowMinorErrors)
+                        foreach (var diagnostic in result.Diagnostics)
+                            if (UseLastSuccessCompiled)
+                                ErrorList.Add("views_class_last_success_compiled.cs.tmp - " + diagnostic.ToString());
+                            else
+                                ErrorList.Add("views_class.cs.tmp - " + diagnostic.ToString());
 
                     if (UseLastSuccessCompiled)
-                        return null;
+                        ErrorList.Add("A problem occurred in the compilation and the last successful compilation was recompiled.");
                     else
-                        return CompileAspx(true, ErrorList); // Set Recursive
+                    {
+                        CreateLastSuccessCompiledViewClass();
+                        CreateLastSuccessCompiledAssemblyFile(bytes);
+                    }
+
+                    SaveError(ErrorList);
+
+                    return CompiledAssembly;
                 }
-
-                ms.Seek(0, SeekOrigin.Begin);
-
-                byte[] bytes = ms.ToArray();
-                CompiledAssembly = Assembly.Load(bytes);
-
-                if (options.ShowMinorErrors)
-                    foreach (var diagnostic in result.Diagnostics)
-                        if (UseLastSuccessCompiled)
-                            ErrorList.Add("views_class_last_success_compiled.cs.tmp - " + diagnostic.ToString());
-                        else
-                            ErrorList.Add("views_class.cs.tmp - " + diagnostic.ToString());
-
-                if (UseLastSuccessCompiled)
-                    ErrorList.Add("A problem occurred in the compilation and the last successful compilation was recompiled.");
-                else
-                {
-                    CreateLastSuccessCompiledViewClass();
-                    CreateLastSuccessCompiledAssemblyFile(bytes);
-                }
-
-                SaveError(ErrorList);
-
-                return CompiledAssembly;
             }
         }
 
@@ -324,7 +332,7 @@ namespace SetCodeBehind
 
         private static void RemovingUnusedDll()
         {
-            if (!Directory.Exists(StaticObject.ViewPath + "/bin"))
+            if (!Directory.Exists(StaticObject.DllPath))
                 return;
 
             const string FilePath = "code_behind/bin_file_list.ini";
@@ -342,7 +350,7 @@ namespace SetCodeBehind
 
                         string FileName = line.GetTextAfterValue("file=");
 
-                        if (!File.Exists(StaticObject.ViewPath + "/bin/" + FileName))
+                        if (!File.Exists(StaticObject.DllPath + "/" + FileName))
                             if (File.Exists(AppContext.BaseDirectory + "/" + FileName))
                                 File.Delete(AppContext.BaseDirectory + "/" + FileName);
                     }
@@ -444,10 +452,10 @@ namespace SetCodeBehind
             List<MetadataReference> ReferencesList = new List<MetadataReference>();
 
             // Add All dll In bin Directory
-            if (Directory.Exists(StaticObject.ViewPath + "/bin"))
+            if (Directory.Exists(StaticObject.DllPath))
             {
                 List<string> BinFileList = new List<string>();
-                DirectoryInfo BinDir = new DirectoryInfo(StaticObject.ViewPath + "/bin");
+                DirectoryInfo BinDir = new DirectoryInfo(StaticObject.DllPath);
 
                 foreach (FileInfo file in BinDir.GetFiles("*.dll"))
                 {
@@ -499,7 +507,7 @@ namespace SetCodeBehind
             {
                 var file = File.CreateText(DllImportListPath);
 
-                file.Write("[CodeBehind dll import list]" + Environment.NewLine);
+                file.Write("[CodeBehind-dll-import-list]" + Environment.NewLine);
                 file.Write("dll_path={run_time_path}/System.IO.dll" + Environment.NewLine);
                 file.Write("dll_path={run_time_path}/System.Collections.dll" + Environment.NewLine);
                 file.Write("dll_path={run_time_path}/System.Linq.dll" + Environment.NewLine);
