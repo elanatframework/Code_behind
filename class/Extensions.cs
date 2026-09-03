@@ -1,10 +1,42 @@
 using Microsoft.AspNetCore.Http;
 using System.Text.RegularExpressions;
+using Microsoft.Extensions.Primitives;
 
 namespace CodeBehind
 {
     public static class ExtensionMethodsClass
     {
+        private static readonly IFormCollection EmptyForm = new FormCollection(new Dictionary<string, StringValues>());
+        public static IFormCollection IfForm(this HttpRequest request)
+        {
+            return request.HasFormContentType ? request.Form : EmptyForm;
+        }
+
+        public static string Response(this WebForms form, HttpContext context)
+        {
+            form.SetHeaders(context);
+            return form.Response();
+        }
+
+        public static void SetHeaders(this WebForms form, HttpContext context)
+        {
+            context.Response.Headers.Add("Content-Type", "text/plain");
+        }
+
+        public static string ExportActionControlsToHtmlComment(this string ActionControls, bool AddLine = false)
+        {
+            string response = "[web-forms]\n" + ActionControls.Replace("--", "$[dd];");
+            if (response[^1] == '-')
+                response = response.Substring(0, response.Length - 1) + "$[da];";
+
+            return (AddLine ? "\n" : "") + "<!--" + response + "-->";
+        }
+
+        public static string ExportActionControlsToResponse(this string ActionControls)
+        {
+            return "[web-forms]\n" + ActionControls;
+        }
+
         public static string GetTextAfterValue(this string Text, string Value)
         {
             if (Text.Length < Value.Length)
