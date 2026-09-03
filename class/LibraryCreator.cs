@@ -123,7 +123,7 @@ namespace SetCodeBehind
             if (options.AutoCreateWebFormsScript)
                 new DefaultPages().SetWebFormsScript(options.WebFormsScriptPath, options.RecreateWebFormsScriptAfterRecompile);
 
-            // Move View From Wwwroot
+            // Move View From wwwroot
             if ((options.ViewPath != "wwwroot") && options.MoveViewFromWwwroot)
             {
                 MoveViewFromWwwroot(options.ViewPath, "aspx");
@@ -131,9 +131,11 @@ namespace SetCodeBehind
 
                 if (options.ConvertCsHtmlToAspx)
                     MoveViewFromWwwroot(options.ViewPath, "cshtml");
-
-                MoveDllFromWwwrootBin(options.ViewPath);
             }
+
+            // Move Dll From wwwroot/bin
+            if ((options.DllPath != "wwwroot/bin") && options.MoveDllFromWwwrootBin)
+                MoveDllFromWwwrootBin(options.DllPath);
 
             string GlobalTemplate = GetGlobalTemplate();
 
@@ -197,6 +199,8 @@ namespace SetCodeBehind
             CodeBehindViews += "        {" + Environment.NewLine;
             if (options.IgnoreLayoutForPostBack)
                 CodeBehindViews += "            try{IgnoreLayoutForPostBack(context.Request.Headers);} catch(NullReferenceException){}" + Environment.NewLine + Environment.NewLine;
+            if (options.SetTextHtmlContentTypeForPostBack)
+                CodeBehindViews += "            try{SetTextHtmlContentTypeForPostBack(context);} catch(NullReferenceException){}" + Environment.NewLine + Environment.NewLine;
             CodeBehindViews += "            RequestPath = path;" + Environment.NewLine;
             CodeBehindViews += "            FoundPage = true;" + Environment.NewLine + Environment.NewLine;
             CodeBehindViews += SegmentTemplateValue + "/*{SegmentTemplateValue}*/" + Environment.NewLine;
@@ -213,6 +217,8 @@ namespace SetCodeBehind
             CodeBehindViews += "        {" + Environment.NewLine;
             if (options.IgnoreLayoutForPostBack)
                 CodeBehindViews += "            try{IgnoreLayoutForPostBack(context.Request.Headers);} catch(NullReferenceException){}" + Environment.NewLine + Environment.NewLine;
+            if (options.SetTextHtmlContentTypeForPostBack)
+                CodeBehindViews += "            try{SetTextHtmlContentTypeForPostBack(context);} catch(NullReferenceException){}" + Environment.NewLine + Environment.NewLine;
             CodeBehindViews += "            RequestPath = path;" + Environment.NewLine;
             CodeBehindViews += "            FoundPage = true;" + Environment.NewLine + Environment.NewLine;
             CodeBehindViews += "            switch (path)" + Environment.NewLine;
@@ -228,6 +234,8 @@ namespace SetCodeBehind
             CodeBehindViews += "        {" + Environment.NewLine;
             if (options.IgnoreLayoutForPostBack)
                 CodeBehindViews += "            try{IgnoreLayoutForPostBack(context.Request.Headers);} catch(NullReferenceException){}" + Environment.NewLine + Environment.NewLine;
+            if (options.SetTextHtmlContentTypeForPostBack)
+                CodeBehindViews += "            try{SetTextHtmlContentTypeForPostBack(context);} catch(NullReferenceException){}" + Environment.NewLine + Environment.NewLine;
             CodeBehindViews += "            RequestPath = path;" + Environment.NewLine;
             CodeBehindViews += "            FoundPage = true;" + Environment.NewLine + Environment.NewLine;
             CodeBehindViews += "            switch (path)" + Environment.NewLine;
@@ -324,6 +332,8 @@ namespace SetCodeBehind
             CodeBehindViews += "        {" + Environment.NewLine;
             if (options.IgnoreLayoutForPostBack)
                 CodeBehindViews += "            try{IgnoreLayoutForPostBack(context.Request.Headers);} catch(NullReferenceException){}" + Environment.NewLine + Environment.NewLine;
+            if (options.SetTextHtmlContentTypeForPostBack)
+                CodeBehindViews += "            try{SetTextHtmlContentTypeForPostBack(context);} catch(NullReferenceException){}" + Environment.NewLine + Environment.NewLine;
             CodeBehindViews += "            string TmpViewPath = \"\";" + Environment.NewLine;
             CodeBehindViews += "            switch (ControllerClass)" + Environment.NewLine;
             CodeBehindViews += "            {" + Environment.NewLine;
@@ -344,6 +354,13 @@ namespace SetCodeBehind
             CodeBehindViews += "            if (Headers.TryGetValue(\"Post-Back\", out var value))" + Environment.NewLine;
             CodeBehindViews += "                if (value == \"true\")" + Environment.NewLine;
             CodeBehindViews += "                    IgnoreLayout = true;" + Environment.NewLine;
+            CodeBehindViews += "        }" + Environment.NewLine + Environment.NewLine;
+
+            CodeBehindViews += "        private void SetTextHtmlContentTypeForPostBack(HttpContext context)" + Environment.NewLine;
+            CodeBehindViews += "        {" + Environment.NewLine;
+            CodeBehindViews += "            if (context.Request.Headers.TryGetValue(\"Post-Back\", out var value))" + Environment.NewLine;
+            CodeBehindViews += "                if (value == \"true\")" + Environment.NewLine;
+            CodeBehindViews += "                    context.Response.ContentType = \"text/html; charset=utf-8\";" + Environment.NewLine;
             CodeBehindViews += "        }" + Environment.NewLine + Environment.NewLine;
 
             CodeBehindViews += "        private void SetWebSocketId(string Id)" + Environment.NewLine;
@@ -620,14 +637,17 @@ namespace SetCodeBehind
             }
         }
 
-        private void MoveDllFromWwwrootBin(string ViewPath)
+        private void MoveDllFromWwwrootBin(string DllPath)
         {
-            if (!Directory.Exists("wwwroot/bin"))
+            var dir = new DirectoryInfo("wwwroot/bin");
+
+            if (!dir.Exists)
                 return;
 
-            DirectoryCopy(Path.GetFullPath("wwwroot/bin"), Path.GetFullPath(ViewPath + "/bin"), true);
+            DirectoryCopy(Path.GetFullPath("wwwroot/bin"), Path.GetFullPath(DllPath), true);
 
-            new DirectoryInfo("wwwroot/bin").Delete();
+            if (!dir.EnumerateFileSystemInfos().Any())
+                dir.Delete();
         }
 
         private string ImportNamespaceList()
@@ -642,7 +662,7 @@ namespace SetCodeBehind
             {
                 var file = File.CreateText(NamespaceImportListPath);
 
-                file.Write("[CodeBehind namespace import list]" + Environment.NewLine);
+                file.Write("[CodeBehind-namespace-import-list]" + Environment.NewLine);
                 file.Write("namespace=System.IO" + Environment.NewLine);
                 file.Write("namespace=System.Collections" + Environment.NewLine);
                 file.Write("namespace=System.Collections.Generic" + Environment.NewLine);
@@ -766,7 +786,7 @@ namespace SetCodeBehind
                     ReturnValue += "                    }" + Environment.NewLine;
                     ReturnValue += "                    else" + Environment.NewLine;
                     ReturnValue += "                    {" + Environment.NewLine;
-                    ReturnValue += "                        string ControllerReturnValue = " + ClassName + ".ResponseText + await RunController(context, " + ClassName + ".ViewPath, " + ClassName + ".CodeBehindModel, " + ClassName + ".ViewData, " + ClassName + ".DownloadFilePath, " + ClassName + ".IgnoreLayout, " + ClassName + ".WebFormsValue, " + ClassName + ".WebSocketId, " + ClassName + ".SSEId, " + ClassName + ".UseSSE);" + Environment.NewLine;
+                    ReturnValue += "                        string ControllerReturnValue = " +  "await RunController(context, " + ClassName + ".ViewPath, " + ClassName + ".CodeBehindModel, " + ClassName + ".ViewData, " + ClassName + ".DownloadFilePath, " + ClassName + ".IgnoreLayout, " + ClassName + ".WebFormsValue, " + ClassName + ".WebSocketId, " + ClassName + ".SSEId, " + ClassName + ".UseSSE) + " + ClassName + ".ResponseText;" + Environment.NewLine;
                     ReturnValue += "                        cache.SetControllerCache(\"" + TmpClass.Name + "\" + cbcc.CacheFilter, ControllerReturnValue, " + ControllerCache.Duration + ");" + Environment.NewLine;
                     ReturnValue += "                        return ControllerReturnValue;" + Environment.NewLine;
                     ReturnValue += "                    }" + Environment.NewLine;
@@ -777,7 +797,7 @@ namespace SetCodeBehind
                 ReturnValue += "                if (" + ClassName + ".IgnoreViewAndModel)" + Environment.NewLine;
                 ReturnValue += "                    TmpViewPath = \"\";" + Environment.NewLine + Environment.NewLine;
 
-                ReturnValue += "                return " + ClassName + ".ResponseText + await RunController(context, TmpViewPath, " + ClassName + ".CodeBehindModel, " + ClassName + ".ViewData, " + ClassName + ".DownloadFilePath, " + ClassName + ".IgnoreLayout, " + ClassName + ".WebFormsValue, " + ClassName + ".WebSocketId, " + ClassName + ".SSEId, " + ClassName + ".UseSSE);" + Environment.NewLine + Environment.NewLine;
+                ReturnValue += "                return " + "await RunController(context, TmpViewPath, " + ClassName + ".CodeBehindModel, " + ClassName + ".ViewData, " + ClassName + ".DownloadFilePath, " + ClassName + ".IgnoreLayout, " + ClassName + ".WebFormsValue, " + ClassName + ".WebSocketId, " + ClassName + ".SSEId, " + ClassName + ".UseSSE) + " + ClassName + ".ResponseText;" + Environment.NewLine + Environment.NewLine;
             }
 
             ReturnValue += "/*{CaseCodeTemplateValueForControllerName}*/" + Environment.NewLine;
@@ -802,12 +822,12 @@ namespace SetCodeBehind
 
         private string FillDllBinAssemblyControllerCase(string EntryAssemblyName)
         {
-            if (!Directory.Exists(StaticObject.ViewPath + "/bin"))
+            if (!Directory.Exists(StaticObject.DllPath))
                 return "";
 
             string ReturnValue = "";
 
-            DirectoryInfo BinDir = new DirectoryInfo(StaticObject.ViewPath + "/bin");
+            DirectoryInfo BinDir = new DirectoryInfo(StaticObject.DllPath);
             foreach (FileInfo file in BinDir.GetFiles("*.dll"))
             {
                 Assembly assembly = Assembly.LoadFrom(file.FullName);
