@@ -5,6 +5,7 @@ namespace CodeBehind
         private static bool StaticObjectHasInitialization { get; set; } = false;
         internal static bool PreventAccessDefaultAspx { get; private set; } = false;
         internal static string ViewPath { get; private set; }
+        internal static string DllPath { get; private set; }
         internal static string DefaultRole { get; private set; }
         internal static string ViewPlace { get; private set; }
         internal static bool UseDefaultController { get; private set; } = false;
@@ -43,6 +44,7 @@ namespace CodeBehind
 
             PreventAccessDefaultAspx = options.PreventAccessDefaultAspx;
             ViewPath = options.ViewPath;
+            DllPath = options.DllPath;
             DefaultRole = options.DefaultRole;
             ViewPlace = options.WebFormsViewPlace;
             UseDefaultController = options.UseDefaultController;
