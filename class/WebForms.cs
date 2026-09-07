@@ -1,4 +1,4 @@
-// WebForms.cs 2.1 - The Back-End Part of WebForms Core Technology, Owned by Elanat (https://elanat.net)
+// WebForms.cs 2.1.1 - The Back-End Part of WebForms Core Technology, Owned by Elanat (https://elanat.net)
 // Compatible with WebFormsJS version 2.1
 
 using System.Text;
@@ -144,7 +144,7 @@ namespace CodeBehind
         public void SetMinLength(string InputPlace, string Length) => Add("mn" + InputPlace, Length);
         public void SetMinLength(string InputPlace, int Length) => SetMinLength(InputPlace, Length.ToString());
         public void SetMaxLength(string InputPlace, string Length) => Add("mx" + InputPlace, Length);
-        public void SetMaxLength(string InputPlace, int Length) => Add(InputPlace, Length.ToString());
+        public void SetMaxLength(string InputPlace, int Length) => SetMaxLength(InputPlace, Length.ToString());
         public void SetSelectedValue(string InputPlace, string Value) => Add("ts" + InputPlace, Value);
         public void SetSelectedIndex(string InputPlace, string Index) => Add("ti" + InputPlace, Index);
         public void SetSelectedIndex(string InputPlace, int Index) => SetSelectedIndex(InputPlace, Index.ToString());
@@ -968,9 +968,9 @@ namespace CodeBehind
         public void UpdateTexLine(string Key, string Line, string Text) => Add(".u", Key + GS + "t" + GS + Text + GS + Line);
         public void UpdateTexLine(string Key, int Line, string Text) => UpdateTexLine(Key, Line.ToString(), Text);
         public void UpdateVariable(string Key, string Value) => Add(".u", Key + GS + "v" + GS + Value);
-        public void IncreaceVariable(string Key, string Value) => Add(".i", Key + GS + "v" + GS + Value);
-        public void IncreaceVariable(string Key, int Value) => IncreaceVariable(Key, Value.ToString());
-        public void DecreaseVariable(string Key, int Value) => IncreaceVariable(Key, Value * -1);
+        public void IncreaseVariable(string Key, string Value) => Add(".i", Key + GS + "v" + GS + Value);
+        public void IncreaseVariable(string Key, int Value) => IncreaseVariable(Key, Value.ToString());
+        public void DecreaseVariable(string Key, int Value) => IncreaseVariable(Key, Value * -1);
         public void DeleteJSON(string Key, string Path) => Add(".d", Key + GS + "j" + GS + Path);
         public void DeleteXML(string Key, string Path) => Add(".d", Key + GS + "x" + GS + Path);
         public void DeleteINI(string Key, string Path, bool IsINILike = false) => Add(".d", Key + GS + "i" + GS + IsINILike + GS + Path);
@@ -1280,10 +1280,10 @@ namespace CodeBehind
         public static string Cache(string Key, string ReplaceValue) => "@cd" + Key + RS + ReplaceValue;
         public static string CacheThenRemove(string Key) => "@ct" + Key;
         public static string CacheLength(string Key = ".") => "@cG" + Key;
-        public static string SavedLine(string Key = ".", int Line = 0) => "@lL" + Key + "[" + Line;
-        public static string SavedLineConsume(string Key = ".") => "@lL" + Key;
+        public static string SaveLine(string Key = ".", int Line = 0) => "@lL" + Key + "[" + Line;
+        public static string SaveLineConsume(string Key = ".") => "@lL" + Key;
         // INIKey: Only Direct Key is Supported
-        public static string SavedINI(string Key, string INIKey) => "@lI" + Key + "[" + INIKey;
+        public static string SaveINI(string Key, string INIKey) => "@lI" + Key + "[" + INIKey;
         public static string CacheLine(string Key = ".", int Line = 0) => "@dL" + Key + "[" + Line;
         public static string CacheLineConsume(string Key = ".") => "@dL" + Key;
         // INIKey: Only Direct Key is Supported
